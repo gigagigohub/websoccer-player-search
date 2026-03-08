@@ -206,6 +206,10 @@ button.ghost {
   padding-right: 2px;
 }
 
+.card.is-collapsed .card-body {
+  overflow: hidden;
+}
+
 .card-id {
   position: absolute;
   top: 8px;
