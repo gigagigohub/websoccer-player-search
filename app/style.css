@@ -247,9 +247,8 @@ button.ghost {
 }
 
 .mind-chart .area {
-  fill: rgba(235, 116, 22, 0.42);
-  stroke: #d46612;
-  stroke-width: 1.5;
+  fill: rgba(235, 116, 22, 0.28);
+  stroke: none;
 }
 
 .mind-label {
