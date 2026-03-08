@@ -7,7 +7,6 @@ const els = {
   metaText: document.querySelector("#metaText"),
   nameQuery: document.querySelector("#nameQuery"),
   logicMode: document.querySelector("#logicMode"),
-  sortKey: document.querySelector("#sortKey"),
   positionFilter: document.querySelector("#positionFilter"),
   cmOnly: document.querySelector("#cmOnly"),
   ssOnly: document.querySelector("#ssOnly"),
@@ -21,28 +20,6 @@ const els = {
 };
 
 let players = [];
-
-function createSortOptions() {
-  const options = [
-    ["bestTotal:desc", "総合値(スピ+テク+パワ) 高い順"],
-    ["bestTotal:asc", "総合値(スピ+テク+パワ) 低い順"],
-    ["name:asc", "名前順(昇順)"],
-    ["name:desc", "名前順(降順)"],
-  ];
-  METRICS.forEach((m) => {
-    options.push([`metric:${m}:desc`, `${m} 高い順`]);
-    options.push([`metric:${m}:asc`, `${m} 低い順`]);
-  });
-
-  for (const [value, label] of options) {
-    const option = document.createElement("option");
-    option.value = value;
-    option.textContent = label;
-    els.sortKey.appendChild(option);
-  }
-
-  els.sortKey.value = "bestTotal:desc";
-}
 
 function addConditionRow(defaults = {}) {
   const node = els.conditionTemplate.content.firstElementChild.cloneNode(true);
@@ -160,28 +137,6 @@ function filterPlayers() {
   });
 }
 
-function compareBySortKey(a, b, sortKey) {
-  if (sortKey.startsWith("bestTotal:")) {
-    const dir = sortKey.endsWith(":asc") ? 1 : -1;
-    return (a.bestTotal - b.bestTotal) * dir || a.name.localeCompare(b.name, "ja");
-  }
-
-  if (sortKey.startsWith("name:")) {
-    const dir = sortKey.endsWith(":asc") ? 1 : -1;
-    return a.name.localeCompare(b.name, "ja") * dir;
-  }
-
-  if (sortKey.startsWith("metric:")) {
-    const [, metric, direction] = sortKey.split(":");
-    const dir = direction === "asc" ? 1 : -1;
-    const av = a.maxMetrics?.[metric] ?? Number.NEGATIVE_INFINITY;
-    const bv = b.maxMetrics?.[metric] ?? Number.NEGATIVE_INFINITY;
-    return (av - bv) * dir || a.name.localeCompare(b.name, "ja");
-  }
-
-  return 0;
-}
-
 function cardHtml(player) {
   const staticImg = `./images/chara/players/static/${player.id}.gif`;
   const actionImg = `./images/chara/players/action/${player.id}.gif`;
@@ -211,7 +166,7 @@ function cardHtml(player) {
   const group3 = ["知性", "感性", "個人", "組織"];
   const hasCM = !!player.flags?.CM;
   const hasSS = !!player.flags?.SS;
-  const typeLabel = hasCM && hasSS ? "CM/SS" : hasCM ? "CM" : hasSS ? "SS" : "通常";
+  const typeLabel = hasCM && hasSS ? "CM/SS" : hasCM ? "CM" : hasSS ? "SS" : "NR";
   const pos = (player.position || "-").toUpperCase();
   const posClass =
     pos === "GK" ? "pos-gk" :
@@ -253,18 +208,21 @@ function cardHtml(player) {
 
 function render() {
   const filtered = filterPlayers();
-  const sortKey = els.sortKey.value;
-  filtered.sort((a, b) => compareBySortKey(a, b, sortKey));
+  filtered.sort((a, b) => {
+    const aNR = !a.flags?.CM && !a.flags?.SS;
+    const bNR = !b.flags?.CM && !b.flags?.SS;
+    if (aNR !== bNR) return aNR ? -1 : 1;
+    return (b.bestTotal - a.bestTotal) || a.name.localeCompare(b.name, "ja");
+  });
 
   els.resultCount.textContent = `${filtered.length}件`;
   els.results.innerHTML = filtered.map(cardHtml).join("");
 }
 
 async function init() {
-  createSortOptions();
   addConditionRow({ metric: "スピ", op: "gte", value1: 10 });
 
-  [els.nameQuery, els.logicMode, els.sortKey, els.positionFilter].forEach((el) => {
+  [els.nameQuery, els.logicMode, els.positionFilter].forEach((el) => {
     el.addEventListener("input", render);
     el.addEventListener("change", render);
   });
