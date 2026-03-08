@@ -278,13 +278,13 @@ async function init() {
   players = data.players || [];
 
   if (!hasCloudConfig()) {
-    if (els.myTeamTarget) els.myTeamTarget.textContent = "LineupKeyが未設定です（先にLoginしてください）";
+    if (els.myTeamTarget) els.myTeamTarget.textContent = "TeamIDが未設定です（先にLoginしてください）";
     if (els.myTeamMeta) els.myTeamMeta.textContent = "Not logged in";
     renderLineup();
     return;
   }
 
-  if (els.myTeamMeta) els.myTeamMeta.textContent = `LineupKey: ${cloudConfig.lineupKey}`;
+  if (els.myTeamMeta) els.myTeamMeta.textContent = `TeamID: ${cloudConfig.lineupKey}`;
   if (els.myTeamTarget) els.myTeamTarget.textContent = "現在のスタメン";
   try {
     await loadCloudLineup();

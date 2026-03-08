@@ -26,7 +26,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-09 01:27 JST";
+const APP_UPDATED_AT_JST = "2026-03-09 01:36 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -76,7 +76,6 @@ const els = {
   loginClose: document.querySelector("#loginClose"),
   loginLineupKey: document.querySelector("#loginLineupKey"),
   signupOpen: document.querySelector("#signupOpen"),
-  loginCancel: document.querySelector("#loginCancel"),
   loginApply: document.querySelector("#loginApply"),
   signupModal: document.querySelector("#signupModal"),
   signupBackdrop: document.querySelector("#signupBackdrop"),
@@ -1091,9 +1090,6 @@ async function init() {
   }
   if (els.loginClose) {
     els.loginClose.addEventListener("click", closeLoginModal);
-  }
-  if (els.loginCancel) {
-    els.loginCancel.addEventListener("click", closeLoginModal);
   }
   if (els.signupOpen) {
     els.signupOpen.addEventListener("click", () => {
