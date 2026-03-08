@@ -286,15 +286,15 @@ button.ghost {
 
 .hm-grid {
   position: absolute;
-  inset: 0 0 14px 0;
+  inset: 0;
 }
 
 .hm-cell {
   position: absolute;
   left: calc(var(--c) * 33.3333%);
-  top: calc(var(--r) * 25%);
+  top: calc(var(--r) * 20%);
   width: 33.3333%;
-  height: 25%;
+  height: 20%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -305,15 +305,10 @@ button.ghost {
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
 }
 
-.pitch-map.is-gk .hm-cell {
-  top: calc(var(--r) * 20%);
-  height: 20%;
-}
-
 .gk-cell {
   position: absolute;
   left: 50%;
-  bottom: 1px;
+  top: calc(4 * 20%);
   transform: translateX(-50%);
   width: 33.3333%;
   height: 20%;
