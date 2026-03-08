@@ -890,6 +890,12 @@ button.ghost {
   background: linear-gradient(180deg, #1a2d4d 0%, #15243f 100%);
 }
 
+.lineup-slot.is-disabled {
+  opacity: 0.42;
+  filter: grayscale(0.35);
+  cursor: not-allowed;
+}
+
 .slot-no {
   font-size: 0.76rem;
   color: #9db3de;

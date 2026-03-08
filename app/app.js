@@ -22,7 +22,7 @@ const DETAIL_METRIC_LABELS = {
 };
 const LINEUP_SIZE = 11;
 const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
-const APP_UPDATED_AT_JST = "2026-03-08 23:18 JST";
+const APP_UPDATED_AT_JST = "2026-03-08 23:22 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -133,8 +133,30 @@ function getPlayerNameById(playerId) {
   return p?.name || `ID:${playerId}`;
 }
 
+function lineupPlayerFromEntry(entry) {
+  const playerId = Number(entry?.playerId);
+  if (!Number.isInteger(playerId)) return null;
+  return players.find((x) => x.id === playerId) || null;
+}
+
+function allowedSlotIndexesForPendingName() {
+  const pendingId = Number(pendingLineupPlayerId);
+  if (!Number.isInteger(pendingId)) return null;
+  const pending = players.find((p) => p.id === pendingId);
+  if (!pending) return null;
+
+  const sameNameIndexes = startingLineup
+    .map((entry, idx) => ({ player: lineupPlayerFromEntry(entry), idx }))
+    .filter((row) => row.player && row.player.name === pending.name)
+    .map((row) => row.idx);
+
+  if (!sameNameIndexes.length) return null;
+  return new Set(sameNameIndexes);
+}
+
 function renderLineupSlots() {
   if (!els.lineupSlots) return;
+  const allowedIndexes = allowedSlotIndexesForPendingName();
   const miniCoreMetric = (metric, value) => {
     const bounded = Math.max(0, Math.min(10, Math.round(value || 0)));
     const keyClass =
@@ -158,11 +180,12 @@ function renderLineupSlots() {
   const html = startingLineup.map((entry, idx) => {
     const slot = idx + 1;
     const playerId = Number(entry?.playerId);
-    const player = players.find((x) => x.id === playerId) || null;
+    const player = lineupPlayerFromEntry(entry);
     const name = player ? player.name : "未登録";
     const hasPlayer = Number.isInteger(playerId) && !!player;
     const season = hasPlayer ? (entry?.season || null) : null;
     const seasonText = season ? `${season}目` : "-";
+    const disabledByNameRule = !!allowedIndexes && !allowedIndexes.has(idx);
     const pos = (player?.position || "-").toUpperCase();
     const posClass = positionClass(pos);
     const typeLabel = player ? getCategory(player) : "-";
@@ -182,7 +205,7 @@ function renderLineupSlots() {
       `
       : "";
     return `
-      <button type="button" class="lineup-slot${hasPlayer ? " has-player" : ""}" data-slot-index="${idx}">
+      <button type="button" class="lineup-slot${hasPlayer ? " has-player" : ""}${disabledByNameRule ? " is-disabled" : ""}" data-slot-index="${idx}" ${disabledByNameRule ? "disabled" : ""}>
         <span class="slot-no">${slot}</span>
         <div class="lineup-slot-main">
           <div class="lineup-thumb-wrap">${imageHtml}</div>
@@ -205,10 +228,14 @@ function renderLineupSlots() {
 function openLineupModal(playerId) {
   pendingLineupPlayerId = playerId;
   const player = players.find((p) => p.id === playerId);
+  const allowedIndexes = allowedSlotIndexesForPendingName();
   if (els.lineupTarget) {
-    els.lineupTarget.textContent = player
+    const base = player
       ? `${player.name} をどのスタメン枠に登録しますか？`
       : `ID:${playerId} をどのスタメン枠に登録しますか？`;
+    els.lineupTarget.textContent = allowedIndexes
+      ? `${base}（同名登録済みのため、同名枠への入れ替えのみ可能）`
+      : base;
   }
   renderLineupSlots();
   if (els.lineupModal) {
