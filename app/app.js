@@ -224,11 +224,11 @@ function cardHtml(player) {
       <div class="card-top">
         <span class="card-id">ID: ${player.id}</span>
         <div class="card-head-main">
-          <h3 class="card-name"><a href="${player.url}" target="_blank" rel="noreferrer">${player.name}</a></h3>
-          <div class="card-head-right">
+          <h3 class="card-name">
             <span class="badge pos-badge ${posClass}">${pos}</span>
-            <span class="badge">${typeLabel}</span>
-          </div>
+            <a href="${player.url}" target="_blank" rel="noreferrer">${player.name}</a>
+            <span class="badge type-badge">${typeLabel}</span>
+          </h3>
           <div class="thumbs">
             <img loading="lazy" src="${staticImg}" alt="${player.name} 静止" />
             <img loading="lazy" src="${actionImg}" alt="${player.name} アクション" />
