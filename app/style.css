@@ -75,6 +75,13 @@ body {
   font-size: 0.9rem;
 }
 
+.menu-item.logout {
+  margin-top: 6px;
+  border-color: #5a2a37;
+  background: #2a1620;
+  color: #ffb4c0;
+}
+
 .hero h1 {
   margin: 0;
   font-size: 1.48rem;

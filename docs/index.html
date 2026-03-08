@@ -17,7 +17,9 @@
     <header class="hero">
       <button id="menuButton" type="button" class="menu-button" aria-label="メニュー">☰</button>
       <div id="menuPanel" class="menu-panel" hidden>
-        <button id="myTeamButton" type="button" class="menu-item">MyTeam</button>
+        <button id="loginButton" type="button" class="menu-item">Login</button>
+        <button id="myTeamButton" type="button" class="menu-item" hidden>MyTeam</button>
+        <button id="logoutButton" type="button" class="menu-item logout" hidden>Logout</button>
       </div>
       <h1>WebSoccer Ordinary 2026</h1>
       <p class="meta" id="metaText">Loading data...</p>
@@ -115,19 +117,19 @@
     </div>
   </div>
 
-  <div id="myTeamModal" class="season-modal" hidden>
-    <div id="myTeamBackdrop" class="season-backdrop"></div>
-    <div class="season-dialog" role="dialog" aria-modal="true" aria-labelledby="myTeamTitle">
+  <div id="loginModal" class="season-modal" hidden>
+    <div id="loginBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
       <div class="season-head">
-        <h2 id="myTeamTitle">MyTeam</h2>
-        <button id="myTeamClose" type="button" class="season-close" aria-label="閉じる">×</button>
+        <h2 id="loginTitle">Login</h2>
+        <button id="loginClose" type="button" class="season-close" aria-label="閉じる">×</button>
       </div>
       <p class="season-target">LineupKeyを入力してください</p>
-      <label class="label" for="myTeamLineupKey">Lineup Key</label>
-      <input id="myTeamLineupKey" type="text" placeholder="my-team-01" />
+      <label class="label" for="loginLineupKey">Lineup Key</label>
+      <input id="loginLineupKey" type="text" placeholder="my-team-01" />
       <div class="season-actions">
-        <button id="myTeamCancel" type="button" class="ghost">Cancel</button>
-        <button id="myTeamApply" type="button">Open</button>
+        <button id="loginCancel" type="button" class="ghost">Cancel</button>
+        <button id="loginApply" type="button">Login</button>
       </div>
     </div>
   </div>

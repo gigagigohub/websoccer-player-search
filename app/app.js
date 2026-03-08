@@ -26,7 +26,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-09 00:52 JST";
+const APP_UPDATED_AT_JST = "2026-03-09 01:01 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -40,7 +40,9 @@ const els = {
   metaText: document.querySelector("#metaText"),
   menuButton: document.querySelector("#menuButton"),
   menuPanel: document.querySelector("#menuPanel"),
+  loginButton: document.querySelector("#loginButton"),
   myTeamButton: document.querySelector("#myTeamButton"),
+  logoutButton: document.querySelector("#logoutButton"),
   nameQuery: document.querySelector("#nameQuery"),
   logicMode: document.querySelector("#logicMode"),
   positionFilter: document.querySelector("#positionFilter"),
@@ -68,12 +70,12 @@ const els = {
   seasonSelect: document.querySelector("#seasonSelect"),
   seasonCancel: document.querySelector("#seasonCancel"),
   seasonApply: document.querySelector("#seasonApply"),
-  myTeamModal: document.querySelector("#myTeamModal"),
-  myTeamBackdrop: document.querySelector("#myTeamBackdrop"),
-  myTeamClose: document.querySelector("#myTeamClose"),
-  myTeamLineupKey: document.querySelector("#myTeamLineupKey"),
-  myTeamCancel: document.querySelector("#myTeamCancel"),
-  myTeamApply: document.querySelector("#myTeamApply"),
+  loginModal: document.querySelector("#loginModal"),
+  loginBackdrop: document.querySelector("#loginBackdrop"),
+  loginClose: document.querySelector("#loginClose"),
+  loginLineupKey: document.querySelector("#loginLineupKey"),
+  loginCancel: document.querySelector("#loginCancel"),
+  loginApply: document.querySelector("#loginApply"),
   cloudLoadLineup: document.querySelector("#cloudLoadLineup"),
   cloudSaveLineup: document.querySelector("#cloudSaveLineup"),
   cloudStatus: document.querySelector("#cloudStatus"),
@@ -133,18 +135,29 @@ function closeMenuPanel() {
   els.menuPanel.hidden = true;
 }
 
-function openMyTeamModal() {
-  if (!els.myTeamModal) return;
-  if (els.myTeamLineupKey) {
-    els.myTeamLineupKey.value = cloudConfig.lineupKey || "";
-    els.myTeamLineupKey.focus();
-  }
-  els.myTeamModal.hidden = false;
+function isLoggedIn() {
+  return !!String(cloudConfig.lineupKey || "").trim();
 }
 
-function closeMyTeamModal() {
-  if (!els.myTeamModal) return;
-  els.myTeamModal.hidden = true;
+function updateMenuState() {
+  const loggedIn = isLoggedIn();
+  if (els.loginButton) els.loginButton.hidden = loggedIn;
+  if (els.myTeamButton) els.myTeamButton.hidden = !loggedIn;
+  if (els.logoutButton) els.logoutButton.hidden = !loggedIn;
+}
+
+function openLoginModal() {
+  if (!els.loginModal) return;
+  if (els.loginLineupKey) {
+    els.loginLineupKey.value = cloudConfig.lineupKey || "";
+    els.loginLineupKey.focus();
+  }
+  els.loginModal.hidden = false;
+}
+
+function closeLoginModal() {
+  if (!els.loginModal) return;
+  els.loginModal.hidden = true;
 }
 
 function normalizedSupabaseUrl(url) {
@@ -170,7 +183,7 @@ function loadCloudConfig() {
   }
   if (FIXED_SUPABASE_URL) cloudConfig.url = normalizedSupabaseUrl(FIXED_SUPABASE_URL);
   if (FIXED_SUPABASE_ANON_KEY) cloudConfig.anonKey = String(FIXED_SUPABASE_ANON_KEY).trim();
-  if (els.myTeamLineupKey) els.myTeamLineupKey.value = cloudConfig.lineupKey;
+  if (els.loginLineupKey) els.loginLineupKey.value = cloudConfig.lineupKey;
 }
 
 function saveCloudConfig(lineupKeyInput = null) {
@@ -275,6 +288,17 @@ function openMyTeamLineupView() {
   if (els.lineupModal) {
     els.lineupModal.hidden = false;
   }
+}
+
+function logoutLineupKey() {
+  cloudConfig = {
+    url: normalizedSupabaseUrl(FIXED_SUPABASE_URL || cloudConfig.url),
+    anonKey: String(FIXED_SUPABASE_ANON_KEY || cloudConfig.anonKey).trim(),
+    lineupKey: "",
+  };
+  localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
+  setCloudStatus("Cloud: logged out");
+  updateMenuState();
 }
 
 function closeSeasonModal() {
@@ -914,6 +938,7 @@ async function init() {
   loadStartingLineup();
   loadCloudConfig();
   setCloudStatus(hasCloudConfig() ? "Cloud: ready" : "Cloud: not configured");
+  updateMenuState();
 
   els.addCondition.addEventListener("click", () => {
     addConditionRow({ metric: "スピ", op: "gte", value1: "" });
@@ -940,7 +965,19 @@ async function init() {
   if (els.myTeamButton) {
     els.myTeamButton.addEventListener("click", () => {
       closeMenuPanel();
-      openMyTeamModal();
+      openMyTeamLineupView();
+    });
+  }
+  if (els.loginButton) {
+    els.loginButton.addEventListener("click", () => {
+      closeMenuPanel();
+      openLoginModal();
+    });
+  }
+  if (els.logoutButton) {
+    els.logoutButton.addEventListener("click", () => {
+      closeMenuPanel();
+      logoutLineupKey();
     });
   }
   document.addEventListener("click", (e) => {
@@ -1051,26 +1088,27 @@ async function init() {
       }
     });
   }
-  if (els.myTeamBackdrop) {
-    els.myTeamBackdrop.addEventListener("click", closeMyTeamModal);
+  if (els.loginBackdrop) {
+    els.loginBackdrop.addEventListener("click", closeLoginModal);
   }
-  if (els.myTeamClose) {
-    els.myTeamClose.addEventListener("click", closeMyTeamModal);
+  if (els.loginClose) {
+    els.loginClose.addEventListener("click", closeLoginModal);
   }
-  if (els.myTeamCancel) {
-    els.myTeamCancel.addEventListener("click", closeMyTeamModal);
+  if (els.loginCancel) {
+    els.loginCancel.addEventListener("click", closeLoginModal);
   }
-  if (els.myTeamApply) {
-    els.myTeamApply.addEventListener("click", async () => {
-      const key = String(els.myTeamLineupKey?.value || "").trim();
+  if (els.loginApply) {
+    els.loginApply.addEventListener("click", async () => {
+      const key = String(els.loginLineupKey?.value || "").trim();
       if (!saveCloudConfig(key)) return;
+      updateMenuState();
       try {
         const ok = await cloudLoadLineup();
         setCloudStatus(ok ? "Cloud: loaded" : "Cloud: no data");
       } catch (e) {
         setCloudStatus(`Cloud load failed: ${e.message}`, true);
       }
-      closeMyTeamModal();
+      closeLoginModal();
       openMyTeamLineupView();
     });
   }
@@ -1083,8 +1121,8 @@ async function init() {
       closeSeasonModal();
       return;
     }
-    if (e.key === "Escape" && els.myTeamModal && !els.myTeamModal.hidden) {
-      closeMyTeamModal();
+    if (e.key === "Escape" && els.loginModal && !els.loginModal.hidden) {
+      closeLoginModal();
       closeMenuPanel();
     }
   });
