@@ -38,6 +38,7 @@ let players = [];
 function toHiragana(s) {
   return (s || "")
     .replace(/[\u30a1-\u30f6]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0x60))
+    .replace(/[・･·\.．]/g, "")
     .replace(/\s+/g, "");
 }
 
