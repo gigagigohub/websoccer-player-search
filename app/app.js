@@ -99,19 +99,17 @@ function getConditions() {
     .filter(Boolean);
 }
 
-function checkCondition(player, condition) {
-  const values = player.metricValues?.[condition.metric] || [];
-  if (!values.length) return false;
-
+function checkValueCondition(value, condition) {
+  if (typeof value !== "number" || Number.isNaN(value)) return false;
   switch (condition.op) {
     case "eq":
-      return values.some((v) => v === condition.value1);
+      return value === condition.value1;
     case "gte":
-      return values.some((v) => v >= condition.value1);
+      return value >= condition.value1;
     case "lte":
-      return values.some((v) => v <= condition.value1);
+      return value <= condition.value1;
     case "between":
-      return values.some((v) => v >= condition.value1 && v <= condition.value2);
+      return value >= condition.value1 && value <= condition.value2;
     default:
       return false;
   }
@@ -127,8 +125,22 @@ function getCategory(player) {
   return "NR";
 }
 
-function getDisplayMetrics(player) {
+function getMatchingPeriods(player, conditions, logicMode) {
   const periods = Array.isArray(player.periods) ? player.periods : [];
+  if (!conditions.length) return periods;
+
+  return periods.filter((period) => {
+    const metrics = period?.metrics || {};
+    const checks = conditions.map((c) => checkValueCondition(metrics[c.metric], c));
+    return logicMode === "AND" ? checks.every(Boolean) : checks.some(Boolean);
+  });
+}
+
+function getDisplayMetrics(player, conditions, logicMode) {
+  const matchedPeriods = getMatchingPeriods(player, conditions, logicMode);
+  const periods = matchedPeriods.length
+    ? matchedPeriods
+    : (Array.isArray(player.periods) ? player.periods : []);
   if (!periods.length) return player.maxMetrics || {};
 
   let best = periods[0]?.metrics || {};
@@ -146,16 +158,14 @@ function getDisplayMetrics(player) {
   return best;
 }
 
-function filterPlayers() {
+function filterPlayers(conditions = getConditions(), logicMode = els.logicMode.value) {
   const query = toHiragana(els.nameQuery.value.trim().toLowerCase());
-  const logicMode = els.logicMode.value;
   const positionFilter = els.positionFilter.value;
   const cmOnly = els.cmOnly.checked;
   const ssOnly = els.ssOnly.checked;
   const normalOnly = els.normalOnly.checked;
   const naOnly = els.naOnly.checked;
   const ccOnly = els.ccOnly.checked;
-  const conditions = getConditions();
 
   return players.filter((player) => {
     const category = getCategory(player);
@@ -185,15 +195,14 @@ function filterPlayers() {
       return true;
     }
 
-    const checks = conditions.map((c) => checkCondition(player, c));
-    return logicMode === "AND" ? checks.every(Boolean) : checks.some(Boolean);
+    return getMatchingPeriods(player, conditions, logicMode).length > 0;
   });
 }
 
-function cardHtml(player) {
+function cardHtml(player, conditions, logicMode) {
   const staticImg = `./images/chara/players/static/${player.id}.gif`;
   const actionImg = `./images/chara/players/action/${player.id}.gif`;
-  const displayMetrics = getDisplayMetrics(player);
+  const displayMetrics = getDisplayMetrics(player, conditions, logicMode);
   const metricBox = (metric) => {
     const v = displayMetrics?.[metric];
     const value = v == null ? 0 : v;
@@ -303,7 +312,9 @@ function cardHtml(player) {
 }
 
 function render() {
-  const filtered = filterPlayers();
+  const conditions = getConditions();
+  const logicMode = els.logicMode.value;
+  const filtered = filterPlayers(conditions, logicMode);
   const categoryRank = {
     "NR": 0,
     "CC": 1,
@@ -321,7 +332,7 @@ function render() {
   });
 
   els.resultCount.textContent = `${filtered.length}件`;
-  els.results.innerHTML = filtered.map(cardHtml).join("");
+  els.results.innerHTML = filtered.map((p) => cardHtml(p, conditions, logicMode)).join("");
 }
 
 async function init() {
