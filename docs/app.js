@@ -161,8 +161,9 @@ function cardHtml(player) {
   const metricBox = (metric) => {
     const v = player.maxMetrics?.[metric];
     const value = v == null ? 0 : v;
-    const max = ["知性", "感性", "個人", "組織"].includes(metric) ? 30 : 10;
-    const pct = Math.max(0, Math.min(100, (value / max) * 100));
+    const max = 10;
+    const bounded = Math.max(0, Math.min(max, value));
+    const pct = (bounded / max) * 100;
     const metricClass =
       metric === "スピ" ? "m-speed" :
       metric === "テク" ? "m-tech" :
@@ -172,7 +173,7 @@ function cardHtml(player) {
       <div class="metric-box ${metricClass}">
         <span class="metric-key">${metricLabel(metric)}</span>
         <div class="metric-body">
-          <div class="gauge" style="--steps:${max}">
+          <div class="gauge" style="--steps:10">
             <span class="gauge-fill" style="width:${pct}%"></span>
           </div>
           <span class="metric-num">${v == null ? "-" : v}</span>
@@ -184,7 +185,25 @@ function cardHtml(player) {
   const mainMetrics = ["スピ", "テク", "パワ", "個性"];
   const group1 = ["スタ", "ラフ", "人気"];
   const group2 = ["PK", "FK", "CK", "CP"];
-  const group3 = ["知性", "感性", "個人", "組織"];
+  const mind = {
+    zisei: player.maxMetrics?.["知性"] ?? 0,
+    kansei: player.maxMetrics?.["感性"] ?? 0,
+    kojin: player.maxMetrics?.["個人"] ?? 0,
+    soshiki: player.maxMetrics?.["組織"] ?? 0,
+  };
+
+  const cx = 70;
+  const cy = 70;
+  const r = 54;
+  const nTop = Math.max(0, Math.min(30, mind.zisei)) / 30;
+  const nRight = Math.max(0, Math.min(30, mind.soshiki)) / 30;
+  const nBottom = Math.max(0, Math.min(30, mind.kansei)) / 30;
+  const nLeft = Math.max(0, Math.min(30, mind.kojin)) / 30;
+  const pTop = `${cx},${cy - r * nTop}`;
+  const pRight = `${cx + r * nRight},${cy}`;
+  const pBottom = `${cx},${cy + r * nBottom}`;
+  const pLeft = `${cx - r * nLeft},${cy}`;
+  const areaPoints = `${pTop} ${pRight} ${pBottom} ${pLeft}`;
   const hasCM = !!player.flags?.CM;
   const hasSS = !!player.flags?.SS;
   const typeLabel = hasCM && hasSS ? "CM/SS" : hasCM ? "CM" : hasSS ? "SS" : "NR";
@@ -205,17 +224,34 @@ function cardHtml(player) {
             <span class="badge type-badge">${typeLabel}</span>
             <a href="${player.url}" target="_blank" rel="noreferrer">${player.name}</a>
           </h3>
-          <div class="thumbs">
-            <img loading="lazy" src="${staticImg}" alt="${player.name} 静止" />
-            <img loading="lazy" src="${actionImg}" alt="${player.name} アクション" />
+          <div class="media-row">
+            <div class="thumbs">
+              <img loading="lazy" src="${staticImg}" alt="${player.name} 静止" />
+              <img loading="lazy" src="${actionImg}" alt="${player.name} アクション" />
+            </div>
+            <div class="mind-chart" aria-label="知性感性個人組織チャート">
+              <svg viewBox="0 0 140 140" role="img">
+                <polygon class="grid" points="70,16 124,70 70,124 16,70"></polygon>
+                <polygon class="grid" points="70,34 106,70 70,106 34,70"></polygon>
+                <polygon class="grid" points="70,52 88,70 70,88 52,70"></polygon>
+                <line class="axis" x1="70" y1="16" x2="70" y2="124"></line>
+                <line class="axis" x1="16" y1="70" x2="124" y2="70"></line>
+                <polygon class="area" points="${areaPoints}"></polygon>
+                <circle cx="${cx}" cy="${cy - r * nTop}" r="2.2"></circle>
+                <circle cx="${cx + r * nRight}" cy="${cy}" r="2.2"></circle>
+                <circle cx="${cx}" cy="${cy + r * nBottom}" r="2.2"></circle>
+                <circle cx="${cx - r * nLeft}" cy="${cy}" r="2.2"></circle>
+              </svg>
+              <div class="mind-label top">知性 ${mind.zisei}</div>
+              <div class="mind-label right">組織 ${mind.soshiki}</div>
+              <div class="mind-label bottom">感性 ${mind.kansei}</div>
+              <div class="mind-label left">個人 ${mind.kojin}</div>
+            </div>
           </div>
         </div>
       </div>
       <div class="metrics-wrap">
         <div class="metrics main-3">${mainMetrics.map(metricBox).join("")}</div>
-        <div class="metric-group">
-          <div class="metrics group-4">${group3.map(metricBox).join("")}</div>
-        </div>
         <div class="metric-group">
           <div class="metrics group-4">${group2.map(metricBox).join("")}</div>
         </div>

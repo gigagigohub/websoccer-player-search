@@ -212,6 +212,81 @@ button.ghost {
   object-fit: contain;
 }
 
+.media-row {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.mind-chart {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  flex: 0 0 140px;
+}
+
+.mind-chart svg {
+  width: 100%;
+  height: 100%;
+}
+
+.mind-chart .grid {
+  fill: none;
+  stroke: #d9dff0;
+  stroke-width: 1;
+}
+
+.mind-chart .axis {
+  stroke: #cdd5e9;
+  stroke-width: 1;
+}
+
+.mind-chart .area {
+  fill: rgba(112, 80, 197, 0.28);
+  stroke: #6f53ba;
+  stroke-width: 1.5;
+}
+
+.mind-chart circle {
+  fill: #6f53ba;
+}
+
+.mind-label {
+  position: absolute;
+  font-size: 0.68rem;
+  color: #4c5570;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 1px 3px;
+  border-radius: 4px;
+}
+
+.mind-label.top {
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.mind-label.right {
+  right: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.mind-label.bottom {
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.mind-label.left {
+  left: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
 .badge {
   border: 1px solid #c8daf5;
   border-radius: 999px;
@@ -310,19 +385,16 @@ button.ghost {
   background: #eee9fb;
   overflow: hidden;
   position: relative;
+  border: 1px solid #d7d1ea;
+  box-sizing: border-box;
 }
 
 .gauge::after {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: repeating-linear-gradient(
-    to right,
-    transparent 0,
-    transparent calc((100% / var(--steps)) - 1px),
-    rgba(255, 255, 255, 0.82) calc((100% / var(--steps)) - 1px),
-    rgba(255, 255, 255, 0.82) calc(100% / var(--steps))
-  );
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.82) 1px, transparent 1px);
+  background-size: calc(100% / var(--steps)) 100%;
   pointer-events: none;
 }
 
@@ -330,6 +402,7 @@ button.ghost {
   display: block;
   height: 100%;
   border-radius: 0;
+  max-width: 100%;
   background: linear-gradient(180deg, #cfb2ff 0%, #8662ca 100%);
 }
 
@@ -365,6 +438,16 @@ button.ghost {
 
   .card-top {
     display: block;
+  }
+
+  .media-row {
+    gap: 8px;
+  }
+
+  .mind-chart {
+    width: 120px;
+    height: 120px;
+    flex-basis: 120px;
   }
 
   .metrics.main-3 {
