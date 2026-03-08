@@ -920,8 +920,8 @@ button.ghost {
 }
 
 .lineup-thumb-wrap img {
-  width: 80px;
-  height: 136px;
+  width: 64px;
+  height: 109px;
   object-fit: contain;
   object-position: center bottom;
   transform: translateY(46px);
@@ -1157,8 +1157,8 @@ button.ghost {
   }
 
   .lineup-thumb-wrap img {
-    width: 72px;
-    height: 122px;
+    width: 58px;
+    height: 98px;
     transform: translateY(38px);
   }
 
