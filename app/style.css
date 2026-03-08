@@ -235,11 +235,18 @@ button.ghost {
   margin-bottom: 8px;
 }
 
-.pos-heatmaps {
+.pos-heatmaps-scroll {
   margin-left: auto;
-  display: grid;
-  gap: 6px;
-  max-width: 52%;
+  max-width: calc(100% - 190px);
+  min-width: 76px;
+  flex: 1 1 auto;
+  overflow-x: auto;
+}
+
+.pos-heatmaps-track {
+  display: flex;
+  gap: 8px;
+  min-width: max-content;
 }
 
 .pos-heatmap-seg {
@@ -250,38 +257,111 @@ button.ghost {
 .pos-heatmap-label {
   font-size: 0.62rem;
   color: #cbd9fb;
-  text-align: right;
-}
-
-.pos-heatmap-grid {
-  border-collapse: collapse;
-  width: 100%;
-  min-width: 114px;
-}
-
-.pos-heatmap-grid td {
-  width: 34px;
-  height: 18px;
-  border: 1px solid #2b2f38;
   text-align: center;
-  font-size: 0.72rem;
+}
+
+.pitch-map {
+  position: relative;
+  width: 76px;
+  height: 90px;
+  border: 2px solid #9ba3a7;
+  background: #474728;
+  overflow: hidden;
+}
+
+.pitch-lines {
+  position: absolute;
+  inset: 0;
+}
+
+.pitch-lines::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -16px;
+  width: 36px;
+  height: 22px;
+  transform: translateX(-50%);
+  border: 2px solid rgba(190, 194, 197, 0.8);
+  border-radius: 0 0 18px 18px;
+  border-top: 0;
+}
+
+.pitch-lines::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -13px;
+  width: 34px;
+  height: 20px;
+  transform: translateX(-50%);
+  border: 2px solid rgba(190, 194, 197, 0.75);
+  border-radius: 18px 18px 0 0;
+  border-bottom: 0;
+}
+
+.hm-grid {
+  position: absolute;
+  inset: 0;
+}
+
+.hm-cell {
+  position: absolute;
+  left: calc(var(--c) * 33.3333%);
+  top: calc(var(--r) * 20%);
+  width: 33.3333%;
+  height: 20%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(89, 73, 48, 0.45);
+  font-size: 0.60rem;
   font-weight: 700;
-  color: #0e111a;
-  padding: 0;
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
 }
 
-.pos-heatmap-grid td.hm-empty {
-  background: #d3d3d3;
-  color: transparent;
+.pitch-map.is-gk .hm-cell {
+  top: calc(var(--r) * 17%);
+  height: 17%;
 }
 
-.pos-heatmap-grid td.hm-l1 { background: #f6dede; }
-.pos-heatmap-grid td.hm-l2 { background: #f1bcbc; }
-.pos-heatmap-grid td.hm-l3 { background: #eb9898; }
-.pos-heatmap-grid td.hm-l4 { background: #f16f6f; }
-.pos-heatmap-grid td.hm-l5 { background: #fb5252; }
-.pos-heatmap-grid td.hm-l6 { background: #ff3232; }
-.pos-heatmap-grid td.hm-l7 { background: #ff0f0f; }
+.gk-cell {
+  position: absolute;
+  left: 50%;
+  bottom: 1px;
+  transform: translateX(-50%);
+  width: 33.3333%;
+  height: 17%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(89, 73, 48, 0.45);
+  font-size: 0.60rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
+}
+
+.pitch-map.is-fp .pitch-lines {
+  background:
+    linear-gradient(90deg, rgba(186, 191, 195, 0.75) 33.3333%, transparent 33.3334%, transparent 66.6666%, rgba(186, 191, 195, 0.75) 66.6667%),
+    linear-gradient(180deg, transparent 80%, rgba(186, 191, 195, 0.75) 80.1%);
+  background-size: 100% 100%;
+}
+
+.pitch-map.is-gk .pitch-lines {
+  background:
+    linear-gradient(90deg, rgba(186, 191, 195, 0.75) 33.3333%, transparent 33.3334%, transparent 66.6666%, rgba(186, 191, 195, 0.75) 66.6667%);
+}
+
+.hm-l1 { background: linear-gradient(180deg, #f9dddd 0%, #f2cfcf 100%); color: #2f1c1c; text-shadow: none; }
+.hm-l2 { background: linear-gradient(180deg, #f4bcbc 0%, #ebaaaa 100%); color: #321d1d; text-shadow: none; }
+.hm-l3 { background: linear-gradient(180deg, #e78f59 0%, #d97536 100%); }
+.hm-l4 { background: linear-gradient(180deg, #e98534 0%, #d56f1f 100%); }
+.hm-l5 { background: linear-gradient(180deg, #f4712e 0%, #e85a16 100%); }
+.hm-l6 { background: linear-gradient(180deg, #f45b17 0%, #e64909 100%); }
+.hm-l7 { background: linear-gradient(180deg, #ff4a12 0%, #ef3a06 100%); }
 
 .periods-scroll {
   width: 100%;
@@ -701,5 +781,19 @@ button.ghost {
 
   .metric-box {
     padding: 6px 5px;
+  }
+
+  .expanded-media {
+    gap: 8px;
+  }
+
+  .pos-heatmaps-scroll {
+    max-width: calc(100% - 172px);
+    min-width: 70px;
+  }
+
+  .pitch-map {
+    width: 70px;
+    height: 86px;
   }
 }

@@ -17,7 +17,7 @@ const DETAIL_METRIC_LABELS = {
   "ラフ": "ラフ",
   "CP": "CP",
 };
-const APP_UPDATED_AT_JST = "2026-03-08 19:26 JST";
+const APP_UPDATED_AT_JST = "2026-03-08 19:35 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -317,27 +317,45 @@ function periodTableHtml(player, staticImg, actionImg) {
 function positionHeatmapsHtml(player) {
   const segments = Array.isArray(player.positionHeatmaps) ? player.positionHeatmaps : [];
   if (!segments.length) return "";
+  const isGK = (player.position || "").toUpperCase() === "GK";
 
   const items = segments.map((seg) => {
     const label = seg?.label || "";
     const grid = Array.isArray(seg?.grid) ? seg.grid : [];
-    const rows = grid.map((row) => {
-      const cells = (Array.isArray(row) ? row : []).map((v) => {
-        if (v == null) return `<td class="hm-empty"></td>`;
+    const outRows = grid.slice(0, 4);
+    const outCells = outRows.map((row, rIdx) => {
+      const rowCells = (Array.isArray(row) ? row : []).slice(0, 3).map((v, cIdx) => {
+        if (v == null) return "";
         const n = Math.max(1, Math.min(7, Number(v) || 1));
-        return `<td class="hm-cell hm-l${n}">${n}</td>`;
+        return `<div class="hm-cell hm-l${n}" style="--r:${rIdx};--c:${cIdx}">${n}</div>`;
       }).join("");
-      return `<tr>${cells}</tr>`;
+      return rowCells;
     }).join("");
+
+    const gkVal = grid?.[4]?.[1];
+    const gkCell = (isGK && gkVal != null)
+      ? `<div class="gk-cell hm-l${Math.max(1, Math.min(7, Number(gkVal) || 1))}">${gkVal}</div>`
+      : "";
+
     return `
       <div class="pos-heatmap-seg">
         <div class="pos-heatmap-label">${label}</div>
-        <table class="pos-heatmap-grid"><tbody>${rows}</tbody></table>
+        <div class="pitch-map ${isGK ? "is-gk" : "is-fp"}">
+          <div class="pitch-lines"></div>
+          <div class="hm-grid">${outCells}</div>
+          ${gkCell}
+        </div>
       </div>
     `;
   }).join("");
 
-  return `<div class="pos-heatmaps">${items}</div>`;
+  return `
+    <div class="pos-heatmaps-scroll">
+      <div class="pos-heatmaps-track">
+        ${items}
+      </div>
+    </div>
+  `;
 }
 
 function cardHtml(player) {
