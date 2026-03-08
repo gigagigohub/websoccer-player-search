@@ -16,31 +16,31 @@
   <main class="container">
     <header class="hero">
       <h1>WebSoccer Ordinary 2026</h1>
-      <p class="meta" id="metaText">データ読込中...</p>
+      <p class="meta" id="metaText">Loading data...</p>
     </header>
 
     <section class="panel">
-      <label class="label" for="nameQuery">選手名</label>
-      <input id="nameQuery" type="text" placeholder="部分一致で検索" />
+      <label class="label" for="nameQuery">Player Name</label>
+      <input id="nameQuery" type="text" placeholder="Search by partial match" />
 
       <div class="logic-row">
         <div>
-          <label class="label" for="logicMode">条件の結合</label>
+          <label class="label" for="logicMode">Condition Logic</label>
           <select id="logicMode">
-            <option value="AND">AND（すべて満たす）</option>
-            <option value="OR">OR（どれか満たす）</option>
+            <option value="AND">AND (match all)</option>
+            <option value="OR">OR (match any)</option>
           </select>
         </div>
       </div>
       <div class="logic-row">
         <div>
-          <label class="label" for="positionFilter">ポジション</label>
+          <label class="label" for="positionFilter">Position</label>
           <select id="positionFilter">
-            <option value="">すべて</option>
-            <option value="GK">ゴールキーパー (GK)</option>
-            <option value="DF">ディフェンス (DF)</option>
-            <option value="MF">ミッドフィルダー (MF)</option>
-            <option value="FW">フォワード (FW)</option>
+            <option value="">All</option>
+            <option value="GK">Goalkeeper (GK)</option>
+            <option value="DF">Defender (DF)</option>
+            <option value="MF">Midfielder (MF)</option>
+            <option value="FW">Forward (FW)</option>
           </select>
         </div>
       </div>
@@ -54,18 +54,18 @@
 
       <div id="conditions"></div>
       <div class="buttons">
-        <button id="addCondition" type="button" class="add-btn">条件を追加</button>
-        <button id="resetCondition" type="button" class="ghost">リセット</button>
+        <button id="addCondition" type="button" class="add-btn">Add Condition</button>
+        <button id="resetCondition" type="button" class="ghost">Reset</button>
       </div>
       <div class="apply-row">
-        <button id="applySearch" type="button" class="search-btn">検索</button>
+        <button id="applySearch" type="button" class="search-btn">Search</button>
       </div>
     </section>
 
     <section class="panel">
       <div class="result-head">
-        <h2>検索結果</h2>
-        <span id="resultCount">0件</span>
+        <h2>Results</h2>
+        <span id="resultCount">0 results</span>
       </div>
       <div id="results" class="results"></div>
     </section>
@@ -78,12 +78,12 @@
         <option value="gte">>=</option>
         <option value="lte"><=</option>
         <option value="eq">=</option>
-        <option value="between">範囲</option>
+        <option value="between">Range</option>
       </select>
       <input class="value1" type="number" inputmode="numeric" />
       <span class="between-sep">〜</span>
       <input class="value2" type="number" inputmode="numeric" />
-      <button type="button" class="remove">削除</button>
+      <button type="button" class="remove">Remove</button>
     </div>
   </template>
 

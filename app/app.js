@@ -9,10 +9,31 @@ const METRIC_LABELS = {
   "スタ": "スタミナ",
   "CP": "Cap.",
 };
+const FILTER_METRIC_LABELS = {
+  "スピ": "Speed",
+  "テク": "Technique",
+  "パワ": "Power",
+  "スタ": "Stamina",
+  "ラフ": "Rough",
+  "個性": "Uniqueness",
+  "人気": "Popularity",
+  "PK": "PK",
+  "FK": "FK",
+  "CK": "CK",
+  "CP": "Cap.",
+  "知性": "Intelligence",
+  "感性": "Sensitivity",
+  "個人": "Individual",
+  "組織": "Organization",
+};
 const APP_UPDATED_AT_JST = "2026-03-08 18:18 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
+}
+
+function filterMetricLabel(metric) {
+  return FILTER_METRIC_LABELS[metric] || metric;
 }
 
 const els = {
@@ -54,7 +75,7 @@ function addConditionRow(defaults = {}) {
   METRICS.forEach((m) => {
     const option = document.createElement("option");
     option.value = m;
-    option.textContent = metricLabel(m);
+    option.textContent = filterMetricLabel(m);
     metric.appendChild(option);
   });
 
@@ -405,7 +426,7 @@ function render() {
     return (b.bestTotal - a.bestTotal) || a.name.localeCompare(b.name, "ja");
   });
 
-  els.resultCount.textContent = `${filtered.length}件`;
+  els.resultCount.textContent = `${filtered.length} results`;
   els.results.innerHTML = filtered.map((p) => cardHtml(p)).join("");
 }
 
@@ -430,12 +451,12 @@ async function init() {
   const data = await res.json();
   players = data.players || [];
 
-  els.metaText.textContent = `更新日時: ${APP_UPDATED_AT_JST} / 選手数: ${players.length}`;
-  els.resultCount.textContent = "0件";
+  els.metaText.textContent = `Updated: ${APP_UPDATED_AT_JST} / Players: ${players.length}`;
+  els.resultCount.textContent = "0 results";
   els.results.innerHTML = "";
 }
 
 init().catch((e) => {
-  els.metaText.textContent = "データ読み込みに失敗しました";
+  els.metaText.textContent = "Failed to load data.";
   console.error(e);
 });
