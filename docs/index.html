@@ -15,6 +15,10 @@
 <body>
   <main class="container">
     <header class="hero">
+      <button id="menuButton" type="button" class="menu-button" aria-label="メニュー">☰</button>
+      <div id="menuPanel" class="menu-panel" hidden>
+        <button id="myTeamButton" type="button" class="menu-item">MyTeam</button>
+      </div>
       <h1>WebSoccer Ordinary 2026</h1>
       <p class="meta" id="metaText">Loading data...</p>
     </header>
@@ -63,10 +67,7 @@
 
       <div class="cloud-box">
         <h3>Cloud Sync (Supabase)</h3>
-        <label class="label" for="lineupKey">Lineup Key</label>
-        <input id="lineupKey" type="text" placeholder="my-team-01" />
         <div class="buttons">
-          <button id="cloudSaveConfig" type="button" class="add-btn">Save Key</button>
           <button id="cloudLoadLineup" type="button" class="ghost">Load Cloud</button>
         </div>
         <div class="apply-row">
@@ -110,6 +111,23 @@
       <div class="season-actions">
         <button id="seasonCancel" type="button" class="ghost">Cancel</button>
         <button id="seasonApply" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="myTeamModal" class="season-modal" hidden>
+    <div id="myTeamBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog" role="dialog" aria-modal="true" aria-labelledby="myTeamTitle">
+      <div class="season-head">
+        <h2 id="myTeamTitle">MyTeam</h2>
+        <button id="myTeamClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <p class="season-target">LineupKeyを入力してください</p>
+      <label class="label" for="myTeamLineupKey">Lineup Key</label>
+      <input id="myTeamLineupKey" type="text" placeholder="my-team-01" />
+      <div class="season-actions">
+        <button id="myTeamCancel" type="button" class="ghost">Cancel</button>
+        <button id="myTeamApply" type="button">Open</button>
       </div>
     </div>
   </div>

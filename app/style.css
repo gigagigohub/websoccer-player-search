@@ -28,12 +28,51 @@ body {
 }
 
 .hero {
+  position: relative;
   padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: 14px;
   background:
     linear-gradient(180deg, #151d2d 0%, #101827 100%);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+
+.menu-button {
+  position: absolute;
+  right: 10px;
+  top: 8px;
+  width: 34px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid #3a4e74;
+  background: #16253f;
+  color: #e7f1ff;
+  font-size: 1.05rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.menu-panel {
+  position: absolute;
+  right: 10px;
+  top: 42px;
+  width: 120px;
+  border: 1px solid #314767;
+  border-radius: 10px;
+  background: #111b2d;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.45);
+  padding: 6px;
+  z-index: 30;
+}
+
+.menu-item {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #2f4361;
+  background: #15243f;
+  color: #e6efff;
+  padding: 8px;
+  font-size: 0.9rem;
 }
 
 .hero h1 {
