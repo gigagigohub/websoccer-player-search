@@ -167,10 +167,19 @@ button.ghost {
   border-radius: 12px;
   padding: 10px;
   background: linear-gradient(180deg, #fff 0%, #fbfdff 100%);
+  position: relative;
 }
 
 .card-top {
   display: block;
+}
+
+.card-id {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 0.72rem;
+  color: var(--sub);
 }
 
 .card-name {

@@ -209,16 +209,19 @@ function cardHtml(player) {
   const group1 = ["スタ", "ラフ", "個性", "人気"];
   const group2 = ["PK", "FK", "CK", "CP"];
   const group3 = ["知性", "感性", "個人", "組織"];
+  const hasCM = !!player.flags?.CM;
+  const hasSS = !!player.flags?.SS;
+  const typeLabel = hasCM && hasSS ? "CM/SS" : hasCM ? "CM" : hasSS ? "SS" : "通常";
 
   return `
     <article class="card">
       <div class="card-top">
+        <span class="card-id">ID: ${player.id}</span>
         <div class="card-head-main">
           <h3 class="card-name"><a href="${player.url}" target="_blank" rel="noreferrer">${player.name}</a></h3>
           <div class="card-head-right">
             <span class="badge">${player.position || "-"}</span>
-            <span class="badge">ID: ${player.id}</span>
-            <span class="badge">総合値: ${player.bestTotal}</span>
+            <span class="badge">${typeLabel}</span>
           </div>
           <div class="thumbs">
             <img loading="lazy" src="${staticImg}" alt="${player.name} 静止" />
