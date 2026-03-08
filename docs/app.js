@@ -212,6 +212,12 @@ function cardHtml(player) {
   const hasCM = !!player.flags?.CM;
   const hasSS = !!player.flags?.SS;
   const typeLabel = hasCM && hasSS ? "CM/SS" : hasCM ? "CM" : hasSS ? "SS" : "通常";
+  const pos = (player.position || "-").toUpperCase();
+  const posClass =
+    pos === "GK" ? "pos-gk" :
+    pos === "DF" ? "pos-df" :
+    pos === "MF" ? "pos-mf" :
+    pos === "FW" ? "pos-fw" : "";
 
   return `
     <article class="card">
@@ -220,7 +226,7 @@ function cardHtml(player) {
         <div class="card-head-main">
           <h3 class="card-name"><a href="${player.url}" target="_blank" rel="noreferrer">${player.name}</a></h3>
           <div class="card-head-right">
-            <span class="badge">${player.position || "-"}</span>
+            <span class="badge pos-badge ${posClass}">${pos}</span>
             <span class="badge">${typeLabel}</span>
           </div>
           <div class="thumbs">

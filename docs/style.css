@@ -226,6 +226,31 @@ button.ghost {
   white-space: nowrap;
 }
 
+.pos-badge {
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+}
+
+.pos-badge.pos-gk {
+  background: linear-gradient(180deg, #9da4ad 0%, #6f7783 100%);
+}
+
+.pos-badge.pos-df {
+  background: linear-gradient(180deg, #63c2ff 0%, #2f8bd6 100%);
+}
+
+.pos-badge.pos-mf {
+  background: linear-gradient(180deg, #9fe35c 0%, #6abf34 100%);
+}
+
+.pos-badge.pos-fw {
+  background: linear-gradient(180deg, #ff6b6b 0%, #d63838 100%);
+}
+
 .metrics-wrap {
   margin-top: 8px;
   display: grid;
