@@ -271,14 +271,14 @@ button.ghost {
   min-width: 76px;
   flex: 1 1 auto;
   overflow-x: auto;
-  transform: translateX(-4px);
+  transform: translate(-4px, 9px);
 }
 
 .pos-heatmaps-scroll.single {
   flex: 0 0 auto;
   max-width: none;
   overflow: visible;
-  transform: translate(-46px, -14px);
+  transform: translate(-46px, -5px);
 }
 
 .pos-heatmaps-track {
@@ -837,12 +837,12 @@ button.ghost {
   .pos-heatmaps-scroll {
     max-width: calc(100% - 172px);
     min-width: 70px;
-    transform: translateX(-5px);
+    transform: translate(-5px, 8px);
   }
 
   .pos-heatmaps-scroll.single {
     max-width: none;
-    transform: translate(-39px, -10px);
+    transform: translate(-39px, -2px);
   }
 
   .pitch-map {
