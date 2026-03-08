@@ -15,9 +15,12 @@ const DETAIL_METRIC_LABELS = {
   "パワ": "パワ",
   "スタ": "スタ",
   "ラフ": "ラフ",
-  "CP": "CP",
+  "PK": "ＰＫ",
+  "FK": "ＦＫ",
+  "CK": "ＣＫ",
+  "CP": "ＣＰ",
 };
-const APP_UPDATED_AT_JST = "2026-03-08 21:36 JST";
+const APP_UPDATED_AT_JST = "2026-03-08 21:39 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
