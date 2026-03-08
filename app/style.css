@@ -201,7 +201,7 @@ button.ghost {
   background: linear-gradient(180deg, #151d2e 0%, #111928 100%);
   position: relative;
   overflow: hidden;
-  height: 388px;
+  height: 366px;
   display: grid;
   grid-template-rows: auto 1fr;
 }
@@ -217,6 +217,10 @@ button.ghost {
 }
 
 .card.is-collapsed .card-body {
+  overflow: hidden;
+}
+
+.card.is-expanded .card-body {
   overflow: hidden;
 }
 
@@ -687,7 +691,7 @@ button.ghost {
 .metrics-wrap {
   margin-top: 5px;
   display: grid;
-  gap: 4px;
+  gap: 2px;
 }
 
 .metric-group {
@@ -816,7 +820,7 @@ button.ghost {
   }
 
   .card {
-    height: 372px;
+    height: 352px;
   }
 
   .expanded-media {
