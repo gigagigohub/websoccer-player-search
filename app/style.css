@@ -1,12 +1,12 @@
 :root {
-  --bg: #f6f8fc;
-  --panel: #ffffff;
-  --text: #1f2630;
-  --sub: #667084;
-  --line: #dbe2ee;
-  --brand: #0f4a9f;
-  --brand-soft: #edf4ff;
-  --danger: #8f1f33;
+  --bg: #090c13;
+  --panel: #121827;
+  --text: #e1e9ff;
+  --sub: #8ea1c8;
+  --line: #2a364f;
+  --brand: #3f7fff;
+  --brand-soft: #1b2436;
+  --danger: #c24a64;
 }
 
 * { box-sizing: border-box; }
@@ -15,8 +15,8 @@ body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
   background:
-    radial-gradient(circle at 15% -10%, #dfeeff 0, transparent 45%),
-    radial-gradient(circle at 95% 5%, #fef1da 0, transparent 35%),
+    radial-gradient(circle at 15% -10%, rgba(73, 119, 214, 0.3) 0, transparent 45%),
+    radial-gradient(circle at 95% 5%, rgba(32, 54, 31, 0.25) 0, transparent 35%),
     var(--bg);
   color: var(--text);
 }
@@ -29,19 +29,19 @@ body {
 
 .hero {
   padding: 10px 12px;
-  border: 1px solid #d7e3f8;
+  border: 1px solid #30405e;
   border-radius: 14px;
   background:
-    radial-gradient(circle at 12% -10%, rgba(93, 156, 255, 0.22) 0, rgba(93, 156, 255, 0) 42%),
-    radial-gradient(circle at 90% 0%, rgba(255, 219, 142, 0.22) 0, rgba(255, 219, 142, 0) 38%),
-    #fbfdff;
+    radial-gradient(circle at 12% -10%, rgba(84, 143, 255, 0.24) 0, rgba(84, 143, 255, 0) 42%),
+    radial-gradient(circle at 90% 0%, rgba(117, 84, 202, 0.2) 0, rgba(117, 84, 202, 0) 38%),
+    linear-gradient(180deg, #121a2a 0%, #0f1624 100%);
 }
 
 .hero h1 {
   margin: 0;
   font-size: 1.48rem;
   letter-spacing: 0.03em;
-  color: #133f86;
+  color: #c9dcff;
 }
 
 .meta {
@@ -56,7 +56,7 @@ body {
   border-radius: 14px;
   padding: 12px;
   margin-top: 12px;
-  box-shadow: 0 3px 10px rgba(5, 26, 53, 0.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
 }
 
 .label {
@@ -72,7 +72,8 @@ input, select, button {
   border-radius: 10px;
   padding: 10px 11px;
   font-size: 1rem;
-  background: #fff;
+  background: #0f1420;
+  color: var(--text);
 }
 
 .logic-row {
@@ -123,9 +124,9 @@ input, select, button {
 }
 
 .condition-row .remove {
-  background: #fff5f6;
+  background: #2a1620;
   color: var(--danger);
-  border-color: #f3ced5;
+  border-color: #5a2a37;
 }
 
 .buttons {
@@ -140,25 +141,25 @@ input, select, button {
 }
 
 button {
-  background: #2b5fb5;
-  color: #fff;
-  border-color: #2b5fb5;
+  background: #2d5cba;
+  color: #f4f8ff;
+  border-color: #2d5cba;
 }
 
 button.search-btn {
-  background: #1f4a97;
-  border-color: #1f4a97;
+  background: #21488d;
+  border-color: #21488d;
 }
 
 button.add-btn {
-  background: #3b73cf;
-  border-color: #3b73cf;
+  background: #3667bd;
+  border-color: #3667bd;
 }
 
 button.ghost {
-  background: #e9f0ff;
-  color: #1f4a97;
-  border-color: #c8d8f8;
+  background: #1a2437;
+  color: #b6cbf4;
+  border-color: #2d3c5a;
 }
 
 .result-head {
@@ -187,7 +188,7 @@ button.ghost {
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 10px;
-  background: linear-gradient(180deg, #fff 0%, #fbfdff 100%);
+  background: linear-gradient(180deg, #151d2e 0%, #111928 100%);
   position: relative;
 }
 
@@ -238,19 +239,19 @@ button.ghost {
 }
 
 .peak-chip.peak-main {
-  color: #b14a00;
+  color: #ff9d4d;
   font-size: 0.78rem;
   font-weight: 700;
-  text-shadow: 0 0 1px rgba(255, 210, 150, 0.45);
+  text-shadow: 0 0 2px rgba(255, 168, 92, 0.45);
 }
 
 .peak-chip.peak-sub {
-  color: #4e6ea2;
+  color: #84aef7;
   font-weight: 600;
 }
 
 .peak-chip.peak-near {
-  color: rgba(122, 138, 168, 0.36);
+  color: rgba(143, 165, 212, 0.24);
   font-weight: 400;
 }
 
@@ -291,12 +292,12 @@ button.ghost {
 
 .mind-chart .grid {
   fill: none;
-  stroke: #d9dff0;
+  stroke: #5b6886;
   stroke-width: 1;
 }
 
 .mind-chart .axis {
-  stroke: #cdd5e9;
+  stroke: #4d5975;
   stroke-width: 1;
 }
 
@@ -309,14 +310,14 @@ button.ghost {
   position: absolute;
   font-size: 0.62rem;
   font-weight: 700;
-  color: #2f3650;
+  color: #d2ddf5;
   white-space: nowrap;
   background: transparent;
   padding: 0;
   border-radius: 0;
   text-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.9),
-    0 0 2px rgba(255, 255, 255, 0.45);
+    0 1px 0 rgba(0, 0, 0, 0.65),
+    0 0 2px rgba(0, 0, 0, 0.45);
 }
 
 .mind-label.top {
@@ -344,11 +345,11 @@ button.ghost {
 }
 
 .badge {
-  border: 1px solid #c8daf5;
+  border: 1px solid #33466d;
   border-radius: 999px;
   padding: 4px 8px;
   font-size: 0.82rem;
-  background: #eff6ff;
+  background: #1a2740;
   white-space: nowrap;
 }
 
@@ -437,7 +438,7 @@ button.ghost {
 }
 
 .metric-group {
-  border-top: 1px dashed #e5ebf6;
+  border-top: 1px dashed #344562;
   padding-top: 6px;
 }
 
@@ -453,10 +454,10 @@ button.ghost {
 }
 
 .metric-box {
-  border: 1px solid #e4eaf5;
+  border: 1px solid #30415d;
   border-radius: 8px;
   padding: 6px 6px;
-  background: #fcfdff;
+  background: #162136;
   text-align: left;
 }
 
@@ -478,6 +479,7 @@ button.ghost {
   font-size: 0.92rem;
   font-weight: 700;
   font-style: italic;
+  color: #ecf2ff;
   min-width: 1.5em;
   text-align: right;
 }
@@ -496,7 +498,7 @@ button.ghost {
 
 .gauge-cell {
   height: 100%;
-  background: linear-gradient(180deg, #8f929b 0%, #c3c7d1 100%);
+  background: linear-gradient(180deg, #596176 0%, #303749 100%);
 }
 
 .gauge-cell.on {
