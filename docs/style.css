@@ -207,8 +207,8 @@ button.ghost {
 }
 
 .thumbs img {
-  width: 94px;
-  height: 94px;
+  width: 90px;
+  height: 90px;
   object-fit: contain;
 }
 
@@ -222,11 +222,11 @@ button.ghost {
 
 .mind-chart {
   position: relative;
-  width: 116px;
-  height: 116px;
-  flex: 0 0 116px;
+  width: 108px;
+  height: 108px;
+  flex: 0 0 108px;
   margin-left: auto;
-  transform: translateX(-10px);
+  transform: translateX(-18px);
   overflow: visible;
 }
 
@@ -441,10 +441,10 @@ button.ghost {
   }
 
   .mind-chart {
-    width: 108px;
-    height: 108px;
-    flex-basis: 108px;
-    transform: translateX(-6px);
+    width: 100px;
+    height: 100px;
+    flex-basis: 100px;
+    transform: translateX(-10px);
   }
 
   .metrics.main-3 {
