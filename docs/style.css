@@ -199,9 +199,68 @@ button.ghost {
 .card-id {
   position: absolute;
   top: 8px;
-  right: 10px;
+  right: 38px;
   font-size: 0.72rem;
   color: var(--sub);
+}
+
+.expand-toggle {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1px solid #36507e;
+  background: #16223a;
+  color: #dce7ff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+}
+
+.expanded-view {
+  margin-top: 8px;
+}
+
+.periods-scroll {
+  overflow-x: auto;
+  border: 1px solid #334869;
+  border-radius: 8px;
+  background: #0f1728;
+}
+
+.periods-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  font-size: 0.68rem;
+  color: #d6e2ff;
+}
+
+.periods-table th,
+.periods-table td {
+  border: 1px solid #2f4362;
+  padding: 4px 5px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.periods-table thead th {
+  background: #1a2a45;
+  color: #ecf3ff;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.periods-table tbody th {
+  background: #17263f;
+  color: #c9d9fc;
+  position: sticky;
+  left: 0;
+  z-index: 1;
 }
 
 .card-name {

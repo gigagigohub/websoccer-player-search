@@ -35,6 +35,7 @@ const els = {
 };
 
 let players = [];
+const expandedPlayerIds = new Set();
 
 function toHiragana(s) {
   return (s || "")
@@ -268,10 +269,34 @@ function filterPlayers(conditions = getConditions(), logicMode = els.logicMode.v
   });
 }
 
+function periodTableHtml(player) {
+  const periods = Array.isArray(player.periods) ? player.periods : [];
+  const header = METRICS.map((m) => `<th>${metricLabel(m)}</th>`).join("");
+  const rows = periods.map((period) => {
+    const metrics = period?.metrics || {};
+    const values = METRICS.map((m) => `<td>${metrics[m] ?? "-"}</td>`).join("");
+    return `<tr><th>${period?.season || "-"}</th>${values}</tr>`;
+  }).join("");
+
+  return `
+    <div class="expanded-view">
+      <div class="periods-scroll">
+        <table class="periods-table">
+          <thead>
+            <tr><th>期</th>${header}</tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
 function cardHtml(player) {
   const staticImg = `./images/chara/players/static/${player.id}.gif`;
   const actionImg = `./images/chara/players/action/${player.id}.gif`;
   const displayMetrics = getPeakMetrics(player);
+  const isExpanded = expandedPlayerIds.has(player.id);
   const peakTimeline = getPeakTimeline(player);
   const peakHtml = peakTimeline.length
     ? peakTimeline.map((x) => `<span class="peak-chip ${x.tier}">${x.season}</span>`).join("")
@@ -338,18 +363,7 @@ function cardHtml(player) {
     pos === "DF" ? "pos-df" :
     pos === "MF" ? "pos-mf" :
     pos === "FW" ? "pos-fw" : "";
-
-  return `
-    <article class="card">
-      <div class="card-top">
-        <span class="card-id">ID: ${player.id}</span>
-        <div class="card-head-main">
-          <h3 class="card-name">
-            <span class="badge pos-badge ${posClass}">${pos}</span>
-            <span class="badge type-badge ${typeClass}">${typeLabel}</span>
-            <a href="${player.url}" target="_blank" rel="noreferrer">${player.name}</a>
-          </h3>
-          <div class="peak-periods">${peakHtml}</div>
+  const normalViewHtml = `
           <div class="media-row">
             <div class="thumbs">
               <img loading="lazy" src="${staticImg}" alt="${player.name} 静止" />
@@ -370,8 +384,6 @@ function cardHtml(player) {
               <div class="mind-label left">個人 ${mind.kojin}</div>
             </div>
           </div>
-        </div>
-      </div>
       <div class="metrics-wrap">
         <div class="metrics main-3">${mainMetrics.map(metricBox).join("")}</div>
         <div class="metric-group">
@@ -381,6 +393,25 @@ function cardHtml(player) {
           <div class="metrics group-4">${group1.map(metricBox).join("")}</div>
         </div>
       </div>
+  `;
+  const detailViewHtml = periodTableHtml(player);
+  const bodyHtml = isExpanded ? detailViewHtml : normalViewHtml;
+
+  return `
+    <article class="card">
+      <div class="card-top">
+        <button type="button" class="expand-toggle" data-player-id="${player.id}" aria-label="詳細表示切替">${isExpanded ? "−" : "+"}</button>
+        <span class="card-id">ID: ${player.id}</span>
+        <div class="card-head-main">
+          <h3 class="card-name">
+            <span class="badge pos-badge ${posClass}">${pos}</span>
+            <span class="badge type-badge ${typeClass}">${typeLabel}</span>
+            <a href="${player.url}" target="_blank" rel="noreferrer">${player.name}</a>
+          </h3>
+          <div class="peak-periods">${peakHtml}</div>
+        </div>
+      </div>
+      ${bodyHtml}
     </article>
   `;
 }
@@ -425,6 +456,18 @@ async function init() {
   });
 
   els.applySearch.addEventListener("click", render);
+  els.results.addEventListener("click", (e) => {
+    const btn = e.target.closest(".expand-toggle");
+    if (!btn) return;
+    const id = Number(btn.dataset.playerId);
+    if (!Number.isInteger(id)) return;
+    if (expandedPlayerIds.has(id)) {
+      expandedPlayerIds.delete(id);
+    } else {
+      expandedPlayerIds.add(id);
+    }
+    render();
+  });
 
   const res = await fetch("./data.json");
   const data = await res.json();
