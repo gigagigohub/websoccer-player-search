@@ -8,6 +8,7 @@ const els = {
   nameQuery: document.querySelector("#nameQuery"),
   logicMode: document.querySelector("#logicMode"),
   sortKey: document.querySelector("#sortKey"),
+  positionFilter: document.querySelector("#positionFilter"),
   cmOnly: document.querySelector("#cmOnly"),
   ssOnly: document.querySelector("#ssOnly"),
   normalOnly: document.querySelector("#normalOnly"),
@@ -124,6 +125,7 @@ function checkCondition(player, condition) {
 function filterPlayers() {
   const query = els.nameQuery.value.trim().toLowerCase();
   const logicMode = els.logicMode.value;
+  const positionFilter = els.positionFilter.value;
   const cmOnly = els.cmOnly.checked;
   const ssOnly = els.ssOnly.checked;
   const normalOnly = els.normalOnly.checked;
@@ -131,6 +133,9 @@ function filterPlayers() {
 
   return players.filter((player) => {
     if (query && !player.name.toLowerCase().includes(query)) {
+      return false;
+    }
+    if (positionFilter && player.position !== positionFilter) {
       return false;
     }
 
@@ -216,6 +221,7 @@ function cardHtml(player) {
           <h3 class="card-name"><a href="${player.url}" target="_blank" rel="noreferrer">${player.name}</a></h3>
         </div>
         <div class="card-head-right">
+          <span class="badge">POS: ${player.position || "-"}</span>
           <span class="badge">ID: ${player.id}</span>
           <span class="badge">総合値: ${player.bestTotal}</span>
         </div>
@@ -249,7 +255,7 @@ async function init() {
   createSortOptions();
   addConditionRow({ metric: "スピ", op: "gte", value1: 10 });
 
-  [els.nameQuery, els.logicMode, els.sortKey].forEach((el) => {
+  [els.nameQuery, els.logicMode, els.sortKey, els.positionFilter].forEach((el) => {
     el.addEventListener("input", render);
     el.addEventListener("change", render);
   });

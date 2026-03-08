@@ -174,6 +174,19 @@ def parse_special_flags(soup: BeautifulSoup) -> Dict[str, bool]:
     return {"CM": has_cm, "SS": has_ss}
 
 
+def parse_player_position(soup: BeautifulSoup) -> str:
+    for tr in soup.select("table.table.table-striped tr"):
+        th = tr.find("th")
+        td = tr.find("td")
+        if not th or not td:
+            continue
+        key = re.sub(r"\s+", "", th.get_text(" ", strip=True))
+        if key == "ポジション":
+            text = td.get_text(" ", strip=True)
+            return text
+    return ""
+
+
 def parse_related_player_refs(soup: BeautifulSoup) -> List[Tuple[int, str]]:
     heading = soup.find("h3", string=lambda s: isinstance(s, str) and "同一選手別バージョン" in s)
     if heading is None:
@@ -217,6 +230,7 @@ def parse_player_detail(
     related_refs = parse_related_player_refs(soup)
     periods = parse_parameter_table(soup)
     flags = parse_special_flags(soup)
+    position = parse_player_position(soup)
     if not periods:
         return None, related_refs
 
@@ -262,6 +276,7 @@ def parse_player_detail(
         "minMetrics": min_metrics,
         "bestTotal": best_total,
         "flags": flags,
+        "position": position,
     }, related_refs
 
 
