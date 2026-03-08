@@ -22,7 +22,7 @@ const DETAIL_METRIC_LABELS = {
 };
 const LINEUP_SIZE = 11;
 const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
-const APP_UPDATED_AT_JST = "2026-03-08 23:17 JST";
+const APP_UPDATED_AT_JST = "2026-03-08 23:18 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
