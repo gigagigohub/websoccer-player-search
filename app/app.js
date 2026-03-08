@@ -21,6 +21,12 @@ const els = {
 
 let players = [];
 
+function toHiragana(s) {
+  return (s || "")
+    .replace(/[\u30a1-\u30f6]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0x60))
+    .replace(/\s+/g, "");
+}
+
 function addConditionRow(defaults = {}) {
   const node = els.conditionTemplate.content.firstElementChild.cloneNode(true);
   const metric = node.querySelector(".metric");
@@ -100,7 +106,7 @@ function checkCondition(player, condition) {
 }
 
 function filterPlayers() {
-  const query = els.nameQuery.value.trim().toLowerCase();
+  const query = toHiragana(els.nameQuery.value.trim().toLowerCase());
   const logicMode = els.logicMode.value;
   const positionFilter = els.positionFilter.value;
   const cmOnly = els.cmOnly.checked;
@@ -109,7 +115,8 @@ function filterPlayers() {
   const conditions = getConditions();
 
   return players.filter((player) => {
-    if (query && !player.name.toLowerCase().includes(query)) {
+    const playerName = toHiragana((player.name || "").toLowerCase());
+    if (query && !playerName.includes(query)) {
       return false;
     }
     if (positionFilter && player.position !== positionFilter) {
@@ -220,8 +227,6 @@ function render() {
 }
 
 async function init() {
-  addConditionRow({ metric: "スピ", op: "gte", value1: 10 });
-
   [els.nameQuery, els.logicMode, els.positionFilter].forEach((el) => {
     el.addEventListener("input", render);
     el.addEventListener("change", render);
@@ -231,13 +236,12 @@ async function init() {
   });
 
   els.addCondition.addEventListener("click", () => {
-    addConditionRow({ metric: "テク", op: "gte", value1: "" });
+    addConditionRow({ metric: "スピ", op: "gte", value1: "" });
     render();
   });
 
   els.resetCondition.addEventListener("click", () => {
     els.conditions.innerHTML = "";
-    addConditionRow({ metric: "スピ", op: "gte", value1: 10 });
     render();
   });
 
