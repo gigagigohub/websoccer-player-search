@@ -9,31 +9,10 @@ const METRIC_LABELS = {
   "スタ": "スタミナ",
   "CP": "Cap.",
 };
-const FILTER_METRIC_LABELS = {
-  "スピ": "Speed",
-  "テク": "Technique",
-  "パワ": "Power",
-  "スタ": "Stamina",
-  "ラフ": "Rough",
-  "個性": "Uniqueness",
-  "人気": "Popularity",
-  "PK": "PK",
-  "FK": "FK",
-  "CK": "CK",
-  "CP": "Cap.",
-  "知性": "Intelligence",
-  "感性": "Sensitivity",
-  "個人": "Individual",
-  "組織": "Organization",
-};
 const APP_UPDATED_AT_JST = "2026-03-08 18:18 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
-}
-
-function filterMetricLabel(metric) {
-  return FILTER_METRIC_LABELS[metric] || metric;
 }
 
 const els = {
@@ -75,7 +54,7 @@ function addConditionRow(defaults = {}) {
   METRICS.forEach((m) => {
     const option = document.createElement("option");
     option.value = m;
-    option.textContent = filterMetricLabel(m);
+    option.textContent = metricLabel(m);
     metric.appendChild(option);
   });
 
