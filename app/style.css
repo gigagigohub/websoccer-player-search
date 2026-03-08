@@ -257,14 +257,14 @@ button.ghost {
   min-width: 76px;
   flex: 1 1 auto;
   overflow-x: auto;
-  transform: translateX(4px);
+  transform: translateX(-4px);
 }
 
 .pos-heatmaps-scroll.single {
   flex: 0 0 auto;
   max-width: none;
   overflow: visible;
-  transform: translate(-38px, -14px);
+  transform: translate(-46px, -14px);
 }
 
 .pos-heatmaps-track {
@@ -488,7 +488,7 @@ button.ghost {
   height: 108px;
   flex: 0 0 108px;
   margin-left: auto;
-  transform: translateX(-32px);
+  transform: translateX(-40px);
   overflow: visible;
 }
 
@@ -754,7 +754,7 @@ button.ghost {
     width: 100px;
     height: 100px;
     flex-basis: 100px;
-    transform: translateX(-18px);
+    transform: translateX(-26px);
   }
 
   .metrics.main-3 {
@@ -780,12 +780,12 @@ button.ghost {
   .pos-heatmaps-scroll {
     max-width: calc(100% - 172px);
     min-width: 70px;
-    transform: translateX(3px);
+    transform: translateX(-5px);
   }
 
   .pos-heatmaps-scroll.single {
     max-width: none;
-    transform: translate(-31px, -10px);
+    transform: translate(-39px, -10px);
   }
 
   .pitch-map {
