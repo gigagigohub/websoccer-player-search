@@ -171,7 +171,7 @@ function cardHtml(player) {
       <div class="metric-box ${metricClass}">
         <span class="metric-key">${metricLabel(metric)}</span>
         <span class="metric-val">${v == null ? "-" : v}<small>/${max}</small></span>
-        <div class="gauge">
+        <div class="gauge" style="--steps:${max}">
           <span class="gauge-fill" style="width:${pct}%"></span>
         </div>
       </div>
