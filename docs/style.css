@@ -924,7 +924,7 @@ button.ghost {
   height: 109px;
   object-fit: contain;
   object-position: center bottom;
-  transform: translateY(46px);
+  transform: translateY(42px);
 }
 
 .lineup-empty-thumb {
@@ -1159,7 +1159,7 @@ button.ghost {
   .lineup-thumb-wrap img {
     width: 58px;
     height: 98px;
-    transform: translateY(38px);
+    transform: translateY(34px);
   }
 
   .lineup-core {
