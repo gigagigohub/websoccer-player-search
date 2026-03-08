@@ -82,6 +82,26 @@ body {
   color: #ffb4c0;
 }
 
+.myteam-actions {
+  margin-bottom: 8px;
+}
+
+.myteam-back {
+  color: #b9cdf6;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.myteam-dialog-static {
+  position: static;
+  left: auto;
+  top: auto;
+  transform: none;
+  width: 100%;
+  max-height: none;
+  overflow: visible;
+}
+
 .hero h1 {
   margin: 0;
   font-size: 1.48rem;

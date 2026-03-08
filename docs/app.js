@@ -26,7 +26,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-09 01:01 JST";
+const APP_UPDATED_AT_JST = "2026-03-09 01:10 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -61,6 +61,7 @@ const els = {
   lineupModal: document.querySelector("#lineupModal"),
   lineupBackdrop: document.querySelector("#lineupBackdrop"),
   lineupClose: document.querySelector("#lineupClose"),
+  lineupTitle: document.querySelector("#lineupTitle"),
   lineupTarget: document.querySelector("#lineupTarget"),
   lineupSlots: document.querySelector("#lineupSlots"),
   seasonModal: document.querySelector("#seasonModal"),
@@ -278,11 +279,18 @@ function closeLineupModal() {
   els.lineupModal.hidden = true;
 }
 
-function openMyTeamLineupView() {
+function setLineupModalTitle(show, text = "スタメン登録") {
+  if (!els.lineupTitle) return;
+  els.lineupTitle.hidden = !show;
+  if (show) els.lineupTitle.textContent = text;
+}
+
+function openLoginSuccessLineupView() {
   pendingLineupPlayerId = null;
   lineupSlotsLocked = true;
+  setLineupModalTitle(false);
   if (els.lineupTarget) {
-    els.lineupTarget.textContent = `MyTeam: ${cloudConfig.lineupKey || "-"}`;
+    els.lineupTarget.textContent = "ログインが完了しました";
   }
   renderLineupSlots();
   if (els.lineupModal) {
@@ -408,6 +416,7 @@ function renderLineupSlots() {
 function openLineupModal(playerId) {
   pendingLineupPlayerId = playerId;
   lineupSlotsLocked = false;
+  setLineupModalTitle(true, "スタメン登録");
   const player = players.find((p) => p.id === playerId);
   const allowedIndexes = allowedSlotIndexesForPendingName();
   if (els.lineupTarget) {
@@ -965,7 +974,7 @@ async function init() {
   if (els.myTeamButton) {
     els.myTeamButton.addEventListener("click", () => {
       closeMenuPanel();
-      openMyTeamLineupView();
+      window.location.href = "./myteam.html";
     });
   }
   if (els.loginButton) {
@@ -1109,7 +1118,7 @@ async function init() {
         setCloudStatus(`Cloud load failed: ${e.message}`, true);
       }
       closeLoginModal();
-      openMyTeamLineupView();
+      openLoginSuccessLineupView();
     });
   }
   document.addEventListener("keydown", (e) => {
