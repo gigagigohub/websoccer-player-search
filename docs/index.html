@@ -67,16 +67,7 @@
         <button id="applySearch" type="button" class="search-btn">Search</button>
       </div>
 
-      <div class="cloud-box">
-        <h3>Cloud Sync (Supabase)</h3>
-        <div class="buttons">
-          <button id="cloudLoadLineup" type="button" class="ghost">Load Cloud</button>
-        </div>
-        <div class="apply-row">
-          <button id="cloudSaveLineup" type="button" class="search-btn">Save Cloud</button>
-        </div>
-        <p id="cloudStatus" class="cloud-status">Cloud: not configured</p>
-      </div>
+      <p id="cloudStatus" class="cloud-status">Cloud: not configured</p>
     </section>
 
     <section class="panel">
@@ -128,8 +119,26 @@
       <label class="label" for="loginLineupKey">Lineup Key</label>
       <input id="loginLineupKey" type="text" placeholder="my-team-01" />
       <div class="season-actions">
+        <button id="signupOpen" type="button" class="add-btn">Sign Up</button>
         <button id="loginCancel" type="button" class="ghost">Cancel</button>
         <button id="loginApply" type="button">Login</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="signupModal" class="season-modal" hidden>
+    <div id="signupBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog" role="dialog" aria-modal="true" aria-labelledby="signupTitle">
+      <div class="season-head">
+        <h2 id="signupTitle">Sign Up</h2>
+        <button id="signupClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <p class="season-target">新規LineupKeyを入力してください</p>
+      <label class="label" for="signupLineupKey">Lineup Key</label>
+      <input id="signupLineupKey" type="text" placeholder="new-team-01" />
+      <div class="season-actions">
+        <button id="signupCancel" type="button" class="ghost">Cancel</button>
+        <button id="signupApply" type="button">Create</button>
       </div>
     </div>
   </div>

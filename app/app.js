@@ -26,7 +26,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-09 01:19 JST";
+const APP_UPDATED_AT_JST = "2026-03-09 01:27 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -75,8 +75,15 @@ const els = {
   loginBackdrop: document.querySelector("#loginBackdrop"),
   loginClose: document.querySelector("#loginClose"),
   loginLineupKey: document.querySelector("#loginLineupKey"),
+  signupOpen: document.querySelector("#signupOpen"),
   loginCancel: document.querySelector("#loginCancel"),
   loginApply: document.querySelector("#loginApply"),
+  signupModal: document.querySelector("#signupModal"),
+  signupBackdrop: document.querySelector("#signupBackdrop"),
+  signupClose: document.querySelector("#signupClose"),
+  signupLineupKey: document.querySelector("#signupLineupKey"),
+  signupCancel: document.querySelector("#signupCancel"),
+  signupApply: document.querySelector("#signupApply"),
   cloudLoadLineup: document.querySelector("#cloudLoadLineup"),
   cloudSaveLineup: document.querySelector("#cloudSaveLineup"),
   cloudStatus: document.querySelector("#cloudStatus"),
@@ -86,6 +93,7 @@ let players = [];
 const expandedPlayerIds = new Set();
 let pendingLineupPlayerId = null;
 let pendingLineupSlotIndex = null;
+let pendingLoginForAddPlayerId = null;
 let startingLineup = Array.from({ length: LINEUP_SIZE }, () => null);
 let lineupSlotsLocked = false;
 let cloudConfig = { url: "", anonKey: "", lineupKey: "" };
@@ -159,6 +167,20 @@ function openLoginModal() {
 function closeLoginModal() {
   if (!els.loginModal) return;
   els.loginModal.hidden = true;
+}
+
+function openSignupModal() {
+  if (!els.signupModal) return;
+  if (els.signupLineupKey) {
+    els.signupLineupKey.value = "";
+    els.signupLineupKey.focus();
+  }
+  els.signupModal.hidden = false;
+}
+
+function closeSignupModal() {
+  if (!els.signupModal) return;
+  els.signupModal.hidden = true;
 }
 
 function normalizedSupabaseUrl(url) {
@@ -283,19 +305,6 @@ function setLineupModalTitle(show, text = "スタメン登録") {
   if (!els.lineupTitle) return;
   els.lineupTitle.hidden = !show;
   if (show) els.lineupTitle.textContent = text;
-}
-
-function openLoginSuccessLineupView() {
-  pendingLineupPlayerId = null;
-  lineupSlotsLocked = true;
-  setLineupModalTitle(false);
-  if (els.lineupTarget) {
-    els.lineupTarget.textContent = "ログインが完了しました";
-  }
-  renderLineupSlots();
-  if (els.lineupModal) {
-    els.lineupModal.hidden = false;
-  }
 }
 
 function logoutLineupKey() {
@@ -1000,7 +1009,12 @@ async function init() {
     if (lineupBtn) {
       const lineupId = Number(lineupBtn.dataset.playerId);
       if (Number.isInteger(lineupId)) {
-        openLineupModal(lineupId);
+        if (!isLoggedIn()) {
+          pendingLoginForAddPlayerId = lineupId;
+          openLoginModal();
+        } else {
+          openLineupModal(lineupId);
+        }
       }
       return;
     }
@@ -1072,31 +1086,6 @@ async function init() {
       closeSeasonModal();
     });
   }
-  if (els.cloudLoadLineup) {
-    els.cloudLoadLineup.addEventListener("click", async () => {
-      if (!saveCloudConfig()) return;
-      try {
-        const ok = await cloudLoadLineup();
-        setCloudStatus(ok ? "Cloud: loaded" : "Cloud: no data");
-        if (els.lineupModal && !els.lineupModal.hidden) {
-          renderLineupSlots();
-        }
-      } catch (e) {
-        setCloudStatus(`Cloud load failed: ${e.message}`, true);
-      }
-    });
-  }
-  if (els.cloudSaveLineup) {
-    els.cloudSaveLineup.addEventListener("click", async () => {
-      if (!saveCloudConfig()) return;
-      try {
-        await cloudSaveLineup();
-        setCloudStatus("Cloud: saved");
-      } catch (e) {
-        setCloudStatus(`Cloud save failed: ${e.message}`, true);
-      }
-    });
-  }
   if (els.loginBackdrop) {
     els.loginBackdrop.addEventListener("click", closeLoginModal);
   }
@@ -1105,6 +1094,12 @@ async function init() {
   }
   if (els.loginCancel) {
     els.loginCancel.addEventListener("click", closeLoginModal);
+  }
+  if (els.signupOpen) {
+    els.signupOpen.addEventListener("click", () => {
+      closeLoginModal();
+      openSignupModal();
+    });
   }
   if (els.loginApply) {
     els.loginApply.addEventListener("click", async () => {
@@ -1118,7 +1113,41 @@ async function init() {
         setCloudStatus(`Cloud load failed: ${e.message}`, true);
       }
       closeLoginModal();
-      openLoginSuccessLineupView();
+      if (Number.isInteger(pendingLoginForAddPlayerId)) {
+        const id = pendingLoginForAddPlayerId;
+        pendingLoginForAddPlayerId = null;
+        openLineupModal(id);
+      }
+    });
+  }
+  if (els.signupBackdrop) {
+    els.signupBackdrop.addEventListener("click", closeSignupModal);
+  }
+  if (els.signupClose) {
+    els.signupClose.addEventListener("click", closeSignupModal);
+  }
+  if (els.signupCancel) {
+    els.signupCancel.addEventListener("click", closeSignupModal);
+  }
+  if (els.signupApply) {
+    els.signupApply.addEventListener("click", async () => {
+      const key = String(els.signupLineupKey?.value || "").trim();
+      if (!saveCloudConfig(key)) return;
+      updateMenuState();
+      try {
+        startingLineup = Array.from({ length: LINEUP_SIZE }, () => null);
+        saveStartingLineup();
+        await cloudSaveLineup();
+        setCloudStatus("Cloud: key created");
+      } catch (e) {
+        setCloudStatus(`Cloud create failed: ${e.message}`, true);
+      }
+      closeSignupModal();
+      if (Number.isInteger(pendingLoginForAddPlayerId)) {
+        const id = pendingLoginForAddPlayerId;
+        pendingLoginForAddPlayerId = null;
+        openLineupModal(id);
+      }
     });
   }
   document.addEventListener("keydown", (e) => {
@@ -1132,6 +1161,11 @@ async function init() {
     }
     if (e.key === "Escape" && els.loginModal && !els.loginModal.hidden) {
       closeLoginModal();
+      closeMenuPanel();
+      return;
+    }
+    if (e.key === "Escape" && els.signupModal && !els.signupModal.hidden) {
+      closeSignupModal();
       closeMenuPanel();
     }
   });
