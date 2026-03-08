@@ -9,10 +9,22 @@ const METRIC_LABELS = {
   "スタ": "スタミナ",
   "CP": "Cap.",
 };
+const DETAIL_METRIC_LABELS = {
+  "スピ": "スピ",
+  "テク": "テク",
+  "パワ": "パワ",
+  "スタ": "スタ",
+  "ラフ": "ラフ",
+  "CP": "CP",
+};
 const APP_UPDATED_AT_JST = "2026-03-08 18:18 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
+}
+
+function detailMetricLabel(metric) {
+  return DETAIL_METRIC_LABELS[metric] || metric;
 }
 
 const els = {
@@ -269,17 +281,26 @@ function filterPlayers(conditions = getConditions(), logicMode = els.logicMode.v
   });
 }
 
-function periodTableHtml(player) {
+function periodTableHtml(player, staticImg, actionImg) {
   const periods = Array.isArray(player.periods) ? player.periods : [];
-  const header = METRICS.map((m) => `<th>${metricLabel(m)}</th>`).join("");
+  const header = METRICS.map((m) => `<th>${detailMetricLabel(m)}</th>`).join("");
+  const tiers = new Map(getPeakTimeline(player).map((x) => [x.season, x.tier]));
   const rows = periods.map((period) => {
     const metrics = period?.metrics || {};
     const values = METRICS.map((m) => `<td>${metrics[m] ?? "-"}</td>`).join("");
-    return `<tr><th>${period?.season || "-"}</th>${values}</tr>`;
+    const season = period?.season || "-";
+    const tierClass = tiers.get(season) || "peak-none";
+    return `<tr><th class="season-cell ${tierClass}">${season}</th>${values}</tr>`;
   }).join("");
 
   return `
     <div class="expanded-view">
+      <div class="expanded-media">
+        <div class="thumbs">
+          <img loading="lazy" src="${staticImg}" alt="${player.name} 静止" />
+          <img loading="lazy" src="${actionImg}" alt="${player.name} アクション" />
+        </div>
+      </div>
       <div class="periods-scroll">
         <table class="periods-table">
           <thead>
@@ -394,7 +415,7 @@ function cardHtml(player) {
         </div>
       </div>
   `;
-  const detailViewHtml = periodTableHtml(player);
+  const detailViewHtml = periodTableHtml(player, staticImg, actionImg);
   const bodyHtml = isExpanded ? detailViewHtml : normalViewHtml;
 
   return `

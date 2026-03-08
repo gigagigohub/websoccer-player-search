@@ -190,6 +190,7 @@ button.ghost {
   padding: 10px;
   background: linear-gradient(180deg, #151d2e 0%, #111928 100%);
   position: relative;
+  overflow: hidden;
 }
 
 .card-top {
@@ -222,10 +223,19 @@ button.ghost {
 
 .expanded-view {
   margin-top: 8px;
+  width: 100%;
+  max-width: 100%;
+}
+
+.expanded-media {
+  margin-bottom: 8px;
 }
 
 .periods-scroll {
+  width: 100%;
+  max-width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
   border: 1px solid #334869;
   border-radius: 8px;
   background: #0f1728;
@@ -261,6 +271,26 @@ button.ghost {
   position: sticky;
   left: 0;
   z-index: 1;
+}
+
+.periods-table tbody th.season-cell.peak-main {
+  color: #ff9d4d;
+  font-weight: 700;
+}
+
+.periods-table tbody th.season-cell.peak-sub {
+  color: #84aef7;
+  font-weight: 600;
+}
+
+.periods-table tbody th.season-cell.peak-near {
+  color: rgba(143, 165, 212, 0.26);
+  font-weight: 500;
+}
+
+.periods-table tbody th.season-cell.peak-none {
+  color: rgba(143, 165, 212, 0.13);
+  font-weight: 400;
 }
 
 .card-name {
