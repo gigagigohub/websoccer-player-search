@@ -187,6 +187,18 @@ def parse_player_position(soup: BeautifulSoup) -> str:
     return ""
 
 
+def parse_player_rate(soup: BeautifulSoup) -> Optional[int]:
+    for tr in soup.select("table.table.table-striped tr"):
+        th = tr.find("th")
+        td = tr.find("td")
+        if not th or not td:
+            continue
+        key = re.sub(r"\s+", "", th.get_text(" ", strip=True))
+        if key == "レート":
+            return extract_int(td.get_text(" ", strip=True))
+    return None
+
+
 def parse_related_player_refs(soup: BeautifulSoup) -> List[Tuple[int, str]]:
     heading = soup.find("h3", string=lambda s: isinstance(s, str) and "同一選手別バージョン" in s)
     if heading is None:
@@ -231,6 +243,7 @@ def parse_player_detail(
     periods = parse_parameter_table(soup)
     flags = parse_special_flags(soup)
     position = parse_player_position(soup)
+    rate = parse_player_rate(soup)
     if not periods:
         return None, related_refs
 
@@ -277,6 +290,7 @@ def parse_player_detail(
         "bestTotal": best_total,
         "flags": flags,
         "position": position,
+        "rate": rate,
     }, related_refs
 
 
