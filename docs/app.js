@@ -24,6 +24,7 @@ const els = {
   normalOnly: document.querySelector("#normalOnly"),
   naOnly: document.querySelector("#naOnly"),
   ccOnly: document.querySelector("#ccOnly"),
+  applySearch: document.querySelector("#applySearch"),
   conditions: document.querySelector("#conditions"),
   addCondition: document.querySelector("#addCondition"),
   resetCondition: document.querySelector("#resetCondition"),
@@ -64,14 +65,11 @@ function addConditionRow(defaults = {}) {
     node.classList.toggle("between", op.value === "between");
   };
 
-  [metric, op, value1, value2].forEach((e) => e.addEventListener("input", render));
   op.addEventListener("change", () => {
     syncBetween();
-    render();
   });
   remove.addEventListener("click", () => {
     node.remove();
-    render();
   });
 
   syncBetween();
@@ -290,23 +288,15 @@ function render() {
 }
 
 async function init() {
-  [els.nameQuery, els.logicMode, els.positionFilter].forEach((el) => {
-    el.addEventListener("input", render);
-    el.addEventListener("change", render);
-  });
-  [els.cmOnly, els.ssOnly, els.normalOnly, els.naOnly, els.ccOnly].forEach((el) => {
-    el.addEventListener("change", render);
-  });
-
   els.addCondition.addEventListener("click", () => {
     addConditionRow({ metric: "スピ", op: "gte", value1: "" });
-    render();
   });
 
   els.resetCondition.addEventListener("click", () => {
     els.conditions.innerHTML = "";
-    render();
   });
+
+  els.applySearch.addEventListener("click", render);
 
   const res = await fetch("./data.json");
   const data = await res.json();
