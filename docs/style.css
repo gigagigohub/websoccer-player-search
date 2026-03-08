@@ -616,13 +616,13 @@ button.ghost {
 }
 
 .type-badge.cat-nr-r13 {
-  color: #24303f;
+  color: #202b3a;
   text-shadow: none;
-  background: linear-gradient(180deg, #f7f8fb 0%, #e7ebf2 100%);
+  background: linear-gradient(180deg, #dbe2ec 0%, #bcc8d8 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    inset 0 -1px 0 rgba(150, 160, 176, 0.3),
-    0 0 0 1px rgba(154, 164, 180, 0.35);
+    inset 0 1px 0 rgba(246, 249, 255, 0.62),
+    inset 0 -1px 0 rgba(120, 133, 152, 0.34),
+    0 0 0 1px rgba(108, 123, 145, 0.42);
 }
 
 .type-badge.cat-nr-r4 {
