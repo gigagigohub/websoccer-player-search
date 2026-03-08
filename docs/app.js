@@ -277,10 +277,19 @@ function cardHtml(player) {
 
 function render() {
   const filtered = filterPlayers();
+  const categoryRank = {
+    "NR": 0,
+    "CC": 1,
+    "SS": 2,
+    "CM": 3,
+    "CM/SS": 3,
+    "NA": 4,
+    "RT": 99,
+  };
   filtered.sort((a, b) => {
-    const aNR = getCategory(a) === "NR";
-    const bNR = getCategory(b) === "NR";
-    if (aNR !== bNR) return aNR ? -1 : 1;
+    const ar = categoryRank[getCategory(a)] ?? 50;
+    const br = categoryRank[getCategory(b)] ?? 50;
+    if (ar !== br) return ar - br;
     return (b.bestTotal - a.bestTotal) || a.name.localeCompare(b.name, "ja");
   });
 
