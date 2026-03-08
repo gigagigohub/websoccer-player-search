@@ -247,13 +247,9 @@ button.ghost {
 }
 
 .mind-chart .area {
-  fill: rgba(204, 98, 18, 0.26);
-  stroke: #b85c10;
+  fill: rgba(235, 116, 22, 0.42);
+  stroke: #d46612;
   stroke-width: 1.5;
-}
-
-.mind-chart circle {
-  fill: #b85c10;
 }
 
 .mind-label {

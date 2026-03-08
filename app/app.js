@@ -239,10 +239,6 @@ function cardHtml(player) {
                 <line class="axis" x1="70" y1="16" x2="70" y2="124"></line>
                 <line class="axis" x1="16" y1="70" x2="124" y2="70"></line>
                 <polygon class="area" points="${areaPoints}"></polygon>
-                <circle cx="${cx}" cy="${cy - r * nTop}" r="2.2"></circle>
-                <circle cx="${cx + r * nRight}" cy="${cy}" r="2.2"></circle>
-                <circle cx="${cx}" cy="${cy + r * nBottom}" r="2.2"></circle>
-                <circle cx="${cx - r * nLeft}" cy="${cy}" r="2.2"></circle>
               </svg>
               <div class="mind-label top">知性 ${mind.zisei}</div>
               <div class="mind-label right">組織 ${mind.soshiki}</div>
