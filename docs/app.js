@@ -20,7 +20,7 @@ const DETAIL_METRIC_LABELS = {
   "CK": "ＣＫ",
   "CP": "ＣＰ",
 };
-const APP_UPDATED_AT_JST = "2026-03-08 23:40 JST";
+const APP_UPDATED_AT_JST = "2026-03-08 23:48 JST";
 const LINEUP_SIZE = 11;
 const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 
@@ -61,6 +61,23 @@ const expandedPlayerIds = new Set();
 let pendingLineupPlayerId = null;
 let startingLineup = Array.from({ length: LINEUP_SIZE }, () => null);
 
+function normalizeSeasonInput(input) {
+  const raw = String(input || "").trim();
+  if (!raw) return "";
+  const n = raw.replace(/[^0-9]/g, "");
+  if (n.length > 0) {
+    return `${Number(n)}期`;
+  }
+  if (raw.endsWith("期")) return raw;
+  return raw;
+}
+
+function findPeriodBySeason(player, season) {
+  if (!player || !season) return null;
+  const periods = Array.isArray(player.periods) ? player.periods : [];
+  return periods.find((p) => p?.season === season) || null;
+}
+
 function loadStartingLineup() {
   try {
     const raw = localStorage.getItem(LINEUP_STORAGE_KEY);
@@ -68,8 +85,19 @@ function loadStartingLineup() {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return;
     startingLineup = Array.from({ length: LINEUP_SIZE }, (_, i) => {
-      const id = Number(parsed[i]);
-      return Number.isInteger(id) ? id : null;
+      const row = parsed[i];
+      if (row == null) return null;
+      if (typeof row === "number" || typeof row === "string") {
+        const id = Number(row);
+        return Number.isInteger(id) ? { playerId: id, season: null } : null;
+      }
+      if (typeof row === "object") {
+        const id = Number(row.playerId);
+        if (!Number.isInteger(id)) return null;
+        const season = row.season == null ? null : String(row.season);
+        return { playerId: id, season };
+      }
+      return null;
     });
   } catch (e) {
     console.warn("failed to load lineup", e);
@@ -113,11 +141,13 @@ function renderLineupSlots() {
     `;
   };
 
-  const html = startingLineup.map((playerId, idx) => {
+  const html = startingLineup.map((entry, idx) => {
     const slot = idx + 1;
+    const playerId = Number(entry?.playerId);
     const player = players.find((x) => x.id === playerId) || null;
     const name = player ? player.name : "未登録";
-    const hasPlayer = playerId != null;
+    const hasPlayer = Number.isInteger(playerId) && !!player;
+    const season = hasPlayer ? (entry?.season || null) : null;
     const pos = (player?.position || "-").toUpperCase();
     const posClass = positionClass(pos);
     const typeLabel = player ? getCategory(player) : "-";
@@ -125,13 +155,14 @@ function renderLineupSlots() {
     const imageHtml = player
       ? `<img loading="lazy" src="./images/chara/players/static/${player.id}.gif" alt="${player.name}" />`
       : `<div class="lineup-empty-thumb"></div>`;
-    const peak = player ? getPeakMetrics(player) : null;
+    const selectedPeriod = hasPlayer ? findPeriodBySeason(player, season) : null;
+    const selectedMetrics = selectedPeriod?.metrics || (player ? getPeakMetrics(player) : null);
     const coreHtml = player
       ? `
         <div class="lineup-core">
-          ${miniCoreMetric("スピ", peak?.["スピ"])}
-          ${miniCoreMetric("テク", peak?.["テク"])}
-          ${miniCoreMetric("パワ", peak?.["パワ"])}
+          ${miniCoreMetric("スピ", selectedMetrics?.["スピ"])}
+          ${miniCoreMetric("テク", selectedMetrics?.["テク"])}
+          ${miniCoreMetric("パワ", selectedMetrics?.["パワ"])}
         </div>
       `
       : "";
@@ -147,6 +178,7 @@ function renderLineupSlots() {
             </div>
             <span class="slot-name">${name}</span>
           </div>
+          <span class="lineup-season">${season || "-"}</span>
           ${coreHtml}
         </div>
       </button>
@@ -713,7 +745,24 @@ async function init() {
       if (!slotBtn || pendingLineupPlayerId == null) return;
       const slotIndex = Number(slotBtn.dataset.slotIndex);
       if (!Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= LINEUP_SIZE) return;
-      startingLineup[slotIndex] = pendingLineupPlayerId;
+      const player = players.find((p) => p.id === pendingLineupPlayerId);
+      const seasons = (player?.periods || [])
+        .map((p) => p?.season)
+        .filter((s) => typeof s === "string" && s.length > 0);
+      if (!player || !seasons.length) return;
+      const defaultSeason = seasons[0];
+      const input = window.prompt(
+        `何期目で登録しますか？\n候補: ${seasons.join(" / ")}`,
+        defaultSeason
+      );
+      if (input == null) return;
+      const normalized = normalizeSeasonInput(input);
+      const selectedSeason = seasons.find((s) => s === normalized);
+      if (!selectedSeason) {
+        window.alert("入力した期は存在しません。");
+        return;
+      }
+      startingLineup[slotIndex] = { playerId: pendingLineupPlayerId, season: selectedSeason };
       saveStartingLineup();
       closeLineupModal();
     });

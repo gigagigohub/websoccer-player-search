@@ -924,7 +924,7 @@ button.ghost {
   height: 136px;
   object-fit: contain;
   object-position: center bottom;
-  transform: translateY(22px);
+  transform: translateY(34px);
 }
 
 .lineup-empty-thumb {
@@ -970,6 +970,13 @@ button.ghost {
   grid-template-columns: repeat(3, minmax(66px, 1fr));
   gap: 4px;
   min-width: 0;
+}
+
+.lineup-season {
+  font-size: 0.68rem;
+  color: #b8caef;
+  min-width: 1.9em;
+  text-align: center;
 }
 
 .lineup-core-item {
@@ -1091,7 +1098,7 @@ button.ghost {
   .lineup-thumb-wrap img {
     width: 72px;
     height: 122px;
-    transform: translateY(18px);
+    transform: translateY(28px);
   }
 
   .lineup-core {
@@ -1113,5 +1120,9 @@ button.ghost {
 
   .slot-name {
     max-width: 100px;
+  }
+
+  .lineup-season {
+    font-size: 0.64rem;
   }
 }
