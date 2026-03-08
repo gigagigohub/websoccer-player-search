@@ -158,6 +158,23 @@ function getDisplayMetrics(player, conditions, logicMode) {
   return best;
 }
 
+function getPeakSeasons(player) {
+  const periods = Array.isArray(player.periods) ? player.periods : [];
+  if (!periods.length) return [];
+
+  let bestScore = -Infinity;
+  const scored = periods.map((p) => {
+    const m = p?.metrics || {};
+    const score = (m["スピ"] || 0) + (m["テク"] || 0) + (m["パワ"] || 0);
+    if (score > bestScore) bestScore = score;
+    return { season: p?.season, score };
+  });
+
+  return scored
+    .filter((x) => x.score === bestScore && x.season)
+    .map((x) => x.season);
+}
+
 function filterPlayers(conditions = getConditions(), logicMode = els.logicMode.value) {
   const query = toHiragana(els.nameQuery.value.trim().toLowerCase());
   const positionFilter = els.positionFilter.value;
@@ -203,6 +220,8 @@ function cardHtml(player, conditions, logicMode) {
   const staticImg = `./images/chara/players/static/${player.id}.gif`;
   const actionImg = `./images/chara/players/action/${player.id}.gif`;
   const displayMetrics = getDisplayMetrics(player, conditions, logicMode);
+  const peakSeasons = getPeakSeasons(player);
+  const peakText = peakSeasons.length ? peakSeasons.join(" / ") : "-";
   const matchedPeriods = getMatchingPeriods(player, conditions, logicMode);
   const hitPeriodText = matchedPeriods.length
     ? matchedPeriods.map((p) => p.season).filter(Boolean).join(" / ")
@@ -280,6 +299,7 @@ function cardHtml(player, conditions, logicMode) {
             <span class="badge type-badge ${typeClass}">${typeLabel}</span>
             <a href="${player.url}" target="_blank" rel="noreferrer">${player.name}</a>
           </h3>
+          <div class="peak-periods">全盛期: ${peakText}</div>
           <div class="hit-periods">ヒット: ${hitPeriodText}</div>
           <div class="media-row">
             <div class="thumbs">

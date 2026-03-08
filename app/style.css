@@ -215,6 +215,14 @@ button.ghost {
   min-width: 0;
 }
 
+.peak-periods {
+  margin-top: 2px;
+  font-size: 0.7rem;
+  color: #5b6682;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
 .hit-periods {
   margin-top: 2px;
   font-size: 0.7rem;
