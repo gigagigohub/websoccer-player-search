@@ -223,13 +223,6 @@ button.ghost {
   letter-spacing: 0.01em;
 }
 
-.hit-periods {
-  margin-top: 2px;
-  font-size: 0.7rem;
-  color: #6f7890;
-  letter-spacing: 0.01em;
-}
-
 .thumbs {
   display: flex;
   gap: 6px;

@@ -136,11 +136,8 @@ function getMatchingPeriods(player, conditions, logicMode) {
   });
 }
 
-function getDisplayMetrics(player, conditions, logicMode) {
-  const matchedPeriods = getMatchingPeriods(player, conditions, logicMode);
-  const periods = matchedPeriods.length
-    ? matchedPeriods
-    : (Array.isArray(player.periods) ? player.periods : []);
+function getPeakMetrics(player) {
+  const periods = Array.isArray(player.periods) ? player.periods : [];
   if (!periods.length) return player.maxMetrics || {};
 
   let best = periods[0]?.metrics || {};
@@ -216,16 +213,12 @@ function filterPlayers(conditions = getConditions(), logicMode = els.logicMode.v
   });
 }
 
-function cardHtml(player, conditions, logicMode) {
+function cardHtml(player) {
   const staticImg = `./images/chara/players/static/${player.id}.gif`;
   const actionImg = `./images/chara/players/action/${player.id}.gif`;
-  const displayMetrics = getDisplayMetrics(player, conditions, logicMode);
+  const displayMetrics = getPeakMetrics(player);
   const peakSeasons = getPeakSeasons(player);
   const peakText = peakSeasons.length ? peakSeasons.join(" / ") : "-";
-  const matchedPeriods = getMatchingPeriods(player, conditions, logicMode);
-  const hitPeriodText = matchedPeriods.length
-    ? matchedPeriods.map((p) => p.season).filter(Boolean).join(" / ")
-    : "なし";
   const metricBox = (metric) => {
     const v = displayMetrics?.[metric];
     const value = v == null ? 0 : v;
@@ -300,7 +293,6 @@ function cardHtml(player, conditions, logicMode) {
             <a href="${player.url}" target="_blank" rel="noreferrer">${player.name}</a>
           </h3>
           <div class="peak-periods">全盛期: ${peakText}</div>
-          <div class="hit-periods">ヒット: ${hitPeriodText}</div>
           <div class="media-row">
             <div class="thumbs">
               <img loading="lazy" src="${staticImg}" alt="${player.name} 静止" />
@@ -357,7 +349,7 @@ function render() {
   });
 
   els.resultCount.textContent = `${filtered.length}件`;
-  els.results.innerHTML = filtered.map((p) => cardHtml(p, conditions, logicMode)).join("");
+  els.results.innerHTML = filtered.map((p) => cardHtml(p)).join("");
 }
 
 async function init() {
