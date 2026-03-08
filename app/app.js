@@ -155,21 +155,28 @@ function getPeakMetrics(player) {
   return best;
 }
 
-function getPeakSeasons(player) {
+function getPeakBuckets(player) {
   const periods = Array.isArray(player.periods) ? player.periods : [];
-  if (!periods.length) return [];
+  if (!periods.length) {
+    return { peak: [], subPeak: [], nearPeak: [] };
+  }
 
-  let bestScore = -Infinity;
   const scored = periods.map((p) => {
     const m = p?.metrics || {};
     const score = (m["スピ"] || 0) + (m["テク"] || 0) + (m["パワ"] || 0);
-    if (score > bestScore) bestScore = score;
     return { season: p?.season, score };
   });
+  const maxScore = Math.max(...scored.map((x) => x.score));
 
-  return scored
-    .filter((x) => x.score === bestScore && x.season)
+  const pick = (target) => scored
+    .filter((x) => x.score === target && x.season)
     .map((x) => x.season);
+
+  return {
+    peak: pick(maxScore),
+    subPeak: pick(maxScore - 1),
+    nearPeak: pick(maxScore - 2),
+  };
 }
 
 function filterPlayers(conditions = getConditions(), logicMode = els.logicMode.value) {
@@ -217,8 +224,16 @@ function cardHtml(player) {
   const staticImg = `./images/chara/players/static/${player.id}.gif`;
   const actionImg = `./images/chara/players/action/${player.id}.gif`;
   const displayMetrics = getPeakMetrics(player);
-  const peakSeasons = getPeakSeasons(player);
-  const peakText = peakSeasons.length ? peakSeasons.join(" / ") : "-";
+  const peakBuckets = getPeakBuckets(player);
+  const peakRows = [
+    { cls: "peak-main", seasons: peakBuckets.peak },
+    { cls: "peak-sub", seasons: peakBuckets.subPeak },
+    { cls: "peak-near", seasons: peakBuckets.nearPeak },
+  ]
+    .filter((x) => x.seasons.length)
+    .map((x) => `<div class="peak-line ${x.cls}">${x.seasons.join(" / ")}</div>`)
+    .join("");
+  const peakHtml = peakRows || `<div class="peak-line peak-near">-</div>`;
   const metricBox = (metric) => {
     const v = displayMetrics?.[metric];
     const value = v == null ? 0 : v;
@@ -292,7 +307,7 @@ function cardHtml(player) {
             <span class="badge type-badge ${typeClass}">${typeLabel}</span>
             <a href="${player.url}" target="_blank" rel="noreferrer">${player.name}</a>
           </h3>
-          <div class="peak-periods">全盛期: ${peakText}</div>
+          <div class="peak-periods">${peakHtml}</div>
           <div class="media-row">
             <div class="thumbs">
               <img loading="lazy" src="${staticImg}" alt="${player.name} 静止" />
