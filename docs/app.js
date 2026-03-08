@@ -17,7 +17,7 @@ const DETAIL_METRIC_LABELS = {
   "ラフ": "ラフ",
   "CP": "CP",
 };
-const APP_UPDATED_AT_JST = "2026-03-08 20:11 JST";
+const APP_UPDATED_AT_JST = "2026-03-08 20:13 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -465,7 +465,7 @@ function cardHtml(player) {
   const bodyHtml = isExpanded ? detailViewHtml : normalViewHtml;
 
   return `
-    <article class="card ${isExpanded ? "is-expanded" : "is-collapsed"}">
+    <article class="card ${isExpanded ? "is-expanded" : "is-collapsed"}" data-player-id="${player.id}">
       <div class="card-top">
         <button type="button" class="expand-toggle" data-player-id="${player.id}" aria-label="詳細表示切替">${isExpanded ? "−" : "+"}</button>
         <span class="card-id">ID: ${player.id}</span>
@@ -483,6 +483,22 @@ function cardHtml(player) {
       </div>
     </article>
   `;
+}
+
+function rerenderSingleCard(playerId) {
+  const target = els.results.querySelector(`.card[data-player-id="${playerId}"]`);
+  if (!target) {
+    render();
+    return;
+  }
+  const player = players.find((p) => p.id === playerId);
+  if (!player) return;
+
+  const host = document.createElement("div");
+  host.innerHTML = cardHtml(player).trim();
+  const next = host.firstElementChild;
+  if (!next) return;
+  target.replaceWith(next);
 }
 
 function render() {
@@ -535,7 +551,7 @@ async function init() {
     } else {
       expandedPlayerIds.add(id);
     }
-    render();
+    rerenderSingleCard(id);
   });
 
   const res = await fetch("./data.json");
