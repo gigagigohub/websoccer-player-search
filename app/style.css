@@ -292,7 +292,7 @@ button.ghost {
 .hm-cell {
   position: absolute;
   left: calc(var(--c) * 33.3333%);
-  top: calc(var(--r) * 20%);
+  top: calc(var(--r) * 25%);
   width: 33.3333%;
   height: 25%;
   display: flex;
