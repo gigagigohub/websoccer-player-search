@@ -9,14 +9,16 @@
 <body>
   <main class="container">
     <header class="hero">
+      <button id="myteamMenuButton" type="button" class="menu-button" aria-label="メニュー">☰</button>
+      <div id="myteamMenuPanel" class="menu-panel" hidden>
+        <button id="myteamDatabaseButton" type="button" class="menu-item">Database</button>
+        <button id="myteamLogoutButton" type="button" class="menu-item logout">Logout</button>
+      </div>
       <h1>MyTeam</h1>
       <p class="meta" id="myTeamMeta">Loading...</p>
     </header>
 
     <section class="panel">
-      <div class="myteam-actions">
-        <a class="myteam-back" href="./index.html">← Search</a>
-      </div>
       <div class="lineup-dialog myteam-dialog-static">
         <p id="myTeamTarget" class="lineup-target">Lineup</p>
         <div id="myTeamSlots" class="lineup-slots"></div>

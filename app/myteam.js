@@ -5,6 +5,10 @@ const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOi
 const LINEUP_SIZE = 11;
 
 const els = {
+  myteamMenuButton: document.querySelector("#myteamMenuButton"),
+  myteamMenuPanel: document.querySelector("#myteamMenuPanel"),
+  myteamDatabaseButton: document.querySelector("#myteamDatabaseButton"),
+  myteamLogoutButton: document.querySelector("#myteamLogoutButton"),
   myTeamMeta: document.querySelector("#myTeamMeta"),
   myTeamTarget: document.querySelector("#myTeamTarget"),
   myTeamSlots: document.querySelector("#myTeamSlots"),
@@ -13,6 +17,11 @@ const els = {
 let players = [];
 let lineup = Array.from({ length: LINEUP_SIZE }, () => null);
 let cloudConfig = { url: "", anonKey: "", lineupKey: "" };
+
+function closeMenuPanel() {
+  if (!els.myteamMenuPanel) return;
+  els.myteamMenuPanel.hidden = true;
+}
 
 function normalizedSupabaseUrl(url) {
   return String(url || "").trim().replace(/\/+$/, "");
@@ -52,6 +61,15 @@ function loadCloudConfig() {
   }
   if (FIXED_SUPABASE_URL) cloudConfig.url = normalizedSupabaseUrl(FIXED_SUPABASE_URL);
   if (FIXED_SUPABASE_ANON_KEY) cloudConfig.anonKey = String(FIXED_SUPABASE_ANON_KEY).trim();
+}
+
+function logoutLineupKey() {
+  cloudConfig = {
+    url: normalizedSupabaseUrl(FIXED_SUPABASE_URL || cloudConfig.url),
+    anonKey: String(FIXED_SUPABASE_ANON_KEY || cloudConfig.anonKey).trim(),
+    lineupKey: "",
+  };
+  localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
 }
 
 function hasCloudConfig() {
@@ -228,6 +246,33 @@ function renderLineup() {
 
 async function init() {
   loadCloudConfig();
+  if (els.myteamMenuButton) {
+    els.myteamMenuButton.addEventListener("click", () => {
+      if (!els.myteamMenuPanel) return;
+      els.myteamMenuPanel.hidden = !els.myteamMenuPanel.hidden;
+    });
+  }
+  if (els.myteamDatabaseButton) {
+    els.myteamDatabaseButton.addEventListener("click", () => {
+      window.location.href = "./index.html";
+    });
+  }
+  if (els.myteamLogoutButton) {
+    els.myteamLogoutButton.addEventListener("click", () => {
+      logoutLineupKey();
+      window.location.href = "./index.html";
+    });
+  }
+  document.addEventListener("click", (e) => {
+    if (!els.myteamMenuPanel || !els.myteamMenuButton) return;
+    if (els.myteamMenuPanel.hidden) return;
+    if (e.target.closest("#myteamMenuButton") || e.target.closest("#myteamMenuPanel")) return;
+    closeMenuPanel();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeMenuPanel();
+  });
+
   const dataRes = await fetch("./data.json");
   const data = await dataRes.json();
   players = data.players || [];
