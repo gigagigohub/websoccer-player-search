@@ -158,6 +158,31 @@ function getDisplayMetrics(player, conditions, logicMode) {
   return best;
 }
 
+function getDisplayPeriod(player, conditions, logicMode) {
+  const matchedPeriods = getMatchingPeriods(player, conditions, logicMode);
+  const periods = matchedPeriods.length
+    ? matchedPeriods
+    : (Array.isArray(player.periods) ? player.periods : []);
+  if (!periods.length) return null;
+
+  let bestPeriod = periods[0] || null;
+  let bestMetrics = bestPeriod?.metrics || {};
+  let bestScore = (bestMetrics["スピ"] || 0) + (bestMetrics["テク"] || 0) + (bestMetrics["パワ"] || 0);
+
+  for (let i = 1; i < periods.length; i += 1) {
+    const current = periods[i] || null;
+    const m = current?.metrics || {};
+    const score = (m["スピ"] || 0) + (m["テク"] || 0) + (m["パワ"] || 0);
+    if (score > bestScore) {
+      bestPeriod = current;
+      bestMetrics = m;
+      bestScore = score;
+    }
+  }
+
+  return bestPeriod;
+}
+
 function filterPlayers(conditions = getConditions(), logicMode = els.logicMode.value) {
   const query = toHiragana(els.nameQuery.value.trim().toLowerCase());
   const positionFilter = els.positionFilter.value;
@@ -203,6 +228,12 @@ function cardHtml(player, conditions, logicMode) {
   const staticImg = `./images/chara/players/static/${player.id}.gif`;
   const actionImg = `./images/chara/players/action/${player.id}.gif`;
   const displayMetrics = getDisplayMetrics(player, conditions, logicMode);
+  const matchedPeriods = getMatchingPeriods(player, conditions, logicMode);
+  const displayPeriod = getDisplayPeriod(player, conditions, logicMode);
+  const hitPeriodText = matchedPeriods.length
+    ? matchedPeriods.map((p) => p.season).filter(Boolean).join(" / ")
+    : "なし";
+  const displayPeriodText = displayPeriod?.season || "-";
   const metricBox = (metric) => {
     const v = displayMetrics?.[metric];
     const value = v == null ? 0 : v;
@@ -276,6 +307,7 @@ function cardHtml(player, conditions, logicMode) {
             <span class="badge type-badge ${typeClass}">${typeLabel}</span>
             <a href="${player.url}" target="_blank" rel="noreferrer">${player.name}</a>
           </h3>
+          <div class="hit-periods">ヒット期: ${hitPeriodText} / 表示期: ${displayPeriodText}</div>
           <div class="media-row">
             <div class="thumbs">
               <img loading="lazy" src="${staticImg}" alt="${player.name} 静止" />
