@@ -160,6 +160,8 @@ function compareBySortKey(a, b, sortKey) {
 }
 
 function cardHtml(player) {
+  const staticImg = `https://caselli.websoccer.info/images/chara/players/static/${player.id}.gif`;
+  const actionImg = `https://caselli.websoccer.info/images/chara/players/action/${player.id}.gif`;
   const metricBlocks = METRICS.map((metric) => {
     const v = player.maxMetrics?.[metric];
     return `
@@ -173,8 +175,17 @@ function cardHtml(player) {
   return `
     <article class="card">
       <div class="card-top">
-        <h3 class="card-name"><a href="${player.url}" target="_blank" rel="noreferrer">${player.name}</a></h3>
-        <span class="badge">総合値: ${player.bestTotal}</span>
+        <div class="card-head-left">
+          <div class="thumbs">
+            <img loading="lazy" src="${staticImg}" alt="${player.name} 静止" />
+            <img loading="lazy" src="${actionImg}" alt="${player.name} アクション" />
+          </div>
+          <h3 class="card-name"><a href="${player.url}" target="_blank" rel="noreferrer">${player.name}</a></h3>
+        </div>
+        <div class="card-head-right">
+          <span class="badge">ID: ${player.id}</span>
+          <span class="badge">総合値: ${player.bestTotal}</span>
+        </div>
       </div>
       <div class="metrics">${metricBlocks}</div>
     </article>
