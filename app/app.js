@@ -427,7 +427,7 @@ function cardHtml(player) {
           <h3 class="card-name">
             <span class="badge pos-badge ${posClass}">${pos}</span>
             <span class="badge type-badge ${typeClass}">${typeLabel}</span>
-            <a href="${player.url}" target="_blank" rel="noreferrer">${player.name}</a>
+            <span>${player.name}</span>
           </h3>
           <div class="peak-periods">${peakHtml}</div>
         </div>
