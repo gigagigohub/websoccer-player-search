@@ -20,7 +20,7 @@ const DETAIL_METRIC_LABELS = {
   "CK": "ＣＫ",
   "CP": "ＣＰ",
 };
-const APP_UPDATED_AT_JST = "2026-03-08 23:48 JST";
+const APP_UPDATED_AT_JST = "2026-03-08 23:56 JST";
 const LINEUP_SIZE = 11;
 const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 
@@ -54,11 +54,19 @@ const els = {
   lineupClose: document.querySelector("#lineupClose"),
   lineupTarget: document.querySelector("#lineupTarget"),
   lineupSlots: document.querySelector("#lineupSlots"),
+  seasonModal: document.querySelector("#seasonModal"),
+  seasonBackdrop: document.querySelector("#seasonBackdrop"),
+  seasonClose: document.querySelector("#seasonClose"),
+  seasonTarget: document.querySelector("#seasonTarget"),
+  seasonSelect: document.querySelector("#seasonSelect"),
+  seasonCancel: document.querySelector("#seasonCancel"),
+  seasonApply: document.querySelector("#seasonApply"),
 };
 
 let players = [];
 const expandedPlayerIds = new Set();
 let pendingLineupPlayerId = null;
+let pendingLineupSlotIndex = null;
 let startingLineup = Array.from({ length: LINEUP_SIZE }, () => null);
 
 function normalizeSeasonInput(input) {
@@ -114,6 +122,12 @@ function closeLineupModal() {
   els.lineupModal.hidden = true;
 }
 
+function closeSeasonModal() {
+  pendingLineupSlotIndex = null;
+  if (!els.seasonModal) return;
+  els.seasonModal.hidden = true;
+}
+
 function getPlayerNameById(playerId) {
   const p = players.find((x) => x.id === playerId);
   return p?.name || `ID:${playerId}`;
@@ -148,6 +162,7 @@ function renderLineupSlots() {
     const name = player ? player.name : "未登録";
     const hasPlayer = Number.isInteger(playerId) && !!player;
     const season = hasPlayer ? (entry?.season || null) : null;
+    const seasonText = season ? `${season}目` : "-";
     const pos = (player?.position || "-").toUpperCase();
     const posClass = positionClass(pos);
     const typeLabel = player ? getCategory(player) : "-";
@@ -178,7 +193,7 @@ function renderLineupSlots() {
             </div>
             <span class="slot-name">${name}</span>
           </div>
-          <span class="lineup-season">${season || "-"}</span>
+          <span class="lineup-season">${seasonText}</span>
           ${coreHtml}
         </div>
       </button>
@@ -199,6 +214,24 @@ function openLineupModal(playerId) {
   if (els.lineupModal) {
     els.lineupModal.hidden = false;
   }
+}
+
+function openSeasonModal(player, slotIndex) {
+  if (!player || !els.seasonModal || !els.seasonSelect) return;
+  const seasons = (player.periods || [])
+    .map((p) => p?.season)
+    .filter((s) => typeof s === "string" && s.length > 0);
+  if (!seasons.length) return;
+
+  pendingLineupPlayerId = player.id;
+  pendingLineupSlotIndex = slotIndex;
+  els.seasonSelect.innerHTML = seasons
+    .map((season) => `<option value="${season}">${season}</option>`)
+    .join("");
+  if (els.seasonTarget) {
+    els.seasonTarget.textContent = `${player.name} を何期目で登録しますか？`;
+  }
+  els.seasonModal.hidden = false;
 }
 
 function toHiragana(s) {
@@ -746,30 +779,40 @@ async function init() {
       const slotIndex = Number(slotBtn.dataset.slotIndex);
       if (!Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= LINEUP_SIZE) return;
       const player = players.find((p) => p.id === pendingLineupPlayerId);
-      const seasons = (player?.periods || [])
-        .map((p) => p?.season)
-        .filter((s) => typeof s === "string" && s.length > 0);
-      if (!player || !seasons.length) return;
-      const defaultSeason = seasons[0];
-      const input = window.prompt(
-        `何期目で登録しますか？\n候補: ${seasons.join(" / ")}`,
-        defaultSeason
-      );
-      if (input == null) return;
-      const normalized = normalizeSeasonInput(input);
-      const selectedSeason = seasons.find((s) => s === normalized);
-      if (!selectedSeason) {
-        window.alert("入力した期は存在しません。");
-        return;
-      }
-      startingLineup[slotIndex] = { playerId: pendingLineupPlayerId, season: selectedSeason };
-      saveStartingLineup();
+      if (!player) return;
       closeLineupModal();
+      openSeasonModal(player, slotIndex);
+    });
+  }
+  if (els.seasonBackdrop) {
+    els.seasonBackdrop.addEventListener("click", closeSeasonModal);
+  }
+  if (els.seasonClose) {
+    els.seasonClose.addEventListener("click", closeSeasonModal);
+  }
+  if (els.seasonCancel) {
+    els.seasonCancel.addEventListener("click", closeSeasonModal);
+  }
+  if (els.seasonApply) {
+    els.seasonApply.addEventListener("click", () => {
+      const playerId = Number(pendingLineupPlayerId);
+      const slotIndex = Number(pendingLineupSlotIndex);
+      const selectedSeason = normalizeSeasonInput(els.seasonSelect?.value || "");
+      if (!Number.isInteger(playerId)) return;
+      if (!Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= LINEUP_SIZE) return;
+      if (!selectedSeason) return;
+      startingLineup[slotIndex] = { playerId, season: selectedSeason };
+      saveStartingLineup();
+      closeSeasonModal();
     });
   }
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && els.lineupModal && !els.lineupModal.hidden) {
       closeLineupModal();
+      return;
+    }
+    if (e.key === "Escape" && els.seasonModal && !els.seasonModal.hidden) {
+      closeSeasonModal();
     }
   });
 

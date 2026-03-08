@@ -83,6 +83,23 @@
     </div>
   </div>
 
+  <div id="seasonModal" class="season-modal" hidden>
+    <div id="seasonBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog" role="dialog" aria-modal="true" aria-labelledby="seasonTitle">
+      <div class="season-head">
+        <h2 id="seasonTitle">登録期の選択</h2>
+        <button id="seasonClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <p id="seasonTarget" class="season-target"></p>
+      <label class="label" for="seasonSelect">期</label>
+      <select id="seasonSelect"></select>
+      <div class="season-actions">
+        <button id="seasonCancel" type="button" class="ghost">Cancel</button>
+        <button id="seasonApply" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+
   <template id="conditionTemplate">
     <div class="condition-row">
       <select class="metric"></select>

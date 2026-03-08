@@ -924,7 +924,7 @@ button.ghost {
   height: 136px;
   object-fit: contain;
   object-position: center bottom;
-  transform: translateY(34px);
+  transform: translateY(46px);
 }
 
 .lineup-empty-thumb {
@@ -977,6 +977,67 @@ button.ghost {
   color: #b8caef;
   min-width: 1.9em;
   text-align: center;
+}
+
+.season-modal[hidden] {
+  display: none;
+}
+
+.season-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+}
+
+.season-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.62);
+}
+
+.season-dialog {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(360px, calc(100vw - 24px));
+  border: 1px solid #2f4365;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #161f31 0%, #10192a 100%);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  padding: 10px;
+}
+
+.season-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.season-head h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.season-close {
+  width: 34px;
+  height: 30px;
+  border-radius: 8px;
+  padding: 0;
+}
+
+.season-target {
+  margin: 8px 0;
+  font-size: 0.88rem;
+  color: #d4e0fa;
+}
+
+.season-actions {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
 
 .lineup-core-item {
@@ -1098,7 +1159,7 @@ button.ghost {
   .lineup-thumb-wrap img {
     width: 72px;
     height: 122px;
-    transform: translateY(28px);
+    transform: translateY(38px);
   }
 
   .lineup-core {
