@@ -180,8 +180,10 @@ function cardHtml(player) {
         <span class="card-id">ID: ${player.id}</span>
         <div class="card-head-main">
           <h3 class="card-name">
-            <span class="badge pos-badge ${posClass}">${pos}</span>
-            <span class="badge type-badge">${typeLabel}</span>
+            <span class="badge-stack">
+              <span class="badge pos-badge ${posClass}">${pos}</span>
+              <span class="badge type-badge">${typeLabel}</span>
+            </span>
             <a href="${player.url}" target="_blank" rel="noreferrer">${player.name}</a>
           </h3>
           <div class="thumbs">

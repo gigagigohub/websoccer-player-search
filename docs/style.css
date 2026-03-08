@@ -186,7 +186,7 @@ button.ghost {
   margin: 0;
   font-size: 1.02rem;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 6px;
   flex-wrap: wrap;
 }
@@ -248,6 +248,13 @@ button.ghost {
 
 .type-badge {
   border-radius: 6px;
+}
+
+.badge-stack {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: stretch;
 }
 
 .metrics-wrap {
