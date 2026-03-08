@@ -181,7 +181,10 @@ button.ghost {
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 10px;
-  background: linear-gradient(180deg, #fff 0%, #fbfdff 100%);
+  background:
+    radial-gradient(circle at 16% 18%, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0) 36%),
+    linear-gradient(180deg, #ede7cc 0%, #ddd5b5 100%);
+  border-color: #c8c19f;
   position: relative;
 }
 
@@ -395,7 +398,7 @@ button.ghost {
 }
 
 .metric-group {
-  border-top: 1px dashed #e5ebf6;
+  border-top: 1px dashed #c8bf98;
   padding-top: 6px;
 }
 
@@ -411,17 +414,17 @@ button.ghost {
 }
 
 .metric-box {
-  border: 1px solid #e4eaf5;
+  border: 1px solid #cfc6a0;
   border-radius: 8px;
   padding: 6px 6px;
-  background: #fcfdff;
+  background: linear-gradient(180deg, #eee9d1 0%, #e5dec1 100%);
   text-align: left;
 }
 
 .metric-key {
   display: block;
   font-size: 0.72rem;
-  color: var(--sub);
+  color: #4f4a38;
   margin-bottom: 4px;
 }
 
@@ -436,6 +439,7 @@ button.ghost {
   font-size: 0.92rem;
   font-weight: 700;
   font-style: italic;
+  color: #2f2e26;
   min-width: 1.5em;
   text-align: right;
 }
@@ -454,27 +458,27 @@ button.ghost {
 
 .gauge-cell {
   height: 100%;
-  background: linear-gradient(180deg, #8f8f95 0%, #d7d7dc 100%);
+  background: linear-gradient(180deg, #8f929b 0%, #c3c7d1 100%);
 }
 
 .gauge-cell.on {
-  background: linear-gradient(180deg, #cfb2ff 0%, #8662ca 100%);
+  background: linear-gradient(180deg, #b89ccc 0%, #7f589c 100%);
 }
 
 .metric-box.m-speed .gauge-cell.on {
-  background: linear-gradient(180deg, #9fddff 0%, #2f78ff 100%);
+  background: linear-gradient(180deg, #70cbff 0%, #2d44cc 100%);
 }
 
 .metric-box.m-tech .gauge-cell.on {
-  background: linear-gradient(180deg, #b7efb2 0%, #2cae65 100%);
+  background: linear-gradient(180deg, #80e35c 0%, #28924d 100%);
 }
 
 .metric-box.m-power .gauge-cell.on {
-  background: linear-gradient(180deg, #ffc0b5 0%, #ea3d3d 100%);
+  background: linear-gradient(180deg, #ff7f56 0%, #cf3218 100%);
 }
 
 .metric-box.m-unique .gauge-cell.on {
-  background: linear-gradient(180deg, #ffe88f 0%, #e1b600 100%);
+  background: linear-gradient(180deg, #ffd95f 0%, #e6a505 100%);
 }
 
 @media (max-width: 700px) {
