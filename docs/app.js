@@ -17,7 +17,7 @@ const DETAIL_METRIC_LABELS = {
   "ラフ": "ラフ",
   "CP": "CP",
 };
-const APP_UPDATED_AT_JST = "2026-03-08 19:45 JST";
+const APP_UPDATED_AT_JST = "2026-03-08 19:47 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
