@@ -966,6 +966,7 @@ button.ghost {
 
 .slot-name {
   font-size: 0.68rem;
+  font-weight: 700;
   color: #edf3ff;
   display: block;
   white-space: nowrap;
@@ -973,6 +974,7 @@ button.ghost {
   overflow: visible;
   line-height: 1.1;
   max-width: none;
+  margin-top: 3px;
 }
 
 .lineup-core {
@@ -1201,6 +1203,7 @@ button.ghost {
 
   .slot-name {
     font-size: 0.62rem;
+    margin-top: 3px;
   }
 
   .lineup-badges .lineup-season {
