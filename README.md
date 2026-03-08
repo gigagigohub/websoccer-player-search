@@ -1,4 +1,4 @@
-# Webサカ 選手能力検索
+# WebSoccer Ordinary 2026
 
 `caselli.websoccer.info` の選手データを1回スクレイピングし、スマホ向けに能力条件検索できる静的Webアプリです。
 
