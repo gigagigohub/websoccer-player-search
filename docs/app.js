@@ -17,7 +17,7 @@ const DETAIL_METRIC_LABELS = {
   "ラフ": "ラフ",
   "CP": "CP",
 };
-const APP_UPDATED_AT_JST = "2026-03-08 19:53 JST";
+const APP_UPDATED_AT_JST = "2026-03-08 19:56 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -465,7 +465,7 @@ function cardHtml(player) {
   const bodyHtml = isExpanded ? detailViewHtml : normalViewHtml;
 
   return `
-    <article class="card">
+    <article class="card ${isExpanded ? "is-expanded" : "is-collapsed"}">
       <div class="card-top">
         <button type="button" class="expand-toggle" data-player-id="${player.id}" aria-label="詳細表示切替">${isExpanded ? "−" : "+"}</button>
         <span class="card-id">ID: ${player.id}</span>
@@ -478,7 +478,9 @@ function cardHtml(player) {
           <div class="peak-periods">${peakHtml}</div>
         </div>
       </div>
-      ${bodyHtml}
+      <div class="card-body">
+        ${bodyHtml}
+      </div>
     </article>
   `;
 }

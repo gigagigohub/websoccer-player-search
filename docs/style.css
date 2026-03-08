@@ -191,10 +191,19 @@ button.ghost {
   background: linear-gradient(180deg, #151d2e 0%, #111928 100%);
   position: relative;
   overflow: hidden;
+  height: 420px;
+  display: grid;
+  grid-template-rows: auto 1fr;
 }
 
 .card-top {
   display: block;
+}
+
+.card-body {
+  min-height: 0;
+  overflow: auto;
+  padding-right: 2px;
 }
 
 .card-id {
@@ -225,6 +234,9 @@ button.ghost {
   margin-top: 8px;
   width: 100%;
   max-width: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .expanded-media {
@@ -333,11 +345,13 @@ button.ghost {
 .periods-scroll {
   width: 100%;
   max-width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
+  max-height: 180px;
+  overflow: auto;
   border: 1px solid #334869;
   border-radius: 8px;
   background: #0f1728;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .periods-table {
@@ -748,6 +762,10 @@ button.ghost {
 
   .metric-box {
     padding: 6px 5px;
+  }
+
+  .card {
+    height: 400px;
   }
 
   .expanded-media {
