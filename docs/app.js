@@ -166,20 +166,23 @@ function cardHtml(player) {
     const metricClass =
       metric === "スピ" ? "m-speed" :
       metric === "テク" ? "m-tech" :
-      metric === "パワ" ? "m-power" : "";
+      metric === "パワ" ? "m-power" :
+      metric === "個性" ? "m-unique" : "";
     return `
       <div class="metric-box ${metricClass}">
         <span class="metric-key">${metricLabel(metric)}</span>
-        <span class="metric-val">${v == null ? "-" : v}<small>/${max}</small></span>
-        <div class="gauge" style="--steps:${max}">
-          <span class="gauge-fill" style="width:${pct}%"></span>
+        <div class="metric-body">
+          <div class="gauge" style="--steps:${max}">
+            <span class="gauge-fill" style="width:${pct}%"></span>
+          </div>
+          <span class="metric-num">${v == null ? "-" : v}</span>
         </div>
       </div>
     `;
   };
 
-  const mainMetrics = ["スピ", "テク", "パワ"];
-  const group1 = ["スタ", "ラフ", "個性", "人気"];
+  const mainMetrics = ["スピ", "テク", "パワ", "個性"];
+  const group1 = ["スタ", "ラフ", "人気"];
   const group2 = ["PK", "FK", "CK", "CP"];
   const group3 = ["知性", "感性", "個人", "組織"];
   const hasCM = !!player.flags?.CM;

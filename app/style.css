@@ -269,7 +269,7 @@ button.ghost {
 }
 
 .metrics.main-3 {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .metric-box {
@@ -284,18 +284,21 @@ button.ghost {
   display: block;
   font-size: 0.72rem;
   color: var(--sub);
+  margin-bottom: 4px;
 }
 
-.metric-val {
-  font-size: 0.94rem;
-  font-weight: 600;
+.metric-body {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+  align-items: center;
 }
 
-.metric-val small {
-  font-size: 0.72rem;
-  color: var(--sub);
-  margin-left: 2px;
-  font-weight: 500;
+.metric-num {
+  font-size: 0.92rem;
+  font-weight: 700;
+  min-width: 1.5em;
+  text-align: right;
 }
 
 .gauge {
@@ -325,19 +328,23 @@ button.ghost {
   display: block;
   height: 100%;
   border-radius: 0;
-  background: linear-gradient(90deg, #c39dff 0%, #8d63d7 100%);
+  background: linear-gradient(180deg, #cfb2ff 0%, #8662ca 100%);
 }
 
 .metric-box.m-speed .gauge-fill {
-  background: linear-gradient(90deg, #8fd4ff 0%, #2f78ff 100%);
+  background: linear-gradient(180deg, #9fddff 0%, #2f78ff 100%);
 }
 
 .metric-box.m-tech .gauge-fill {
-  background: linear-gradient(90deg, #a7eaa2 0%, #2cae65 100%);
+  background: linear-gradient(180deg, #b7efb2 0%, #2cae65 100%);
 }
 
 .metric-box.m-power .gauge-fill {
-  background: linear-gradient(90deg, #ffb3a4 0%, #ea3d3d 100%);
+  background: linear-gradient(180deg, #ffc0b5 0%, #ea3d3d 100%);
+}
+
+.metric-box.m-unique .gauge-fill {
+  background: linear-gradient(180deg, #ffe88f 0%, #e1b600 100%);
 }
 
 @media (max-width: 700px) {
@@ -359,7 +366,7 @@ button.ghost {
   }
 
   .metrics.main-3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .metrics.group-4 {
