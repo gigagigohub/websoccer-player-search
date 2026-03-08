@@ -201,7 +201,7 @@ button.ghost {
   background: linear-gradient(180deg, #151d2e 0%, #111928 100%);
   position: relative;
   overflow: hidden;
-  height: 420px;
+  height: 388px;
   display: grid;
   grid-template-rows: auto 1fr;
 }
@@ -685,21 +685,21 @@ button.ghost {
 }
 
 .metrics-wrap {
-  margin-top: 8px;
+  margin-top: 5px;
   display: grid;
-  gap: 8px;
+  gap: 4px;
 }
 
 .metric-group {
-  border-top: 1px dashed #344562;
-  padding-top: 6px;
+  border-top: 0;
+  padding-top: 0;
 }
 
 .metrics {
-  margin-top: 7px;
+  margin-top: 4px;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 5px;
+  gap: 3px;
 }
 
 .metrics.main-3 {
@@ -709,7 +709,7 @@ button.ghost {
 .metric-box {
   border: 1px solid #30415d;
   border-radius: 8px;
-  padding: 6px 6px;
+  padding: 4px 5px;
   background: #162136;
   text-align: left;
 }
@@ -718,7 +718,7 @@ button.ghost {
   display: block;
   font-size: 0.72rem;
   color: var(--sub);
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .metric-body {
@@ -738,9 +738,9 @@ button.ghost {
 }
 
 .gauge {
-  margin-top: 4px;
+  margin-top: 2px;
   width: 100%;
-  height: 18px;
+  height: 12px;
   border-radius: 0;
   display: grid;
   grid-template-columns: repeat(10, minmax(0, 1fr));
@@ -816,7 +816,7 @@ button.ghost {
   }
 
   .card {
-    height: 400px;
+    height: 372px;
   }
 
   .expanded-media {
