@@ -170,14 +170,11 @@ button.ghost {
 }
 
 .card-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  align-items: flex-start;
+  display: block;
 }
 
 .card-name {
-  margin: 6px 0 0;
+  margin: 0;
   font-size: 1.02rem;
 }
 
@@ -186,30 +183,29 @@ button.ghost {
   text-decoration: none;
 }
 
-.card-head-left {
-  min-width: 0;
-  flex: 1;
-}
-
 .card-head-right {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 6px;
-  align-items: flex-end;
+  align-items: center;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.card-head-main {
+  min-width: 0;
 }
 
 .thumbs {
   display: flex;
   gap: 6px;
+  margin-top: 8px;
 }
 
 .thumbs img {
-  width: 52px;
-  height: 52px;
+  width: 84px;
+  height: 84px;
   object-fit: contain;
-  border: 1px solid #dbe2ee;
-  border-radius: 8px;
-  background: #f7f9fd;
 }
 
 .badge {
@@ -312,13 +308,11 @@ button.ghost {
   }
 
   .card-top {
-    flex-direction: column;
+    display: block;
   }
 
   .card-head-right {
-    flex-direction: row;
     align-items: center;
-    justify-content: flex-start;
     gap: 6px;
   }
 
