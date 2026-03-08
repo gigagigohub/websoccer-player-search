@@ -71,6 +71,18 @@
     </section>
   </main>
 
+  <div id="lineupModal" class="lineup-modal" hidden>
+    <div id="lineupBackdrop" class="lineup-backdrop"></div>
+    <div class="lineup-dialog" role="dialog" aria-modal="true" aria-labelledby="lineupTitle">
+      <div class="lineup-head">
+        <h2 id="lineupTitle">スタメン登録</h2>
+        <button id="lineupClose" type="button" class="lineup-close" aria-label="閉じる">×</button>
+      </div>
+      <p id="lineupTarget" class="lineup-target"></p>
+      <div id="lineupSlots" class="lineup-slots"></div>
+    </div>
+  </div>
+
   <template id="conditionTemplate">
     <div class="condition-row">
       <select class="metric"></select>

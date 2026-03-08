@@ -20,7 +20,9 @@ const DETAIL_METRIC_LABELS = {
   "CK": "ＣＫ",
   "CP": "ＣＰ",
 };
-const APP_UPDATED_AT_JST = "2026-03-08 22:37 JST";
+const APP_UPDATED_AT_JST = "2026-03-08 23:20 JST";
+const LINEUP_SIZE = 11;
+const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -47,10 +49,77 @@ const els = {
   resultCount: document.querySelector("#resultCount"),
   results: document.querySelector("#results"),
   conditionTemplate: document.querySelector("#conditionTemplate"),
+  lineupModal: document.querySelector("#lineupModal"),
+  lineupBackdrop: document.querySelector("#lineupBackdrop"),
+  lineupClose: document.querySelector("#lineupClose"),
+  lineupTarget: document.querySelector("#lineupTarget"),
+  lineupSlots: document.querySelector("#lineupSlots"),
 };
 
 let players = [];
 const expandedPlayerIds = new Set();
+let pendingLineupPlayerId = null;
+let startingLineup = Array.from({ length: LINEUP_SIZE }, () => null);
+
+function loadStartingLineup() {
+  try {
+    const raw = localStorage.getItem(LINEUP_STORAGE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return;
+    startingLineup = Array.from({ length: LINEUP_SIZE }, (_, i) => {
+      const id = Number(parsed[i]);
+      return Number.isInteger(id) ? id : null;
+    });
+  } catch (e) {
+    console.warn("failed to load lineup", e);
+  }
+}
+
+function saveStartingLineup() {
+  localStorage.setItem(LINEUP_STORAGE_KEY, JSON.stringify(startingLineup));
+}
+
+function closeLineupModal() {
+  pendingLineupPlayerId = null;
+  if (!els.lineupModal) return;
+  els.lineupModal.hidden = true;
+}
+
+function getPlayerNameById(playerId) {
+  const p = players.find((x) => x.id === playerId);
+  return p?.name || `ID:${playerId}`;
+}
+
+function renderLineupSlots() {
+  if (!els.lineupSlots) return;
+  const html = startingLineup.map((playerId, idx) => {
+    const slot = idx + 1;
+    const name = playerId == null ? "未登録" : getPlayerNameById(playerId);
+    const hasPlayer = playerId != null;
+    return `
+      <button type="button" class="lineup-slot${hasPlayer ? " has-player" : ""}" data-slot-index="${idx}">
+        <span class="slot-no">${slot}</span>
+        <span class="slot-name">${name}</span>
+      </button>
+    `;
+  }).join("");
+  els.lineupSlots.innerHTML = html;
+}
+
+function openLineupModal(playerId) {
+  pendingLineupPlayerId = playerId;
+  const player = players.find((p) => p.id === playerId);
+  if (els.lineupTarget) {
+    els.lineupTarget.textContent = player
+      ? `${player.name} をどのスタメン枠に登録しますか？`
+      : `ID:${playerId} をどのスタメン枠に登録しますか？`;
+  }
+  renderLineupSlots();
+  if (els.lineupModal) {
+    els.lineupModal.hidden = false;
+  }
+}
 
 function toHiragana(s) {
   return (s || "")
@@ -482,6 +551,7 @@ function cardHtml(player) {
     <article class="card ${isExpanded ? "is-expanded" : "is-collapsed"}" data-player-id="${player.id}">
       <div class="card-top">
         <button type="button" class="expand-toggle" data-player-id="${player.id}" aria-label="詳細表示切替">${isExpanded ? "−" : "+"}</button>
+        <button type="button" class="lineup-toggle" data-player-id="${player.id}" aria-label="スタメン登録">Add</button>
         <span class="card-id">ID: ${player.id}</span>
         <div class="card-head-main">
           <h3 class="card-name">
@@ -540,6 +610,8 @@ function render() {
 }
 
 async function init() {
+  loadStartingLineup();
+
   els.addCondition.addEventListener("click", () => {
     addConditionRow({ metric: "スピ", op: "gte", value1: "" });
   });
@@ -556,6 +628,15 @@ async function init() {
 
   els.applySearch.addEventListener("click", render);
   els.results.addEventListener("click", (e) => {
+    const lineupBtn = e.target.closest(".lineup-toggle");
+    if (lineupBtn) {
+      const lineupId = Number(lineupBtn.dataset.playerId);
+      if (Number.isInteger(lineupId)) {
+        openLineupModal(lineupId);
+      }
+      return;
+    }
+
     const btn = e.target.closest(".expand-toggle");
     if (!btn) return;
     const id = Number(btn.dataset.playerId);
@@ -566,6 +647,29 @@ async function init() {
       expandedPlayerIds.add(id);
     }
     rerenderSingleCard(id);
+  });
+
+  if (els.lineupBackdrop) {
+    els.lineupBackdrop.addEventListener("click", closeLineupModal);
+  }
+  if (els.lineupClose) {
+    els.lineupClose.addEventListener("click", closeLineupModal);
+  }
+  if (els.lineupSlots) {
+    els.lineupSlots.addEventListener("click", (e) => {
+      const slotBtn = e.target.closest(".lineup-slot");
+      if (!slotBtn || pendingLineupPlayerId == null) return;
+      const slotIndex = Number(slotBtn.dataset.slotIndex);
+      if (!Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= LINEUP_SIZE) return;
+      startingLineup[slotIndex] = pendingLineupPlayerId;
+      saveStartingLineup();
+      closeLineupModal();
+    });
+  }
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && els.lineupModal && !els.lineupModal.hidden) {
+      closeLineupModal();
+    }
   });
 
   const res = await fetch("./data.json");

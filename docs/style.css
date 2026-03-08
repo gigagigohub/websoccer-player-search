@@ -227,7 +227,7 @@ button.ghost {
 .card-id {
   position: absolute;
   top: 8px;
-  right: 38px;
+  right: 86px;
   font-size: 0.72rem;
   color: var(--sub);
 }
@@ -243,6 +243,22 @@ button.ghost {
   background: #16223a;
   color: #dce7ff;
   font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+}
+
+.lineup-toggle {
+  position: absolute;
+  top: 6px;
+  right: 34px;
+  width: 48px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1px solid #34527f;
+  background: #1e3a66;
+  color: #e7f0ff;
+  font-size: 0.68rem;
   font-weight: 700;
   line-height: 1;
   padding: 0;
@@ -785,6 +801,103 @@ button.ghost {
   background: linear-gradient(180deg, #ffcb3d 0%, #ca8700 100%);
 }
 
+.lineup-modal[hidden] {
+  display: none;
+}
+
+.lineup-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+}
+
+.lineup-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.56);
+}
+
+.lineup-dialog {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(920px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  overflow: auto;
+  border: 1px solid #2f4365;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #161f31 0%, #10192a 100%);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  padding: 10px;
+}
+
+.lineup-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lineup-head h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.lineup-close {
+  width: 34px;
+  height: 30px;
+  border-radius: 8px;
+  padding: 0;
+}
+
+.lineup-target {
+  margin: 8px 0;
+  font-size: 0.9rem;
+  color: #cfdcf8;
+}
+
+.lineup-slots {
+  display: grid;
+  grid-template-columns: repeat(11, minmax(84px, 1fr));
+  gap: 6px;
+  min-width: max-content;
+}
+
+.lineup-slot {
+  height: 64px;
+  border-radius: 8px;
+  border: 1px solid #36507c;
+  background: #132038;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 4px;
+  padding: 6px;
+  text-align: left;
+}
+
+.lineup-slot.has-player {
+  background: linear-gradient(180deg, #1a2d4d 0%, #15243f 100%);
+}
+
+.slot-no {
+  font-size: 0.74rem;
+  color: #9db3de;
+  font-weight: 700;
+}
+
+.slot-name {
+  font-size: 0.74rem;
+  color: #edf3ff;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.2;
+}
+
 @media (max-width: 700px) {
   .logic-row,
   .buttons {
@@ -848,5 +961,14 @@ button.ghost {
   .pitch-map {
     width: 70px;
     height: 86px;
+  }
+
+  .lineup-dialog {
+    width: calc(100vw - 16px);
+    padding: 8px;
+  }
+
+  .lineup-slots {
+    grid-template-columns: repeat(11, minmax(72px, 1fr));
   }
 }
