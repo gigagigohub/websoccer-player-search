@@ -258,7 +258,7 @@ button.ghost {
   font-size: 0.68rem;
   color: #4c5570;
   white-space: nowrap;
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.96);
   padding: 1px 3px;
   border-radius: 4px;
 }
@@ -270,7 +270,7 @@ button.ghost {
 }
 
 .mind-label.right {
-  right: -4px;
+  right: -28px;
   top: 50%;
   transform: translateY(-50%);
 }
@@ -282,7 +282,7 @@ button.ghost {
 }
 
 .mind-label.left {
-  left: -4px;
+  left: -28px;
   top: 50%;
   transform: translateY(-50%);
 }
@@ -385,15 +385,13 @@ button.ghost {
   background: #eee9fb;
   overflow: hidden;
   position: relative;
-  border: 1px solid #d7d1ea;
-  box-sizing: border-box;
 }
 
 .gauge::after {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.82) 1px, transparent 1px);
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.9) 1px, transparent 1px);
   background-size: calc(100% / var(--steps)) 100%;
   pointer-events: none;
 }

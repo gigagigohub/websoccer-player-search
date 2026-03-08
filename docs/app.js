@@ -162,8 +162,8 @@ function cardHtml(player) {
     const v = player.maxMetrics?.[metric];
     const value = v == null ? 0 : v;
     const max = 10;
-    const bounded = Math.max(0, Math.min(max, value));
-    const pct = (bounded / max) * 100;
+    const bounded = Math.max(0, Math.min(max, Math.round(value)));
+    const pct = bounded * 10;
     const metricClass =
       metric === "スピ" ? "m-speed" :
       metric === "テク" ? "m-tech" :
