@@ -226,7 +226,7 @@ button.ghost {
   height: 108px;
   flex: 0 0 108px;
   margin-left: auto;
-  transform: translateX(-18px);
+  transform: translateX(-32px);
   overflow: visible;
 }
 
@@ -247,13 +247,13 @@ button.ghost {
 }
 
 .mind-chart .area {
-  fill: rgba(112, 80, 197, 0.28);
-  stroke: #6f53ba;
+  fill: rgba(204, 98, 18, 0.26);
+  stroke: #b85c10;
   stroke-width: 1.5;
 }
 
 .mind-chart circle {
-  fill: #6f53ba;
+  fill: #b85c10;
 }
 
 .mind-label {
@@ -444,7 +444,7 @@ button.ghost {
     width: 100px;
     height: 100px;
     flex-basis: 100px;
-    transform: translateX(-10px);
+    transform: translateX(-18px);
   }
 
   .metrics.main-3 {
