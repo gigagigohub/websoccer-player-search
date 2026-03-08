@@ -138,37 +138,63 @@ function getMatchingPeriods(player, conditions, logicMode) {
 
 const CORE_METRICS = ["スピ", "テク", "パワ"];
 
+function coreTotal(metrics, selected = CORE_METRICS) {
+  return selected.reduce((sum, metric) => sum + (metrics?.[metric] || 0), 0);
+}
+
 function getStrengthMetrics(player) {
   const periods = Array.isArray(player.periods) ? player.periods : [];
-  const totals = CORE_METRICS.map((metric) => ({ metric, total: 0 }));
+  if (!periods.length) return ["スピ", "テク"];
 
+  const totalByMetric = { スピ: 0, テク: 0, パワ: 0 };
   periods.forEach((period) => {
     const metrics = period?.metrics || {};
-    totals.forEach((entry) => {
-      entry.total += metrics[entry.metric] || 0;
+    CORE_METRICS.forEach((metric) => {
+      totalByMetric[metric] += metrics[metric] || 0;
     });
   });
 
-  totals.sort((a, b) => {
-    if (b.total !== a.total) return b.total - a.total;
-    return CORE_METRICS.indexOf(a.metric) - CORE_METRICS.indexOf(b.metric);
-  });
+  const maxOverall = Math.max(...periods.map((p) => coreTotal(p?.metrics || {})));
+  const reference = periods.find((p) => coreTotal(p?.metrics || {}) === maxOverall) || periods[0];
+  const refMetrics = reference?.metrics || {};
 
-  return totals.slice(0, 2).map((x) => x.metric);
+  const refRank = CORE_METRICS
+    .map((metric) => ({ metric, value: refMetrics[metric] || 0 }))
+    .sort((a, b) => {
+      if (b.value !== a.value) return b.value - a.value;
+      return CORE_METRICS.indexOf(a.metric) - CORE_METRICS.indexOf(b.metric);
+    });
+
+  const first = refRank[0];
+  const second = refRank[1];
+  const third = refRank[2];
+
+  if (first.value === second.value && second.value === third.value) {
+    return [...CORE_METRICS];
+  }
+
+  if (second.value === third.value && first.value > second.value) {
+    const tie = [second.metric, third.metric].sort((a, b) => {
+      if (totalByMetric[b] !== totalByMetric[a]) return totalByMetric[b] - totalByMetric[a];
+      return CORE_METRICS.indexOf(a) - CORE_METRICS.indexOf(b);
+    });
+    return [first.metric, tie[0]];
+  }
+
+  return [first.metric, second.metric];
 }
 
 function getPeakMetrics(player) {
   const periods = Array.isArray(player.periods) ? player.periods : [];
   if (!periods.length) return player.maxMetrics || {};
   const strengthMetrics = getStrengthMetrics(player);
-  const [m1, m2] = strengthMetrics;
 
   let best = periods[0]?.metrics || {};
-  let bestScore = (best[m1] || 0) + (best[m2] || 0);
+  let bestScore = coreTotal(best, strengthMetrics);
 
   for (let i = 1; i < periods.length; i += 1) {
     const m = periods[i]?.metrics || {};
-    const score = (m[m1] || 0) + (m[m2] || 0);
+    const score = coreTotal(m, strengthMetrics);
     if (score > bestScore) {
       best = m;
       bestScore = score;
@@ -182,11 +208,10 @@ function getPeakTimeline(player) {
   const periods = Array.isArray(player.periods) ? player.periods : [];
   if (!periods.length) return [];
   const strengthMetrics = getStrengthMetrics(player);
-  const [m1, m2] = strengthMetrics;
 
   const scored = periods.map((p) => {
     const m = p?.metrics || {};
-    const score = (m[m1] || 0) + (m[m2] || 0);
+    const score = coreTotal(m, strengthMetrics);
     return { season: p?.season, score };
   });
   const maxScore = Math.max(...scored.map((x) => x.score));
