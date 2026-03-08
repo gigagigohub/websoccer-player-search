@@ -147,6 +147,33 @@ def parse_parameter_table(soup: BeautifulSoup) -> List[Dict[str, object]]:
     return periods
 
 
+def extract_td_values(td) -> List[str]:
+    vals = [a.get_text(" ", strip=True) for a in td.select("a") if a.get_text(" ", strip=True)]
+    if vals:
+        return vals
+    text = td.get_text(" ", strip=True)
+    return [text] if text else []
+
+
+def parse_special_flags(soup: BeautifulSoup) -> Dict[str, bool]:
+    has_cm = False
+    has_ss = False
+    for tr in soup.select("table.table.table-striped tr"):
+        th = tr.find("th")
+        td = tr.find("td")
+        if not th or not td:
+            continue
+
+        key = re.sub(r"\s+", "", th.get_text(" ", strip=True))
+        vals = extract_td_values(td)
+        if key == "チャレンジマッチ" and vals:
+            has_cm = True
+        elif key == "プレスカ" and vals:
+            has_ss = True
+
+    return {"CM": has_cm, "SS": has_ss}
+
+
 def parse_related_player_refs(soup: BeautifulSoup) -> List[Tuple[int, str]]:
     heading = soup.find("h3", string=lambda s: isinstance(s, str) and "同一選手別バージョン" in s)
     if heading is None:
@@ -189,6 +216,7 @@ def parse_player_detail(
     soup = get_soup(session, url)
     related_refs = parse_related_player_refs(soup)
     periods = parse_parameter_table(soup)
+    flags = parse_special_flags(soup)
     if not periods:
         return None, related_refs
 
@@ -233,6 +261,7 @@ def parse_player_detail(
         "maxMetrics": max_metrics,
         "minMetrics": min_metrics,
         "bestTotal": best_total,
+        "flags": flags,
     }, related_refs
 
 

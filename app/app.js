@@ -8,6 +8,8 @@ const els = {
   nameQuery: document.querySelector("#nameQuery"),
   logicMode: document.querySelector("#logicMode"),
   sortKey: document.querySelector("#sortKey"),
+  cmOnly: document.querySelector("#cmOnly"),
+  ssOnly: document.querySelector("#ssOnly"),
   conditions: document.querySelector("#conditions"),
   addCondition: document.querySelector("#addCondition"),
   resetCondition: document.querySelector("#resetCondition"),
@@ -121,10 +123,18 @@ function checkCondition(player, condition) {
 function filterPlayers() {
   const query = els.nameQuery.value.trim().toLowerCase();
   const logicMode = els.logicMode.value;
+  const cmOnly = els.cmOnly.checked;
+  const ssOnly = els.ssOnly.checked;
   const conditions = getConditions();
 
   return players.filter((player) => {
     if (query && !player.name.toLowerCase().includes(query)) {
+      return false;
+    }
+    if (cmOnly && !player.flags?.CM) {
+      return false;
+    }
+    if (ssOnly && !player.flags?.SS) {
       return false;
     }
 
@@ -207,6 +217,9 @@ async function init() {
 
   [els.nameQuery, els.logicMode, els.sortKey].forEach((el) => {
     el.addEventListener("input", render);
+    el.addEventListener("change", render);
+  });
+  [els.cmOnly, els.ssOnly].forEach((el) => {
     el.addEventListener("change", render);
   });
 

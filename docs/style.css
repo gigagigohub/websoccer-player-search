@@ -76,6 +76,23 @@ input, select, button {
   margin-top: 8px;
 }
 
+.flag-row {
+  display: flex;
+  gap: 14px;
+  margin-top: 10px;
+  font-size: 0.95rem;
+}
+
+.flag-row label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.flag-row input {
+  width: auto;
+}
+
 .condition-row {
   margin-top: 9px;
   display: grid;
