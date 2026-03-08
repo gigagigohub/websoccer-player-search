@@ -24,7 +24,9 @@ const LINEUP_SIZE = 11;
 const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
-const APP_UPDATED_AT_JST = "2026-03-09 00:22 JST";
+const FIXED_SUPABASE_URL = "";
+const FIXED_SUPABASE_ANON_KEY = "";
+const APP_UPDATED_AT_JST = "2026-03-09 00:41 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -63,8 +65,6 @@ const els = {
   seasonSelect: document.querySelector("#seasonSelect"),
   seasonCancel: document.querySelector("#seasonCancel"),
   seasonApply: document.querySelector("#seasonApply"),
-  supabaseUrl: document.querySelector("#supabaseUrl"),
-  supabaseAnonKey: document.querySelector("#supabaseAnonKey"),
   lineupKey: document.querySelector("#lineupKey"),
   cloudSaveConfig: document.querySelector("#cloudSaveConfig"),
   cloudLoadLineup: document.querySelector("#cloudLoadLineup"),
@@ -142,23 +142,24 @@ function loadCloudConfig() {
   } catch (e) {
     console.warn("failed to load cloud config", e);
   }
-  if (els.supabaseUrl) els.supabaseUrl.value = cloudConfig.url;
-  if (els.supabaseAnonKey) els.supabaseAnonKey.value = cloudConfig.anonKey;
+  if (FIXED_SUPABASE_URL) cloudConfig.url = normalizedSupabaseUrl(FIXED_SUPABASE_URL);
+  if (FIXED_SUPABASE_ANON_KEY) cloudConfig.anonKey = String(FIXED_SUPABASE_ANON_KEY).trim();
   if (els.lineupKey) els.lineupKey.value = cloudConfig.lineupKey;
 }
 
 function saveCloudConfigFromInputs() {
+  const lineupKey = String(els.lineupKey?.value || "").trim();
   cloudConfig = {
-    url: normalizedSupabaseUrl(els.supabaseUrl?.value || ""),
-    anonKey: String(els.supabaseAnonKey?.value || "").trim(),
-    lineupKey: String(els.lineupKey?.value || "").trim(),
+    url: normalizedSupabaseUrl(FIXED_SUPABASE_URL || cloudConfig.url),
+    anonKey: String(FIXED_SUPABASE_ANON_KEY || cloudConfig.anonKey).trim(),
+    lineupKey,
   };
   localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
   if (!hasCloudConfig()) {
-    setCloudStatus("Cloud: config incomplete", true);
+    setCloudStatus("Cloud: base config missing", true);
     return false;
   }
-  setCloudStatus("Cloud: config saved");
+  setCloudStatus("Cloud: key saved");
   return true;
 }
 
