@@ -17,7 +17,7 @@ const DETAIL_METRIC_LABELS = {
   "ラフ": "ラフ",
   "CP": "CP",
 };
-const APP_UPDATED_AT_JST = "2026-03-08 18:18 JST";
+const APP_UPDATED_AT_JST = "2026-03-08 19:26 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -300,6 +300,7 @@ function periodTableHtml(player, staticImg, actionImg) {
           <img loading="lazy" src="${staticImg}" alt="${player.name} 静止" />
           <img loading="lazy" src="${actionImg}" alt="${player.name} アクション" />
         </div>
+        ${positionHeatmapsHtml(player)}
       </div>
       <div class="periods-scroll">
         <table class="periods-table">
@@ -311,6 +312,32 @@ function periodTableHtml(player, staticImg, actionImg) {
       </div>
     </div>
   `;
+}
+
+function positionHeatmapsHtml(player) {
+  const segments = Array.isArray(player.positionHeatmaps) ? player.positionHeatmaps : [];
+  if (!segments.length) return "";
+
+  const items = segments.map((seg) => {
+    const label = seg?.label || "";
+    const grid = Array.isArray(seg?.grid) ? seg.grid : [];
+    const rows = grid.map((row) => {
+      const cells = (Array.isArray(row) ? row : []).map((v) => {
+        if (v == null) return `<td class="hm-empty"></td>`;
+        const n = Math.max(1, Math.min(7, Number(v) || 1));
+        return `<td class="hm-cell hm-l${n}">${n}</td>`;
+      }).join("");
+      return `<tr>${cells}</tr>`;
+    }).join("");
+    return `
+      <div class="pos-heatmap-seg">
+        <div class="pos-heatmap-label">${label}</div>
+        <table class="pos-heatmap-grid"><tbody>${rows}</tbody></table>
+      </div>
+    `;
+  }).join("");
+
+  return `<div class="pos-heatmaps">${items}</div>`;
 }
 
 function cardHtml(player) {

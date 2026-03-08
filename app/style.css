@@ -228,8 +228,60 @@ button.ghost {
 }
 
 .expanded-media {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
   margin-bottom: 8px;
 }
+
+.pos-heatmaps {
+  margin-left: auto;
+  display: grid;
+  gap: 6px;
+  max-width: 52%;
+}
+
+.pos-heatmap-seg {
+  display: grid;
+  gap: 3px;
+}
+
+.pos-heatmap-label {
+  font-size: 0.62rem;
+  color: #cbd9fb;
+  text-align: right;
+}
+
+.pos-heatmap-grid {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 114px;
+}
+
+.pos-heatmap-grid td {
+  width: 34px;
+  height: 18px;
+  border: 1px solid #2b2f38;
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #0e111a;
+  padding: 0;
+}
+
+.pos-heatmap-grid td.hm-empty {
+  background: #d3d3d3;
+  color: transparent;
+}
+
+.pos-heatmap-grid td.hm-l1 { background: #f6dede; }
+.pos-heatmap-grid td.hm-l2 { background: #f1bcbc; }
+.pos-heatmap-grid td.hm-l3 { background: #eb9898; }
+.pos-heatmap-grid td.hm-l4 { background: #f16f6f; }
+.pos-heatmap-grid td.hm-l5 { background: #fb5252; }
+.pos-heatmap-grid td.hm-l6 { background: #ff3232; }
+.pos-heatmap-grid td.hm-l7 { background: #ff0f0f; }
 
 .periods-scroll {
   width: 100%;
