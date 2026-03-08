@@ -22,6 +22,8 @@ const els = {
   cmOnly: document.querySelector("#cmOnly"),
   ssOnly: document.querySelector("#ssOnly"),
   normalOnly: document.querySelector("#normalOnly"),
+  naOnly: document.querySelector("#naOnly"),
+  ccOnly: document.querySelector("#ccOnly"),
   conditions: document.querySelector("#conditions"),
   addCondition: document.querySelector("#addCondition"),
   resetCondition: document.querySelector("#resetCondition"),
@@ -116,6 +118,16 @@ function checkCondition(player, condition) {
   }
 }
 
+function getCategory(player) {
+  if (player.category) return player.category;
+  const hasCM = !!player.flags?.CM;
+  const hasSS = !!player.flags?.SS;
+  if (hasCM && hasSS) return "CM/SS";
+  if (hasCM) return "CM";
+  if (hasSS) return "SS";
+  return "NR";
+}
+
 function filterPlayers() {
   const query = toHiragana(els.nameQuery.value.trim().toLowerCase());
   const logicMode = els.logicMode.value;
@@ -123,9 +135,15 @@ function filterPlayers() {
   const cmOnly = els.cmOnly.checked;
   const ssOnly = els.ssOnly.checked;
   const normalOnly = els.normalOnly.checked;
+  const naOnly = els.naOnly.checked;
+  const ccOnly = els.ccOnly.checked;
   const conditions = getConditions();
 
   return players.filter((player) => {
+    const category = getCategory(player);
+    if (category === "RT") {
+      return false;
+    }
     const playerName = toHiragana((player.name || "").toLowerCase());
     if (query && !playerName.includes(query)) {
       return false;
@@ -134,15 +152,14 @@ function filterPlayers() {
       return false;
     }
 
-    const hasCM = !!player.flags?.CM;
-    const hasSS = !!player.flags?.SS;
-    const isNormal = !hasCM && !hasSS;
-    const hasCategoryFilter = cmOnly || ssOnly || normalOnly;
+    const hasCategoryFilter = cmOnly || ssOnly || normalOnly || naOnly || ccOnly;
     if (hasCategoryFilter) {
       const categoryMatched =
-        (cmOnly && hasCM) ||
-        (ssOnly && hasSS) ||
-        (normalOnly && isNormal);
+        (normalOnly && category === "NR") ||
+        (ssOnly && (category === "SS" || category === "CM/SS")) ||
+        (cmOnly && (category === "CM" || category === "CM/SS")) ||
+        (naOnly && category === "NA") ||
+        (ccOnly && category === "CC");
       if (!categoryMatched) return false;
     }
 
@@ -206,9 +223,7 @@ function cardHtml(player) {
   const pBottom = `${cx},${cy + r * nBottom}`;
   const pLeft = `${cx - r * nLeft},${cy}`;
   const areaPoints = `${pTop} ${pRight} ${pBottom} ${pLeft}`;
-  const hasCM = !!player.flags?.CM;
-  const hasSS = !!player.flags?.SS;
-  const typeLabel = hasCM && hasSS ? "CM/SS" : hasCM ? "CM" : hasSS ? "SS" : "NR";
+  const typeLabel = getCategory(player);
   const pos = (player.position || "-").toUpperCase();
   const posClass =
     pos === "GK" ? "pos-gk" :
@@ -264,8 +279,8 @@ function cardHtml(player) {
 function render() {
   const filtered = filterPlayers();
   filtered.sort((a, b) => {
-    const aNR = !a.flags?.CM && !a.flags?.SS;
-    const bNR = !b.flags?.CM && !b.flags?.SS;
+    const aNR = getCategory(a) === "NR";
+    const bNR = getCategory(b) === "NR";
     if (aNR !== bNR) return aNR ? -1 : 1;
     return (b.bestTotal - a.bestTotal) || a.name.localeCompare(b.name, "ja");
   });
@@ -279,7 +294,7 @@ async function init() {
     el.addEventListener("input", render);
     el.addEventListener("change", render);
   });
-  [els.cmOnly, els.ssOnly, els.normalOnly].forEach((el) => {
+  [els.cmOnly, els.ssOnly, els.normalOnly, els.naOnly, els.ccOnly].forEach((el) => {
     el.addEventListener("change", render);
   });
 
