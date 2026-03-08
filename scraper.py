@@ -3,9 +3,10 @@ import argparse
 import json
 import re
 import time
+from collections import deque
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Set
+from typing import Deque, Dict, List, Optional, Set, Tuple
 
 import requests
 from bs4 import BeautifulSoup
@@ -146,11 +147,52 @@ def parse_parameter_table(soup: BeautifulSoup) -> List[Dict[str, object]]:
     return periods
 
 
-def parse_player_detail(session: requests.Session, summary: PlayerSummary) -> Optional[Dict[str, object]]:
-    soup = get_soup(session, summary.url)
+def parse_related_player_refs(soup: BeautifulSoup) -> List[Tuple[int, str]]:
+    heading = soup.find("h3", string=lambda s: isinstance(s, str) and "同一選手別バージョン" in s)
+    if heading is None:
+        return []
+
+    # Scope to the nearest block to avoid collecting unrelated player links.
+    container = heading.find_parent("div", class_="col-md-12")
+    scope = container if container is not None else heading.parent
+
+    refs: List[Tuple[int, str]] = []
+    seen: Set[int] = set()
+    for a in scope.select('a[href^="/players/"]'):
+        href = a.get("href", "")
+        m = re.fullmatch(r"/players/(\d+)", href)
+        if not m:
+            continue
+
+        player_id = int(m.group(1))
+        if player_id in seen:
+            continue
+        seen.add(player_id)
+        refs.append((player_id, a.get_text(strip=True)))
+    return refs
+
+
+def parse_player_name(soup: BeautifulSoup, fallback_name: str) -> str:
+    h2 = soup.find("h2")
+    if not h2:
+        return fallback_name
+    text = h2.get_text(" ", strip=True)
+    return text or fallback_name
+
+
+def parse_player_detail(
+    session: requests.Session,
+    player_id: int,
+    fallback_name: str = "",
+) -> Tuple[Optional[Dict[str, object]], List[Tuple[int, str]]]:
+    url = f"{BASE_URL}/players/{player_id}"
+    soup = get_soup(session, url)
+    related_refs = parse_related_player_refs(soup)
     periods = parse_parameter_table(soup)
     if not periods:
-        return None
+        return None, related_refs
+
+    player_name = parse_player_name(soup, fallback_name or str(player_id))
 
     values_by_metric: Dict[str, List[int]] = {m: [] for m in TARGET_METRICS}
     for period in periods:
@@ -183,15 +225,15 @@ def parse_player_detail(session: requests.Session, summary: PlayerSummary) -> Op
     )
 
     return {
-        "id": summary.player_id,
-        "name": summary.name,
-        "url": summary.url,
+        "id": player_id,
+        "name": player_name,
+        "url": url,
         "periods": periods,
         "metricValues": cleaned_values,
         "maxMetrics": max_metrics,
         "minMetrics": min_metrics,
         "bestTotal": best_total,
-    }
+    }, related_refs
 
 
 def scrape_all(output_path: Path, delay_sec: float, max_pages: Optional[int]) -> None:
@@ -222,17 +264,45 @@ def scrape_all(output_path: Path, delay_sec: float, max_pages: Optional[int]) ->
         if page != total_pages:
             time.sleep(delay_sec)
 
+    seed_names: Dict[int, str] = {s.player_id: s.name for s in summaries}
+    queue: Deque[int] = deque(seed_names.keys())
+    discovered_ids: Set[int] = set(seed_names.keys())
+    processed_ids: Set[int] = set()
     players: List[Dict[str, object]] = []
-    total = len(summaries)
-    for i, summary in enumerate(summaries, start=1):
+
+    i = 0
+    while queue:
+        player_id = queue.popleft()
+        if player_id in processed_ids:
+            continue
+        processed_ids.add(player_id)
+        i += 1
+
         try:
-            item = parse_player_detail(session, summary)
+            item, related_refs = parse_player_detail(
+                session,
+                player_id,
+                fallback_name=seed_names.get(player_id, ""),
+            )
+
+            for related_id, related_name in related_refs:
+                if related_id not in discovered_ids:
+                    discovered_ids.add(related_id)
+                    queue.append(related_id)
+                    if related_name:
+                        seed_names[related_id] = related_name
+
             if item:
                 players.append(item)
-            print(f"[player] {i}/{total}: {summary.name}")
+            display_name = item["name"] if item else seed_names.get(player_id, str(player_id))
+            print(
+                f"[player] {i} processed / {len(discovered_ids)} discovered: "
+                f"{display_name} ({player_id})"
+            )
         except Exception as e:
-            print(f"[warn] failed {summary.url}: {e}")
-        if i != total:
+            print(f"[warn] failed {BASE_URL}/players/{player_id}: {e}")
+
+        if queue:
             time.sleep(delay_sec)
 
     payload = {
