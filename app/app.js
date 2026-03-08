@@ -2,6 +2,17 @@ const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織"
 ];
+const METRIC_LABELS = {
+  "スピ": "スピード",
+  "テク": "テクニック",
+  "パワ": "パワー",
+  "スタ": "スタミナ",
+  "CP": "Cap.",
+};
+
+function metricLabel(metric) {
+  return METRIC_LABELS[metric] || metric;
+}
 
 const els = {
   metaText: document.querySelector("#metaText"),
@@ -38,7 +49,7 @@ function addConditionRow(defaults = {}) {
   METRICS.forEach((m) => {
     const option = document.createElement("option");
     option.value = m;
-    option.textContent = m;
+    option.textContent = metricLabel(m);
     metric.appendChild(option);
   });
 
@@ -158,7 +169,7 @@ function cardHtml(player) {
       metric === "パワ" ? "m-power" : "";
     return `
       <div class="metric-box ${metricClass}">
-        <span class="metric-key">${metric}</span>
+        <span class="metric-key">${metricLabel(metric)}</span>
         <span class="metric-val">${v == null ? "-" : v}<small>/${max}</small></span>
         <div class="gauge">
           <span class="gauge-fill" style="width:${pct}%"></span>
