@@ -951,6 +951,7 @@ button.ghost {
   display: flex;
   align-items: center;
   gap: 4px;
+  flex-wrap: nowrap;
 }
 
 .lineup-badges .badge {
@@ -978,11 +979,16 @@ button.ghost {
   min-width: 0;
 }
 
-.lineup-season {
-  font-size: 0.68rem;
-  color: #b8caef;
-  min-width: 1.9em;
+.lineup-badges .lineup-season {
+  font-size: 0.64rem;
+  padding: 2px 5px;
+  border-radius: 5px;
+  border: 1px solid #4d5f87;
+  background: #1a2740;
+  color: #d3dff8;
+  min-width: 2.6em;
   text-align: center;
+  line-height: 1.2;
 }
 
 .season-modal[hidden] {
@@ -1189,7 +1195,7 @@ button.ghost {
     max-width: 100px;
   }
 
-  .lineup-season {
-    font-size: 0.64rem;
+  .lineup-badges .lineup-season {
+    font-size: 0.6rem;
   }
 }

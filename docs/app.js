@@ -22,7 +22,7 @@ const DETAIL_METRIC_LABELS = {
 };
 const LINEUP_SIZE = 11;
 const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
-const APP_UPDATED_AT_JST = "2026-03-08 23:22 JST";
+const APP_UPDATED_AT_JST = "2026-03-08 23:58 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -213,10 +213,10 @@ function renderLineupSlots() {
             <div class="lineup-badges">
               <span class="badge pos-badge ${posClass}">${pos}</span>
               <span class="badge type-badge ${typeClass}">${typeLabel}</span>
+              <span class="badge lineup-season">${seasonText}</span>
             </div>
             <span class="slot-name">${name}</span>
           </div>
-          <span class="lineup-season">${seasonText}</span>
           ${coreHtml}
         </div>
       </button>
