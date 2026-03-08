@@ -297,6 +297,7 @@ button.ghost {
 .metric-num {
   font-size: 0.92rem;
   font-weight: 700;
+  font-style: italic;
   min-width: 1.5em;
   text-align: right;
 }
@@ -315,12 +316,13 @@ button.ghost {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: linear-gradient(
+  background-image: repeating-linear-gradient(
     to right,
-    rgba(255, 255, 255, 0.85) 1px,
-    transparent 1px
+    transparent 0,
+    transparent calc((100% / var(--steps)) - 1px),
+    rgba(255, 255, 255, 0.82) calc((100% / var(--steps)) - 1px),
+    rgba(255, 255, 255, 0.82) calc(100% / var(--steps))
   );
-  background-size: calc(100% / var(--steps)) 100%;
   pointer-events: none;
 }
 

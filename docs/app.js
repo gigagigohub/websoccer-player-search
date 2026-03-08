@@ -214,13 +214,13 @@ function cardHtml(player) {
       <div class="metrics-wrap">
         <div class="metrics main-3">${mainMetrics.map(metricBox).join("")}</div>
         <div class="metric-group">
-          <div class="metrics group-4">${group1.map(metricBox).join("")}</div>
+          <div class="metrics group-4">${group3.map(metricBox).join("")}</div>
         </div>
         <div class="metric-group">
           <div class="metrics group-4">${group2.map(metricBox).join("")}</div>
         </div>
         <div class="metric-group">
-          <div class="metrics group-4">${group3.map(metricBox).join("")}</div>
+          <div class="metrics group-4">${group1.map(metricBox).join("")}</div>
         </div>
       </div>
     </article>
