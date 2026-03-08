@@ -127,6 +127,25 @@ function getCategory(player) {
   return "NR";
 }
 
+function getDisplayMetrics(player) {
+  const periods = Array.isArray(player.periods) ? player.periods : [];
+  if (!periods.length) return player.maxMetrics || {};
+
+  let best = periods[0]?.metrics || {};
+  let bestScore = (best["スピ"] || 0) + (best["テク"] || 0) + (best["パワ"] || 0);
+
+  for (let i = 1; i < periods.length; i += 1) {
+    const m = periods[i]?.metrics || {};
+    const score = (m["スピ"] || 0) + (m["テク"] || 0) + (m["パワ"] || 0);
+    if (score > bestScore) {
+      best = m;
+      bestScore = score;
+    }
+  }
+
+  return best;
+}
+
 function filterPlayers() {
   const query = toHiragana(els.nameQuery.value.trim().toLowerCase());
   const logicMode = els.logicMode.value;
@@ -174,8 +193,9 @@ function filterPlayers() {
 function cardHtml(player) {
   const staticImg = `./images/chara/players/static/${player.id}.gif`;
   const actionImg = `./images/chara/players/action/${player.id}.gif`;
+  const displayMetrics = getDisplayMetrics(player);
   const metricBox = (metric) => {
-    const v = player.maxMetrics?.[metric];
+    const v = displayMetrics?.[metric];
     const value = v == null ? 0 : v;
     const max = 10;
     const bounded = Math.max(0, Math.min(max, Math.round(value)));
@@ -204,10 +224,10 @@ function cardHtml(player) {
   const group1 = ["スタ", "ラフ", "人気"];
   const group2 = ["PK", "FK", "CK", "CP"];
   const mind = {
-    zisei: player.maxMetrics?.["知性"] ?? 0,
-    kansei: player.maxMetrics?.["感性"] ?? 0,
-    kojin: player.maxMetrics?.["個人"] ?? 0,
-    soshiki: player.maxMetrics?.["組織"] ?? 0,
+    zisei: displayMetrics?.["知性"] ?? 0,
+    kansei: displayMetrics?.["感性"] ?? 0,
+    kojin: displayMetrics?.["個人"] ?? 0,
+    soshiki: displayMetrics?.["組織"] ?? 0,
   };
 
   const cx = 70;
