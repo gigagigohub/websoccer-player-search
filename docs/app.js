@@ -181,8 +181,8 @@ function cardHtml(player) {
         <div class="card-head-main">
           <h3 class="card-name">
             <span class="badge pos-badge ${posClass}">${pos}</span>
-            <a href="${player.url}" target="_blank" rel="noreferrer">${player.name}</a>
             <span class="badge type-badge">${typeLabel}</span>
+            <a href="${player.url}" target="_blank" rel="noreferrer">${player.name}</a>
           </h3>
           <div class="thumbs">
             <img loading="lazy" src="${staticImg}" alt="${player.name} 静止" />
