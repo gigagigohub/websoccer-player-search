@@ -134,24 +134,25 @@ input, select, button {
 }
 
 button {
-  background: var(--brand);
+  background: #2b5fb5;
   color: #fff;
-  border-color: var(--brand);
+  border-color: #2b5fb5;
 }
 
 button.search-btn {
-  background: #0d8b3f;
-  border-color: #0d8b3f;
+  background: #1f4a97;
+  border-color: #1f4a97;
 }
 
 button.add-btn {
-  background: #d98b00;
-  border-color: #d98b00;
+  background: #3b73cf;
+  border-color: #3b73cf;
 }
 
 button.ghost {
-  background: var(--brand-soft);
-  color: var(--brand);
+  background: #e9f0ff;
+  color: #1f4a97;
+  border-color: #c8d8f8;
 }
 
 .result-head {
