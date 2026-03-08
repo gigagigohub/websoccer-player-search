@@ -228,6 +228,15 @@ button.ghost {
   width: 90px;
   height: 90px;
   object-fit: contain;
+  border-radius: 8px;
+  padding: 4px;
+  background:
+    radial-gradient(ellipse at 50% 78%, rgba(22, 27, 23, 0.42) 0%, rgba(22, 27, 23, 0.18) 28%, rgba(22, 27, 23, 0) 58%),
+    linear-gradient(180deg, #384a5b 0%, #1f2e3d 34%, #4e7848 52%, #3e6d3f 68%, #2f5e34 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.22);
+  filter: drop-shadow(0 5px 3px rgba(0, 0, 0, 0.28));
 }
 
 .media-row {
@@ -462,23 +471,23 @@ button.ghost {
 }
 
 .gauge-cell.on {
-  background: linear-gradient(180deg, #b89ccc 0%, #7f589c 100%);
+  background: linear-gradient(180deg, #a97fc2 0%, #6b3e88 100%);
 }
 
 .metric-box.m-speed .gauge-cell.on {
-  background: linear-gradient(180deg, #70cbff 0%, #2d44cc 100%);
+  background: linear-gradient(180deg, #4fb2ff 0%, #1f2ea7 100%);
 }
 
 .metric-box.m-tech .gauge-cell.on {
-  background: linear-gradient(180deg, #80e35c 0%, #28924d 100%);
+  background: linear-gradient(180deg, #67d847 0%, #1f7d39 100%);
 }
 
 .metric-box.m-power .gauge-cell.on {
-  background: linear-gradient(180deg, #ff7f56 0%, #cf3218 100%);
+  background: linear-gradient(180deg, #ff6542 0%, #b82214 100%);
 }
 
 .metric-box.m-unique .gauge-cell.on {
-  background: linear-gradient(180deg, #ffd95f 0%, #e6a505 100%);
+  background: linear-gradient(180deg, #ffcb3d 0%, #ca8700 100%);
 }
 
 @media (max-width: 700px) {
