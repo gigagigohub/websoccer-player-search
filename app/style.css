@@ -219,29 +219,30 @@ button.ghost {
   margin-top: 3px;
   letter-spacing: 0.01em;
   line-height: 1.2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
 }
 
-.peak-line {
-  font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+.peak-chip {
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
   font-size: 0.72rem;
+  padding: 0 2px;
 }
 
-.peak-line + .peak-line {
-  margin-top: 1px;
-}
-
-.peak-line.peak-main {
+.peak-chip.peak-main {
   color: #0f4a9f;
   font-size: 0.76rem;
   font-weight: 700;
 }
 
-.peak-line.peak-sub {
+.peak-chip.peak-sub {
   color: #4e6ea2;
   font-weight: 600;
 }
 
-.peak-line.peak-near {
+.peak-chip.peak-near {
   color: #7a8aa8;
   font-weight: 500;
 }

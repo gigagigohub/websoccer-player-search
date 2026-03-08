@@ -155,11 +155,9 @@ function getPeakMetrics(player) {
   return best;
 }
 
-function getPeakBuckets(player) {
+function getPeakTimeline(player) {
   const periods = Array.isArray(player.periods) ? player.periods : [];
-  if (!periods.length) {
-    return { peak: [], subPeak: [], nearPeak: [] };
-  }
+  if (!periods.length) return [];
 
   const scored = periods.map((p) => {
     const m = p?.metrics || {};
@@ -167,16 +165,15 @@ function getPeakBuckets(player) {
     return { season: p?.season, score };
   });
   const maxScore = Math.max(...scored.map((x) => x.score));
-
-  const pick = (target) => scored
-    .filter((x) => x.score === target && x.season)
-    .map((x) => x.season);
-
-  return {
-    peak: pick(maxScore),
-    subPeak: pick(maxScore - 1),
-    nearPeak: pick(maxScore - 2),
-  };
+  return scored
+    .map((x) => {
+      if (!x.season) return null;
+      if (x.score === maxScore) return { season: x.season, tier: "peak-main" };
+      if (x.score === maxScore - 1) return { season: x.season, tier: "peak-sub" };
+      if (x.score === maxScore - 2) return { season: x.season, tier: "peak-near" };
+      return null;
+    })
+    .filter(Boolean);
 }
 
 function filterPlayers(conditions = getConditions(), logicMode = els.logicMode.value) {
@@ -224,16 +221,10 @@ function cardHtml(player) {
   const staticImg = `./images/chara/players/static/${player.id}.gif`;
   const actionImg = `./images/chara/players/action/${player.id}.gif`;
   const displayMetrics = getPeakMetrics(player);
-  const peakBuckets = getPeakBuckets(player);
-  const peakRows = [
-    { cls: "peak-main", seasons: peakBuckets.peak },
-    { cls: "peak-sub", seasons: peakBuckets.subPeak },
-    { cls: "peak-near", seasons: peakBuckets.nearPeak },
-  ]
-    .filter((x) => x.seasons.length)
-    .map((x) => `<div class="peak-line ${x.cls}">${x.seasons.join(" / ")}</div>`)
-    .join("");
-  const peakHtml = peakRows || `<div class="peak-line peak-near">-</div>`;
+  const peakTimeline = getPeakTimeline(player);
+  const peakHtml = peakTimeline.length
+    ? peakTimeline.map((x) => `<span class="peak-chip ${x.tier}">${x.season}</span>`).join("")
+    : `<span class="peak-chip peak-near">-</span>`;
   const metricBox = (metric) => {
     const v = displayMetrics?.[metric];
     const value = v == null ? 0 : v;
