@@ -10,6 +10,7 @@ const els = {
   sortKey: document.querySelector("#sortKey"),
   cmOnly: document.querySelector("#cmOnly"),
   ssOnly: document.querySelector("#ssOnly"),
+  normalOnly: document.querySelector("#normalOnly"),
   conditions: document.querySelector("#conditions"),
   addCondition: document.querySelector("#addCondition"),
   resetCondition: document.querySelector("#resetCondition"),
@@ -125,17 +126,24 @@ function filterPlayers() {
   const logicMode = els.logicMode.value;
   const cmOnly = els.cmOnly.checked;
   const ssOnly = els.ssOnly.checked;
+  const normalOnly = els.normalOnly.checked;
   const conditions = getConditions();
 
   return players.filter((player) => {
     if (query && !player.name.toLowerCase().includes(query)) {
       return false;
     }
-    if (cmOnly && !player.flags?.CM) {
-      return false;
-    }
-    if (ssOnly && !player.flags?.SS) {
-      return false;
+
+    const hasCM = !!player.flags?.CM;
+    const hasSS = !!player.flags?.SS;
+    const isNormal = !hasCM && !hasSS;
+    const hasCategoryFilter = cmOnly || ssOnly || normalOnly;
+    if (hasCategoryFilter) {
+      const categoryMatched =
+        (cmOnly && hasCM) ||
+        (ssOnly && hasSS) ||
+        (normalOnly && isNormal);
+      if (!categoryMatched) return false;
     }
 
     if (!conditions.length) {
@@ -219,7 +227,7 @@ async function init() {
     el.addEventListener("input", render);
     el.addEventListener("change", render);
   });
-  [els.cmOnly, els.ssOnly].forEach((el) => {
+  [els.cmOnly, els.ssOnly, els.normalOnly].forEach((el) => {
     el.addEventListener("change", render);
   });
 
