@@ -232,13 +232,6 @@ button.ghost {
   padding-top: 6px;
 }
 
-.metric-group-title {
-  display: block;
-  font-size: 0.78rem;
-  color: var(--sub);
-  margin-bottom: 5px;
-}
-
 .metrics {
   margin-top: 7px;
   display: grid;
@@ -255,7 +248,7 @@ button.ghost {
   border-radius: 8px;
   padding: 6px 6px;
   background: #fcfdff;
-  text-align: center;
+  text-align: left;
 }
 
 .metric-key {
@@ -267,6 +260,41 @@ button.ghost {
 .metric-val {
   font-size: 0.94rem;
   font-weight: 600;
+}
+
+.metric-val small {
+  font-size: 0.72rem;
+  color: var(--sub);
+  margin-left: 2px;
+  font-weight: 500;
+}
+
+.gauge {
+  margin-top: 4px;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: #e8edf7;
+  overflow: hidden;
+}
+
+.gauge-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #7f93b8 0%, #5f769f 100%);
+}
+
+.metric-box.m-speed .gauge-fill {
+  background: linear-gradient(90deg, #8fd4ff 0%, #2f78ff 100%);
+}
+
+.metric-box.m-tech .gauge-fill {
+  background: linear-gradient(90deg, #a7eaa2 0%, #2cae65 100%);
+}
+
+.metric-box.m-power .gauge-fill {
+  background: linear-gradient(90deg, #ffb3a4 0%, #ea3d3d 100%);
 }
 
 @media (max-width: 700px) {
@@ -300,5 +328,9 @@ button.ghost {
 
   .metrics.group-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .metric-box {
+    padding: 6px 5px;
   }
 }

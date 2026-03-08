@@ -182,10 +182,20 @@ function cardHtml(player) {
   const actionImg = `./images/chara/players/action/${player.id}.gif`;
   const metricBox = (metric) => {
     const v = player.maxMetrics?.[metric];
+    const value = v == null ? 0 : v;
+    const max = ["知性", "感性", "個人", "組織"].includes(metric) ? 30 : 10;
+    const pct = Math.max(0, Math.min(100, (value / max) * 100));
+    const metricClass =
+      metric === "スピ" ? "m-speed" :
+      metric === "テク" ? "m-tech" :
+      metric === "パワ" ? "m-power" : "";
     return `
-      <div class="metric-box">
+      <div class="metric-box ${metricClass}">
         <span class="metric-key">${metric}</span>
-        <span class="metric-val">${v == null ? "-" : v}</span>
+        <span class="metric-val">${v == null ? "-" : v}<small>/${max}</small></span>
+        <div class="gauge">
+          <span class="gauge-fill" style="width:${pct}%"></span>
+        </div>
       </div>
     `;
   };
@@ -213,15 +223,12 @@ function cardHtml(player) {
       <div class="metrics-wrap">
         <div class="metrics main-3">${mainMetrics.map(metricBox).join("")}</div>
         <div class="metric-group">
-          <span class="metric-group-title">① スタ・ラフ・個性・人気</span>
           <div class="metrics group-4">${group1.map(metricBox).join("")}</div>
         </div>
         <div class="metric-group">
-          <span class="metric-group-title">② PK・FK・CK・CP</span>
           <div class="metrics group-4">${group2.map(metricBox).join("")}</div>
         </div>
         <div class="metric-group">
-          <span class="metric-group-title">③ 知性・感性・個人・組織</span>
           <div class="metrics group-4">${group3.map(metricBox).join("")}</div>
         </div>
       </div>
