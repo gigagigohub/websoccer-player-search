@@ -396,7 +396,12 @@ button.ghost {
   color: #ecf3ff;
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 3;
+}
+
+.periods-table thead th:first-child {
+  left: 0;
+  z-index: 4;
 }
 
 .periods-table tbody th {
@@ -404,7 +409,7 @@ button.ghost {
   color: #c9d9fc;
   position: sticky;
   left: 0;
-  z-index: 1;
+  z-index: 2;
 }
 
 .periods-table tbody th.season-cell.peak-main {
