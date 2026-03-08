@@ -247,6 +247,7 @@ button.ghost {
   flex: 0 0 auto;
   max-width: none;
   overflow: visible;
+  transform: translateX(-16px);
 }
 
 .pos-heatmaps-track {
@@ -274,8 +275,8 @@ button.ghost {
   position: relative;
   width: 76px;
   height: 90px;
-  border: 2px solid #9ba3a7;
-  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid rgba(232, 238, 248, 0.52);
+  background: transparent;
   overflow: hidden;
 }
 
@@ -292,7 +293,7 @@ button.ghost {
   width: 36px;
   height: 22px;
   transform: translateX(-50%);
-  border: 2px solid rgba(214, 221, 229, 0.55);
+  border: 2px solid rgba(232, 238, 248, 0.42);
   border-radius: 0 0 18px 18px;
   border-top: 0;
 }
@@ -305,7 +306,7 @@ button.ghost {
   width: 34px;
   height: 20px;
   transform: translateX(-50%);
-  border: 2px solid rgba(214, 221, 229, 0.5);
+  border: 2px solid rgba(232, 238, 248, 0.4);
   border-radius: 18px 18px 0 0;
   border-bottom: 0;
 }
@@ -355,14 +356,14 @@ button.ghost {
 
 .pitch-map.is-fp .pitch-lines {
   background:
-    linear-gradient(90deg, rgba(214, 221, 229, 0.45) 33.3333%, transparent 33.3334%, transparent 66.6666%, rgba(214, 221, 229, 0.45) 66.6667%),
-    linear-gradient(180deg, transparent 80%, rgba(214, 221, 229, 0.45) 80.1%);
+    linear-gradient(90deg, rgba(232, 238, 248, 0.34) 33.3333%, transparent 33.3334%, transparent 66.6666%, rgba(232, 238, 248, 0.34) 66.6667%),
+    linear-gradient(180deg, transparent 80%, rgba(232, 238, 248, 0.34) 80.1%);
   background-size: 100% 100%;
 }
 
 .pitch-map.is-gk .pitch-lines {
   background:
-    linear-gradient(90deg, rgba(214, 221, 229, 0.45) 33.3333%, transparent 33.3334%, transparent 66.6666%, rgba(214, 221, 229, 0.45) 66.6667%);
+    linear-gradient(90deg, rgba(232, 238, 248, 0.34) 33.3333%, transparent 33.3334%, transparent 66.6666%, rgba(232, 238, 248, 0.34) 66.6667%);
 }
 
 .hm-l1 { background: rgba(255, 95, 34, 0.00); }
@@ -804,6 +805,7 @@ button.ghost {
 
   .pos-heatmaps-scroll.single {
     max-width: none;
+    transform: translateX(-10px);
   }
 
   .pitch-map {
