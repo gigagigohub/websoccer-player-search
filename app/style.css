@@ -232,9 +232,10 @@ button.ghost {
 }
 
 .peak-chip.peak-main {
-  color: #0f4a9f;
-  font-size: 0.76rem;
+  color: #b14a00;
+  font-size: 0.78rem;
   font-weight: 700;
+  text-shadow: 0 0 1px rgba(255, 210, 150, 0.45);
 }
 
 .peak-chip.peak-sub {
@@ -243,8 +244,8 @@ button.ghost {
 }
 
 .peak-chip.peak-near {
-  color: #7a8aa8;
-  font-weight: 500;
+  color: rgba(122, 138, 168, 0.36);
+  font-weight: 400;
 }
 
 .thumbs {
