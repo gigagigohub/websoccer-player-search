@@ -259,9 +259,10 @@ button.ghost {
   font-size: 0.62rem;
   color: #4c5570;
   white-space: nowrap;
-  background: rgba(255, 255, 255, 0.96);
-  padding: 1px 3px;
-  border-radius: 4px;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);
 }
 
 .mind-label.top {
