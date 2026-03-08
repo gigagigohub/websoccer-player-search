@@ -136,16 +136,39 @@ function getMatchingPeriods(player, conditions, logicMode) {
   });
 }
 
+const CORE_METRICS = ["スピ", "テク", "パワ"];
+
+function getStrengthMetrics(player) {
+  const periods = Array.isArray(player.periods) ? player.periods : [];
+  const totals = CORE_METRICS.map((metric) => ({ metric, total: 0 }));
+
+  periods.forEach((period) => {
+    const metrics = period?.metrics || {};
+    totals.forEach((entry) => {
+      entry.total += metrics[entry.metric] || 0;
+    });
+  });
+
+  totals.sort((a, b) => {
+    if (b.total !== a.total) return b.total - a.total;
+    return CORE_METRICS.indexOf(a.metric) - CORE_METRICS.indexOf(b.metric);
+  });
+
+  return totals.slice(0, 2).map((x) => x.metric);
+}
+
 function getPeakMetrics(player) {
   const periods = Array.isArray(player.periods) ? player.periods : [];
   if (!periods.length) return player.maxMetrics || {};
+  const strengthMetrics = getStrengthMetrics(player);
+  const [m1, m2] = strengthMetrics;
 
   let best = periods[0]?.metrics || {};
-  let bestScore = (best["スピ"] || 0) + (best["テク"] || 0) + (best["パワ"] || 0);
+  let bestScore = (best[m1] || 0) + (best[m2] || 0);
 
   for (let i = 1; i < periods.length; i += 1) {
     const m = periods[i]?.metrics || {};
-    const score = (m["スピ"] || 0) + (m["テク"] || 0) + (m["パワ"] || 0);
+    const score = (m[m1] || 0) + (m[m2] || 0);
     if (score > bestScore) {
       best = m;
       bestScore = score;
@@ -158,10 +181,12 @@ function getPeakMetrics(player) {
 function getPeakTimeline(player) {
   const periods = Array.isArray(player.periods) ? player.periods : [];
   if (!periods.length) return [];
+  const strengthMetrics = getStrengthMetrics(player);
+  const [m1, m2] = strengthMetrics;
 
   const scored = periods.map((p) => {
     const m = p?.metrics || {};
-    const score = (m["スピ"] || 0) + (m["テク"] || 0) + (m["パワ"] || 0);
+    const score = (m[m1] || 0) + (m[m2] || 0);
     return { season: p?.season, score };
   });
   const maxScore = Math.max(...scored.map((x) => x.score));
