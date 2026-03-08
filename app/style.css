@@ -27,19 +27,25 @@ body {
   padding: 14px;
 }
 
-.hero h1 {
-  margin: 0;
-  font-size: 1.45rem;
-  letter-spacing: 0.02em;
+.hero {
+  padding: 10px 12px;
+  border: 1px solid #d7e3f8;
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 12% -10%, rgba(93, 156, 255, 0.22) 0, rgba(93, 156, 255, 0) 42%),
+    radial-gradient(circle at 90% 0%, rgba(255, 219, 142, 0.22) 0, rgba(255, 219, 142, 0) 38%),
+    #fbfdff;
 }
 
-.subtitle {
-  margin: 4px 0;
-  color: var(--sub);
+.hero h1 {
+  margin: 0;
+  font-size: 1.48rem;
+  letter-spacing: 0.03em;
+  color: #133f86;
 }
 
 .meta {
-  margin: 0;
+  margin: 4px 0 0;
   font-size: 0.88rem;
   color: var(--sub);
 }

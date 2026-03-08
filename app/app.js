@@ -9,6 +9,7 @@ const METRIC_LABELS = {
   "スタ": "スタミナ",
   "CP": "Cap.",
 };
+const APP_UPDATED_AT_JST = "2026-03-08 18:18 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -429,7 +430,7 @@ async function init() {
   const data = await res.json();
   players = data.players || [];
 
-  els.metaText.textContent = `取得元: ${data.source} / データ作成: ${data.generatedAt} / 選手数: ${players.length}`;
+  els.metaText.textContent = `更新日時: ${APP_UPDATED_AT_JST} / 選手数: ${players.length}`;
   els.resultCount.textContent = "0件";
   els.results.innerHTML = "";
 }
