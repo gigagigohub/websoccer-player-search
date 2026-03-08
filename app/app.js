@@ -22,7 +22,7 @@ const DETAIL_METRIC_LABELS = {
 };
 const LINEUP_SIZE = 11;
 const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
-const APP_UPDATED_AT_JST = "2026-03-08 23:58 JST";
+const APP_UPDATED_AT_JST = "2026-03-09 00:03 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -68,6 +68,7 @@ const expandedPlayerIds = new Set();
 let pendingLineupPlayerId = null;
 let pendingLineupSlotIndex = null;
 let startingLineup = Array.from({ length: LINEUP_SIZE }, () => null);
+let lineupSlotsLocked = false;
 
 function normalizeSeasonInput(input) {
   const raw = String(input || "").trim();
@@ -118,6 +119,7 @@ function saveStartingLineup() {
 
 function closeLineupModal() {
   pendingLineupPlayerId = null;
+  lineupSlotsLocked = false;
   if (!els.lineupModal) return;
   els.lineupModal.hidden = true;
 }
@@ -186,6 +188,7 @@ function renderLineupSlots() {
     const season = hasPlayer ? (entry?.season || null) : null;
     const seasonText = season ? `${season}目` : "-";
     const disabledByNameRule = !!allowedIndexes && !allowedIndexes.has(idx);
+    const disabledByLock = lineupSlotsLocked;
     const pos = (player?.position || "-").toUpperCase();
     const posClass = positionClass(pos);
     const typeLabel = player ? getCategory(player) : "-";
@@ -205,7 +208,7 @@ function renderLineupSlots() {
       `
       : "";
     return `
-      <button type="button" class="lineup-slot${hasPlayer ? " has-player" : ""}${disabledByNameRule ? " is-disabled" : ""}" data-slot-index="${idx}" ${disabledByNameRule ? "disabled" : ""}>
+      <button type="button" class="lineup-slot${hasPlayer ? " has-player" : ""}${(disabledByNameRule || disabledByLock) ? " is-disabled" : ""}" data-slot-index="${idx}" ${(disabledByNameRule || disabledByLock) ? "disabled" : ""}>
         <span class="slot-no">${slot}</span>
         <div class="lineup-slot-main">
           <div class="lineup-thumb-wrap">${imageHtml}</div>
@@ -227,6 +230,7 @@ function renderLineupSlots() {
 
 function openLineupModal(playerId) {
   pendingLineupPlayerId = playerId;
+  lineupSlotsLocked = false;
   const player = players.find((p) => p.id === playerId);
   const allowedIndexes = allowedSlotIndexesForPendingName();
   if (els.lineupTarget) {
@@ -807,7 +811,6 @@ async function init() {
       if (!Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= LINEUP_SIZE) return;
       const player = players.find((p) => p.id === pendingLineupPlayerId);
       if (!player) return;
-      closeLineupModal();
       openSeasonModal(player, slotIndex);
     });
   }
@@ -830,6 +833,14 @@ async function init() {
       if (!selectedSeason) return;
       startingLineup[slotIndex] = { playerId, season: selectedSeason };
       saveStartingLineup();
+      const player = players.find((p) => p.id === playerId);
+      if (els.lineupTarget) {
+        els.lineupTarget.textContent = player
+          ? `${player.name}選手の登録が完了しました`
+          : "選手の登録が完了しました";
+      }
+      lineupSlotsLocked = true;
+      renderLineupSlots();
       closeSeasonModal();
     });
   }
