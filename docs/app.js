@@ -303,7 +303,8 @@ async function init() {
   players = data.players || [];
 
   els.metaText.textContent = `取得元: ${data.source} / データ作成: ${data.generatedAt} / 選手数: ${players.length}`;
-  render();
+  els.resultCount.textContent = "0件";
+  els.results.innerHTML = "";
 }
 
 init().catch((e) => {
