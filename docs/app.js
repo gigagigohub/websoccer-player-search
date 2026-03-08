@@ -180,7 +180,7 @@ function compareBySortKey(a, b, sortKey) {
 function cardHtml(player) {
   const staticImg = `./images/chara/players/static/${player.id}.gif`;
   const actionImg = `./images/chara/players/action/${player.id}.gif`;
-  const metricBlocks = METRICS.map((metric) => {
+  const metricBox = (metric) => {
     const v = player.maxMetrics?.[metric];
     return `
       <div class="metric-box">
@@ -188,7 +188,12 @@ function cardHtml(player) {
         <span class="metric-val">${v == null ? "-" : v}</span>
       </div>
     `;
-  }).join("");
+  };
+
+  const mainMetrics = ["スピ", "テク", "パワ"];
+  const group1 = ["スタ", "ラフ", "個性", "人気"];
+  const group2 = ["PK", "FK", "CK", "CP"];
+  const group3 = ["知性", "感性", "個人", "組織"];
 
   return `
     <article class="card">
@@ -205,7 +210,21 @@ function cardHtml(player) {
           <span class="badge">総合値: ${player.bestTotal}</span>
         </div>
       </div>
-      <div class="metrics">${metricBlocks}</div>
+      <div class="metrics-wrap">
+        <div class="metrics main-3">${mainMetrics.map(metricBox).join("")}</div>
+        <div class="metric-group">
+          <span class="metric-group-title">① スタ・ラフ・個性・人気</span>
+          <div class="metrics group-4">${group1.map(metricBox).join("")}</div>
+        </div>
+        <div class="metric-group">
+          <span class="metric-group-title">② PK・FK・CK・CP</span>
+          <div class="metrics group-4">${group2.map(metricBox).join("")}</div>
+        </div>
+        <div class="metric-group">
+          <span class="metric-group-title">③ 知性・感性・個人・組織</span>
+          <div class="metrics group-4">${group3.map(metricBox).join("")}</div>
+        </div>
+      </div>
     </article>
   `;
 }
