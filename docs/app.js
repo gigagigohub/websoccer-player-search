@@ -295,6 +295,12 @@ async function init() {
 
   els.resetCondition.addEventListener("click", () => {
     els.conditions.innerHTML = "";
+    els.normalOnly.checked = false;
+    els.ssOnly.checked = false;
+    els.cmOnly.checked = false;
+    els.ccOnly.checked = false;
+    els.naOnly.checked = false;
+    els.positionFilter.value = "";
   });
 
   els.applySearch.addEventListener("click", render);
