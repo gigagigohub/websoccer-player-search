@@ -20,7 +20,7 @@ const DETAIL_METRIC_LABELS = {
   "CK": "ＣＫ",
   "CP": "ＣＰ",
 };
-const APP_UPDATED_AT_JST = "2026-03-08 23:20 JST";
+const APP_UPDATED_AT_JST = "2026-03-08 23:33 JST";
 const LINEUP_SIZE = 11;
 const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 
@@ -95,12 +95,29 @@ function renderLineupSlots() {
   if (!els.lineupSlots) return;
   const html = startingLineup.map((playerId, idx) => {
     const slot = idx + 1;
-    const name = playerId == null ? "未登録" : getPlayerNameById(playerId);
+    const player = players.find((x) => x.id === playerId) || null;
+    const name = player ? player.name : "未登録";
     const hasPlayer = playerId != null;
+    const pos = (player?.position || "-").toUpperCase();
+    const posClass = positionClass(pos);
+    const typeLabel = player ? getCategory(player) : "-";
+    const typeClass = player ? typeClassByPlayer(player) : "cat-na";
+    const imageHtml = player
+      ? `<img loading="lazy" src="./images/chara/players/static/${player.id}.gif" alt="${player.name}" />`
+      : `<div class="lineup-empty-thumb"></div>`;
     return `
       <button type="button" class="lineup-slot${hasPlayer ? " has-player" : ""}" data-slot-index="${idx}">
         <span class="slot-no">${slot}</span>
-        <span class="slot-name">${name}</span>
+        <div class="lineup-slot-main">
+          <div class="lineup-thumb-wrap">${imageHtml}</div>
+          <div class="lineup-player-meta">
+            <div class="lineup-badges">
+              <span class="badge pos-badge ${posClass}">${pos}</span>
+              <span class="badge type-badge ${typeClass}">${typeLabel}</span>
+            </div>
+            <span class="slot-name">${name}</span>
+          </div>
+        </div>
       </button>
     `;
   }).join("");
@@ -209,6 +226,31 @@ function getCategory(player) {
   if (hasCM) return "CM";
   if (hasSS) return "SS";
   return "NR";
+}
+
+function typeClassByPlayer(player) {
+  const typeLabel = getCategory(player);
+  if (typeLabel === "NR") {
+    const rate = Number(player?.rate);
+    if (rate === 7) return "cat-nr-r7";
+    if (rate === 5 || rate === 6) return "cat-nr-r56";
+    if (rate === 4) return "cat-nr-r4";
+    return "cat-nr-r13";
+  }
+  if (typeLabel === "SS") return "cat-ss";
+  if (typeLabel === "CM") return "cat-cm";
+  if (typeLabel === "CM/SS") return "cat-cmss";
+  if (typeLabel === "CC") return "cat-cc";
+  return "cat-na";
+}
+
+function positionClass(position) {
+  const pos = (position || "-").toUpperCase();
+  if (pos === "GK") return "pos-gk";
+  if (pos === "DF") return "pos-df";
+  if (pos === "MF") return "pos-mf";
+  if (pos === "FW") return "pos-fw";
+  return "";
 }
 
 function getMatchingPeriods(player, conditions, logicMode) {
@@ -489,30 +531,9 @@ function cardHtml(player) {
   const pLeft = `${cx - r * nLeft},${cy}`;
   const areaPoints = `${pTop} ${pRight} ${pBottom} ${pLeft}`;
   const typeLabel = getCategory(player);
-  let typeClass = "cat-na";
-  if (typeLabel === "NR") {
-    const rate = Number(player.rate);
-    if (rate === 7) typeClass = "cat-nr-r7";
-    else if (rate === 5 || rate === 6) typeClass = "cat-nr-r56";
-    else if (rate === 4) typeClass = "cat-nr-r4";
-    else typeClass = "cat-nr-r13";
-  } else if (typeLabel === "SS") {
-    typeClass = "cat-ss";
-  } else if (typeLabel === "CM") {
-    typeClass = "cat-cm";
-  } else if (typeLabel === "CM/SS") {
-    typeClass = "cat-cmss";
-  } else if (typeLabel === "CC") {
-    typeClass = "cat-cc";
-  } else if (typeLabel === "NA") {
-    typeClass = "cat-na";
-  }
+  const typeClass = typeClassByPlayer(player);
   const pos = (player.position || "-").toUpperCase();
-  const posClass =
-    pos === "GK" ? "pos-gk" :
-    pos === "DF" ? "pos-df" :
-    pos === "MF" ? "pos-mf" :
-    pos === "FW" ? "pos-fw" : "";
+  const posClass = positionClass(pos);
   const normalViewHtml = `
           <div class="media-row">
             <div class="thumbs">

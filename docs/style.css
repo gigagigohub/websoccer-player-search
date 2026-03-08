@@ -859,21 +859,20 @@ button.ghost {
 
 .lineup-slots {
   display: grid;
-  grid-template-columns: repeat(11, minmax(84px, 1fr));
+  grid-template-columns: 1fr;
   gap: 6px;
-  min-width: max-content;
 }
 
 .lineup-slot {
-  height: 64px;
+  height: 58px;
   border-radius: 8px;
   border: 1px solid #36507c;
   background: #132038;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: 4px;
+  gap: 8px;
   padding: 6px;
   text-align: left;
 }
@@ -883,19 +882,76 @@ button.ghost {
 }
 
 .slot-no {
-  font-size: 0.74rem;
+  font-size: 0.76rem;
   color: #9db3de;
   font-weight: 700;
+  width: 20px;
+  flex: 0 0 20px;
+  padding-top: 2px;
+}
+
+.lineup-slot-main {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 auto;
+}
+
+.lineup-thumb-wrap {
+  width: 40px;
+  height: 42px;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  background: rgba(17, 27, 45, 0.55);
+  border: 1px solid rgba(89, 110, 146, 0.28);
+}
+
+.lineup-thumb-wrap img {
+  width: 40px;
+  height: 68px;
+  object-fit: contain;
+  object-position: top center;
+  transform: translateY(-8px);
+}
+
+.lineup-empty-thumb {
+  width: 100%;
+  height: 100%;
+  background: rgba(132, 152, 186, 0.15);
+}
+
+.lineup-player-meta {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lineup-badges {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lineup-badges .badge {
+  font-size: 0.66rem;
+  padding: 2px 5px;
+  border-radius: 5px;
 }
 
 .slot-name {
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   color: #edf3ff;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  display: block;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   overflow: hidden;
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
 @media (max-width: 700px) {
@@ -969,6 +1025,21 @@ button.ghost {
   }
 
   .lineup-slots {
-    grid-template-columns: repeat(11, minmax(72px, 1fr));
+    grid-template-columns: 1fr;
+  }
+
+  .lineup-slot {
+    height: 56px;
+    gap: 6px;
+  }
+
+  .lineup-thumb-wrap {
+    width: 36px;
+    height: 40px;
+  }
+
+  .lineup-thumb-wrap img {
+    width: 36px;
+    height: 64px;
   }
 }
