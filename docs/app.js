@@ -20,7 +20,7 @@ const DETAIL_METRIC_LABELS = {
   "CK": "ＣＫ",
   "CP": "ＣＰ",
 };
-const APP_UPDATED_AT_JST = "2026-03-08 23:33 JST";
+const APP_UPDATED_AT_JST = "2026-03-08 23:40 JST";
 const LINEUP_SIZE = 11;
 const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 
@@ -93,6 +93,26 @@ function getPlayerNameById(playerId) {
 
 function renderLineupSlots() {
   if (!els.lineupSlots) return;
+  const miniCoreMetric = (metric, value) => {
+    const bounded = Math.max(0, Math.min(10, Math.round(value || 0)));
+    const keyClass =
+      metric === "スピ" ? "m-speed" :
+      metric === "テク" ? "m-tech" :
+      "m-power";
+    const cells = Array.from({ length: 10 }, (_, i) =>
+      `<span class="gauge-cell${i < bounded ? " on" : ""}"></span>`
+    ).join("");
+    return `
+      <div class="lineup-core-item ${keyClass}">
+        <span class="lineup-core-key">${metricLabel(metric)}</span>
+        <div class="lineup-core-body">
+          <div class="gauge">${cells}</div>
+          <span class="lineup-core-num">${value ?? "-"}</span>
+        </div>
+      </div>
+    `;
+  };
+
   const html = startingLineup.map((playerId, idx) => {
     const slot = idx + 1;
     const player = players.find((x) => x.id === playerId) || null;
@@ -105,6 +125,16 @@ function renderLineupSlots() {
     const imageHtml = player
       ? `<img loading="lazy" src="./images/chara/players/static/${player.id}.gif" alt="${player.name}" />`
       : `<div class="lineup-empty-thumb"></div>`;
+    const peak = player ? getPeakMetrics(player) : null;
+    const coreHtml = player
+      ? `
+        <div class="lineup-core">
+          ${miniCoreMetric("スピ", peak?.["スピ"])}
+          ${miniCoreMetric("テク", peak?.["テク"])}
+          ${miniCoreMetric("パワ", peak?.["パワ"])}
+        </div>
+      `
+      : "";
     return `
       <button type="button" class="lineup-slot${hasPlayer ? " has-player" : ""}" data-slot-index="${idx}">
         <span class="slot-no">${slot}</span>
@@ -117,6 +147,7 @@ function renderLineupSlots() {
             </div>
             <span class="slot-name">${name}</span>
           </div>
+          ${coreHtml}
         </div>
       </button>
     `;
