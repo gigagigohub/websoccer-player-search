@@ -20,9 +20,23 @@ const DETAIL_METRIC_LABELS = {
   "CK": "ＣＫ",
   "CP": "ＣＰ",
 };
-const APP_UPDATED_AT_JST = "2026-03-08 23:56 JST";
 const LINEUP_SIZE = 11;
 const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
+
+function currentJstString() {
+  const now = new Date();
+  const f = new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  const parts = Object.fromEntries(f.formatToParts(now).map((p) => [p.type, p.value]));
+  return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute} JST`;
+}
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -820,7 +834,7 @@ async function init() {
   const data = await res.json();
   players = data.players || [];
 
-  els.metaText.textContent = `Updated: ${APP_UPDATED_AT_JST} / Players: ${players.length}`;
+  els.metaText.textContent = `Updated: ${currentJstString()} / Players: ${players.length}`;
   els.resultCount.textContent = "0 results";
   els.results.innerHTML = "";
 }
