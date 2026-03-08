@@ -223,6 +223,13 @@ function cardHtml(player) {
   const pLeft = `${cx - r * nLeft},${cy}`;
   const areaPoints = `${pTop} ${pRight} ${pBottom} ${pLeft}`;
   const typeLabel = getCategory(player);
+  const typeClass =
+    typeLabel === "NR" ? "cat-nr" :
+    typeLabel === "SS" ? "cat-ss" :
+    typeLabel === "CM" ? "cat-cm" :
+    typeLabel === "CM/SS" ? "cat-cmss" :
+    typeLabel === "CC" ? "cat-cc" :
+    typeLabel === "NA" ? "cat-na" : "cat-na";
   const pos = (player.position || "-").toUpperCase();
   const posClass =
     pos === "GK" ? "pos-gk" :
@@ -237,7 +244,7 @@ function cardHtml(player) {
         <div class="card-head-main">
           <h3 class="card-name">
             <span class="badge pos-badge ${posClass}">${pos}</span>
-            <span class="badge type-badge">${typeLabel}</span>
+            <span class="badge type-badge ${typeClass}">${typeLabel}</span>
             <a href="${player.url}" target="_blank" rel="noreferrer">${player.name}</a>
           </h3>
           <div class="media-row">
