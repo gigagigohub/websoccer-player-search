@@ -215,8 +215,8 @@ button.ghost {
 .media-row {
   margin-top: 8px;
   display: flex;
-  justify-content: space-between;
-  gap: 10px;
+  justify-content: flex-start;
+  gap: 12px;
   align-items: flex-start;
 }
 
@@ -225,7 +225,9 @@ button.ghost {
   width: 116px;
   height: 116px;
   flex: 0 0 116px;
-  margin-right: 6px;
+  margin-left: auto;
+  transform: translateX(-10px);
+  overflow: visible;
 }
 
 .mind-chart svg {
@@ -272,7 +274,7 @@ button.ghost {
 }
 
 .mind-label.right {
-  right: -8px;
+  right: -24px;
   top: 50%;
   transform: translateY(-50%);
 }
@@ -284,7 +286,7 @@ button.ghost {
 }
 
 .mind-label.left {
-  left: -8px;
+  left: -24px;
   top: 50%;
   transform: translateY(-50%);
 }
@@ -442,6 +444,7 @@ button.ghost {
     width: 108px;
     height: 108px;
     flex-basis: 108px;
+    transform: translateX(-6px);
   }
 
   .metrics.main-3 {
