@@ -226,10 +226,14 @@ button.ghost {
 
 .card-id {
   position: absolute;
-  top: 8px;
-  right: 86px;
+  right: 10px;
+  bottom: 8px;
   font-size: 0.72rem;
   color: var(--sub);
+}
+
+.card.is-expanded .card-id {
+  display: none;
 }
 
 .expand-toggle {
