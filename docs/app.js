@@ -17,7 +17,7 @@ const DETAIL_METRIC_LABELS = {
   "ラフ": "ラフ",
   "CP": "CP",
 };
-const APP_UPDATED_AT_JST = "2026-03-08 20:26 JST";
+const APP_UPDATED_AT_JST = "2026-03-08 20:29 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -417,13 +417,24 @@ function cardHtml(player) {
   const pLeft = `${cx - r * nLeft},${cy}`;
   const areaPoints = `${pTop} ${pRight} ${pBottom} ${pLeft}`;
   const typeLabel = getCategory(player);
-  const typeClass =
-    typeLabel === "NR" ? "cat-nr" :
-    typeLabel === "SS" ? "cat-ss" :
-    typeLabel === "CM" ? "cat-cm" :
-    typeLabel === "CM/SS" ? "cat-cmss" :
-    typeLabel === "CC" ? "cat-cc" :
-    typeLabel === "NA" ? "cat-na" : "cat-na";
+  let typeClass = "cat-na";
+  if (typeLabel === "NR") {
+    const rate = Number(player.rate);
+    if (rate === 7) typeClass = "cat-nr-r7";
+    else if (rate === 5 || rate === 6) typeClass = "cat-nr-r56";
+    else if (rate === 4) typeClass = "cat-nr-r4";
+    else typeClass = "cat-nr-r13";
+  } else if (typeLabel === "SS") {
+    typeClass = "cat-ss";
+  } else if (typeLabel === "CM") {
+    typeClass = "cat-cm";
+  } else if (typeLabel === "CM/SS") {
+    typeClass = "cat-cmss";
+  } else if (typeLabel === "CC") {
+    typeClass = "cat-cc";
+  } else if (typeLabel === "NA") {
+    typeClass = "cat-na";
+  }
   const pos = (player.position || "-").toUpperCase();
   const posClass =
     pos === "GK" ? "pos-gk" :

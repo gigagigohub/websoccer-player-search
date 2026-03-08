@@ -594,14 +594,44 @@ button.ghost {
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
 }
 
-.type-badge.cat-nr {
-  color: #1d2f4f;
+.type-badge.cat-nr-r13 {
+  color: #24303f;
   text-shadow: none;
-  background: linear-gradient(180deg, #eaf2ff 0%, #d8e6ff 100%);
+  background: linear-gradient(180deg, #f7f8fb 0%, #e7ebf2 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.8),
-    inset 0 -1px 0 rgba(126, 152, 194, 0.35),
-    0 0 0 1px rgba(120, 147, 188, 0.35);
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(150, 160, 176, 0.3),
+    0 0 0 1px rgba(154, 164, 180, 0.35);
+}
+
+.type-badge.cat-nr-r4 {
+  color: #3a2a18;
+  text-shadow: none;
+  background: linear-gradient(180deg, #e7b88b 0%, #c98a4d 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 232, 205, 0.6),
+    inset 0 -1px 0 rgba(101, 64, 24, 0.35),
+    0 0 0 1px rgba(143, 93, 41, 0.4);
+}
+
+.type-badge.cat-nr-r56 {
+  color: #1f2836;
+  text-shadow: none;
+  background: linear-gradient(180deg, #e4e9f2 0%, #aeb8c9 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1px 0 rgba(88, 98, 118, 0.35),
+    0 0 0 1px rgba(118, 131, 153, 0.4);
+}
+
+.type-badge.cat-nr-r7 {
+  color: #3e2f0e;
+  text-shadow: 0 1px 0 rgba(255, 244, 196, 0.45);
+  background: linear-gradient(180deg, #ffe48a 0%, #d9a927 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 245, 189, 0.7),
+    inset 0 -1px 0 rgba(120, 82, 12, 0.38),
+    0 0 0 1px rgba(179, 133, 25, 0.45);
 }
 
 .type-badge.cat-ss {
