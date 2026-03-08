@@ -129,6 +129,10 @@ input, select, button {
   margin-top: 10px;
 }
 
+.apply-row {
+  margin-top: 10px;
+}
+
 button {
   background: var(--brand);
   color: #fff;
