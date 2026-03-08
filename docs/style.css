@@ -873,7 +873,7 @@ button.ghost {
 }
 
 .lineup-slot {
-  height: 58px;
+  min-height: 58px;
   border-radius: 8px;
   border: 1px solid #36507c;
   background: #132038;
@@ -941,7 +941,7 @@ button.ghost {
 
 .lineup-player-meta {
   min-width: 0;
-  flex: 0 1 auto;
+  flex: 0 0 120px;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -964,9 +964,9 @@ button.ghost {
   font-size: 0.75rem;
   color: #edf3ff;
   display: block;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
+  white-space: normal;
+  word-break: break-all;
+  overflow: visible;
   line-height: 1.1;
   max-width: 120px;
 }
@@ -1159,7 +1159,7 @@ button.ghost {
   }
 
   .lineup-slot {
-    height: 56px;
+    min-height: 56px;
     gap: 6px;
   }
 
@@ -1193,6 +1193,10 @@ button.ghost {
 
   .slot-name {
     max-width: 100px;
+  }
+
+  .lineup-player-meta {
+    flex-basis: 100px;
   }
 
   .lineup-badges .lineup-season {
