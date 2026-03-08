@@ -247,7 +247,7 @@ button.ghost {
 }
 
 .mind-chart .area {
-  fill: rgba(235, 116, 22, 0.28);
+  fill: rgba(235, 116, 22, 0.5);
   stroke: none;
 }
 
@@ -379,7 +379,7 @@ button.ghost {
 .gauge {
   margin-top: 4px;
   width: 100%;
-  height: 12px;
+  height: 18px;
   border-radius: 0;
   display: grid;
   grid-template-columns: repeat(10, minmax(0, 1fr));
@@ -390,7 +390,7 @@ button.ghost {
 
 .gauge-cell {
   height: 100%;
-  background: #eee9fb;
+  background: linear-gradient(180deg, #8f8f95 0%, #d7d7dc 100%);
 }
 
 .gauge-cell.on {
