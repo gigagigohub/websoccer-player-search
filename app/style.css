@@ -250,13 +250,6 @@ button.ghost {
   border-radius: 6px;
 }
 
-.badge-stack {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 4px;
-  align-items: stretch;
-}
-
 .metrics-wrap {
   margin-top: 8px;
   display: grid;
