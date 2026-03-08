@@ -207,8 +207,8 @@ button.ghost {
 }
 
 .thumbs img {
-  width: 84px;
-  height: 84px;
+  width: 94px;
+  height: 94px;
   object-fit: contain;
 }
 
@@ -222,9 +222,10 @@ button.ghost {
 
 .mind-chart {
   position: relative;
-  width: 140px;
-  height: 140px;
-  flex: 0 0 140px;
+  width: 116px;
+  height: 116px;
+  flex: 0 0 116px;
+  margin-right: 6px;
 }
 
 .mind-chart svg {
@@ -255,7 +256,7 @@ button.ghost {
 
 .mind-label {
   position: absolute;
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   color: #4c5570;
   white-space: nowrap;
   background: rgba(255, 255, 255, 0.96);
@@ -270,7 +271,7 @@ button.ghost {
 }
 
 .mind-label.right {
-  right: -28px;
+  right: -8px;
   top: 50%;
   transform: translateY(-50%);
 }
@@ -282,7 +283,7 @@ button.ghost {
 }
 
 .mind-label.left {
-  left: -28px;
+  left: -8px;
   top: 50%;
   transform: translateY(-50%);
 }
@@ -382,41 +383,35 @@ button.ghost {
   width: 100%;
   height: 12px;
   border-radius: 0;
-  background: #eee9fb;
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 1px;
+  background: transparent;
   overflow: hidden;
-  position: relative;
 }
 
-.gauge::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.9) 1px, transparent 1px);
-  background-size: calc(100% / var(--steps)) 100%;
-  pointer-events: none;
-}
-
-.gauge-fill {
-  display: block;
+.gauge-cell {
   height: 100%;
-  border-radius: 0;
-  max-width: 100%;
+  background: #eee9fb;
+}
+
+.gauge-cell.on {
   background: linear-gradient(180deg, #cfb2ff 0%, #8662ca 100%);
 }
 
-.metric-box.m-speed .gauge-fill {
+.metric-box.m-speed .gauge-cell.on {
   background: linear-gradient(180deg, #9fddff 0%, #2f78ff 100%);
 }
 
-.metric-box.m-tech .gauge-fill {
+.metric-box.m-tech .gauge-cell.on {
   background: linear-gradient(180deg, #b7efb2 0%, #2cae65 100%);
 }
 
-.metric-box.m-power .gauge-fill {
+.metric-box.m-power .gauge-cell.on {
   background: linear-gradient(180deg, #ffc0b5 0%, #ea3d3d 100%);
 }
 
-.metric-box.m-unique .gauge-fill {
+.metric-box.m-unique .gauge-cell.on {
   background: linear-gradient(180deg, #ffe88f 0%, #e1b600 100%);
 }
 
@@ -443,9 +438,9 @@ button.ghost {
   }
 
   .mind-chart {
-    width: 120px;
-    height: 120px;
-    flex-basis: 120px;
+    width: 108px;
+    height: 108px;
+    flex-basis: 108px;
   }
 
   .metrics.main-3 {

@@ -163,18 +163,20 @@ function cardHtml(player) {
     const value = v == null ? 0 : v;
     const max = 10;
     const bounded = Math.max(0, Math.min(max, Math.round(value)));
-    const pct = bounded * 10;
     const metricClass =
       metric === "スピ" ? "m-speed" :
       metric === "テク" ? "m-tech" :
       metric === "パワ" ? "m-power" :
       metric === "個性" ? "m-unique" : "";
+    const cells = Array.from({ length: 10 }, (_, i) =>
+      `<span class="gauge-cell${i < bounded ? " on" : ""}"></span>`
+    ).join("");
     return `
       <div class="metric-box ${metricClass}">
         <span class="metric-key">${metricLabel(metric)}</span>
         <div class="metric-body">
-          <div class="gauge" style="--steps:10">
-            <span class="gauge-fill" style="width:${pct}%"></span>
+          <div class="gauge">
+            ${cells}
           </div>
           <span class="metric-num">${v == null ? "-" : v}</span>
         </div>
