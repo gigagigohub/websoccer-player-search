@@ -139,6 +139,16 @@ button {
   border-color: var(--brand);
 }
 
+button.search-btn {
+  background: #0d8b3f;
+  border-color: #0d8b3f;
+}
+
+button.add-btn {
+  background: #d98b00;
+  border-color: #d98b00;
+}
+
 button.ghost {
   background: var(--brand-soft);
   color: var(--brand);
