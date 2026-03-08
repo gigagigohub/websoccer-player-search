@@ -318,6 +318,7 @@ function positionHeatmapsHtml(player) {
   const segments = Array.isArray(player.positionHeatmaps) ? player.positionHeatmaps : [];
   if (!segments.length) return "";
   const isGK = (player.position || "").toUpperCase() === "GK";
+  const singleClass = segments.length === 1 ? "single" : "multi";
 
   const items = segments.map((seg) => {
     const label = seg?.label || "";
@@ -350,7 +351,7 @@ function positionHeatmapsHtml(player) {
   }).join("");
 
   return `
-    <div class="pos-heatmaps-scroll">
+    <div class="pos-heatmaps-scroll ${singleClass}">
       <div class="pos-heatmaps-track">
         ${items}
       </div>

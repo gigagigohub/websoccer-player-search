@@ -243,10 +243,20 @@ button.ghost {
   overflow-x: auto;
 }
 
+.pos-heatmaps-scroll.single {
+  flex: 0 0 auto;
+  max-width: none;
+  overflow: visible;
+}
+
 .pos-heatmaps-track {
   display: flex;
   gap: 8px;
   min-width: max-content;
+}
+
+.pos-heatmaps-scroll.single .pos-heatmaps-track {
+  justify-content: flex-end;
 }
 
 .pos-heatmap-seg {
@@ -265,7 +275,7 @@ button.ghost {
   width: 76px;
   height: 90px;
   border: 2px solid #9ba3a7;
-  background: #474728;
+  background: rgba(255, 255, 255, 0.03);
   overflow: hidden;
 }
 
@@ -282,7 +292,7 @@ button.ghost {
   width: 36px;
   height: 22px;
   transform: translateX(-50%);
-  border: 2px solid rgba(190, 194, 197, 0.8);
+  border: 2px solid rgba(214, 221, 229, 0.55);
   border-radius: 0 0 18px 18px;
   border-top: 0;
 }
@@ -295,7 +305,7 @@ button.ghost {
   width: 34px;
   height: 20px;
   transform: translateX(-50%);
-  border: 2px solid rgba(190, 194, 197, 0.75);
+  border: 2px solid rgba(214, 221, 229, 0.5);
   border-radius: 18px 18px 0 0;
   border-bottom: 0;
 }
@@ -314,7 +324,7 @@ button.ghost {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(89, 73, 48, 0.45);
+  border: 1px solid rgba(190, 196, 210, 0.2);
   font-size: 0.60rem;
   font-weight: 700;
   color: #fff;
@@ -336,7 +346,7 @@ button.ghost {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(89, 73, 48, 0.45);
+  border: 1px solid rgba(190, 196, 210, 0.2);
   font-size: 0.60rem;
   font-weight: 700;
   color: #fff;
@@ -345,23 +355,23 @@ button.ghost {
 
 .pitch-map.is-fp .pitch-lines {
   background:
-    linear-gradient(90deg, rgba(186, 191, 195, 0.75) 33.3333%, transparent 33.3334%, transparent 66.6666%, rgba(186, 191, 195, 0.75) 66.6667%),
-    linear-gradient(180deg, transparent 80%, rgba(186, 191, 195, 0.75) 80.1%);
+    linear-gradient(90deg, rgba(214, 221, 229, 0.45) 33.3333%, transparent 33.3334%, transparent 66.6666%, rgba(214, 221, 229, 0.45) 66.6667%),
+    linear-gradient(180deg, transparent 80%, rgba(214, 221, 229, 0.45) 80.1%);
   background-size: 100% 100%;
 }
 
 .pitch-map.is-gk .pitch-lines {
   background:
-    linear-gradient(90deg, rgba(186, 191, 195, 0.75) 33.3333%, transparent 33.3334%, transparent 66.6666%, rgba(186, 191, 195, 0.75) 66.6667%);
+    linear-gradient(90deg, rgba(214, 221, 229, 0.45) 33.3333%, transparent 33.3334%, transparent 66.6666%, rgba(214, 221, 229, 0.45) 66.6667%);
 }
 
-.hm-l1 { background: linear-gradient(180deg, #f9dddd 0%, #f2cfcf 100%); color: #2f1c1c; text-shadow: none; }
-.hm-l2 { background: linear-gradient(180deg, #f4bcbc 0%, #ebaaaa 100%); color: #321d1d; text-shadow: none; }
-.hm-l3 { background: linear-gradient(180deg, #e78f59 0%, #d97536 100%); }
-.hm-l4 { background: linear-gradient(180deg, #e98534 0%, #d56f1f 100%); }
-.hm-l5 { background: linear-gradient(180deg, #f4712e 0%, #e85a16 100%); }
-.hm-l6 { background: linear-gradient(180deg, #f45b17 0%, #e64909 100%); }
-.hm-l7 { background: linear-gradient(180deg, #ff4a12 0%, #ef3a06 100%); }
+.hm-l1 { background: rgba(255, 95, 34, 0.00); }
+.hm-l2 { background: rgba(255, 95, 34, 0.14); }
+.hm-l3 { background: rgba(255, 95, 34, 0.26); }
+.hm-l4 { background: rgba(255, 95, 34, 0.40); }
+.hm-l5 { background: rgba(255, 95, 34, 0.56); }
+.hm-l6 { background: rgba(255, 95, 34, 0.72); }
+.hm-l7 { background: rgba(255, 95, 34, 0.88); }
 
 .periods-scroll {
   width: 100%;
@@ -790,6 +800,10 @@ button.ghost {
   .pos-heatmaps-scroll {
     max-width: calc(100% - 172px);
     min-width: 70px;
+  }
+
+  .pos-heatmaps-scroll.single {
+    max-width: none;
   }
 
   .pitch-map {
