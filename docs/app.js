@@ -22,7 +22,9 @@ const DETAIL_METRIC_LABELS = {
 };
 const LINEUP_SIZE = 11;
 const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
-const APP_UPDATED_AT_JST = "2026-03-09 00:17 JST";
+const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
+const SUPABASE_TABLE = "lineup_states";
+const APP_UPDATED_AT_JST = "2026-03-09 00:22 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -61,6 +63,13 @@ const els = {
   seasonSelect: document.querySelector("#seasonSelect"),
   seasonCancel: document.querySelector("#seasonCancel"),
   seasonApply: document.querySelector("#seasonApply"),
+  supabaseUrl: document.querySelector("#supabaseUrl"),
+  supabaseAnonKey: document.querySelector("#supabaseAnonKey"),
+  lineupKey: document.querySelector("#lineupKey"),
+  cloudSaveConfig: document.querySelector("#cloudSaveConfig"),
+  cloudLoadLineup: document.querySelector("#cloudLoadLineup"),
+  cloudSaveLineup: document.querySelector("#cloudSaveLineup"),
+  cloudStatus: document.querySelector("#cloudStatus"),
 };
 
 let players = [];
@@ -69,6 +78,7 @@ let pendingLineupPlayerId = null;
 let pendingLineupSlotIndex = null;
 let startingLineup = Array.from({ length: LINEUP_SIZE }, () => null);
 let lineupSlotsLocked = false;
+let cloudConfig = { url: "", anonKey: "", lineupKey: "" };
 
 function normalizeSeasonInput(input) {
   const raw = String(input || "").trim();
@@ -87,27 +97,131 @@ function findPeriodBySeason(player, season) {
   return periods.find((p) => p?.season === season) || null;
 }
 
+function normalizeLineupArray(parsed) {
+  return Array.from({ length: LINEUP_SIZE }, (_, i) => {
+    const row = parsed?.[i];
+    if (row == null) return null;
+    if (typeof row === "number" || typeof row === "string") {
+      const id = Number(row);
+      return Number.isInteger(id) ? { playerId: id, season: null } : null;
+    }
+    if (typeof row === "object") {
+      const id = Number(row.playerId);
+      if (!Number.isInteger(id)) return null;
+      const season = row.season == null ? null : String(row.season);
+      return { playerId: id, season };
+    }
+    return null;
+  });
+}
+
+function setCloudStatus(message, isError = false) {
+  if (!els.cloudStatus) return;
+  els.cloudStatus.textContent = message;
+  els.cloudStatus.style.color = isError ? "#ff99a5" : "#9fb4de";
+}
+
+function normalizedSupabaseUrl(url) {
+  return String(url || "").trim().replace(/\/+$/, "");
+}
+
+function hasCloudConfig() {
+  return !!(cloudConfig.url && cloudConfig.anonKey && cloudConfig.lineupKey);
+}
+
+function loadCloudConfig() {
+  try {
+    const raw = localStorage.getItem(CLOUD_CONFIG_STORAGE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    cloudConfig = {
+      url: normalizedSupabaseUrl(parsed?.url || ""),
+      anonKey: String(parsed?.anonKey || "").trim(),
+      lineupKey: String(parsed?.lineupKey || "").trim(),
+    };
+  } catch (e) {
+    console.warn("failed to load cloud config", e);
+  }
+  if (els.supabaseUrl) els.supabaseUrl.value = cloudConfig.url;
+  if (els.supabaseAnonKey) els.supabaseAnonKey.value = cloudConfig.anonKey;
+  if (els.lineupKey) els.lineupKey.value = cloudConfig.lineupKey;
+}
+
+function saveCloudConfigFromInputs() {
+  cloudConfig = {
+    url: normalizedSupabaseUrl(els.supabaseUrl?.value || ""),
+    anonKey: String(els.supabaseAnonKey?.value || "").trim(),
+    lineupKey: String(els.lineupKey?.value || "").trim(),
+  };
+  localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
+  if (!hasCloudConfig()) {
+    setCloudStatus("Cloud: config incomplete", true);
+    return false;
+  }
+  setCloudStatus("Cloud: config saved");
+  return true;
+}
+
+async function supabaseRequest(pathWithQuery, options = {}) {
+  if (!hasCloudConfig()) {
+    throw new Error("cloud config missing");
+  }
+  const res = await fetch(`${cloudConfig.url}/rest/v1/${pathWithQuery}`, {
+    ...options,
+    headers: {
+      apikey: cloudConfig.anonKey,
+      Authorization: `Bearer ${cloudConfig.anonKey}`,
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`supabase ${res.status}: ${body}`);
+  }
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+async function cloudSaveLineup() {
+  const payload = {
+    lineup_id: cloudConfig.lineupKey,
+    lineup_json: startingLineup,
+    updated_at: new Date().toISOString(),
+  };
+  await supabaseRequest(`${SUPABASE_TABLE}?on_conflict=lineup_id`, {
+    method: "POST",
+    headers: {
+      Prefer: "resolution=merge-duplicates,return=representation",
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+async function cloudLoadLineup() {
+  const params = new URLSearchParams({
+    select: "lineup_json",
+    lineup_id: `eq.${cloudConfig.lineupKey}`,
+    limit: "1",
+  });
+  const rows = await supabaseRequest(`${SUPABASE_TABLE}?${params.toString()}`, {
+    method: "GET",
+  });
+  if (!Array.isArray(rows) || !rows.length) return false;
+  const remote = rows[0]?.lineup_json;
+  if (!Array.isArray(remote)) return false;
+  startingLineup = normalizeLineupArray(remote);
+  saveStartingLineup();
+  return true;
+}
+
 function loadStartingLineup() {
   try {
     const raw = localStorage.getItem(LINEUP_STORAGE_KEY);
     if (!raw) return;
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return;
-    startingLineup = Array.from({ length: LINEUP_SIZE }, (_, i) => {
-      const row = parsed[i];
-      if (row == null) return null;
-      if (typeof row === "number" || typeof row === "string") {
-        const id = Number(row);
-        return Number.isInteger(id) ? { playerId: id, season: null } : null;
-      }
-      if (typeof row === "object") {
-        const id = Number(row.playerId);
-        if (!Number.isInteger(id)) return null;
-        const season = row.season == null ? null : String(row.season);
-        return { playerId: id, season };
-      }
-      return null;
-    });
+    startingLineup = normalizeLineupArray(parsed);
   } catch (e) {
     console.warn("failed to load lineup", e);
   }
@@ -759,6 +873,8 @@ function render() {
 
 async function init() {
   loadStartingLineup();
+  loadCloudConfig();
+  setCloudStatus(hasCloudConfig() ? "Cloud: ready" : "Cloud: not configured");
 
   els.addCondition.addEventListener("click", () => {
     addConditionRow({ metric: "スピ", op: "gte", value1: "" });
@@ -825,7 +941,7 @@ async function init() {
     els.seasonCancel.addEventListener("click", closeSeasonModal);
   }
   if (els.seasonApply) {
-    els.seasonApply.addEventListener("click", () => {
+    els.seasonApply.addEventListener("click", async () => {
       const playerId = Number(pendingLineupPlayerId);
       const slotIndex = Number(pendingLineupSlotIndex);
       const selectedSeason = normalizeSeasonInput(els.seasonSelect?.value || "");
@@ -842,7 +958,45 @@ async function init() {
       }
       lineupSlotsLocked = true;
       renderLineupSlots();
+      if (hasCloudConfig()) {
+        try {
+          await cloudSaveLineup();
+          setCloudStatus("Cloud: saved");
+        } catch (e) {
+          setCloudStatus(`Cloud save failed: ${e.message}`, true);
+        }
+      }
       closeSeasonModal();
+    });
+  }
+  if (els.cloudSaveConfig) {
+    els.cloudSaveConfig.addEventListener("click", () => {
+      saveCloudConfigFromInputs();
+    });
+  }
+  if (els.cloudLoadLineup) {
+    els.cloudLoadLineup.addEventListener("click", async () => {
+      if (!saveCloudConfigFromInputs()) return;
+      try {
+        const ok = await cloudLoadLineup();
+        setCloudStatus(ok ? "Cloud: loaded" : "Cloud: no data");
+        if (els.lineupModal && !els.lineupModal.hidden) {
+          renderLineupSlots();
+        }
+      } catch (e) {
+        setCloudStatus(`Cloud load failed: ${e.message}`, true);
+      }
+    });
+  }
+  if (els.cloudSaveLineup) {
+    els.cloudSaveLineup.addEventListener("click", async () => {
+      if (!saveCloudConfigFromInputs()) return;
+      try {
+        await cloudSaveLineup();
+        setCloudStatus("Cloud: saved");
+      } catch (e) {
+        setCloudStatus(`Cloud save failed: ${e.message}`, true);
+      }
     });
   }
   document.addEventListener("keydown", (e) => {

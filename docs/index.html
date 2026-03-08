@@ -60,6 +60,24 @@
       <div class="apply-row">
         <button id="applySearch" type="button" class="search-btn">Search</button>
       </div>
+
+      <div class="cloud-box">
+        <h3>Cloud Sync (Supabase)</h3>
+        <label class="label" for="supabaseUrl">Supabase URL</label>
+        <input id="supabaseUrl" type="text" placeholder="https://xxxx.supabase.co" />
+        <label class="label" for="supabaseAnonKey">Anon Key</label>
+        <input id="supabaseAnonKey" type="text" placeholder="eyJ..." />
+        <label class="label" for="lineupKey">Lineup Key</label>
+        <input id="lineupKey" type="text" placeholder="my-team-01" />
+        <div class="buttons">
+          <button id="cloudSaveConfig" type="button" class="add-btn">Save Config</button>
+          <button id="cloudLoadLineup" type="button" class="ghost">Load Cloud</button>
+        </div>
+        <div class="apply-row">
+          <button id="cloudSaveLineup" type="button" class="search-btn">Save Cloud</button>
+        </div>
+        <p id="cloudStatus" class="cloud-status">Cloud: not configured</p>
+      </div>
     </section>
 
     <section class="panel">

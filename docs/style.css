@@ -150,6 +150,26 @@ select {
   margin-top: 10px;
 }
 
+.cloud-box {
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid #2d3f60;
+  border-radius: 10px;
+  background: #10192a;
+}
+
+.cloud-box h3 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  color: #d6e4ff;
+}
+
+.cloud-status {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+  color: #9fb4de;
+}
+
 button {
   background: #2d5cba;
   color: #f4f8ff;
