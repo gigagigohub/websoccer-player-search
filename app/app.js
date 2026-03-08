@@ -160,8 +160,8 @@ function compareBySortKey(a, b, sortKey) {
 }
 
 function cardHtml(player) {
-  const staticImg = `https://caselli.websoccer.info/images/chara/players/static/${player.id}.gif`;
-  const actionImg = `https://caselli.websoccer.info/images/chara/players/action/${player.id}.gif`;
+  const staticImg = `./images/chara/players/static/${player.id}.gif`;
+  const actionImg = `./images/chara/players/action/${player.id}.gif`;
   const metricBlocks = METRICS.map((metric) => {
     const v = player.maxMetrics?.[metric];
     return `
