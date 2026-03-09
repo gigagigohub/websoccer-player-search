@@ -4,6 +4,7 @@ const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
 const LINEUP_SIZE = 11;
+const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const CORE_METRICS = ["スピ", "テク", "パワ"];
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
@@ -36,6 +37,9 @@ const els = {
   myTeamMeta: document.querySelector("#myTeamMeta"),
   myTeamTarget: document.querySelector("#myTeamTarget"),
   myTeamSlots: document.querySelector("#myTeamSlots"),
+  lifecycleToggle: document.querySelector("#lifecycleToggle"),
+  advanceSeasonButton: document.querySelector("#advanceSeasonButton"),
+  rewindSeasonButton: document.querySelector("#rewindSeasonButton"),
   emptySlotModal: document.querySelector("#emptySlotModal"),
   emptySlotBackdrop: document.querySelector("#emptySlotBackdrop"),
   emptySlotClose: document.querySelector("#emptySlotClose"),
@@ -52,6 +56,7 @@ let cloudConfig = { url: "", anonKey: "", lineupKey: "" };
 let selectedSlotIndex = null;
 let selectedPlayerId = null;
 let selectedCardExpanded = false;
+let lifecycleModeEnabled = false;
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -90,6 +95,20 @@ function normalizeLineupArray(parsed) {
 
 function saveLineupLocal() {
   localStorage.setItem(LINEUP_STORAGE_KEY, JSON.stringify(lineup));
+}
+
+function loadLifecycleMode() {
+  lifecycleModeEnabled = localStorage.getItem(LIFECYCLE_MODE_STORAGE_KEY) === "1";
+}
+
+function saveLifecycleMode() {
+  localStorage.setItem(LIFECYCLE_MODE_STORAGE_KEY, lifecycleModeEnabled ? "1" : "0");
+}
+
+function renderLifecycleControls() {
+  if (!els.lifecycleToggle) return;
+  els.lifecycleToggle.classList.toggle("is-on", lifecycleModeEnabled);
+  els.lifecycleToggle.textContent = lifecycleModeEnabled ? "Lifecycle ON" : "Lifecycle OFF";
 }
 
 function loadCloudConfig() {
@@ -296,6 +315,45 @@ function findPeriodBySeason(player, season) {
   if (!player || !season) return null;
   const periods = Array.isArray(player.periods) ? player.periods : [];
   return periods.find((p) => p?.season === season) || null;
+}
+
+function shiftSeasonForEntry(player, currentSeason, delta) {
+  const periods = Array.isArray(player?.periods) ? player.periods : [];
+  if (!periods.length) return currentSeason || null;
+  const seasons = periods.map((p) => p?.season).filter(Boolean);
+  if (!seasons.length) return currentSeason || null;
+
+  let idx = seasons.findIndex((s) => s === currentSeason);
+  if (idx < 0) idx = 0;
+  const nextIdx = Math.max(0, Math.min(seasons.length - 1, idx + delta));
+  return seasons[nextIdx];
+}
+
+async function shiftAllLineupSeasons(delta) {
+  if (!Number.isInteger(delta) || delta === 0) return;
+  let changed = false;
+  lineup = lineup.map((entry) => {
+    if (!entry || !Number.isInteger(Number(entry.playerId))) return entry;
+    const player = players.find((x) => x.id === Number(entry.playerId));
+    if (!player) return entry;
+    const nextSeason = shiftSeasonForEntry(player, entry.season || null, delta);
+    if (nextSeason !== (entry.season || null)) changed = true;
+    return { ...entry, season: nextSeason };
+  });
+
+  if (!changed) return;
+  saveLineupLocal();
+  if (hasCloudConfig()) {
+    try {
+      await saveCloudLineup();
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+  renderLineup();
+  if (els.playerCardModal && !els.playerCardModal.hidden && Number.isInteger(selectedSlotIndex)) {
+    renderPlayerCardModal();
+  }
 }
 
 function miniCoreMetric(metric, value) {
@@ -610,6 +668,8 @@ async function deleteSelectedFromTeam() {
 
 async function init() {
   loadCloudConfig();
+  loadLifecycleMode();
+  renderLifecycleControls();
   if (els.myteamMenuButton) {
     els.myteamMenuButton.addEventListener("click", () => {
       if (!els.myteamMenuPanel) return;
@@ -625,6 +685,23 @@ async function init() {
     els.myteamLogoutButton.addEventListener("click", () => {
       logoutTeamId();
       window.location.href = "./index.html";
+    });
+  }
+  if (els.lifecycleToggle) {
+    els.lifecycleToggle.addEventListener("click", () => {
+      lifecycleModeEnabled = !lifecycleModeEnabled;
+      saveLifecycleMode();
+      renderLifecycleControls();
+    });
+  }
+  if (els.advanceSeasonButton) {
+    els.advanceSeasonButton.addEventListener("click", async () => {
+      await shiftAllLineupSeasons(1);
+    });
+  }
+  if (els.rewindSeasonButton) {
+    els.rewindSeasonButton.addEventListener("click", async () => {
+      await shiftAllLineupSeasons(-1);
     });
   }
   document.addEventListener("click", (e) => {

@@ -177,6 +177,48 @@ body {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
 }
 
+.lifecycle-panel {
+  padding: 10px;
+}
+
+.lifecycle-controls {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.lifecycle-toggle {
+  border-color: #3a4f76;
+  background: linear-gradient(180deg, #1a2a44 0%, #131f33 100%);
+  color: #dbe7ff;
+  font-weight: 700;
+}
+
+.lifecycle-toggle.is-on {
+  border-color: #b16b1f;
+  background: linear-gradient(180deg, #ff9a3d 0%, #cd5f0a 100%);
+  color: #fff2dc;
+  box-shadow: 0 0 0 1px rgba(255, 178, 94, 0.35) inset;
+}
+
+.season-step-btn {
+  border-color: #42618f;
+  background: linear-gradient(180deg, #224069 0%, #172c48 100%);
+  color: #e3eeff;
+  font-weight: 700;
+}
+
+.season-step-back {
+  width: 46px;
+  min-width: 46px;
+  border-color: #3a4f76;
+  background: #141f34;
+  color: #d8e5ff;
+  font-size: 1.1rem;
+  padding: 9px 0;
+}
+
 .label {
   display: block;
   font-size: 0.84rem;
