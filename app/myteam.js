@@ -55,6 +55,7 @@ let lineup = Array.from({ length: LINEUP_SIZE }, () => null);
 let cloudConfig = { url: "", anonKey: "", lineupKey: "" };
 let selectedSlotIndex = null;
 let selectedPlayerId = null;
+let selectedPlayerMode = "starter";
 let selectedCardExpanded = false;
 let lifecycleModeEnabled = false;
 
@@ -746,16 +747,22 @@ function renderPlayerCardModal() {
   if (!els.playerCardHost || !Number.isInteger(selectedPlayerId)) return;
   const player = players.find((p) => p.id === selectedPlayerId);
   if (!player) return;
-  const season = lineup[selectedSlotIndex]?.season || null;
+  const entry = lineup[selectedSlotIndex];
+  const season = selectedPlayerMode === "successor"
+    ? (entry?.successor?.season || null)
+    : (entry?.season || null);
   els.playerCardHost.innerHTML = playerCardHtml(player, season, selectedCardExpanded);
 }
 
-function openPlayerCardModal(slotIndex) {
+function openPlayerCardModal(slotIndex, mode = "starter") {
   const entry = lineup[slotIndex];
-  const playerId = Number(entry?.playerId);
+  const playerId = mode === "successor"
+    ? Number(entry?.successor?.playerId)
+    : Number(entry?.playerId);
   if (!Number.isInteger(playerId)) return;
   selectedSlotIndex = slotIndex;
   selectedPlayerId = playerId;
+  selectedPlayerMode = mode === "successor" ? "successor" : "starter";
   selectedCardExpanded = false;
   renderPlayerCardModal();
   if (els.playerCardModal) els.playerCardModal.hidden = false;
@@ -764,13 +771,21 @@ function openPlayerCardModal(slotIndex) {
 function closePlayerCardModal() {
   selectedSlotIndex = null;
   selectedPlayerId = null;
+  selectedPlayerMode = "starter";
   selectedCardExpanded = false;
   if (els.playerCardModal) els.playerCardModal.hidden = true;
 }
 
 async function deleteSelectedFromTeam() {
   if (!Number.isInteger(selectedSlotIndex)) return;
-  lineup[selectedSlotIndex] = null;
+  if (selectedPlayerMode === "successor") {
+    const entry = lineup[selectedSlotIndex];
+    if (entry) {
+      lineup[selectedSlotIndex] = { ...entry, successor: null };
+    }
+  } else {
+    lineup[selectedSlotIndex] = null;
+  }
   saveLineupLocal();
   if (hasCloudConfig()) {
     try {
@@ -884,6 +899,16 @@ async function init() {
       const idx = Number(slot.dataset.slotIndex);
       if (!Number.isInteger(idx)) return;
       const entry = lineup[idx];
+      const clickedSuccessor = lifecycleModeEnabled && !!e.target.closest(".lineup-successor");
+      if (clickedSuccessor) {
+        const successorId = Number(entry?.successor?.playerId);
+        if (!Number.isInteger(successorId)) {
+          openEmptySlotModal();
+          return;
+        }
+        openPlayerCardModal(idx, "successor");
+        return;
+      }
       const playerId = Number(entry?.playerId);
       if (!Number.isInteger(playerId)) {
         openEmptySlotModal();
