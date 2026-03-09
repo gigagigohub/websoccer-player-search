@@ -225,16 +225,6 @@ body {
   padding: 7px 0;
 }
 
-.season-step-back:disabled {
-  opacity: 0.38;
-  cursor: not-allowed;
-}
-
-.season-step-back.is-enabled {
-  border-color: #5272a9;
-  background: #1b2b48;
-}
-
 .label {
   display: block;
   font-size: 0.84rem;

@@ -57,7 +57,6 @@ let selectedSlotIndex = null;
 let selectedPlayerId = null;
 let selectedCardExpanded = false;
 let lifecycleModeEnabled = false;
-const advanceUndoStack = [];
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -120,11 +119,6 @@ function renderLifecycleControls() {
   if (els.lifecycleToggle) {
     els.lifecycleToggle.classList.toggle("is-on", lifecycleModeEnabled);
     els.lifecycleToggle.textContent = lifecycleModeEnabled ? "Lifecycle Mode: ON" : "Lifecycle Mode: OFF";
-  }
-  if (els.rewindSeasonButton) {
-    const canUndo = advanceUndoStack.length > 0;
-    els.rewindSeasonButton.disabled = !canUndo;
-    els.rewindSeasonButton.classList.toggle("is-enabled", canUndo);
   }
 }
 
@@ -467,29 +461,6 @@ async function shiftAllLineupSeasons(delta) {
     renderPlayerCardModal();
   }
   return true;
-}
-
-function snapshotLineup() {
-  return JSON.parse(JSON.stringify(lineup));
-}
-
-async function undoLastAdvance() {
-  if (!advanceUndoStack.length) return;
-  const prev = advanceUndoStack.pop();
-  lineup = normalizeLineupArray(prev);
-  saveLineupLocal();
-  if (hasCloudConfig()) {
-    try {
-      await saveCloudLineup();
-    } catch (e) {
-      console.warn(e);
-    }
-  }
-  renderLifecycleControls();
-  renderLineup();
-  if (els.playerCardModal && !els.playerCardModal.hidden && Number.isInteger(selectedSlotIndex)) {
-    renderPlayerCardModal();
-  }
 }
 
 function miniCoreMetric(metric, value) {
@@ -843,17 +814,12 @@ async function init() {
     els.advanceSeasonButton.addEventListener("click", async () => {
       const ok = window.confirm("Advanceをタップすると、全選手の現在期を１期進めますがよろしいですか？（戻るボタンで戻せます）");
       if (!ok) return;
-      const before = snapshotLineup();
-      const changed = await shiftAllLineupSeasons(1);
-      if (changed) {
-        advanceUndoStack.push(before);
-        renderLifecycleControls();
-      }
+      await shiftAllLineupSeasons(1);
     });
   }
   if (els.rewindSeasonButton) {
     els.rewindSeasonButton.addEventListener("click", async () => {
-      await undoLastAdvance();
+      await shiftAllLineupSeasons(-1);
     });
   }
   document.addEventListener("click", (e) => {
