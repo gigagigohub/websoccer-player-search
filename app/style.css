@@ -113,7 +113,7 @@ body {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: min(980px, calc(100vw - 24px));
+  width: min(560px, calc(100vw - 24px));
   max-height: calc(100vh - 24px);
   overflow: auto;
   padding-top: 16px;
@@ -137,6 +137,7 @@ body {
 
 #playerCardHost .card {
   margin: 0;
+  width: 100%;
 }
 
 .player-card-actions {
