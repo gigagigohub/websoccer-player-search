@@ -390,6 +390,7 @@ function successorSummaryHtml(entry, currentRemaining) {
   if (!successorPlayer) {
     return `
       <div class="lineup-successor is-empty">
+        <div class="lineup-successor-arrow" aria-hidden="true">▶</div>
         <div class="lineup-empty-thumb"></div>
         <div class="lineup-successor-meta">
           <span class="slot-name">未登録</span>
@@ -408,6 +409,7 @@ function successorSummaryHtml(entry, currentRemaining) {
 
   return `
     <div class="lineup-successor">
+      <div class="lineup-successor-arrow" aria-hidden="true">▶</div>
       <div class="lineup-thumb-wrap">
         <img loading="lazy" src="./images/chara/players/static/${successorPlayer.id}.gif" alt="${successorPlayer.name}" />
       </div>

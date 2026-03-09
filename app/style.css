@@ -1126,7 +1126,7 @@ button.ghost {
 .lineup-slot-main {
   min-width: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   flex: 1 1 auto;
 }
@@ -1254,8 +1254,16 @@ button.ghost {
   min-width: 0;
   flex: 1 1 auto;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
+}
+
+.lineup-successor-arrow {
+  color: #9fb2d9;
+  font-size: 0.9rem;
+  line-height: 1;
+  margin-top: 12px;
+  flex: 0 0 auto;
 }
 
 .lineup-successor .lineup-thumb-wrap {
