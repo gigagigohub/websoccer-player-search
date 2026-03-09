@@ -183,26 +183,32 @@ body {
 
 .lifecycle-controls {
   display: grid;
-  grid-template-columns: 1.1fr 1fr auto;
+  grid-template-columns: 1fr 0.86fr auto;
   gap: 8px;
   align-items: center;
 }
 
 .lifecycle-toggle {
+  padding: 7px 8px;
+  font-size: 0.86rem;
   border-color: #3a4f76;
-  background: linear-gradient(180deg, #1a2a44 0%, #131f33 100%);
-  color: #dbe7ff;
+  background: linear-gradient(180deg, #25304a 0%, #161e31 100%);
+  color: #a8b8d6;
   font-weight: 700;
 }
 
 .lifecycle-toggle.is-on {
-  border-color: #b16b1f;
-  background: linear-gradient(180deg, #ff9a3d 0%, #cd5f0a 100%);
+  border-color: #ff9b3d;
+  background: linear-gradient(180deg, #ffad5a 0%, #e06b10 100%);
   color: #fff2dc;
-  box-shadow: 0 0 0 1px rgba(255, 178, 94, 0.35) inset;
+  box-shadow:
+    0 0 0 1px rgba(255, 178, 94, 0.45) inset,
+    0 0 10px rgba(255, 146, 52, 0.28);
 }
 
 .season-step-btn {
+  padding: 7px 8px;
+  font-size: 0.84rem;
   border-color: #42618f;
   background: linear-gradient(180deg, #224069 0%, #172c48 100%);
   color: #e3eeff;
@@ -210,13 +216,23 @@ body {
 }
 
 .season-step-back {
-  width: 46px;
-  min-width: 46px;
+  width: 38px;
+  min-width: 38px;
   border-color: #3a4f76;
   background: #141f34;
   color: #d8e5ff;
   font-size: 1.1rem;
-  padding: 9px 0;
+  padding: 7px 0;
+}
+
+.season-step-back:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.season-step-back.is-enabled {
+  border-color: #5272a9;
+  background: #1b2b48;
 }
 
 .label {
@@ -1182,6 +1198,61 @@ button.ghost {
   line-height: 1.2;
 }
 
+.remain-badge {
+  border-color: rgba(255, 156, 64, 0.64);
+  color: #fff7ef;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.28);
+}
+
+.remain-badge.remain-0 {
+  background: rgba(255, 115, 24, 0.98);
+}
+
+.remain-badge.remain-1 {
+  background: rgba(255, 124, 28, 0.86);
+}
+
+.remain-badge.remain-2 {
+  background: rgba(255, 130, 31, 0.74);
+}
+
+.remain-badge.remain-3 {
+  background: rgba(255, 138, 36, 0.6);
+}
+
+.remain-badge.remain-4 {
+  background: rgba(255, 144, 40, 0.46);
+}
+
+.remain-badge.remain-5p {
+  background: rgba(255, 152, 46, 0.32);
+}
+
+.lineup-successor {
+  margin-left: auto;
+  min-width: 0;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lineup-successor .lineup-thumb-wrap {
+  flex: 0 0 44px;
+}
+
+.lineup-successor-meta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lineup-successor.is-empty .lineup-empty-thumb {
+  width: 44px;
+  height: 42px;
+}
+
 .season-modal[hidden] {
   display: none;
 }
@@ -1276,6 +1347,22 @@ button.ghost {
 }
 
 @media (max-width: 700px) {
+  .lifecycle-controls {
+    grid-template-columns: 1fr auto auto;
+    gap: 6px;
+  }
+
+  .lifecycle-toggle,
+  .season-step-btn {
+    font-size: 0.8rem;
+    padding: 7px 6px;
+  }
+
+  .season-step-back {
+    width: 34px;
+    min-width: 34px;
+  }
+
   .logic-row,
   .buttons {
     grid-template-columns: 1fr;

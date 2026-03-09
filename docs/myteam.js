@@ -57,6 +57,7 @@ let selectedSlotIndex = null;
 let selectedPlayerId = null;
 let selectedCardExpanded = false;
 let lifecycleModeEnabled = false;
+const advanceUndoStack = [];
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -75,19 +76,29 @@ function normalizedSupabaseUrl(url) {
   return String(url || "").trim().replace(/\/+$/, "");
 }
 
+function normalizeSuccessor(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const id = Number(raw.playerId);
+  if (!Number.isInteger(id)) return null;
+  const season = raw.season == null ? null : String(raw.season);
+  const source = raw.source == null ? null : String(raw.source);
+  return { playerId: id, season, source };
+}
+
 function normalizeLineupArray(parsed) {
   return Array.from({ length: LINEUP_SIZE }, (_, i) => {
     const row = parsed?.[i];
     if (row == null) return null;
     if (typeof row === "number" || typeof row === "string") {
       const id = Number(row);
-      return Number.isInteger(id) ? { playerId: id, season: null } : null;
+      return Number.isInteger(id) ? { playerId: id, season: null, successor: null } : null;
     }
     if (typeof row === "object") {
       const id = Number(row.playerId);
       if (!Number.isInteger(id)) return null;
       const season = row.season == null ? null : String(row.season);
-      return { playerId: id, season };
+      const successor = normalizeSuccessor(row.successor);
+      return { playerId: id, season, successor };
     }
     return null;
   });
@@ -106,9 +117,15 @@ function saveLifecycleMode() {
 }
 
 function renderLifecycleControls() {
-  if (!els.lifecycleToggle) return;
-  els.lifecycleToggle.classList.toggle("is-on", lifecycleModeEnabled);
-  els.lifecycleToggle.textContent = lifecycleModeEnabled ? "Lifecycle ON" : "Lifecycle OFF";
+  if (els.lifecycleToggle) {
+    els.lifecycleToggle.classList.toggle("is-on", lifecycleModeEnabled);
+    els.lifecycleToggle.textContent = lifecycleModeEnabled ? "Lifecycle Mode: ON" : "Lifecycle Mode: OFF";
+  }
+  if (els.rewindSeasonButton) {
+    const canUndo = advanceUndoStack.length > 0;
+    els.rewindSeasonButton.disabled = !canUndo;
+    els.rewindSeasonButton.classList.toggle("is-enabled", canUndo);
+  }
 }
 
 function loadCloudConfig() {
@@ -329,19 +346,114 @@ function shiftSeasonForEntry(player, currentSeason, delta) {
   return seasons[nextIdx];
 }
 
+function getRemainingPeakPeriods(player, season) {
+  const periods = Array.isArray(player?.periods) ? player.periods : [];
+  if (!periods.length) return 0;
+  const seasons = periods.map((p) => p?.season).filter(Boolean);
+  if (!seasons.length) return 0;
+  let curIdx = seasons.findIndex((s) => s === season);
+  if (curIdx < 0) curIdx = 0;
+
+  const tiers = new Map(getPeakTimeline(player).map((x) => [x.season, x.tier]));
+  const isPeakMain = (idx) => tiers.get(seasons[idx]) === "peak-main";
+
+  if (isPeakMain(curIdx)) {
+    let end = curIdx;
+    while (end + 1 < seasons.length && isPeakMain(end + 1)) end += 1;
+    return end - curIdx + 1;
+  }
+
+  let next = -1;
+  for (let i = curIdx; i < seasons.length; i += 1) {
+    if (isPeakMain(i)) {
+      next = i;
+      break;
+    }
+  }
+  if (next < 0) return 0;
+  let end = next;
+  while (end + 1 < seasons.length && isPeakMain(end + 1)) end += 1;
+  return end - curIdx + 1;
+}
+
+function remainingBadgeClass(remain) {
+  if (remain <= 0) return "remain-0";
+  if (remain === 1) return "remain-1";
+  if (remain === 2) return "remain-2";
+  if (remain === 3) return "remain-3";
+  if (remain === 4) return "remain-4";
+  return "remain-5p";
+}
+
+function remainingBadgeHtml(remain) {
+  return `<span class="badge lineup-season remain-badge ${remainingBadgeClass(remain)}">残${remain}期</span>`;
+}
+
+function successorSummaryHtml(entry, currentRemaining) {
+  const successor = entry?.successor;
+  const successorId = Number(successor?.playerId);
+  const successorPlayer = Number.isInteger(successorId) ? players.find((x) => x.id === successorId) : null;
+  if (!successorPlayer) {
+    return `
+      <div class="lineup-successor is-empty">
+        <div class="lineup-empty-thumb"></div>
+        <div class="lineup-successor-meta">
+          <span class="slot-name">未登録</span>
+        </div>
+      </div>
+    `;
+  }
+
+  const baseSeason = successor?.season || null;
+  const evalSeason = shiftSeasonForEntry(successorPlayer, baseSeason, Math.max(0, currentRemaining));
+  const remain = getRemainingPeakPeriods(successorPlayer, evalSeason);
+  const pos = (successorPlayer.position || "-").toUpperCase();
+  const posClass = positionClass(pos);
+  const typeLabel = getCategory(successorPlayer);
+  const typeClass = typeClassByPlayer(successorPlayer);
+
+  return `
+    <div class="lineup-successor">
+      <div class="lineup-thumb-wrap">
+        <img loading="lazy" src="./images/chara/players/static/${successorPlayer.id}.gif" alt="${successorPlayer.name}" />
+      </div>
+      <div class="lineup-successor-meta">
+        <div class="lineup-badges">
+          <span class="badge pos-badge ${posClass}">${pos}</span>
+          <span class="badge type-badge ${typeClass}">${typeLabel}</span>
+          ${remainingBadgeHtml(remain)}
+        </div>
+        <span class="slot-name">${successorPlayer.name}</span>
+      </div>
+    </div>
+  `;
+}
+
 async function shiftAllLineupSeasons(delta) {
-  if (!Number.isInteger(delta) || delta === 0) return;
+  if (!Number.isInteger(delta) || delta === 0) return false;
   let changed = false;
   lineup = lineup.map((entry) => {
     if (!entry || !Number.isInteger(Number(entry.playerId))) return entry;
     const player = players.find((x) => x.id === Number(entry.playerId));
     if (!player) return entry;
     const nextSeason = shiftSeasonForEntry(player, entry.season || null, delta);
+    const successor = normalizeSuccessor(entry.successor);
+    let nextSuccessor = successor;
+    if (successor) {
+      const successorPlayer = players.find((x) => x.id === successor.playerId);
+      if (successorPlayer) {
+        nextSuccessor = {
+          ...successor,
+          season: shiftSeasonForEntry(successorPlayer, successor.season || null, delta),
+        };
+      }
+    }
     if (nextSeason !== (entry.season || null)) changed = true;
-    return { ...entry, season: nextSeason };
+    if ((nextSuccessor?.season || null) !== (entry.successor?.season || null)) changed = true;
+    return { ...entry, season: nextSeason, successor: nextSuccessor };
   });
 
-  if (!changed) return;
+  if (!changed) return false;
   saveLineupLocal();
   if (hasCloudConfig()) {
     try {
@@ -350,6 +462,30 @@ async function shiftAllLineupSeasons(delta) {
       console.warn(e);
     }
   }
+  renderLineup();
+  if (els.playerCardModal && !els.playerCardModal.hidden && Number.isInteger(selectedSlotIndex)) {
+    renderPlayerCardModal();
+  }
+  return true;
+}
+
+function snapshotLineup() {
+  return JSON.parse(JSON.stringify(lineup));
+}
+
+async function undoLastAdvance() {
+  if (!advanceUndoStack.length) return;
+  const prev = advanceUndoStack.pop();
+  lineup = normalizeLineupArray(prev);
+  saveLineupLocal();
+  if (hasCloudConfig()) {
+    try {
+      await saveCloudLineup();
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+  renderLifecycleControls();
   renderLineup();
   if (els.playerCardModal && !els.playerCardModal.hidden && Number.isInteger(selectedSlotIndex)) {
     renderPlayerCardModal();
@@ -385,6 +521,10 @@ function renderLineup() {
     const name = player ? player.name : "未登録";
     const season = player ? (entry?.season || null) : null;
     const seasonText = season ? `${season}目` : "-";
+    const remaining = player ? getRemainingPeakPeriods(player, season) : 0;
+    const seasonBadge = lifecycleModeEnabled
+      ? remainingBadgeHtml(remaining)
+      : `<span class="badge lineup-season">${seasonText}</span>`;
     const pos = (player?.position || "-").toUpperCase();
     const posClass = positionClass(pos);
     const typeLabel = player ? getCategory(player) : "-";
@@ -394,13 +534,17 @@ function renderLineup() {
       : `<div class="lineup-empty-thumb"></div>`;
     const selectedPeriod = player ? findPeriodBySeason(player, season) : null;
     const selectedMetrics = selectedPeriod?.metrics || (player ? getPeakMetrics(player) : null);
-    const coreHtml = player ? `
-      <div class="lineup-core">
-        ${miniCoreMetric("スピ", selectedMetrics?.["スピ"])}
-        ${miniCoreMetric("テク", selectedMetrics?.["テク"])}
-        ${miniCoreMetric("パワ", selectedMetrics?.["パワ"])}
-      </div>
-    ` : "";
+    const rightPaneHtml = player
+      ? (lifecycleModeEnabled
+        ? successorSummaryHtml(entry, remaining)
+        : `
+          <div class="lineup-core">
+            ${miniCoreMetric("スピ", selectedMetrics?.["スピ"])}
+            ${miniCoreMetric("テク", selectedMetrics?.["テク"])}
+            ${miniCoreMetric("パワ", selectedMetrics?.["パワ"])}
+          </div>
+        `)
+      : "";
 
     return `
       <button type="button" class="lineup-slot${player ? " has-player" : ""} myteam-slot" data-slot-index="${idx}">
@@ -411,11 +555,11 @@ function renderLineup() {
             <div class="lineup-badges">
               <span class="badge pos-badge ${posClass}">${pos}</span>
               <span class="badge type-badge ${typeClass}">${typeLabel}</span>
-              <span class="badge lineup-season">${seasonText}</span>
+              ${seasonBadge}
             </div>
             <span class="slot-name">${name}</span>
           </div>
-          ${coreHtml}
+          ${rightPaneHtml}
         </div>
       </button>
     `;
@@ -692,16 +836,24 @@ async function init() {
       lifecycleModeEnabled = !lifecycleModeEnabled;
       saveLifecycleMode();
       renderLifecycleControls();
+      renderLineup();
     });
   }
   if (els.advanceSeasonButton) {
     els.advanceSeasonButton.addEventListener("click", async () => {
-      await shiftAllLineupSeasons(1);
+      const ok = window.confirm("Advanceをタップすると、全選手の現在期を１期進めますがよろしいですか？（戻るボタンで戻せます）");
+      if (!ok) return;
+      const before = snapshotLineup();
+      const changed = await shiftAllLineupSeasons(1);
+      if (changed) {
+        advanceUndoStack.push(before);
+        renderLifecycleControls();
+      }
     });
   }
   if (els.rewindSeasonButton) {
     els.rewindSeasonButton.addEventListener("click", async () => {
-      await shiftAllLineupSeasons(-1);
+      await undoLastAdvance();
     });
   }
   document.addEventListener("click", (e) => {
