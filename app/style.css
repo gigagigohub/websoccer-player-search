@@ -154,6 +154,12 @@ body {
   font-weight: 700;
 }
 
+.myteam-current-season {
+  font-size: 0.74rem;
+  color: #d0dcf6;
+  margin-left: 2px;
+}
+
 .hero h1 {
   margin: 0;
   font-size: 1.48rem;

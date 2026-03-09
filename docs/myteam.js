@@ -4,6 +4,7 @@ const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
 const LINEUP_SIZE = 11;
+const CORE_METRICS = ["スピ", "テク", "パワ"];
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織"
@@ -211,20 +212,85 @@ function coreTotal(metrics) {
   return (metrics?.["スピ"] || 0) + (metrics?.["テク"] || 0) + (metrics?.["パワ"] || 0);
 }
 
+function getStrengthMetrics(player) {
+  const periods = Array.isArray(player.periods) ? player.periods : [];
+  if (!periods.length) return ["スピ", "テク"];
+
+  const totalByMetric = { スピ: 0, テク: 0, パワ: 0 };
+  periods.forEach((period) => {
+    const metrics = period?.metrics || {};
+    CORE_METRICS.forEach((metric) => {
+      totalByMetric[metric] += metrics[metric] || 0;
+    });
+  });
+
+  const maxOverall = Math.max(...periods.map((p) => coreTotal(p?.metrics || {})));
+  const reference = periods.find((p) => coreTotal(p?.metrics || {}) === maxOverall) || periods[0];
+  const refMetrics = reference?.metrics || {};
+
+  const refRank = CORE_METRICS
+    .map((metric) => ({ metric, value: refMetrics[metric] || 0 }))
+    .sort((a, b) => {
+      if (b.value !== a.value) return b.value - a.value;
+      return CORE_METRICS.indexOf(a.metric) - CORE_METRICS.indexOf(b.metric);
+    });
+
+  const first = refRank[0];
+  const second = refRank[1];
+  const third = refRank[2];
+
+  if (first.value === second.value && second.value === third.value) {
+    return [...CORE_METRICS];
+  }
+
+  if (second.value === third.value && first.value > second.value) {
+    const tie = [second.metric, third.metric].sort((a, b) => {
+      if (totalByMetric[b] !== totalByMetric[a]) return totalByMetric[b] - totalByMetric[a];
+      return CORE_METRICS.indexOf(a) - CORE_METRICS.indexOf(b);
+    });
+    return [first.metric, tie[0]];
+  }
+
+  return [first.metric, second.metric];
+}
+
 function getPeakMetrics(player) {
   const periods = Array.isArray(player.periods) ? player.periods : [];
   if (!periods.length) return player.maxMetrics || {};
+  const strengthMetrics = getStrengthMetrics(player);
   let best = periods[0]?.metrics || {};
-  let bestScore = coreTotal(best);
+  let bestScore = strengthMetrics.reduce((s, m) => s + (best?.[m] || 0), 0);
   for (let i = 1; i < periods.length; i += 1) {
     const m = periods[i]?.metrics || {};
-    const score = coreTotal(m);
+    const score = strengthMetrics.reduce((s, k) => s + (m?.[k] || 0), 0);
     if (score > bestScore) {
       best = m;
       bestScore = score;
     }
   }
   return best;
+}
+
+function getPeakTimeline(player) {
+  const periods = Array.isArray(player.periods) ? player.periods : [];
+  if (!periods.length) return [];
+  const strengthMetrics = getStrengthMetrics(player);
+
+  const scored = periods.map((p) => {
+    const m = p?.metrics || {};
+    const score = strengthMetrics.reduce((s, k) => s + (m?.[k] || 0), 0);
+    return { season: p?.season, score };
+  });
+  const maxScore = Math.max(...scored.map((x) => x.score));
+  return scored
+    .map((x) => {
+      if (!x.season) return null;
+      if (x.score === maxScore) return { season: x.season, tier: "peak-main" };
+      if (x.score === maxScore - 1) return { season: x.season, tier: "peak-sub" };
+      if (x.score === maxScore - 2) return { season: x.season, tier: "peak-near" };
+      return null;
+    })
+    .filter(Boolean);
 }
 
 function findPeriodBySeason(player, season) {
@@ -308,14 +374,61 @@ function closeEmptySlotModal() {
   if (els.emptySlotModal) els.emptySlotModal.hidden = true;
 }
 
+function positionHeatmapsHtml(player) {
+  const segments = Array.isArray(player.positionHeatmaps) ? player.positionHeatmaps : [];
+  if (!segments.length) return "";
+  const isGK = (player.position || "").toUpperCase() === "GK";
+  const singleClass = segments.length === 1 ? "single" : "multi";
+
+  const items = segments.map((seg) => {
+    const label = seg?.label || "";
+    const grid = Array.isArray(seg?.grid) ? seg.grid : [];
+    const outRows = grid.slice(0, 4);
+    const outCells = outRows.map((row, rIdx) => {
+      const rowCells = (Array.isArray(row) ? row : []).slice(0, 3).map((v, cIdx) => {
+        if (v == null) return "";
+        const n = Math.max(1, Math.min(7, Number(v) || 1));
+        return `<div class="hm-cell hm-l${n}" style="--r:${rIdx};--c:${cIdx}">${n}</div>`;
+      }).join("");
+      return rowCells;
+    }).join("");
+
+    const gkVal = grid?.[4]?.[1];
+    const gkCell = (isGK && gkVal != null)
+      ? `<div class="gk-cell hm-l${Math.max(1, Math.min(7, Number(gkVal) || 1))}">${gkVal}</div>`
+      : "";
+
+    return `
+      <div class="pos-heatmap-seg">
+        <div class="pos-heatmap-label">${label}</div>
+        <div class="pitch-map ${isGK ? "is-gk" : "is-fp"}">
+          <div class="pitch-lines"></div>
+          <div class="hm-grid">${outCells}</div>
+          ${gkCell}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <div class="pos-heatmaps-scroll ${singleClass}">
+      <div class="pos-heatmaps-track">
+        ${items}
+      </div>
+    </div>
+  `;
+}
+
 function periodTableHtml(player, staticImg, actionImg) {
   const periods = Array.isArray(player.periods) ? player.periods : [];
   const header = METRICS.map((m) => `<th>${detailMetricLabel(m)}</th>`).join("");
+  const tiers = new Map(getPeakTimeline(player).map((x) => [x.season, x.tier]));
   const rows = periods.map((period) => {
     const metrics = period?.metrics || {};
     const values = METRICS.map((m) => `<td>${metrics[m] ?? "-"}</td>`).join("");
     const season = period?.season || "-";
-    return `<tr><th class="season-cell">${season}</th>${values}</tr>`;
+    const tierClass = tiers.get(season) || "peak-none";
+    return `<tr><th class="season-cell ${tierClass}">${season}</th>${values}</tr>`;
   }).join("");
 
   return `
@@ -325,6 +438,7 @@ function periodTableHtml(player, staticImg, actionImg) {
           <img loading="lazy" src="${staticImg}" alt="${player.name} 静止" />
           <img loading="lazy" src="${actionImg}" alt="${player.name} アクション" />
         </div>
+        ${positionHeatmapsHtml(player)}
       </div>
       <div class="periods-scroll">
         <table class="periods-table">
@@ -343,6 +457,7 @@ function playerCardHtml(player, season, expanded) {
   const actionImg = `./images/chara/players/action/${player.id}.gif`;
   const selectedPeriod = findPeriodBySeason(player, season);
   const displayMetrics = selectedPeriod?.metrics || getPeakMetrics(player);
+  const currentSeasonText = season ? `${season}目` : "-";
 
   const metricBox = (metric) => {
     const v = displayMetrics?.[metric];
@@ -352,16 +467,17 @@ function playerCardHtml(player, season, expanded) {
     const metricClass =
       metric === "スピ" ? "m-speed" :
       metric === "テク" ? "m-tech" :
-      metric === "パワ" ? "m-power" : "";
+      metric === "パワ" ? "m-power" :
+      metric === "個性" ? "m-unique" : "";
     const cells = Array.from({ length: 10 }, (_, i) =>
       `<span class="gauge-cell${i < bounded ? " on" : ""}"></span>`
     ).join("");
     return `
-      <div class="lineup-core-item ${metricClass}">
-        <span class="lineup-core-key">${metricLabel(metric)}</span>
-        <div class="lineup-core-body">
+      <div class="metric-box ${metricClass}">
+        <span class="metric-key">${metricLabel(metric)}</span>
+        <div class="metric-body">
           <div class="gauge">${cells}</div>
-          <span class="lineup-core-num">${v == null ? "-" : v}</span>
+          <span class="metric-num">${v == null ? "-" : v}</span>
         </div>
       </div>
     `;
@@ -371,18 +487,57 @@ function playerCardHtml(player, season, expanded) {
   const typeClass = typeClassByPlayer(player);
   const pos = (player.position || "-").toUpperCase();
   const posClass = positionClass(pos);
+  const mainMetrics = ["スピ", "テク", "パワ", "個性"];
+  const group1 = ["スタ", "ラフ", "人気"];
+  const group2 = ["PK", "FK", "CK", "CP"];
+  const mind = {
+    zisei: displayMetrics?.["知性"] ?? 0,
+    kansei: displayMetrics?.["感性"] ?? 0,
+    kojin: displayMetrics?.["個人"] ?? 0,
+    soshiki: displayMetrics?.["組織"] ?? 0,
+  };
+  const cx = 70;
+  const cy = 70;
+  const r = 54;
+  const nTop = Math.max(0, Math.min(30, mind.zisei)) / 30;
+  const nRight = Math.max(0, Math.min(30, mind.soshiki)) / 30;
+  const nBottom = Math.max(0, Math.min(30, mind.kansei)) / 30;
+  const nLeft = Math.max(0, Math.min(30, mind.kojin)) / 30;
+  const pTop = `${cx},${cy - r * nTop}`;
+  const pRight = `${cx + r * nRight},${cy}`;
+  const pBottom = `${cx},${cy + r * nBottom}`;
+  const pLeft = `${cx - r * nLeft},${cy}`;
+  const areaPoints = `${pTop} ${pRight} ${pBottom} ${pLeft}`;
 
   const collapsedHtml = `
-    <div class="expanded-media">
+    <div class="media-row">
       <div class="thumbs">
         <img loading="lazy" src="${staticImg}" alt="${player.name} 静止" />
         <img loading="lazy" src="${actionImg}" alt="${player.name} アクション" />
       </div>
+      <div class="mind-chart" aria-label="知性感性個人組織チャート">
+        <svg viewBox="0 0 140 140" role="img">
+          <polygon class="grid" points="70,16 124,70 70,124 16,70"></polygon>
+          <polygon class="grid" points="70,34 106,70 70,106 34,70"></polygon>
+          <polygon class="grid" points="70,52 88,70 70,88 52,70"></polygon>
+          <line class="axis" x1="70" y1="16" x2="70" y2="124"></line>
+          <line class="axis" x1="16" y1="70" x2="124" y2="70"></line>
+          <polygon class="area" points="${areaPoints}"></polygon>
+        </svg>
+        <div class="mind-label top">知性 ${mind.zisei}</div>
+        <div class="mind-label right">組織 ${mind.soshiki}</div>
+        <div class="mind-label bottom">感性 ${mind.kansei}</div>
+        <div class="mind-label left">個人 ${mind.kojin}</div>
+      </div>
     </div>
-    <div class="lineup-core myteam-card-core">
-      ${metricBox("スピ")}
-      ${metricBox("テク")}
-      ${metricBox("パワ")}
+    <div class="metrics-wrap">
+      <div class="metrics main-3">${mainMetrics.map(metricBox).join("")}</div>
+      <div class="metric-group">
+        <div class="metrics group-4">${group2.map(metricBox).join("")}</div>
+      </div>
+      <div class="metric-group">
+        <div class="metrics group-4">${group1.map(metricBox).join("")}</div>
+      </div>
     </div>
   `;
 
@@ -398,6 +553,7 @@ function playerCardHtml(player, season, expanded) {
             <span class="badge pos-badge ${posClass}">${pos}</span>
             <span class="badge type-badge ${typeClass}">${typeLabel}</span>
             <span>${player.name}</span>
+            <span class="myteam-current-season">${currentSeasonText}</span>
           </h3>
         </div>
       </div>
