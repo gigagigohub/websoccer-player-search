@@ -42,7 +42,6 @@ const els = {
   emptySlotOk: document.querySelector("#emptySlotOk"),
   playerCardModal: document.querySelector("#playerCardModal"),
   playerCardBackdrop: document.querySelector("#playerCardBackdrop"),
-  playerCardClose: document.querySelector("#playerCardClose"),
   playerCardHost: document.querySelector("#playerCardHost"),
   playerDeleteButton: document.querySelector("#playerDeleteButton"),
 };
@@ -651,7 +650,6 @@ async function init() {
   }
 
   if (els.playerCardBackdrop) els.playerCardBackdrop.addEventListener("click", closePlayerCardModal);
-  if (els.playerCardClose) els.playerCardClose.addEventListener("click", closePlayerCardModal);
   if (els.playerDeleteButton) els.playerDeleteButton.addEventListener("click", deleteSelectedFromTeam);
   if (els.playerCardHost) {
     els.playerCardHost.addEventListener("click", (e) => {

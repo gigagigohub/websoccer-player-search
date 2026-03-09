@@ -119,22 +119,6 @@ body {
   padding-top: 16px;
 }
 
-.player-card-close {
-  position: absolute;
-  right: -10px;
-  top: -8px;
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  border: 1px solid #405777;
-  background: #101b2e;
-  color: #e8f0ff;
-  font-size: 1.05rem;
-  line-height: 1;
-  padding: 0;
-  z-index: 2;
-}
-
 #playerCardHost .card {
   margin: 0;
   width: 100%;
@@ -770,19 +754,19 @@ button.ghost {
 }
 
 .pos-badge.pos-gk {
-  background: linear-gradient(180deg, #9da4ad 0%, #6f7783 100%);
+  background: linear-gradient(180deg, #596176 0%, #303749 100%);
 }
 
 .pos-badge.pos-df {
-  background: linear-gradient(180deg, #63c2ff 0%, #2f8bd6 100%);
+  background: linear-gradient(180deg, #4fb2ff 0%, #1f2ea7 100%);
 }
 
 .pos-badge.pos-mf {
-  background: linear-gradient(180deg, #9fe35c 0%, #6abf34 100%);
+  background: linear-gradient(180deg, #67d847 0%, #1f7d39 100%);
 }
 
 .pos-badge.pos-fw {
-  background: linear-gradient(180deg, #ff6b6b 0%, #d63838 100%);
+  background: linear-gradient(180deg, #ff6542 0%, #b82214 100%);
 }
 
 .type-badge {
