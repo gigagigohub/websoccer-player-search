@@ -155,9 +155,18 @@ body {
 }
 
 .myteam-current-season {
-  font-size: 0.74rem;
-  color: #d0dcf6;
-  margin-left: 2px;
+  font-size: 0.64rem;
+  padding: 2px 6px;
+  border-radius: 5px;
+  border: 1px solid #4d5f87;
+  background: #1a2740;
+  color: #d3dff8;
+  min-width: 2.6em;
+  text-align: center;
+  line-height: 1.2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hero h1 {
@@ -594,6 +603,11 @@ button.ghost {
 .periods-table tbody th.season-cell.peak-none {
   color: rgba(143, 165, 212, 0.13);
   font-weight: 400;
+}
+
+.periods-table tbody tr.current-season-row th,
+.periods-table tbody tr.current-season-row td {
+  background: rgba(52, 95, 178, 0.28);
 }
 
 .card-name {

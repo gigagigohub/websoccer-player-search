@@ -419,7 +419,7 @@ function positionHeatmapsHtml(player) {
   `;
 }
 
-function periodTableHtml(player, staticImg, actionImg) {
+function periodTableHtml(player, staticImg, actionImg, currentSeason) {
   const periods = Array.isArray(player.periods) ? player.periods : [];
   const header = METRICS.map((m) => `<th>${detailMetricLabel(m)}</th>`).join("");
   const tiers = new Map(getPeakTimeline(player).map((x) => [x.season, x.tier]));
@@ -428,7 +428,8 @@ function periodTableHtml(player, staticImg, actionImg) {
     const values = METRICS.map((m) => `<td>${metrics[m] ?? "-"}</td>`).join("");
     const season = period?.season || "-";
     const tierClass = tiers.get(season) || "peak-none";
-    return `<tr><th class="season-cell ${tierClass}">${season}</th>${values}</tr>`;
+    const currentClass = currentSeason && season === currentSeason ? " current-season-row" : "";
+    return `<tr class="${currentClass.trim()}"><th class="season-cell ${tierClass}">${season}</th>${values}</tr>`;
   }).join("");
 
   return `
@@ -458,6 +459,10 @@ function playerCardHtml(player, season, expanded) {
   const selectedPeriod = findPeriodBySeason(player, season);
   const displayMetrics = selectedPeriod?.metrics || getPeakMetrics(player);
   const currentSeasonText = season ? `${season}目` : "-";
+  const peakTimeline = getPeakTimeline(player);
+  const peakHtml = peakTimeline.length
+    ? peakTimeline.map((x) => `<span class="peak-chip ${x.tier}">${x.season}</span>`).join("")
+    : `<span class="peak-chip peak-near">-</span>`;
 
   const metricBox = (metric) => {
     const v = displayMetrics?.[metric];
@@ -541,7 +546,7 @@ function playerCardHtml(player, season, expanded) {
     </div>
   `;
 
-  const bodyHtml = expanded ? periodTableHtml(player, staticImg, actionImg) : collapsedHtml;
+  const bodyHtml = expanded ? periodTableHtml(player, staticImg, actionImg, season) : collapsedHtml;
 
   return `
     <article class="card ${expanded ? "is-expanded" : "is-collapsed"}" data-player-id="${player.id}">
@@ -555,6 +560,7 @@ function playerCardHtml(player, season, expanded) {
             <span>${player.name}</span>
             <span class="myteam-current-season">${currentSeasonText}</span>
           </h3>
+          <div class="peak-periods">${peakHtml}</div>
         </div>
       </div>
       <div class="card-body">${bodyHtml}</div>
