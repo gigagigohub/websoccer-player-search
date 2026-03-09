@@ -1,8 +1,31 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
+const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
 const LINEUP_SIZE = 11;
+const METRICS = [
+  "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
+  "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織"
+];
+const METRIC_LABELS = {
+  "スピ": "スピード",
+  "テク": "テクニック",
+  "パワ": "パワー",
+  "スタ": "スタミナ",
+  "CP": "Cap.",
+};
+const DETAIL_METRIC_LABELS = {
+  "スピ": "スピ",
+  "テク": "テク",
+  "パワ": "パワ",
+  "スタ": "スタ",
+  "ラフ": "ラフ",
+  "PK": "ＰＫ",
+  "FK": "ＦＫ",
+  "CK": "ＣＫ",
+  "CP": "ＣＰ",
+};
 
 const els = {
   myteamMenuButton: document.querySelector("#myteamMenuButton"),
@@ -12,11 +35,31 @@ const els = {
   myTeamMeta: document.querySelector("#myTeamMeta"),
   myTeamTarget: document.querySelector("#myTeamTarget"),
   myTeamSlots: document.querySelector("#myTeamSlots"),
+  emptySlotModal: document.querySelector("#emptySlotModal"),
+  emptySlotBackdrop: document.querySelector("#emptySlotBackdrop"),
+  emptySlotClose: document.querySelector("#emptySlotClose"),
+  emptySlotOk: document.querySelector("#emptySlotOk"),
+  playerCardModal: document.querySelector("#playerCardModal"),
+  playerCardBackdrop: document.querySelector("#playerCardBackdrop"),
+  playerCardClose: document.querySelector("#playerCardClose"),
+  playerCardHost: document.querySelector("#playerCardHost"),
+  playerDeleteButton: document.querySelector("#playerDeleteButton"),
 };
 
 let players = [];
 let lineup = Array.from({ length: LINEUP_SIZE }, () => null);
 let cloudConfig = { url: "", anonKey: "", lineupKey: "" };
+let selectedSlotIndex = null;
+let selectedPlayerId = null;
+let selectedCardExpanded = false;
+
+function metricLabel(metric) {
+  return METRIC_LABELS[metric] || metric;
+}
+
+function detailMetricLabel(metric) {
+  return DETAIL_METRIC_LABELS[metric] || metric;
+}
 
 function closeMenuPanel() {
   if (!els.myteamMenuPanel) return;
@@ -45,6 +88,10 @@ function normalizeLineupArray(parsed) {
   });
 }
 
+function saveLineupLocal() {
+  localStorage.setItem(LINEUP_STORAGE_KEY, JSON.stringify(lineup));
+}
+
 function loadCloudConfig() {
   try {
     const raw = localStorage.getItem(CLOUD_CONFIG_STORAGE_KEY);
@@ -63,7 +110,7 @@ function loadCloudConfig() {
   if (FIXED_SUPABASE_ANON_KEY) cloudConfig.anonKey = String(FIXED_SUPABASE_ANON_KEY).trim();
 }
 
-function logoutLineupKey() {
+function logoutTeamId() {
   cloudConfig = {
     url: normalizedSupabaseUrl(FIXED_SUPABASE_URL || cloudConfig.url),
     anonKey: String(FIXED_SUPABASE_ANON_KEY || cloudConfig.anonKey).trim(),
@@ -106,7 +153,23 @@ async function loadCloudLineup() {
   const remote = rows[0]?.lineup_json;
   if (!Array.isArray(remote)) return false;
   lineup = normalizeLineupArray(remote);
+  saveLineupLocal();
   return true;
+}
+
+async function saveCloudLineup() {
+  const payload = {
+    lineup_id: cloudConfig.lineupKey,
+    lineup_json: lineup,
+    updated_at: new Date().toISOString(),
+  };
+  await supabaseRequest(`${SUPABASE_TABLE}?on_conflict=lineup_id`, {
+    method: "POST",
+    headers: {
+      Prefer: "resolution=merge-duplicates,return=representation",
+    },
+    body: JSON.stringify(payload),
+  });
 }
 
 function getCategory(player) {
@@ -170,13 +233,6 @@ function findPeriodBySeason(player, season) {
   return periods.find((p) => p?.season === season) || null;
 }
 
-function metricLabel(metric) {
-  if (metric === "スピ") return "スピード";
-  if (metric === "テク") return "テクニック";
-  if (metric === "パワ") return "パワー";
-  return metric;
-}
-
 function miniCoreMetric(metric, value) {
   const bounded = Math.max(0, Math.min(10, Math.round(value || 0)));
   const keyClass =
@@ -224,7 +280,7 @@ function renderLineup() {
     ` : "";
 
     return `
-      <div class="lineup-slot has-player is-disabled">
+      <button type="button" class="lineup-slot${player ? " has-player" : ""} myteam-slot" data-slot-index="${idx}">
         <span class="slot-no">${slot}</span>
         <div class="lineup-slot-main">
           <div class="lineup-thumb-wrap">${imageHtml}</div>
@@ -238,10 +294,157 @@ function renderLineup() {
           </div>
           ${coreHtml}
         </div>
-      </div>
+      </button>
     `;
   }).join("");
   els.myTeamSlots.innerHTML = html;
+}
+
+function openEmptySlotModal() {
+  if (els.emptySlotModal) els.emptySlotModal.hidden = false;
+}
+
+function closeEmptySlotModal() {
+  if (els.emptySlotModal) els.emptySlotModal.hidden = true;
+}
+
+function periodTableHtml(player, staticImg, actionImg) {
+  const periods = Array.isArray(player.periods) ? player.periods : [];
+  const header = METRICS.map((m) => `<th>${detailMetricLabel(m)}</th>`).join("");
+  const rows = periods.map((period) => {
+    const metrics = period?.metrics || {};
+    const values = METRICS.map((m) => `<td>${metrics[m] ?? "-"}</td>`).join("");
+    const season = period?.season || "-";
+    return `<tr><th class="season-cell">${season}</th>${values}</tr>`;
+  }).join("");
+
+  return `
+    <div class="expanded-view">
+      <div class="expanded-media">
+        <div class="thumbs">
+          <img loading="lazy" src="${staticImg}" alt="${player.name} 静止" />
+          <img loading="lazy" src="${actionImg}" alt="${player.name} アクション" />
+        </div>
+      </div>
+      <div class="periods-scroll">
+        <table class="periods-table">
+          <thead>
+            <tr><th>期</th>${header}</tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function playerCardHtml(player, season, expanded) {
+  const staticImg = `./images/chara/players/static/${player.id}.gif`;
+  const actionImg = `./images/chara/players/action/${player.id}.gif`;
+  const selectedPeriod = findPeriodBySeason(player, season);
+  const displayMetrics = selectedPeriod?.metrics || getPeakMetrics(player);
+
+  const metricBox = (metric) => {
+    const v = displayMetrics?.[metric];
+    const value = v == null ? 0 : v;
+    const max = 10;
+    const bounded = Math.max(0, Math.min(max, Math.round(value)));
+    const metricClass =
+      metric === "スピ" ? "m-speed" :
+      metric === "テク" ? "m-tech" :
+      metric === "パワ" ? "m-power" : "";
+    const cells = Array.from({ length: 10 }, (_, i) =>
+      `<span class="gauge-cell${i < bounded ? " on" : ""}"></span>`
+    ).join("");
+    return `
+      <div class="lineup-core-item ${metricClass}">
+        <span class="lineup-core-key">${metricLabel(metric)}</span>
+        <div class="lineup-core-body">
+          <div class="gauge">${cells}</div>
+          <span class="lineup-core-num">${v == null ? "-" : v}</span>
+        </div>
+      </div>
+    `;
+  };
+
+  const typeLabel = getCategory(player);
+  const typeClass = typeClassByPlayer(player);
+  const pos = (player.position || "-").toUpperCase();
+  const posClass = positionClass(pos);
+
+  const collapsedHtml = `
+    <div class="expanded-media">
+      <div class="thumbs">
+        <img loading="lazy" src="${staticImg}" alt="${player.name} 静止" />
+        <img loading="lazy" src="${actionImg}" alt="${player.name} アクション" />
+      </div>
+    </div>
+    <div class="lineup-core myteam-card-core">
+      ${metricBox("スピ")}
+      ${metricBox("テク")}
+      ${metricBox("パワ")}
+    </div>
+  `;
+
+  const bodyHtml = expanded ? periodTableHtml(player, staticImg, actionImg) : collapsedHtml;
+
+  return `
+    <article class="card ${expanded ? "is-expanded" : "is-collapsed"}" data-player-id="${player.id}">
+      <div class="card-top">
+        <button type="button" class="expand-toggle" data-player-id="${player.id}" aria-label="詳細表示切替">${expanded ? "−" : "+"}</button>
+        <span class="card-id">ID: ${player.id}</span>
+        <div class="card-head-main">
+          <h3 class="card-name">
+            <span class="badge pos-badge ${posClass}">${pos}</span>
+            <span class="badge type-badge ${typeClass}">${typeLabel}</span>
+            <span>${player.name}</span>
+          </h3>
+        </div>
+      </div>
+      <div class="card-body">${bodyHtml}</div>
+    </article>
+  `;
+}
+
+function renderPlayerCardModal() {
+  if (!els.playerCardHost || !Number.isInteger(selectedPlayerId)) return;
+  const player = players.find((p) => p.id === selectedPlayerId);
+  if (!player) return;
+  const season = lineup[selectedSlotIndex]?.season || null;
+  els.playerCardHost.innerHTML = playerCardHtml(player, season, selectedCardExpanded);
+}
+
+function openPlayerCardModal(slotIndex) {
+  const entry = lineup[slotIndex];
+  const playerId = Number(entry?.playerId);
+  if (!Number.isInteger(playerId)) return;
+  selectedSlotIndex = slotIndex;
+  selectedPlayerId = playerId;
+  selectedCardExpanded = false;
+  renderPlayerCardModal();
+  if (els.playerCardModal) els.playerCardModal.hidden = false;
+}
+
+function closePlayerCardModal() {
+  selectedSlotIndex = null;
+  selectedPlayerId = null;
+  selectedCardExpanded = false;
+  if (els.playerCardModal) els.playerCardModal.hidden = true;
+}
+
+async function deleteSelectedFromTeam() {
+  if (!Number.isInteger(selectedSlotIndex)) return;
+  lineup[selectedSlotIndex] = null;
+  saveLineupLocal();
+  if (hasCloudConfig()) {
+    try {
+      await saveCloudLineup();
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+  renderLineup();
+  closePlayerCardModal();
 }
 
 async function init() {
@@ -259,7 +462,7 @@ async function init() {
   }
   if (els.myteamLogoutButton) {
     els.myteamLogoutButton.addEventListener("click", () => {
-      logoutLineupKey();
+      logoutTeamId();
       window.location.href = "./index.html";
     });
   }
@@ -270,8 +473,32 @@ async function init() {
     closeMenuPanel();
   });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeMenuPanel();
+    if (e.key === "Escape") {
+      closeMenuPanel();
+      closeEmptySlotModal();
+      closePlayerCardModal();
+    }
   });
+
+  if (els.emptySlotBackdrop) els.emptySlotBackdrop.addEventListener("click", closeEmptySlotModal);
+  if (els.emptySlotClose) els.emptySlotClose.addEventListener("click", closeEmptySlotModal);
+  if (els.emptySlotOk) {
+    els.emptySlotOk.addEventListener("click", () => {
+      window.location.href = "./index.html";
+    });
+  }
+
+  if (els.playerCardBackdrop) els.playerCardBackdrop.addEventListener("click", closePlayerCardModal);
+  if (els.playerCardClose) els.playerCardClose.addEventListener("click", closePlayerCardModal);
+  if (els.playerDeleteButton) els.playerDeleteButton.addEventListener("click", deleteSelectedFromTeam);
+  if (els.playerCardHost) {
+    els.playerCardHost.addEventListener("click", (e) => {
+      const btn = e.target.closest(".expand-toggle");
+      if (!btn) return;
+      selectedCardExpanded = !selectedCardExpanded;
+      renderPlayerCardModal();
+    });
+  }
 
   const dataRes = await fetch("./data.json");
   const data = await dataRes.json();
@@ -292,6 +519,22 @@ async function init() {
     if (els.myTeamTarget) els.myTeamTarget.textContent = "クラウド読込に失敗しました";
   }
   renderLineup();
+
+  if (els.myTeamSlots) {
+    els.myTeamSlots.addEventListener("click", (e) => {
+      const slot = e.target.closest(".myteam-slot");
+      if (!slot) return;
+      const idx = Number(slot.dataset.slotIndex);
+      if (!Number.isInteger(idx)) return;
+      const entry = lineup[idx];
+      const playerId = Number(entry?.playerId);
+      if (!Number.isInteger(playerId)) {
+        openEmptySlotModal();
+        return;
+      }
+      openPlayerCardModal(idx);
+    });
+  }
 }
 
 init().catch((e) => {

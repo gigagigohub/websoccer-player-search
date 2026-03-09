@@ -102,6 +102,58 @@ body {
   overflow: visible;
 }
 
+.myteam-slot {
+  cursor: pointer;
+  opacity: 1;
+  filter: none;
+}
+
+.player-card-wrap {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(980px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  overflow: auto;
+  padding-top: 16px;
+}
+
+.player-card-close {
+  position: absolute;
+  right: -10px;
+  top: -8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid #405777;
+  background: #101b2e;
+  color: #e8f0ff;
+  font-size: 1.05rem;
+  line-height: 1;
+  padding: 0;
+  z-index: 2;
+}
+
+#playerCardHost .card {
+  margin: 0;
+}
+
+.player-card-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.player-delete-btn {
+  width: min(360px, 100%);
+  border-radius: 10px;
+  border: 1px solid #8b3246;
+  background: linear-gradient(180deg, #4f1f2e 0%, #381520 100%);
+  color: #ffd9df;
+  font-weight: 700;
+}
+
 .hero h1 {
   margin: 0;
   font-size: 1.48rem;

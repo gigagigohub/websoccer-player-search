@@ -24,6 +24,31 @@
     </section>
   </main>
 
+  <div id="emptySlotModal" class="season-modal" hidden>
+    <div id="emptySlotBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog" role="dialog" aria-modal="true" aria-labelledby="emptySlotTitle">
+      <div class="season-head">
+        <h2 id="emptySlotTitle">未登録</h2>
+        <button id="emptySlotClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <p class="season-target">databaseからaddボタンで選手を登録してください。</p>
+      <div class="season-actions">
+        <button id="emptySlotOk" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="playerCardModal" class="season-modal" hidden>
+    <div id="playerCardBackdrop" class="season-backdrop"></div>
+    <div class="player-card-wrap">
+      <button id="playerCardClose" type="button" class="player-card-close" aria-label="閉じる">×</button>
+      <div id="playerCardHost"></div>
+      <div class="player-card-actions">
+        <button id="playerDeleteButton" type="button" class="player-delete-btn">Delete from Team</button>
+      </div>
+    </div>
+  </div>
+
   <script src="./myteam.js"></script>
 </body>
 </html>
