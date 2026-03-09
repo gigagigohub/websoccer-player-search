@@ -1205,27 +1205,35 @@ button.ghost {
 }
 
 .remain-badge.remain-0 {
-  background: rgba(255, 115, 24, 0.98);
+  border-color: rgba(136, 48, 44, 0.9);
+  background: rgba(120, 36, 34, 0.95);
+  color: #ffe5e3;
 }
 
 .remain-badge.remain-1 {
-  background: rgba(255, 124, 28, 0.86);
+  background: rgba(255, 129, 30, 0.96);
 }
 
 .remain-badge.remain-2 {
-  background: rgba(255, 130, 31, 0.74);
+  background: rgba(255, 134, 33, 0.76);
 }
 
 .remain-badge.remain-3 {
-  background: rgba(255, 138, 36, 0.6);
+  background: rgba(255, 140, 38, 0.52);
 }
 
 .remain-badge.remain-4 {
-  background: rgba(255, 144, 40, 0.46);
+  border: 1px solid #4d5f87;
+  background: #1a2740;
+  color: #d3dff8;
+  text-shadow: none;
 }
 
 .remain-badge.remain-5p {
-  background: rgba(255, 152, 46, 0.32);
+  border: 1px solid #4d5f87;
+  background: #1a2740;
+  color: #d3dff8;
+  text-shadow: none;
 }
 
 .lineup-successor {
