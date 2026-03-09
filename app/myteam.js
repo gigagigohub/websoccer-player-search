@@ -384,6 +384,19 @@ function remainingBadgeHtml(remain) {
   return `<span class="badge lineup-season remain-badge ${remainingBadgeClass(remain)}">残${remain}期</span>`;
 }
 
+function getSuccessorDisplaySeason(entry) {
+  const successor = normalizeSuccessor(entry?.successor);
+  if (!successor) return null;
+  const successorPlayer = players.find((x) => x.id === successor.playerId);
+  if (!successorPlayer) return successor.season || null;
+
+  const currentPlayerId = Number(entry?.playerId);
+  const currentPlayer = Number.isInteger(currentPlayerId) ? players.find((x) => x.id === currentPlayerId) : null;
+  const currentSeason = entry?.season || null;
+  const currentRemaining = currentPlayer ? getRemainingPeakPeriods(currentPlayer, currentSeason) : 0;
+  return shiftSeasonForEntry(successorPlayer, successor.season || null, Math.max(0, currentRemaining));
+}
+
 function successorSummaryHtml(entry, currentRemaining) {
   const successor = entry?.successor;
   const successorId = Number(successor?.playerId);
@@ -749,7 +762,7 @@ function renderPlayerCardModal() {
   if (!player) return;
   const entry = lineup[selectedSlotIndex];
   const season = selectedPlayerMode === "successor"
-    ? (entry?.successor?.season || null)
+    ? getSuccessorDisplaySeason(entry)
     : (entry?.season || null);
   els.playerCardHost.innerHTML = playerCardHtml(player, season, selectedCardExpanded);
 }
