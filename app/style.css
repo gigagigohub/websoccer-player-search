@@ -1048,6 +1048,29 @@ button.ghost {
   font-size: 1rem;
 }
 
+.lineup-mode-switch {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.lineup-mode-btn {
+  border-radius: 8px;
+  border: 1px solid #38527f;
+  background: #162742;
+  color: #dbe8ff;
+  padding: 7px 8px;
+  font-size: 0.84rem;
+}
+
+.lineup-mode-btn.is-active {
+  border-color: #ff9b3d;
+  background: linear-gradient(180deg, #ffad5a 0%, #d56a0f 100%);
+  color: #fff3df;
+  font-weight: 700;
+}
+
 .lineup-close {
   width: 34px;
   height: 30px;

@@ -26,7 +26,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-10 08:38 JST";
+const APP_UPDATED_AT_JST = "2026-03-10 08:45 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -62,6 +62,8 @@ const els = {
   lineupBackdrop: document.querySelector("#lineupBackdrop"),
   lineupClose: document.querySelector("#lineupClose"),
   lineupTitle: document.querySelector("#lineupTitle"),
+  lineupStarterMode: document.querySelector("#lineupStarterMode"),
+  lineupSuccessorMode: document.querySelector("#lineupSuccessorMode"),
   lineupTarget: document.querySelector("#lineupTarget"),
   lineupSlots: document.querySelector("#lineupSlots"),
   seasonModal: document.querySelector("#seasonModal"),
@@ -92,9 +94,11 @@ let players = [];
 const expandedPlayerIds = new Set();
 let pendingLineupPlayerId = null;
 let pendingLineupSlotIndex = null;
+let pendingLineupMode = "starter";
 let pendingLoginForAddPlayerId = null;
 let startingLineup = Array.from({ length: LINEUP_SIZE }, () => null);
 let lineupSlotsLocked = false;
+let lineupRegisterMode = "starter";
 let cloudConfig = { url: "", anonKey: "", lineupKey: "" };
 
 function normalizeSeasonInput(input) {
@@ -114,19 +118,29 @@ function findPeriodBySeason(player, season) {
   return periods.find((p) => p?.season === season) || null;
 }
 
+function normalizeSuccessor(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const id = Number(raw.playerId);
+  if (!Number.isInteger(id)) return null;
+  const season = raw.season == null ? null : String(raw.season);
+  const source = raw.source == null ? null : String(raw.source);
+  return { playerId: id, season, source };
+}
+
 function normalizeLineupArray(parsed) {
   return Array.from({ length: LINEUP_SIZE }, (_, i) => {
     const row = parsed?.[i];
     if (row == null) return null;
     if (typeof row === "number" || typeof row === "string") {
       const id = Number(row);
-      return Number.isInteger(id) ? { playerId: id, season: null } : null;
+      return Number.isInteger(id) ? { playerId: id, season: null, successor: null } : null;
     }
     if (typeof row === "object") {
       const id = Number(row.playerId);
       if (!Number.isInteger(id)) return null;
       const season = row.season == null ? null : String(row.season);
-      return { playerId: id, season };
+      const successor = normalizeSuccessor(row.successor);
+      return { playerId: id, season, successor };
     }
     return null;
   });
@@ -295,7 +309,9 @@ function saveStartingLineup() {
 
 function closeLineupModal() {
   pendingLineupPlayerId = null;
+  pendingLineupMode = "starter";
   lineupSlotsLocked = false;
+  lineupRegisterMode = "starter";
   if (!els.lineupModal) return;
   els.lineupModal.hidden = true;
 }
@@ -332,6 +348,98 @@ function lineupPlayerFromEntry(entry) {
   const playerId = Number(entry?.playerId);
   if (!Number.isInteger(playerId)) return null;
   return players.find((x) => x.id === playerId) || null;
+}
+
+function getRemainingPeakPeriods(player, season) {
+  const periods = Array.isArray(player?.periods) ? player.periods : [];
+  if (!periods.length) return 0;
+  const seasons = periods.map((p) => p?.season).filter(Boolean);
+  if (!seasons.length) return 0;
+  let curIdx = seasons.findIndex((s) => s === season);
+  if (curIdx < 0) curIdx = 0;
+
+  const tiers = new Map(getPeakTimeline(player).map((x) => [x.season, x.tier]));
+  const isPeakMain = (idx) => tiers.get(seasons[idx]) === "peak-main";
+
+  if (isPeakMain(curIdx)) {
+    let end = curIdx;
+    while (end + 1 < seasons.length && isPeakMain(end + 1)) end += 1;
+    return end - curIdx + 1;
+  }
+
+  let next = -1;
+  for (let i = curIdx; i < seasons.length; i += 1) {
+    if (isPeakMain(i)) {
+      next = i;
+      break;
+    }
+  }
+  if (next < 0) return 0;
+  let end = next;
+  while (end + 1 < seasons.length && isPeakMain(end + 1)) end += 1;
+  return end - curIdx + 1;
+}
+
+function shiftSeasonForEntry(player, currentSeason, delta) {
+  const periods = Array.isArray(player?.periods) ? player.periods : [];
+  if (!periods.length) return currentSeason || null;
+  const seasons = periods.map((p) => p?.season).filter(Boolean);
+  if (!seasons.length) return currentSeason || null;
+  let idx = seasons.findIndex((s) => s === currentSeason);
+  if (idx < 0) idx = 0;
+  const nextIdx = Math.max(0, Math.min(seasons.length - 1, idx + delta));
+  return seasons[nextIdx];
+}
+
+function remainingBadgeClass(remain) {
+  if (remain <= 0) return "remain-0";
+  if (remain === 1) return "remain-1";
+  if (remain === 2) return "remain-2";
+  if (remain === 3) return "remain-3";
+  if (remain === 4) return "remain-4";
+  return "remain-5p";
+}
+
+function remainingBadgeHtml(remain) {
+  return `<span class="badge lineup-season remain-badge ${remainingBadgeClass(remain)}">残${remain}期</span>`;
+}
+
+function successorSummaryHtml(entry, currentRemaining) {
+  const successor = normalizeSuccessor(entry?.successor);
+  const successorId = Number(successor?.playerId);
+  const successorPlayer = Number.isInteger(successorId) ? players.find((x) => x.id === successorId) : null;
+  if (!successorPlayer) {
+    return `
+      <div class="lineup-successor is-empty">
+        <div class="lineup-empty-thumb"></div>
+        <div class="lineup-successor-meta">
+          <span class="slot-name">未登録</span>
+        </div>
+      </div>
+    `;
+  }
+
+  const evalSeason = shiftSeasonForEntry(successorPlayer, successor?.season || null, Math.max(0, currentRemaining));
+  const remain = getRemainingPeakPeriods(successorPlayer, evalSeason);
+  const pos = (successorPlayer.position || "-").toUpperCase();
+  const posClass = positionClass(pos);
+  const typeLabel = getCategory(successorPlayer);
+  const typeClass = typeClassByPlayer(successorPlayer);
+  return `
+    <div class="lineup-successor">
+      <div class="lineup-thumb-wrap">
+        <img loading="lazy" src="./images/chara/players/static/${successorPlayer.id}.gif" alt="${successorPlayer.name}" />
+      </div>
+      <div class="lineup-successor-meta">
+        <div class="lineup-badges">
+          <span class="badge pos-badge ${posClass}">${pos}</span>
+          <span class="badge type-badge ${typeClass}">${typeLabel}</span>
+          ${remainingBadgeHtml(remain)}
+        </div>
+        <span class="slot-name">${successorPlayer.name}</span>
+      </div>
+    </div>
+  `;
 }
 
 function allowedSlotIndexesForPendingName() {
@@ -380,8 +488,10 @@ function renderLineupSlots() {
     const hasPlayer = Number.isInteger(playerId) && !!player;
     const season = hasPlayer ? (entry?.season || null) : null;
     const seasonText = season ? `${season}目` : "-";
+    const currentRemaining = hasPlayer ? getRemainingPeakPeriods(player, season) : 0;
     const disabledByNameRule = !!allowedIndexes && !allowedIndexes.has(idx);
     const disabledByLock = lineupSlotsLocked;
+    const disabledByModeRule = lineupRegisterMode === "successor" && !hasPlayer;
     const pos = (player?.position || "-").toUpperCase();
     const posClass = positionClass(pos);
     const typeLabel = player ? getCategory(player) : "-";
@@ -391,17 +501,23 @@ function renderLineupSlots() {
       : `<div class="lineup-empty-thumb"></div>`;
     const selectedPeriod = hasPlayer ? findPeriodBySeason(player, season) : null;
     const selectedMetrics = selectedPeriod?.metrics || (player ? getPeakMetrics(player) : null);
-    const coreHtml = player
+    const rightPaneHtml = player
       ? `
-        <div class="lineup-core">
-          ${miniCoreMetric("スピ", selectedMetrics?.["スピ"])}
-          ${miniCoreMetric("テク", selectedMetrics?.["テク"])}
-          ${miniCoreMetric("パワ", selectedMetrics?.["パワ"])}
-        </div>
+        ${lineupRegisterMode === "successor"
+          ? successorSummaryHtml(entry, currentRemaining)
+          : `
+            <div class="lineup-core">
+              ${miniCoreMetric("スピ", selectedMetrics?.["スピ"])}
+              ${miniCoreMetric("テク", selectedMetrics?.["テク"])}
+              ${miniCoreMetric("パワ", selectedMetrics?.["パワ"])}
+            </div>
+          `
+        }
       `
       : "";
+    const disabled = disabledByNameRule || disabledByLock || disabledByModeRule;
     return `
-      <button type="button" class="lineup-slot${hasPlayer ? " has-player" : ""}${(disabledByNameRule || disabledByLock) ? " is-disabled" : ""}" data-slot-index="${idx}" ${(disabledByNameRule || disabledByLock) ? "disabled" : ""}>
+      <button type="button" class="lineup-slot${hasPlayer ? " has-player" : ""}${disabled ? " is-disabled" : ""}" data-slot-index="${idx}" ${disabled ? "disabled" : ""}>
         <span class="slot-no">${slot}</span>
         <div class="lineup-slot-main">
           <div class="lineup-thumb-wrap">${imageHtml}</div>
@@ -413,7 +529,7 @@ function renderLineupSlots() {
             </div>
             <span class="slot-name">${name}</span>
           </div>
-          ${coreHtml}
+          ${rightPaneHtml}
         </div>
       </button>
     `;
@@ -421,27 +537,40 @@ function renderLineupSlots() {
   els.lineupSlots.innerHTML = html;
 }
 
+function renderLineupModeSwitch() {
+  if (els.lineupStarterMode) {
+    els.lineupStarterMode.classList.toggle("is-active", lineupRegisterMode === "starter");
+  }
+  if (els.lineupSuccessorMode) {
+    els.lineupSuccessorMode.classList.toggle("is-active", lineupRegisterMode === "successor");
+  }
+}
+
 function openLineupModal(playerId) {
   pendingLineupPlayerId = playerId;
+  pendingLineupMode = lineupRegisterMode;
   lineupSlotsLocked = false;
-  setLineupModalTitle(true, "スタメン登録");
+  setLineupModalTitle(true, lineupRegisterMode === "successor" ? "後継選手登録" : "スタメン登録");
   const player = players.find((p) => p.id === playerId);
   const allowedIndexes = allowedSlotIndexesForPendingName();
   if (els.lineupTarget) {
+    const targetLabel = lineupRegisterMode === "successor" ? "後継選手として" : "";
+    const slotLabel = lineupRegisterMode === "successor" ? "どのスタメン枠に登録しますか？" : "どのスタメン枠に登録しますか？";
     const base = player
-      ? `${player.name} をどのスタメン枠に登録しますか？`
-      : `ID:${playerId} をどのスタメン枠に登録しますか？`;
+      ? `${player.name} を${targetLabel}${slotLabel}`
+      : `ID:${playerId} を${targetLabel}${slotLabel}`;
     els.lineupTarget.textContent = allowedIndexes
       ? `${base}（同名登録済みのため、同名枠への入れ替えのみ可能）`
       : base;
   }
+  renderLineupModeSwitch();
   renderLineupSlots();
   if (els.lineupModal) {
     els.lineupModal.hidden = false;
   }
 }
 
-function openSeasonModal(player, slotIndex) {
+function openSeasonModal(player, slotIndex, mode = "starter") {
   if (!player || !els.seasonModal || !els.seasonSelect) return;
   const seasons = (player.periods || [])
     .map((p) => p?.season)
@@ -450,11 +579,14 @@ function openSeasonModal(player, slotIndex) {
 
   pendingLineupPlayerId = player.id;
   pendingLineupSlotIndex = slotIndex;
+  pendingLineupMode = mode;
   els.seasonSelect.innerHTML = seasons
     .map((season) => `<option value="${season}">${season}</option>`)
     .join("");
   if (els.seasonTarget) {
-    els.seasonTarget.textContent = `${player.name} を何期目で登録しますか？`;
+    els.seasonTarget.textContent = mode === "successor"
+      ? `${player.name} を後継選手として何期目で登録しますか？`
+      : `${player.name} を何期目で登録しますか？`;
   }
   els.seasonModal.hidden = false;
 }
@@ -1036,6 +1168,24 @@ async function init() {
   if (els.lineupClose) {
     els.lineupClose.addEventListener("click", closeLineupModal);
   }
+  if (els.lineupStarterMode) {
+    els.lineupStarterMode.addEventListener("click", () => {
+      if (!Number.isInteger(Number(pendingLineupPlayerId))) return;
+      lineupRegisterMode = "starter";
+      setLineupModalTitle(true, "スタメン登録");
+      renderLineupModeSwitch();
+      openLineupModal(Number(pendingLineupPlayerId));
+    });
+  }
+  if (els.lineupSuccessorMode) {
+    els.lineupSuccessorMode.addEventListener("click", () => {
+      if (!Number.isInteger(Number(pendingLineupPlayerId))) return;
+      lineupRegisterMode = "successor";
+      setLineupModalTitle(true, "後継選手登録");
+      renderLineupModeSwitch();
+      openLineupModal(Number(pendingLineupPlayerId));
+    });
+  }
   if (els.lineupSlots) {
     els.lineupSlots.addEventListener("click", (e) => {
       const slotBtn = e.target.closest(".lineup-slot");
@@ -1044,7 +1194,7 @@ async function init() {
       if (!Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= LINEUP_SIZE) return;
       const player = players.find((p) => p.id === pendingLineupPlayerId);
       if (!player) return;
-      openSeasonModal(player, slotIndex);
+      openSeasonModal(player, slotIndex, lineupRegisterMode);
     });
   }
   if (els.seasonBackdrop) {
@@ -1061,16 +1211,29 @@ async function init() {
       const playerId = Number(pendingLineupPlayerId);
       const slotIndex = Number(pendingLineupSlotIndex);
       const selectedSeason = normalizeSeasonInput(els.seasonSelect?.value || "");
+      const mode = pendingLineupMode === "successor" ? "successor" : "starter";
       if (!Number.isInteger(playerId)) return;
       if (!Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= LINEUP_SIZE) return;
       if (!selectedSeason) return;
-      startingLineup[slotIndex] = { playerId, season: selectedSeason };
+      if (mode === "successor") {
+        const currentEntry = startingLineup[slotIndex];
+        const currentMainId = Number(currentEntry?.playerId);
+        if (!Number.isInteger(currentMainId)) return;
+        startingLineup[slotIndex] = {
+          ...currentEntry,
+          successor: { playerId, season: selectedSeason, source: null },
+        };
+      } else {
+        const currentEntry = startingLineup[slotIndex];
+        const currentSuccessor = normalizeSuccessor(currentEntry?.successor);
+        startingLineup[slotIndex] = { playerId, season: selectedSeason, successor: currentSuccessor };
+      }
       saveStartingLineup();
       const player = players.find((p) => p.id === playerId);
       if (els.lineupTarget) {
-        els.lineupTarget.textContent = player
-          ? `${player.name}選手の登録が完了しました`
-          : "選手の登録が完了しました";
+        els.lineupTarget.textContent = mode === "successor"
+          ? (player ? `${player.name}選手の後継選手登録が完了しました` : "後継選手の登録が完了しました")
+          : (player ? `${player.name}選手の登録が完了しました` : "選手の登録が完了しました");
       }
       lineupSlotsLocked = true;
       renderLineupSlots();
