@@ -26,7 +26,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-10 13:28 JST";
+const APP_UPDATED_AT_JST = "2026-03-10 13:33 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -1350,13 +1350,30 @@ async function init() {
   if (els.loginApply) {
     els.loginApply.addEventListener("click", async () => {
       const key = String(els.loginLineupKey?.value || "").trim();
+      const prevKey = String(cloudConfig.lineupKey || "").trim();
       if (!saveCloudConfig(key)) return;
       updateMenuState();
       try {
         const ok = await cloudLoadLineup();
-        setCloudStatus(ok ? "Cloud: loaded" : "Cloud: no data");
+        if (!ok) {
+          const create = window.confirm("入力されたIDの登録はありません。IDを新規作成しますか？");
+          if (!create) {
+            saveCloudConfig(prevKey);
+            updateMenuState();
+            return;
+          }
+          startingLineup = Array.from({ length: LINEUP_SIZE }, () => null);
+          saveStartingLineup();
+          await cloudSaveLineup();
+          setCloudStatus("Cloud: key created");
+        } else {
+          setCloudStatus("Cloud: loaded");
+        }
       } catch (e) {
+        saveCloudConfig(prevKey);
+        updateMenuState();
         setCloudStatus(`Cloud load failed: ${e.message}`, true);
+        return;
       }
       closeLoginModal();
       if (Number.isInteger(pendingLoginForAddPlayerId)) {
