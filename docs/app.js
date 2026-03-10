@@ -26,7 +26,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-10 13:52 JST";
+const APP_UPDATED_AT_JST = "2026-03-10 14:01 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -42,6 +42,7 @@ const els = {
   menuPanel: document.querySelector("#menuPanel"),
   loginButton: document.querySelector("#loginButton"),
   myTeamButton: document.querySelector("#myTeamButton"),
+  settingButton: document.querySelector("#settingButton"),
   logoutButton: document.querySelector("#logoutButton"),
   nameQuery: document.querySelector("#nameQuery"),
   positionFilter: document.querySelector("#positionFilter"),
@@ -87,6 +88,12 @@ const els = {
   signupLineupKey: document.querySelector("#signupLineupKey"),
   signupCancel: document.querySelector("#signupCancel"),
   signupApply: document.querySelector("#signupApply"),
+  settingModal: document.querySelector("#settingModal"),
+  settingBackdrop: document.querySelector("#settingBackdrop"),
+  settingClose: document.querySelector("#settingClose"),
+  renameLineupKey: document.querySelector("#renameLineupKey"),
+  renameIdApply: document.querySelector("#renameIdApply"),
+  deleteIdApply: document.querySelector("#deleteIdApply"),
   successorSourceModal: document.querySelector("#successorSourceModal"),
   successorSourceBackdrop: document.querySelector("#successorSourceBackdrop"),
   successorSourceClose: document.querySelector("#successorSourceClose"),
@@ -189,6 +196,7 @@ function updateMenuState() {
   const loggedIn = isLoggedIn();
   if (els.loginButton) els.loginButton.hidden = loggedIn;
   if (els.myTeamButton) els.myTeamButton.hidden = !loggedIn;
+  if (els.settingButton) els.settingButton.hidden = !loggedIn;
   if (els.logoutButton) els.logoutButton.hidden = !loggedIn;
   renderHeaderMeta();
 }
@@ -219,6 +227,20 @@ function openSignupModal() {
 function closeSignupModal() {
   if (!els.signupModal) return;
   els.signupModal.hidden = true;
+}
+
+function openSettingModal() {
+  if (!els.settingModal) return;
+  if (els.renameLineupKey) {
+    els.renameLineupKey.value = cloudConfig.lineupKey || "";
+    els.renameLineupKey.focus();
+  }
+  els.settingModal.hidden = false;
+}
+
+function closeSettingModal() {
+  if (!els.settingModal) return;
+  els.settingModal.hidden = true;
 }
 
 function normalizedSupabaseUrl(url) {
@@ -314,6 +336,17 @@ async function cloudLoadLineup() {
   startingLineup = normalizeLineupArray(remote);
   saveStartingLineup();
   return true;
+}
+
+async function cloudDeleteLineupById(lineupId) {
+  const id = String(lineupId || "").trim();
+  if (!id) return;
+  const params = new URLSearchParams({
+    lineup_id: `eq.${id}`,
+  });
+  await supabaseRequest(`${SUPABASE_TABLE}?${params.toString()}`, {
+    method: "DELETE",
+  });
 }
 
 function loadStartingLineup() {
@@ -1212,6 +1245,12 @@ async function init() {
       openLoginModal();
     });
   }
+  if (els.settingButton) {
+    els.settingButton.addEventListener("click", () => {
+      closeMenuPanel();
+      openSettingModal();
+    });
+  }
   if (els.logoutButton) {
     els.logoutButton.addEventListener("click", () => {
       closeMenuPanel();
@@ -1413,6 +1452,59 @@ async function init() {
       }
     });
   }
+  if (els.settingBackdrop) {
+    els.settingBackdrop.addEventListener("click", closeSettingModal);
+  }
+  if (els.settingClose) {
+    els.settingClose.addEventListener("click", closeSettingModal);
+  }
+  if (els.renameIdApply) {
+    els.renameIdApply.addEventListener("click", async () => {
+      const oldKey = String(cloudConfig.lineupKey || "").trim();
+      const newKey = String(els.renameLineupKey?.value || "").trim();
+      if (!oldKey || !newKey) return;
+      if (oldKey === newKey) {
+        closeSettingModal();
+        return;
+      }
+      try {
+        const prevKey = oldKey;
+        if (!saveCloudConfig(newKey)) return;
+        const exists = await cloudLoadLineup();
+        if (exists) {
+          window.alert("そのIDは既に使われています。別のIDを入力してください。");
+          saveCloudConfig(prevKey);
+          updateMenuState();
+          return;
+        }
+        startingLineup = normalizeLineupArray(startingLineup);
+        await cloudSaveLineup();
+        await cloudDeleteLineupById(prevKey);
+        saveStartingLineup();
+        updateMenuState();
+        closeSettingModal();
+      } catch (e) {
+        setCloudStatus(`Cloud rename failed: ${e.message}`, true);
+      }
+    });
+  }
+  if (els.deleteIdApply) {
+    els.deleteIdApply.addEventListener("click", async () => {
+      const key = String(cloudConfig.lineupKey || "").trim();
+      if (!key) return;
+      const ok = window.confirm("このIDを削除します。よろしいですか？");
+      if (!ok) return;
+      try {
+        await cloudDeleteLineupById(key);
+        startingLineup = Array.from({ length: LINEUP_SIZE }, () => null);
+        saveStartingLineup();
+        logoutLineupKey();
+        closeSettingModal();
+      } catch (e) {
+        setCloudStatus(`Cloud delete failed: ${e.message}`, true);
+      }
+    });
+  }
   if (els.successorSourceBackdrop) {
     els.successorSourceBackdrop.addEventListener("click", closeSuccessorSourceModal);
   }
@@ -1489,6 +1581,10 @@ async function init() {
     }
     if (e.key === "Escape" && els.successorSourceModal && !els.successorSourceModal.hidden) {
       closeSuccessorSourceModal();
+      return;
+    }
+    if (e.key === "Escape" && els.settingModal && !els.settingModal.hidden) {
+      closeSettingModal();
     }
   });
 

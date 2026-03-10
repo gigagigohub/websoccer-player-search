@@ -19,6 +19,7 @@
       <div id="menuPanel" class="menu-panel" hidden>
         <button id="loginButton" type="button" class="menu-item">Login</button>
         <button id="myTeamButton" type="button" class="menu-item" hidden>MyTeam</button>
+        <button id="settingButton" type="button" class="menu-item" hidden>Setting</button>
         <button id="logoutButton" type="button" class="menu-item logout" hidden>Logout</button>
       </div>
       <h1>WebSoccer Ordinary 2026</h1>
@@ -181,6 +182,23 @@
       <div class="season-actions">
         <button id="successorSourceCancel" type="button" class="ghost">Cancel</button>
         <button id="successorSourceApply" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="settingModal" class="season-modal" hidden>
+    <div id="settingBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog" role="dialog" aria-modal="true" aria-labelledby="settingTitle">
+      <div class="season-head">
+        <h2 id="settingTitle">Setting</h2>
+        <button id="settingClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <p class="season-target">現在のTeamID設定を管理します</p>
+      <label class="label" for="renameLineupKey">Rename ID</label>
+      <input id="renameLineupKey" type="text" />
+      <div class="season-actions">
+        <button id="renameIdApply" type="button">Rename ID</button>
+        <button id="deleteIdApply" type="button" class="ghost">Delete ID</button>
       </div>
     </div>
   </div>
