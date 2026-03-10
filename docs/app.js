@@ -26,7 +26,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-10 09:23 JST";
+const APP_UPDATED_AT_JST = "2026-03-10 09:31 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -44,8 +44,8 @@ const els = {
   myTeamButton: document.querySelector("#myTeamButton"),
   logoutButton: document.querySelector("#logoutButton"),
   nameQuery: document.querySelector("#nameQuery"),
-  logicMode: document.querySelector("#logicMode"),
   positionFilter: document.querySelector("#positionFilter"),
+  aptitudePositionFilter: document.querySelector("#aptitudePositionFilter"),
   cmOnly: document.querySelector("#cmOnly"),
   ssOnly: document.querySelector("#ssOnly"),
   normalOnly: document.querySelector("#normalOnly"),
@@ -747,14 +747,14 @@ function positionClass(position) {
   return "";
 }
 
-function getMatchingPeriods(player, conditions, logicMode) {
+function getMatchingPeriods(player, conditions) {
   const periods = Array.isArray(player.periods) ? player.periods : [];
   if (!conditions.length) return periods;
 
   return periods.filter((period) => {
     const metrics = period?.metrics || {};
     const checks = conditions.map((c) => checkValueCondition(metrics[c.metric], c));
-    return logicMode === "AND" ? checks.every(Boolean) : checks.some(Boolean);
+    return checks.every(Boolean);
   });
 }
 
@@ -848,9 +848,40 @@ function getPeakTimeline(player) {
     .filter(Boolean);
 }
 
-function filterPlayers(conditions = getConditions(), logicMode = els.logicMode.value) {
+function getGridPosCellValue(grid, code) {
+  const m = {
+    GK: [4, 1],
+    RDF: [3, 2], CDF: [3, 1], LDF: [3, 0],
+    RDMF: [2, 2], CDMF: [2, 1], LDMF: [2, 0],
+    ROMF: [1, 2], COMF: [1, 1], LOMF: [1, 0],
+    RFW: [0, 2], CFW: [0, 1], LFW: [0, 0],
+  };
+  const key = String(code || "").toUpperCase();
+  const rc = m[key];
+  if (!rc) return null;
+  const [r, c] = rc;
+  const row = grid?.[r];
+  if (!Array.isArray(row)) return null;
+  const v = row[c];
+  if (v == null) return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+
+function hasAptitudeAtLeast(player, code, threshold = 6) {
+  if (!code) return true;
+  const segments = Array.isArray(player?.positionHeatmaps) ? player.positionHeatmaps : [];
+  return segments.some((seg) => {
+    const grid = Array.isArray(seg?.grid) ? seg.grid : [];
+    const v = getGridPosCellValue(grid, code);
+    return typeof v === "number" && v >= threshold;
+  });
+}
+
+function filterPlayers(conditions = getConditions()) {
   const query = toHiragana(els.nameQuery.value.trim().toLowerCase());
   const positionFilter = els.positionFilter.value;
+  const aptitudePosFilter = (els.aptitudePositionFilter?.value || "").toUpperCase();
   const cmOnly = els.cmOnly.checked;
   const ssOnly = els.ssOnly.checked;
   const normalOnly = els.normalOnly.checked;
@@ -869,6 +900,9 @@ function filterPlayers(conditions = getConditions(), logicMode = els.logicMode.v
     if (positionFilter && player.position !== positionFilter) {
       return false;
     }
+    if (aptitudePosFilter && !hasAptitudeAtLeast(player, aptitudePosFilter, 6)) {
+      return false;
+    }
 
     const hasCategoryFilter = cmOnly || ssOnly || normalOnly || naOnly || ccOnly;
     if (hasCategoryFilter) {
@@ -885,7 +919,7 @@ function filterPlayers(conditions = getConditions(), logicMode = els.logicMode.v
       return true;
     }
 
-    return getMatchingPeriods(player, conditions, logicMode).length > 0;
+    return getMatchingPeriods(player, conditions).length > 0;
   });
 }
 
@@ -1102,8 +1136,7 @@ function rerenderSingleCard(playerId) {
 
 function render() {
   const conditions = getConditions();
-  const logicMode = els.logicMode.value;
-  const filtered = filterPlayers(conditions, logicMode);
+  const filtered = filterPlayers(conditions);
   const categoryRank = {
     "NR": 0,
     "CC": 1,
@@ -1143,6 +1176,7 @@ async function init() {
     els.ccOnly.checked = false;
     els.naOnly.checked = false;
     els.positionFilter.value = "";
+    if (els.aptitudePositionFilter) els.aptitudePositionFilter.value = "";
   });
 
   els.applySearch.addEventListener("click", render);
