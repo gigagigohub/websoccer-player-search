@@ -305,8 +305,10 @@ select {
 
 .flag-line {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px 10px;
+  overflow-x: auto;
+  padding-bottom: 2px;
 }
 
 .flag-row label {
@@ -345,6 +347,12 @@ select {
 
 .flag-row .cat-filter-chip:active .type-badge {
   transform: translateY(0);
+}
+
+.flag-row .cat-filter-chip.cat-sep-start {
+  margin-left: 12px;
+  padding-left: 12px;
+  border-left: 1px solid rgba(151, 173, 214, 0.32);
 }
 
 .type-badge.cat-nr-all {

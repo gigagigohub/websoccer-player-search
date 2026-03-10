@@ -26,7 +26,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-10 18:11 JST";
+const APP_UPDATED_AT_JST = "2026-03-10 18:15 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -56,7 +56,6 @@ const els = {
   nrSilverOnly: document.querySelector("#nrSilverOnly"),
   nrGoldOnly: document.querySelector("#nrGoldOnly"),
   nrAllOnly: document.querySelector("#nrAllOnly"),
-  naOnly: document.querySelector("#naOnly"),
   ccOnly: document.querySelector("#ccOnly"),
   applySearch: document.querySelector("#applySearch"),
   conditions: document.querySelector("#conditions"),
@@ -960,7 +959,6 @@ function filterPlayers(conditions = getConditions()) {
   const nrSilverOnly = isCategoryChipActive(els.nrSilverOnly);
   const nrGoldOnly = isCategoryChipActive(els.nrGoldOnly);
   const nrAllOnly = isCategoryChipActive(els.nrAllOnly);
-  const naOnly = isCategoryChipActive(els.naOnly);
   const ccOnly = isCategoryChipActive(els.ccOnly);
 
   return players.filter((player) => {
@@ -980,7 +978,7 @@ function filterPlayers(conditions = getConditions()) {
     }
 
     const hasCategoryFilter =
-      cmOnly || ssOnly || nrWhiteOnly || nrBronzeOnly || nrSilverOnly || nrGoldOnly || nrAllOnly || naOnly || ccOnly;
+      cmOnly || ssOnly || nrWhiteOnly || nrBronzeOnly || nrSilverOnly || nrGoldOnly || nrAllOnly || ccOnly;
     if (hasCategoryFilter) {
       const rate = Number(player?.rate);
       const isNR = category === "NR";
@@ -994,7 +992,6 @@ function filterPlayers(conditions = getConditions()) {
         nrMatched ||
         (ssOnly && (category === "SS" || category === "CM/SS")) ||
         (cmOnly && (category === "CM" || category === "CM/SS")) ||
-        (naOnly && category === "NA") ||
         (ccOnly && category === "CC");
       if (!categoryMatched) return false;
     }
@@ -1256,7 +1253,7 @@ async function init() {
     els.nameQuery.value = "";
     [
       els.nrWhiteOnly, els.nrBronzeOnly, els.nrSilverOnly, els.nrGoldOnly, els.nrAllOnly,
-      els.ssOnly, els.cmOnly, els.ccOnly, els.naOnly,
+      els.ssOnly, els.cmOnly, els.ccOnly,
     ].forEach((el) => setCategoryChipActive(el, false));
     els.positionFilter.value = "";
     if (els.aptitudePositionFilter) els.aptitudePositionFilter.value = "";
@@ -1280,7 +1277,7 @@ async function init() {
       syncNRAllChip();
     });
   });
-  [els.ccOnly, els.ssOnly, els.cmOnly, els.naOnly].forEach((el) => {
+  [els.ccOnly, els.ssOnly, els.cmOnly].forEach((el) => {
     if (!el) return;
     el.addEventListener("click", () => {
       setCategoryChipActive(el, !isCategoryChipActive(el));
