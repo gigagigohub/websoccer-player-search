@@ -895,7 +895,7 @@ async function init() {
   }
   if (els.advanceSeasonButton) {
     els.advanceSeasonButton.addEventListener("click", async () => {
-      const ok = window.confirm("Advanceをタップすると、全選手の現在期を１期進めますがよろしいですか？（戻るボタンで戻せます）");
+      const ok = window.confirm("Season +1をタップすると、全選手の現在期を１期進めますがよろしいですか？（戻るボタンで戻せます）");
       if (!ok) return;
       await shiftAllLineupSeasons(1);
     });

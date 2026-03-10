@@ -234,12 +234,14 @@ body {
 }
 
 .season-step-back {
-  width: 38px;
-  min-width: 38px;
-  border-color: #3a4f76;
-  background: #141f34;
-  color: #d8e5ff;
-  font-size: 1.1rem;
+  width: 52px;
+  min-width: 52px;
+  border-color: #3f5b86;
+  background: linear-gradient(180deg, #1a2943 0%, #121d31 100%);
+  color: #d7e6ff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
   padding: 7px 0;
 }
 
@@ -1440,8 +1442,8 @@ button.ghost {
   }
 
   .season-step-back {
-    width: 34px;
-    min-width: 34px;
+    width: 46px;
+    min-width: 46px;
   }
 
   .area-select {
