@@ -301,6 +301,7 @@ select {
   gap: 6px;
   margin-top: 10px;
   font-size: 0.9rem;
+  margin-left: 10px;
 }
 
 .flag-line {
@@ -368,7 +369,7 @@ select {
 }
 
 .flag-row .cat-filter-chip.cat-gap-start {
-  margin-left: 6px;
+  margin-left: 12px;
 }
 
 .flag-row .cat-filter-chip.is-active .all-nr-text {
@@ -404,6 +405,10 @@ select {
 
 .aptitude-toggle input {
   width: auto;
+}
+
+.category-label {
+  margin-top: 1em;
 }
 
 .condition-row {
