@@ -26,7 +26,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-10 18:38 JST";
+const APP_UPDATED_AT_JST = "2026-03-10 20:33 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -339,6 +339,20 @@ async function cloudLoadLineup() {
   startingLineup = normalizeLineupArray(remote);
   saveStartingLineup();
   return true;
+}
+
+async function cloudLineupExists(lineupId) {
+  const id = String(lineupId || "").trim();
+  if (!id) return false;
+  const params = new URLSearchParams({
+    select: "lineup_id",
+    lineup_id: `eq.${id}`,
+    limit: "1",
+  });
+  const rows = await supabaseRequest(`${SUPABASE_TABLE}?${params.toString()}`, {
+    method: "GET",
+  });
+  return Array.isArray(rows) && rows.length > 0;
 }
 
 async function cloudDeleteLineupById(lineupId) {
@@ -1528,7 +1542,7 @@ async function init() {
       try {
         const prevKey = oldKey;
         if (!saveCloudConfig(newKey)) return;
-        const exists = await cloudLoadLineup();
+        const exists = await cloudLineupExists(newKey);
         if (exists) {
           window.alert("そのIDは既に使われています。別のIDを入力してください。");
           saveCloudConfig(prevKey);

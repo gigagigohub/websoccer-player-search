@@ -218,6 +218,20 @@ async function loadCloudLineup() {
   return true;
 }
 
+async function cloudLineupExists(lineupId) {
+  const id = String(lineupId || "").trim();
+  if (!id) return false;
+  const params = new URLSearchParams({
+    select: "lineup_id",
+    lineup_id: `eq.${id}`,
+    limit: "1",
+  });
+  const rows = await supabaseRequest(`${SUPABASE_TABLE}?${params.toString()}`, {
+    method: "GET",
+  });
+  return Array.isArray(rows) && rows.length > 0;
+}
+
 async function saveCloudLineup() {
   const payload = {
     lineup_id: cloudConfig.lineupKey,
@@ -979,7 +993,7 @@ async function init() {
       cloudConfig.lineupKey = newKey;
       localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
       try {
-        const exists = await loadCloudLineup();
+        const exists = await cloudLineupExists(newKey);
         if (exists) {
           window.alert("そのIDは既に使われています。別のIDを入力してください。");
           cloudConfig.lineupKey = oldKey;
