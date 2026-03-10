@@ -291,6 +291,17 @@ select {
   width: auto;
 }
 
+.aptitude-toggle {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.aptitude-toggle input {
+  width: auto;
+}
+
 .condition-row {
   margin-top: 9px;
   display: grid;

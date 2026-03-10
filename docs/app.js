@@ -26,7 +26,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-10 13:04 JST";
+const APP_UPDATED_AT_JST = "2026-03-10 13:09 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -46,6 +46,7 @@ const els = {
   nameQuery: document.querySelector("#nameQuery"),
   positionFilter: document.querySelector("#positionFilter"),
   aptitudePositionFilter: document.querySelector("#aptitudePositionFilter"),
+  aptitudeIncludeSix: document.querySelector("#aptitudeIncludeSix"),
   cmOnly: document.querySelector("#cmOnly"),
   ssOnly: document.querySelector("#ssOnly"),
   normalOnly: document.querySelector("#normalOnly"),
@@ -882,6 +883,7 @@ function filterPlayers(conditions = getConditions()) {
   const query = toHiragana(els.nameQuery.value.trim().toLowerCase());
   const positionFilter = els.positionFilter.value;
   const aptitudePosFilter = (els.aptitudePositionFilter?.value || "").toUpperCase();
+  const aptitudeThreshold = els.aptitudeIncludeSix?.checked ? 6 : 7;
   const cmOnly = els.cmOnly.checked;
   const ssOnly = els.ssOnly.checked;
   const normalOnly = els.normalOnly.checked;
@@ -900,7 +902,7 @@ function filterPlayers(conditions = getConditions()) {
     if (positionFilter && player.position !== positionFilter) {
       return false;
     }
-    if (aptitudePosFilter && !hasAptitudeAtLeast(player, aptitudePosFilter, 6)) {
+    if (aptitudePosFilter && !hasAptitudeAtLeast(player, aptitudePosFilter, aptitudeThreshold)) {
       return false;
     }
 
@@ -1177,6 +1179,7 @@ async function init() {
     els.naOnly.checked = false;
     els.positionFilter.value = "";
     if (els.aptitudePositionFilter) els.aptitudePositionFilter.value = "";
+    if (els.aptitudeIncludeSix) els.aptitudeIncludeSix.checked = false;
   });
 
   els.applySearch.addEventListener("click", render);
