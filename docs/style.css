@@ -305,8 +305,9 @@ select {
 
 .flag-line {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px 10px;
+  flex-wrap: nowrap;
+  gap: 4px;
+  align-items: center;
 }
 
 .flag-row label {
@@ -325,8 +326,10 @@ select {
 }
 
 .flag-row .type-badge {
-  min-width: 2.5em;
+  min-width: 2.1em;
   text-align: center;
+  font-size: 0.7rem;
+  padding: 2px 6px;
   transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
 }
 
@@ -344,6 +347,35 @@ select {
 }
 
 .flag-row .cat-filter-chip:active .type-badge {
+  transform: translateY(0);
+}
+
+.all-nr-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3.7em;
+  padding: 2px 4px;
+  border-radius: 5px;
+  border: 1px solid #4f6083;
+  background: #1b2740;
+  color: #cfdcf5;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  opacity: 0.66;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+}
+
+.flag-row .cat-filter-chip.is-active .all-nr-text {
+  opacity: 1;
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 0 1px rgba(157, 184, 230, 0.42),
+    0 2px 8px rgba(10, 16, 30, 0.35);
+}
+
+.flag-row .cat-filter-chip:active .all-nr-text {
   transform: translateY(0);
 }
 
