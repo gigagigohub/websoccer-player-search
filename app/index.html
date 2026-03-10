@@ -41,7 +41,13 @@
           </select>
         </div>
         <div>
-          <label class="label" for="aptitudePositionFilter">Position Area (7)</label>
+          <div class="area-label-row">
+            <label class="label" for="aptitudePositionFilter">Position Area (7)</label>
+            <label class="label aptitude-toggle">
+              <input id="aptitudeIncludeSix" type="checkbox" />
+              &gt;=6
+            </label>
+          </div>
           <select id="aptitudePositionFilter">
             <option value="">ALL</option>
             <option value="GK">GK</option>
@@ -58,10 +64,6 @@
             <option value="CF">CF</option>
             <option value="LWG">LWG</option>
           </select>
-          <label class="label aptitude-toggle">
-            <input id="aptitudeIncludeSix" type="checkbox" />
-            &gt;=6
-          </label>
         </div>
       </div>
       <label class="label">Category</label>
