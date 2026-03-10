@@ -39,15 +39,15 @@ body {
 
 .menu-button {
   position: absolute;
-  right: 10px;
-  top: 8px;
-  width: 34px;
-  height: 30px;
+  right: 8px;
+  top: 6px;
+  width: 40px;
+  height: 36px;
   border-radius: 8px;
   border: 1px solid #3a4e74;
   background: #16253f;
   color: #e7f1ff;
-  font-size: 1.05rem;
+  font-size: 1.12rem;
   line-height: 1;
   padding: 0;
 }
@@ -166,6 +166,21 @@ body {
   margin: 4px 0 0;
   font-size: 0.88rem;
   color: var(--sub);
+}
+
+.meta-login-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  border: 1px solid #4b6ea8;
+  background: linear-gradient(180deg, #2c4f84 0%, #1d3255 100%);
+  color: #eaf2ff;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
 
 .panel {
