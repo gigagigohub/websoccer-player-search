@@ -328,8 +328,8 @@ select {
 .flag-row .type-badge {
   min-width: 2.1em;
   text-align: center;
-  font-size: 0.74rem;
-  padding: 2px 7px;
+  font-size: 0.81rem;
+  padding: 2px 8px;
   transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
 }
 
@@ -354,13 +354,13 @@ select {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 3.8em;
-  padding: 2px 5px;
+  min-width: 4.1em;
+  padding: 2px 6px;
   border-radius: 5px;
   border: 1px solid #4f6083;
   background: #1b2740;
   color: #cfdcf5;
-  font-size: 0.62rem;
+  font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.02em;
   opacity: 0.66;
