@@ -140,7 +140,7 @@ function saveLifecycleMode() {
 function renderLifecycleControls() {
   if (els.lifecycleToggle) {
     els.lifecycleToggle.classList.toggle("is-on", lifecycleModeEnabled);
-    els.lifecycleToggle.textContent = lifecycleModeEnabled ? "Lifecycle Mode: ON" : "Lifecycle Mode: OFF";
+    els.lifecycleToggle.textContent = lifecycleModeEnabled ? "Cycle Management Mode: ON" : "Cycle Management Mode: OFF";
   }
 }
 
