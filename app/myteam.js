@@ -897,7 +897,7 @@ async function init() {
   }
 
   if (els.myTeamMeta) els.myTeamMeta.textContent = `TeamID: ${cloudConfig.lineupKey}`;
-  if (els.myTeamTarget) els.myTeamTarget.textContent = "現在のスタメン";
+  if (els.myTeamTarget) els.myTeamTarget.textContent = "";
   try {
     await loadCloudLineup();
   } catch (e) {
