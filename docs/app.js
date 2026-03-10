@@ -26,7 +26,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-10 09:14 JST";
+const APP_UPDATED_AT_JST = "2026-03-10 09:23 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -85,6 +85,15 @@ const els = {
   signupLineupKey: document.querySelector("#signupLineupKey"),
   signupCancel: document.querySelector("#signupCancel"),
   signupApply: document.querySelector("#signupApply"),
+  successorSourceModal: document.querySelector("#successorSourceModal"),
+  successorSourceBackdrop: document.querySelector("#successorSourceBackdrop"),
+  successorSourceClose: document.querySelector("#successorSourceClose"),
+  successorSourceTarget: document.querySelector("#successorSourceTarget"),
+  successorSourceType: document.querySelector("#successorSourceType"),
+  successorSourceCustomWrap: document.querySelector("#successorSourceCustomWrap"),
+  successorSourceInput: document.querySelector("#successorSourceInput"),
+  successorSourceCancel: document.querySelector("#successorSourceCancel"),
+  successorSourceApply: document.querySelector("#successorSourceApply"),
   cloudLoadLineup: document.querySelector("#cloudLoadLineup"),
   cloudSaveLineup: document.querySelector("#cloudSaveLineup"),
   cloudStatus: document.querySelector("#cloudStatus"),
@@ -95,6 +104,7 @@ const expandedPlayerIds = new Set();
 let pendingLineupPlayerId = null;
 let pendingLineupSlotIndex = null;
 let pendingLineupMode = "starter";
+let pendingSuccessorRegistration = null;
 let pendingLoginForAddPlayerId = null;
 let startingLineup = Array.from({ length: LINEUP_SIZE }, () => null);
 let lineupSlotsLocked = false;
@@ -344,6 +354,28 @@ function closeSeasonModal() {
   pendingLineupSlotIndex = null;
   if (!els.seasonModal) return;
   els.seasonModal.hidden = true;
+}
+
+function syncSuccessorSourceInput() {
+  if (!els.successorSourceType || !els.successorSourceCustomWrap) return;
+  els.successorSourceCustomWrap.hidden = els.successorSourceType.value !== "custom";
+}
+
+function closeSuccessorSourceModal() {
+  pendingSuccessorRegistration = null;
+  if (els.successorSourceModal) els.successorSourceModal.hidden = true;
+}
+
+function openSuccessorSourceModal(player, slotIndex, season) {
+  if (!els.successorSourceModal) return;
+  pendingSuccessorRegistration = { playerId: player.id, slotIndex, season };
+  if (els.successorSourceTarget) {
+    els.successorSourceTarget.textContent = `${player.name} の所属先を入力してください`;
+  }
+  if (els.successorSourceType) els.successorSourceType.value = "self";
+  if (els.successorSourceInput) els.successorSourceInput.value = "";
+  syncSuccessorSourceInput();
+  els.successorSourceModal.hidden = false;
 }
 
 function getPlayerNameById(playerId) {
@@ -1225,13 +1257,11 @@ async function init() {
       if (!Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= LINEUP_SIZE) return;
       if (!selectedSeason) return;
       if (mode === "successor") {
-        const currentEntry = startingLineup[slotIndex];
-        const currentMainId = Number(currentEntry?.playerId);
-        if (!Number.isInteger(currentMainId)) return;
-        startingLineup[slotIndex] = {
-          ...currentEntry,
-          successor: { playerId, season: selectedSeason, source: null },
-        };
+        const player = players.find((p) => p.id === playerId);
+        if (!player) return;
+        openSuccessorSourceModal(player, slotIndex, selectedSeason);
+        closeSeasonModal();
+        return;
       } else {
         const currentEntry = startingLineup[slotIndex];
         const currentSuccessor = normalizeSuccessor(currentEntry?.successor);
@@ -1318,6 +1348,61 @@ async function init() {
       }
     });
   }
+  if (els.successorSourceBackdrop) {
+    els.successorSourceBackdrop.addEventListener("click", closeSuccessorSourceModal);
+  }
+  if (els.successorSourceClose) {
+    els.successorSourceClose.addEventListener("click", closeSuccessorSourceModal);
+  }
+  if (els.successorSourceCancel) {
+    els.successorSourceCancel.addEventListener("click", closeSuccessorSourceModal);
+  }
+  if (els.successorSourceType) {
+    els.successorSourceType.addEventListener("change", syncSuccessorSourceInput);
+  }
+  if (els.successorSourceApply) {
+    els.successorSourceApply.addEventListener("click", async () => {
+      const draft = pendingSuccessorRegistration;
+      if (!draft) return;
+      const sourceType = els.successorSourceType?.value === "custom" ? "custom" : "self";
+      const source = sourceType === "custom"
+        ? String(els.successorSourceInput?.value || "").trim()
+        : "自チーム";
+      if (!source) return;
+
+      const slotIndex = Number(draft.slotIndex);
+      const playerId = Number(draft.playerId);
+      const season = normalizeSeasonInput(draft.season || "");
+      if (!Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= LINEUP_SIZE) return;
+      if (!Number.isInteger(playerId) || !season) return;
+
+      const currentEntry = startingLineup[slotIndex];
+      const currentMainId = Number(currentEntry?.playerId);
+      if (!Number.isInteger(currentMainId)) return;
+      startingLineup[slotIndex] = {
+        ...currentEntry,
+        successor: { playerId, season, source },
+      };
+      saveStartingLineup();
+      const player = players.find((p) => p.id === playerId);
+      if (els.lineupTarget) {
+        els.lineupTarget.textContent = player
+          ? `${player.name}選手の後継選手登録が完了しました`
+          : "後継選手の登録が完了しました";
+      }
+      lineupSlotsLocked = true;
+      renderLineupSlots();
+      if (hasCloudConfig()) {
+        try {
+          await cloudSaveLineup();
+          setCloudStatus("Cloud: saved");
+        } catch (e) {
+          setCloudStatus(`Cloud save failed: ${e.message}`, true);
+        }
+      }
+      closeSuccessorSourceModal();
+    });
+  }
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && els.lineupModal && !els.lineupModal.hidden) {
       closeLineupModal();
@@ -1335,6 +1420,10 @@ async function init() {
     if (e.key === "Escape" && els.signupModal && !els.signupModal.hidden) {
       closeSignupModal();
       closeMenuPanel();
+      return;
+    }
+    if (e.key === "Escape" && els.successorSourceModal && !els.successorSourceModal.hidden) {
+      closeSuccessorSourceModal();
     }
   });
 

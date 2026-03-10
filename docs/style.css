@@ -1292,6 +1292,12 @@ button.ghost {
   gap: 2px;
 }
 
+.lineup-successor-source {
+  font-size: 0.6rem;
+  color: rgba(158, 181, 227, 0.62);
+  margin-top: 1px;
+}
+
 .lineup-successor.is-empty .lineup-empty-thumb {
   width: 44px;
   height: 42px;
@@ -1356,6 +1362,10 @@ button.ghost {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
+}
+
+.source-custom-wrap {
+  margin-top: 8px;
 }
 
 .lineup-core-item {

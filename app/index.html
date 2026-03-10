@@ -144,6 +144,30 @@
     </div>
   </div>
 
+  <div id="successorSourceModal" class="season-modal" hidden>
+    <div id="successorSourceBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog" role="dialog" aria-modal="true" aria-labelledby="successorSourceTitle">
+      <div class="season-head">
+        <h2 id="successorSourceTitle">所属先の入力</h2>
+        <button id="successorSourceClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <p id="successorSourceTarget" class="season-target"></p>
+      <label class="label" for="successorSourceType">所属先</label>
+      <select id="successorSourceType">
+        <option value="self">自チーム</option>
+        <option value="custom">任意入力</option>
+      </select>
+      <div id="successorSourceCustomWrap" class="source-custom-wrap" hidden>
+        <label class="label" for="successorSourceInput">任意の所属先</label>
+        <input id="successorSourceInput" type="text" placeholder="例: サブA" />
+      </div>
+      <div class="season-actions">
+        <button id="successorSourceCancel" type="button" class="ghost">Cancel</button>
+        <button id="successorSourceApply" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+
   <template id="conditionTemplate">
     <div class="condition-row">
       <select class="metric"></select>

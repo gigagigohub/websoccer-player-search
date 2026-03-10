@@ -416,6 +416,7 @@ function successorSummaryHtml(entry, currentRemaining) {
   const baseSeason = successor?.season || null;
   const evalSeason = shiftSeasonForEntry(successorPlayer, baseSeason, Math.max(0, currentRemaining));
   const remain = getRemainingPeakPeriods(successorPlayer, evalSeason);
+  const sourceText = successor?.source ? `<span class="lineup-successor-source">${successor.source}</span>` : "";
   const pos = (successorPlayer.position || "-").toUpperCase();
   const posClass = positionClass(pos);
   const typeLabel = getCategory(successorPlayer);
@@ -434,6 +435,7 @@ function successorSummaryHtml(entry, currentRemaining) {
           ${remainingBadgeHtml(remain)}
         </div>
         <span class="slot-name">${successorPlayer.name}</span>
+        ${sourceText}
       </div>
     </div>
   `;
