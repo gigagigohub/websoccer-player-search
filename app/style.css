@@ -309,6 +309,11 @@ select {
   gap: 6px;
 }
 
+.flag-row .type-badge {
+  min-width: 2.5em;
+  text-align: center;
+}
+
 .flag-row input {
   width: auto;
 }
