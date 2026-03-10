@@ -1018,7 +1018,10 @@ async function init() {
         cloudConfig.lineupKey = oldKey;
         localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
         renderMyTeamMeta();
-        window.alert("ID名の変更に失敗しました。");
+        const msg = e?.message === "delete_not_applied"
+          ? "ID名の変更後に旧ID削除ができませんでした。SupabaseのDelete権限を確認してください。"
+          : "ID名の変更に失敗しました。";
+        window.alert(msg);
       }
     });
   }
@@ -1037,7 +1040,10 @@ async function init() {
         closeMyteamSettingModal();
         window.location.href = "./index.html";
       } catch (e) {
-        window.alert("IDの削除に失敗しました。");
+        const msg = e?.message === "delete_not_applied"
+          ? "IDの削除に失敗しました。SupabaseのDelete権限を確認してください。"
+          : "IDの削除に失敗しました。";
+        window.alert(msg);
       }
     });
   }
