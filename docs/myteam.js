@@ -704,7 +704,7 @@ function playerCardHtml(player, season, expanded, baseSeason = null) {
   const selectedPeriod = findPeriodBySeason(player, season);
   const displayMetrics = selectedPeriod?.metrics || getPeakMetrics(player);
   const currentSeasonText = season ? `${season}目` : "-";
-  const baseSeasonText = baseSeason ? `現在${baseSeason}` : null;
+  const baseSeasonText = baseSeason ? `現在${baseSeason}目` : null;
   const peakTimeline = getPeakTimeline(player);
   const peakHtml = peakTimeline.length
     ? peakTimeline.map((x) => `<span class="peak-chip ${x.tier}">${x.season}</span>`).join("")
