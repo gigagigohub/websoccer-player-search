@@ -26,7 +26,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-10 18:00 JST";
+const APP_UPDATED_AT_JST = "2026-03-10 18:07 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -51,7 +51,11 @@ const els = {
   aptitudeAreaLabel: document.querySelector("#aptitudeAreaLabel"),
   cmOnly: document.querySelector("#cmOnly"),
   ssOnly: document.querySelector("#ssOnly"),
-  normalOnly: document.querySelector("#normalOnly"),
+  nrWhiteOnly: document.querySelector("#nrWhiteOnly"),
+  nrBronzeOnly: document.querySelector("#nrBronzeOnly"),
+  nrSilverOnly: document.querySelector("#nrSilverOnly"),
+  nrGoldOnly: document.querySelector("#nrGoldOnly"),
+  nrAllOnly: document.querySelector("#nrAllOnly"),
   naOnly: document.querySelector("#naOnly"),
   ccOnly: document.querySelector("#ccOnly"),
   applySearch: document.querySelector("#applySearch"),
@@ -919,6 +923,20 @@ function hasAptitudeAtLeast(player, code, threshold = 6) {
   });
 }
 
+function isNRWhiteByRate(player) {
+  const rate = Number(player?.rate);
+  return rate !== 4 && rate !== 5 && rate !== 6 && rate !== 7;
+}
+
+function syncNRAllCheckbox() {
+  if (!els.nrAllOnly || !els.nrWhiteOnly || !els.nrBronzeOnly || !els.nrSilverOnly || !els.nrGoldOnly) return;
+  els.nrAllOnly.checked =
+    els.nrWhiteOnly.checked &&
+    els.nrBronzeOnly.checked &&
+    els.nrSilverOnly.checked &&
+    els.nrGoldOnly.checked;
+}
+
 function filterPlayers(conditions = getConditions()) {
   const query = toHiragana(els.nameQuery.value.trim().toLowerCase());
   const positionFilter = els.positionFilter.value;
@@ -926,7 +944,11 @@ function filterPlayers(conditions = getConditions()) {
   const aptitudeThreshold = els.aptitudeIncludeSix?.checked ? 6 : 7;
   const cmOnly = els.cmOnly.checked;
   const ssOnly = els.ssOnly.checked;
-  const normalOnly = els.normalOnly.checked;
+  const nrWhiteOnly = els.nrWhiteOnly.checked;
+  const nrBronzeOnly = els.nrBronzeOnly.checked;
+  const nrSilverOnly = els.nrSilverOnly.checked;
+  const nrGoldOnly = els.nrGoldOnly.checked;
+  const nrAllOnly = els.nrAllOnly.checked;
   const naOnly = els.naOnly.checked;
   const ccOnly = els.ccOnly.checked;
 
@@ -946,10 +968,19 @@ function filterPlayers(conditions = getConditions()) {
       return false;
     }
 
-    const hasCategoryFilter = cmOnly || ssOnly || normalOnly || naOnly || ccOnly;
+    const hasCategoryFilter =
+      cmOnly || ssOnly || nrWhiteOnly || nrBronzeOnly || nrSilverOnly || nrGoldOnly || nrAllOnly || naOnly || ccOnly;
     if (hasCategoryFilter) {
+      const rate = Number(player?.rate);
+      const isNR = category === "NR";
+      const nrMatched =
+        (nrAllOnly && isNR) ||
+        (nrWhiteOnly && isNR && isNRWhiteByRate(player)) ||
+        (nrBronzeOnly && isNR && rate === 4) ||
+        (nrSilverOnly && isNR && (rate === 5 || rate === 6)) ||
+        (nrGoldOnly && isNR && rate === 7);
       const categoryMatched =
-        (normalOnly && category === "NR") ||
+        nrMatched ||
         (ssOnly && (category === "SS" || category === "CM/SS")) ||
         (cmOnly && (category === "CM" || category === "CM/SS")) ||
         (naOnly && category === "NA") ||
@@ -1212,7 +1243,11 @@ async function init() {
   els.resetCondition.addEventListener("click", () => {
     els.conditions.innerHTML = "";
     els.nameQuery.value = "";
-    els.normalOnly.checked = false;
+    els.nrWhiteOnly.checked = false;
+    els.nrBronzeOnly.checked = false;
+    els.nrSilverOnly.checked = false;
+    els.nrGoldOnly.checked = false;
+    els.nrAllOnly.checked = false;
     els.ssOnly.checked = false;
     els.cmOnly.checked = false;
     els.ccOnly.checked = false;
@@ -1225,6 +1260,19 @@ async function init() {
   if (els.aptitudeIncludeSix) {
     els.aptitudeIncludeSix.addEventListener("change", syncAptitudeAreaLabel);
   }
+  if (els.nrAllOnly) {
+    els.nrAllOnly.addEventListener("change", () => {
+      const checked = !!els.nrAllOnly.checked;
+      if (els.nrWhiteOnly) els.nrWhiteOnly.checked = checked;
+      if (els.nrBronzeOnly) els.nrBronzeOnly.checked = checked;
+      if (els.nrSilverOnly) els.nrSilverOnly.checked = checked;
+      if (els.nrGoldOnly) els.nrGoldOnly.checked = checked;
+    });
+  }
+  [els.nrWhiteOnly, els.nrBronzeOnly, els.nrSilverOnly, els.nrGoldOnly].forEach((el) => {
+    if (!el) return;
+    el.addEventListener("change", syncNRAllCheckbox);
+  });
 
   els.applySearch.addEventListener("click", render);
   if (els.menuButton) {
@@ -1592,6 +1640,7 @@ async function init() {
   const data = await res.json();
   players = data.players || [];
   syncAptitudeAreaLabel();
+  syncNRAllCheckbox();
 
   renderHeaderMeta();
   els.resultCount.textContent = "0 results";

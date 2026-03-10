@@ -297,25 +297,44 @@ select {
 }
 
 .flag-row {
-  display: flex;
-  gap: 14px;
+  display: grid;
+  gap: 6px;
   margin-top: 10px;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+}
+
+.flag-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
 }
 
 .flag-row label {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 3px;
 }
 
 .flag-row .type-badge {
-  min-width: 2.5em;
+  min-width: 2.2em;
   text-align: center;
+  font-size: 0.62rem;
+  padding: 1px 4px;
 }
 
 .flag-row input {
   width: auto;
+  margin: 0;
+}
+
+.type-badge.cat-nr-all {
+  color: #202b3a;
+  text-shadow: none;
+  background: linear-gradient(180deg, #ecf1f9 0%, #cbd6e4 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    inset 0 -1px 0 rgba(126, 141, 162, 0.36),
+    0 0 0 1px rgba(108, 123, 145, 0.44);
 }
 
 .aptitude-toggle {
