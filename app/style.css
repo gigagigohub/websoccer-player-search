@@ -277,7 +277,7 @@ select {
 .area-control-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .area-select {
@@ -308,7 +308,7 @@ select {
   gap: 6px;
   margin: 0;
   white-space: nowrap;
-  margin-left: auto;
+  margin-left: 2px;
 }
 
 .aptitude-toggle input {
