@@ -382,6 +382,20 @@ function shiftSeasonForEntry(player, currentSeason, delta) {
   return seasons[nextIdx];
 }
 
+function hasAnyFirstSeasonPlayers() {
+  return lineup.some((entry) => {
+    const playerId = Number(entry?.playerId);
+    if (!Number.isInteger(playerId)) return false;
+    const player = players.find((x) => x.id === playerId);
+    const periods = Array.isArray(player?.periods) ? player.periods : [];
+    const seasons = periods.map((p) => p?.season).filter(Boolean);
+    if (!seasons.length) return false;
+    const currentSeason = entry?.season || null;
+    const idx = seasons.findIndex((s) => s === currentSeason);
+    return idx <= 0;
+  });
+}
+
 function getRemainingPeakPeriods(player, season) {
   const periods = Array.isArray(player?.periods) ? player.periods : [];
   if (!periods.length) return 0;
@@ -895,13 +909,18 @@ async function init() {
   }
   if (els.advanceSeasonButton) {
     els.advanceSeasonButton.addEventListener("click", async () => {
-      const ok = window.confirm("Season +1をタップすると、全選手の現在期を１期進めますがよろしいですか？（戻るボタンで戻せます）");
+      const ok = window.confirm("全選手の現在期を１期進めます、よろしいですか？（-1ボタンで１期戻せます）");
       if (!ok) return;
       await shiftAllLineupSeasons(1);
     });
   }
   if (els.rewindSeasonButton) {
     els.rewindSeasonButton.addEventListener("click", async () => {
+      const confirmText = hasAnyFirstSeasonPlayers()
+        ? "１期目の選手が登録されています。１期目以外の選手のみ変更が反映されますが、よろしいですか？"
+        : "全選手の現在期を１期戻します、よろしいですか？";
+      const ok = window.confirm(confirmText);
+      if (!ok) return;
       await shiftAllLineupSeasons(-1);
     });
   }
