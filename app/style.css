@@ -274,11 +274,15 @@ select {
   margin-top: 8px;
 }
 
-.area-label-row {
+.area-control-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
+}
+
+.area-select {
+  width: 58%;
+  min-width: 118px;
 }
 
 .flag-row {
@@ -304,6 +308,7 @@ select {
   gap: 6px;
   margin: 0;
   white-space: nowrap;
+  margin-left: auto;
 }
 
 .aptitude-toggle input {
@@ -1434,6 +1439,11 @@ button.ghost {
   .season-step-back {
     width: 34px;
     min-width: 34px;
+  }
+
+  .area-select {
+    width: 52%;
+    min-width: 104px;
   }
 
   .logic-row,
