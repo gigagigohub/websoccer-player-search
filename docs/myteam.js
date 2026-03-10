@@ -698,12 +698,13 @@ function periodTableHtml(player, staticImg, actionImg, currentSeason) {
   `;
 }
 
-function playerCardHtml(player, season, expanded) {
+function playerCardHtml(player, season, expanded, baseSeason = null) {
   const staticImg = `./images/chara/players/static/${player.id}.gif`;
   const actionImg = `./images/chara/players/action/${player.id}.gif`;
   const selectedPeriod = findPeriodBySeason(player, season);
   const displayMetrics = selectedPeriod?.metrics || getPeakMetrics(player);
   const currentSeasonText = season ? `${season}目` : "-";
+  const baseSeasonText = baseSeason ? `現在${baseSeason}` : null;
   const peakTimeline = getPeakTimeline(player);
   const peakHtml = peakTimeline.length
     ? peakTimeline.map((x) => `<span class="peak-chip ${x.tier}">${x.season}</span>`).join("")
@@ -804,6 +805,7 @@ function playerCardHtml(player, season, expanded) {
             <span class="badge type-badge ${typeClass}">${typeLabel}</span>
             <span>${player.name}</span>
             <span class="myteam-current-season">${currentSeasonText}</span>
+            ${baseSeasonText ? `<span class="myteam-current-season myteam-base-season">${baseSeasonText}</span>` : ""}
           </h3>
           <div class="peak-periods">${peakHtml}</div>
         </div>
@@ -821,7 +823,8 @@ function renderPlayerCardModal() {
   const season = selectedPlayerMode === "successor"
     ? getSuccessorDisplaySeason(entry)
     : (entry?.season || null);
-  els.playerCardHost.innerHTML = playerCardHtml(player, season, selectedCardExpanded);
+  const baseSeason = selectedPlayerMode === "successor" ? (entry?.successor?.season || null) : null;
+  els.playerCardHost.innerHTML = playerCardHtml(player, season, selectedCardExpanded, baseSeason);
 }
 
 function openPlayerCardModal(slotIndex, mode = "starter") {
@@ -909,7 +912,7 @@ async function init() {
   }
   if (els.advanceSeasonButton) {
     els.advanceSeasonButton.addEventListener("click", async () => {
-      const ok = window.confirm("全選手の現在期を１期進めます、よろしいですか？（-1ボタンで１期戻せます）");
+      const ok = window.confirm("全選手の現在期を1期進めます。よろしいですか？\n（-1ボタンで1期戻せます）");
       if (!ok) return;
       await shiftAllLineupSeasons(1);
     });
@@ -917,8 +920,8 @@ async function init() {
   if (els.rewindSeasonButton) {
     els.rewindSeasonButton.addEventListener("click", async () => {
       const confirmText = hasAnyFirstSeasonPlayers()
-        ? "１期目の選手が登録されています。１期目以外の選手のみ変更が反映されますが、よろしいですか？"
-        : "全選手の現在期を１期戻します、よろしいですか？";
+        ? "1期目の選手が登録されています。\n1期目以外の選手のみ変更が反映されますが、よろしいですか？"
+        : "全選手の現在期を1期戻します。よろしいですか？";
       const ok = window.confirm(confirmText);
       if (!ok) return;
       await shiftAllLineupSeasons(-1);

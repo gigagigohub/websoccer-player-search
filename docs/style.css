@@ -157,6 +157,12 @@ body {
   justify-content: center;
 }
 
+.myteam-base-season {
+  border-color: #55698f;
+  background: #202f4b;
+  color: #d8e5ff;
+}
+
 .hero h1 {
   margin: 0;
   font-size: 1.48rem;
