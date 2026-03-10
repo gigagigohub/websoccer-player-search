@@ -300,6 +300,7 @@ select {
   display: grid;
   gap: 6px;
   margin-top: 10px;
+  margin-bottom: 18px;
   font-size: 0.9rem;
   margin-left: 10px;
 }
