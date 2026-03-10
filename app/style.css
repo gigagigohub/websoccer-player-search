@@ -56,7 +56,7 @@ body {
   position: absolute;
   right: 10px;
   top: 42px;
-  width: 120px;
+  width: 136px;
   border: 1px solid #314767;
   border-radius: 10px;
   background: #111b2d;
@@ -75,8 +75,11 @@ body {
   font-size: 0.9rem;
 }
 
-.menu-item.logout {
+.menu-item + .menu-item {
   margin-top: 6px;
+}
+
+.menu-item.logout {
   border-color: #5a2a37;
   background: #2a1620;
   color: #ffb4c0;

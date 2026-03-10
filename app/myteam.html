@@ -12,6 +12,7 @@
       <button id="myteamMenuButton" type="button" class="menu-button" aria-label="メニュー">☰</button>
       <div id="myteamMenuPanel" class="menu-panel" hidden>
         <button id="myteamDatabaseButton" type="button" class="menu-item">Database</button>
+        <button id="myteamSettingButton" type="button" class="menu-item">Setting</button>
         <button id="myteamLogoutButton" type="button" class="menu-item logout">Logout</button>
       </div>
       <h1>MyTeam</h1>
@@ -52,6 +53,23 @@
       <div id="playerCardHost"></div>
       <div class="player-card-actions">
         <button id="playerDeleteButton" type="button" class="player-delete-btn">Delete from Team</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="myteamSettingModal" class="season-modal" hidden>
+    <div id="myteamSettingBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog" role="dialog" aria-modal="true" aria-labelledby="myteamSettingTitle">
+      <div class="season-head">
+        <h2 id="myteamSettingTitle">Setting</h2>
+        <button id="myteamSettingClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <p class="season-target">現在のTeamID設定を管理します</p>
+      <label class="label" for="myteamRenameLineupKey">Rename ID</label>
+      <input id="myteamRenameLineupKey" type="text" />
+      <div class="season-actions">
+        <button id="myteamRenameIdApply" type="button">Rename ID</button>
+        <button id="myteamDeleteIdApply" type="button" class="ghost">Delete ID</button>
       </div>
     </div>
   </div>

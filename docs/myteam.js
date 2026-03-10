@@ -33,6 +33,7 @@ const els = {
   myteamMenuButton: document.querySelector("#myteamMenuButton"),
   myteamMenuPanel: document.querySelector("#myteamMenuPanel"),
   myteamDatabaseButton: document.querySelector("#myteamDatabaseButton"),
+  myteamSettingButton: document.querySelector("#myteamSettingButton"),
   myteamLogoutButton: document.querySelector("#myteamLogoutButton"),
   myTeamMeta: document.querySelector("#myTeamMeta"),
   myTeamTarget: document.querySelector("#myTeamTarget"),
@@ -48,6 +49,12 @@ const els = {
   playerCardBackdrop: document.querySelector("#playerCardBackdrop"),
   playerCardHost: document.querySelector("#playerCardHost"),
   playerDeleteButton: document.querySelector("#playerDeleteButton"),
+  myteamSettingModal: document.querySelector("#myteamSettingModal"),
+  myteamSettingBackdrop: document.querySelector("#myteamSettingBackdrop"),
+  myteamSettingClose: document.querySelector("#myteamSettingClose"),
+  myteamRenameLineupKey: document.querySelector("#myteamRenameLineupKey"),
+  myteamRenameIdApply: document.querySelector("#myteamRenameIdApply"),
+  myteamDeleteIdApply: document.querySelector("#myteamDeleteIdApply"),
 };
 
 let players = [];
@@ -70,6 +77,20 @@ function detailMetricLabel(metric) {
 function closeMenuPanel() {
   if (!els.myteamMenuPanel) return;
   els.myteamMenuPanel.hidden = true;
+}
+
+function openMyteamSettingModal() {
+  if (!els.myteamSettingModal) return;
+  if (els.myteamRenameLineupKey) {
+    els.myteamRenameLineupKey.value = cloudConfig.lineupKey || "";
+    els.myteamRenameLineupKey.focus();
+  }
+  els.myteamSettingModal.hidden = false;
+}
+
+function closeMyteamSettingModal() {
+  if (!els.myteamSettingModal) return;
+  els.myteamSettingModal.hidden = true;
 }
 
 function normalizedSupabaseUrl(url) {
@@ -150,6 +171,15 @@ function logoutTeamId() {
   localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
 }
 
+function renderMyTeamMeta() {
+  if (!els.myTeamMeta) return;
+  if (hasCloudConfig()) {
+    els.myTeamMeta.textContent = `TeamID: ${cloudConfig.lineupKey}`;
+  } else {
+    els.myTeamMeta.textContent = "Not logged in";
+  }
+}
+
 function hasCloudConfig() {
   return !!(cloudConfig.url && cloudConfig.anonKey && cloudConfig.lineupKey);
 }
@@ -200,6 +230,17 @@ async function saveCloudLineup() {
       Prefer: "resolution=merge-duplicates,return=representation",
     },
     body: JSON.stringify(payload),
+  });
+}
+
+async function cloudDeleteLineupById(lineupId) {
+  const key = String(lineupId || "").trim();
+  if (!key) return;
+  const params = new URLSearchParams({
+    lineup_id: `eq.${key}`,
+  });
+  await supabaseRequest(`${SUPABASE_TABLE}?${params.toString()}`, {
+    method: "DELETE",
   });
 }
 
@@ -828,6 +869,16 @@ async function init() {
       window.location.href = "./index.html";
     });
   }
+  if (els.myteamSettingButton) {
+    els.myteamSettingButton.addEventListener("click", () => {
+      closeMenuPanel();
+      if (!hasCloudConfig()) {
+        window.alert("TeamIDが未設定です。先にLoginしてください。");
+        return;
+      }
+      openMyteamSettingModal();
+    });
+  }
   if (els.myteamLogoutButton) {
     els.myteamLogoutButton.addEventListener("click", () => {
       logoutTeamId();
@@ -865,6 +916,7 @@ async function init() {
       closeMenuPanel();
       closeEmptySlotModal();
       closePlayerCardModal();
+      closeMyteamSettingModal();
     }
   });
 
@@ -887,18 +939,78 @@ async function init() {
     });
   }
 
+  if (els.myteamSettingBackdrop) {
+    els.myteamSettingBackdrop.addEventListener("click", closeMyteamSettingModal);
+  }
+  if (els.myteamSettingClose) {
+    els.myteamSettingClose.addEventListener("click", closeMyteamSettingModal);
+  }
+  if (els.myteamRenameIdApply) {
+    els.myteamRenameIdApply.addEventListener("click", async () => {
+      const oldKey = String(cloudConfig.lineupKey || "").trim();
+      const newKey = String(els.myteamRenameLineupKey?.value || "").trim();
+      if (!oldKey || !newKey) return;
+      if (oldKey === newKey) {
+        closeMyteamSettingModal();
+        return;
+      }
+      cloudConfig.lineupKey = newKey;
+      localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
+      try {
+        const exists = await loadCloudLineup();
+        if (exists) {
+          window.alert("そのIDは既に使われています。別のIDを入力してください。");
+          cloudConfig.lineupKey = oldKey;
+          localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
+          renderMyTeamMeta();
+          return;
+        }
+        lineup = normalizeLineupArray(lineup);
+        await saveCloudLineup();
+        await cloudDeleteLineupById(oldKey);
+        saveLineupLocal();
+        renderMyTeamMeta();
+        closeMyteamSettingModal();
+      } catch (e) {
+        cloudConfig.lineupKey = oldKey;
+        localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
+        renderMyTeamMeta();
+        window.alert("ID名の変更に失敗しました。");
+      }
+    });
+  }
+  if (els.myteamDeleteIdApply) {
+    els.myteamDeleteIdApply.addEventListener("click", async () => {
+      const key = String(cloudConfig.lineupKey || "").trim();
+      if (!key) return;
+      const ok = window.confirm("このIDを削除します。よろしいですか？");
+      if (!ok) return;
+      try {
+        await cloudDeleteLineupById(key);
+        lineup = Array.from({ length: LINEUP_SIZE }, () => null);
+        saveLineupLocal();
+        logoutTeamId();
+        renderMyTeamMeta();
+        closeMyteamSettingModal();
+        window.location.href = "./index.html";
+      } catch (e) {
+        window.alert("IDの削除に失敗しました。");
+      }
+    });
+  }
+
   const dataRes = await fetch("./data.json");
   const data = await dataRes.json();
   players = data.players || [];
 
   if (!hasCloudConfig()) {
     if (els.myTeamTarget) els.myTeamTarget.textContent = "TeamIDが未設定です（先にLoginしてください）";
-    if (els.myTeamMeta) els.myTeamMeta.textContent = "Not logged in";
+    renderMyTeamMeta();
     renderLineup();
     return;
   }
 
-  if (els.myTeamMeta) els.myTeamMeta.textContent = `TeamID: ${cloudConfig.lineupKey}`;
+  renderMyTeamMeta();
   if (els.myTeamTarget) els.myTeamTarget.textContent = "";
   try {
     await loadCloudLineup();
