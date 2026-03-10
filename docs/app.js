@@ -26,7 +26,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-10 20:33 JST";
+const APP_UPDATED_AT_JST = "2026-03-10 20:45 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -361,9 +361,16 @@ async function cloudDeleteLineupById(lineupId) {
   const params = new URLSearchParams({
     lineup_id: `eq.${id}`,
   });
-  await supabaseRequest(`${SUPABASE_TABLE}?${params.toString()}`, {
+  const rows = await supabaseRequest(`${SUPABASE_TABLE}?${params.toString()}`, {
     method: "DELETE",
+    headers: {
+      Prefer: "return=representation",
+    },
   });
+  const deletedCount = Array.isArray(rows) ? rows.length : 0;
+  if (deletedCount < 1) {
+    throw new Error("delete_not_applied");
+  }
 }
 
 function loadStartingLineup() {

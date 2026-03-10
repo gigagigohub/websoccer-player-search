@@ -253,9 +253,16 @@ async function cloudDeleteLineupById(lineupId) {
   const params = new URLSearchParams({
     lineup_id: `eq.${key}`,
   });
-  await supabaseRequest(`${SUPABASE_TABLE}?${params.toString()}`, {
+  const rows = await supabaseRequest(`${SUPABASE_TABLE}?${params.toString()}`, {
     method: "DELETE",
+    headers: {
+      Prefer: "return=representation",
+    },
   });
+  const deletedCount = Array.isArray(rows) ? rows.length : 0;
+  if (deletedCount < 1) {
+    throw new Error("delete_not_applied");
+  }
 }
 
 function getCategory(player) {
