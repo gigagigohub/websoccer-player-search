@@ -26,7 +26,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-10 18:07 JST";
+const APP_UPDATED_AT_JST = "2026-03-10 18:11 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -928,13 +928,24 @@ function isNRWhiteByRate(player) {
   return rate !== 4 && rate !== 5 && rate !== 6 && rate !== 7;
 }
 
-function syncNRAllCheckbox() {
+function isCategoryChipActive(el) {
+  return !!el?.classList.contains("is-active");
+}
+
+function setCategoryChipActive(el, active) {
+  if (!el) return;
+  el.classList.toggle("is-active", !!active);
+  el.setAttribute("aria-pressed", active ? "true" : "false");
+}
+
+function syncNRAllChip() {
   if (!els.nrAllOnly || !els.nrWhiteOnly || !els.nrBronzeOnly || !els.nrSilverOnly || !els.nrGoldOnly) return;
-  els.nrAllOnly.checked =
-    els.nrWhiteOnly.checked &&
-    els.nrBronzeOnly.checked &&
-    els.nrSilverOnly.checked &&
-    els.nrGoldOnly.checked;
+  const allActive =
+    isCategoryChipActive(els.nrWhiteOnly) &&
+    isCategoryChipActive(els.nrBronzeOnly) &&
+    isCategoryChipActive(els.nrSilverOnly) &&
+    isCategoryChipActive(els.nrGoldOnly);
+  setCategoryChipActive(els.nrAllOnly, allActive);
 }
 
 function filterPlayers(conditions = getConditions()) {
@@ -942,15 +953,15 @@ function filterPlayers(conditions = getConditions()) {
   const positionFilter = els.positionFilter.value;
   const aptitudePosFilter = (els.aptitudePositionFilter?.value || "").toUpperCase();
   const aptitudeThreshold = els.aptitudeIncludeSix?.checked ? 6 : 7;
-  const cmOnly = els.cmOnly.checked;
-  const ssOnly = els.ssOnly.checked;
-  const nrWhiteOnly = els.nrWhiteOnly.checked;
-  const nrBronzeOnly = els.nrBronzeOnly.checked;
-  const nrSilverOnly = els.nrSilverOnly.checked;
-  const nrGoldOnly = els.nrGoldOnly.checked;
-  const nrAllOnly = els.nrAllOnly.checked;
-  const naOnly = els.naOnly.checked;
-  const ccOnly = els.ccOnly.checked;
+  const cmOnly = isCategoryChipActive(els.cmOnly);
+  const ssOnly = isCategoryChipActive(els.ssOnly);
+  const nrWhiteOnly = isCategoryChipActive(els.nrWhiteOnly);
+  const nrBronzeOnly = isCategoryChipActive(els.nrBronzeOnly);
+  const nrSilverOnly = isCategoryChipActive(els.nrSilverOnly);
+  const nrGoldOnly = isCategoryChipActive(els.nrGoldOnly);
+  const nrAllOnly = isCategoryChipActive(els.nrAllOnly);
+  const naOnly = isCategoryChipActive(els.naOnly);
+  const ccOnly = isCategoryChipActive(els.ccOnly);
 
   return players.filter((player) => {
     const category = getCategory(player);
@@ -1243,15 +1254,10 @@ async function init() {
   els.resetCondition.addEventListener("click", () => {
     els.conditions.innerHTML = "";
     els.nameQuery.value = "";
-    els.nrWhiteOnly.checked = false;
-    els.nrBronzeOnly.checked = false;
-    els.nrSilverOnly.checked = false;
-    els.nrGoldOnly.checked = false;
-    els.nrAllOnly.checked = false;
-    els.ssOnly.checked = false;
-    els.cmOnly.checked = false;
-    els.ccOnly.checked = false;
-    els.naOnly.checked = false;
+    [
+      els.nrWhiteOnly, els.nrBronzeOnly, els.nrSilverOnly, els.nrGoldOnly, els.nrAllOnly,
+      els.ssOnly, els.cmOnly, els.ccOnly, els.naOnly,
+    ].forEach((el) => setCategoryChipActive(el, false));
     els.positionFilter.value = "";
     if (els.aptitudePositionFilter) els.aptitudePositionFilter.value = "";
     if (els.aptitudeIncludeSix) els.aptitudeIncludeSix.checked = false;
@@ -1261,17 +1267,24 @@ async function init() {
     els.aptitudeIncludeSix.addEventListener("change", syncAptitudeAreaLabel);
   }
   if (els.nrAllOnly) {
-    els.nrAllOnly.addEventListener("change", () => {
-      const checked = !!els.nrAllOnly.checked;
-      if (els.nrWhiteOnly) els.nrWhiteOnly.checked = checked;
-      if (els.nrBronzeOnly) els.nrBronzeOnly.checked = checked;
-      if (els.nrSilverOnly) els.nrSilverOnly.checked = checked;
-      if (els.nrGoldOnly) els.nrGoldOnly.checked = checked;
+    els.nrAllOnly.addEventListener("click", () => {
+      const next = !isCategoryChipActive(els.nrAllOnly);
+      [els.nrAllOnly, els.nrWhiteOnly, els.nrBronzeOnly, els.nrSilverOnly, els.nrGoldOnly]
+        .forEach((el) => setCategoryChipActive(el, next));
     });
   }
   [els.nrWhiteOnly, els.nrBronzeOnly, els.nrSilverOnly, els.nrGoldOnly].forEach((el) => {
     if (!el) return;
-    el.addEventListener("change", syncNRAllCheckbox);
+    el.addEventListener("click", () => {
+      setCategoryChipActive(el, !isCategoryChipActive(el));
+      syncNRAllChip();
+    });
+  });
+  [els.ccOnly, els.ssOnly, els.cmOnly, els.naOnly].forEach((el) => {
+    if (!el) return;
+    el.addEventListener("click", () => {
+      setCategoryChipActive(el, !isCategoryChipActive(el));
+    });
   });
 
   els.applySearch.addEventListener("click", render);
@@ -1640,7 +1653,7 @@ async function init() {
   const data = await res.json();
   players = data.players || [];
   syncAptitudeAreaLabel();
-  syncNRAllCheckbox();
+  syncNRAllChip();
 
   renderHeaderMeta();
   els.resultCount.textContent = "0 results";

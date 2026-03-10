@@ -315,16 +315,36 @@ select {
   gap: 3px;
 }
 
-.flag-row .type-badge {
-  min-width: 2.2em;
-  text-align: center;
-  font-size: 0.62rem;
-  padding: 1px 4px;
+.flag-row .cat-filter-chip {
+  width: auto;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
 }
 
-.flag-row input {
-  width: auto;
-  margin: 0;
+.flag-row .type-badge {
+  min-width: 2.5em;
+  text-align: center;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+}
+
+.flag-row .cat-filter-chip .type-badge {
+  opacity: 0.5;
+  transform: translateY(0);
+}
+
+.flag-row .cat-filter-chip.is-active .type-badge {
+  opacity: 1;
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 0 1px rgba(157, 184, 230, 0.42),
+    0 2px 8px rgba(10, 16, 30, 0.35);
+}
+
+.flag-row .cat-filter-chip:active .type-badge {
+  transform: translateY(0);
 }
 
 .type-badge.cat-nr-all {
