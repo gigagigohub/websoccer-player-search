@@ -26,7 +26,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-10 20:48 JST";
+const APP_UPDATED_AT_JST = "2026-03-12 23:31 JST";
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -865,10 +865,32 @@ function getStrengthMetrics(player) {
       if (totalByMetric[b] !== totalByMetric[a]) return totalByMetric[b] - totalByMetric[a];
       return CORE_METRICS.indexOf(a) - CORE_METRICS.indexOf(b);
     });
-    return [first.metric, tie[0]];
+    const picked = [first.metric, tie[0]];
+    const maxByMetric = CORE_METRICS.reduce((acc, metric) => {
+      acc[metric] = Math.max(...periods.map((p) => (p?.metrics || {})[metric] || 0));
+      return acc;
+    }, {});
+    const hasAnyEightPlus = CORE_METRICS.some((metric) => (maxByMetric[metric] || 0) >= 8);
+    if (hasAnyEightPlus) {
+      const filtered = picked.filter((metric) => (maxByMetric[metric] || 0) >= 8);
+      if (filtered.length === 1) return filtered;
+      if (filtered.length === 2) return filtered;
+    }
+    return picked;
   }
 
-  return [first.metric, second.metric];
+  const picked = [first.metric, second.metric];
+  const maxByMetric = CORE_METRICS.reduce((acc, metric) => {
+    acc[metric] = Math.max(...periods.map((p) => (p?.metrics || {})[metric] || 0));
+    return acc;
+  }, {});
+  const hasAnyEightPlus = CORE_METRICS.some((metric) => (maxByMetric[metric] || 0) >= 8);
+  if (hasAnyEightPlus) {
+    const filtered = picked.filter((metric) => (maxByMetric[metric] || 0) >= 8);
+    if (filtered.length === 1) return filtered;
+    if (filtered.length === 2) return filtered;
+  }
+  return picked;
 }
 
 function getPeakMetrics(player) {

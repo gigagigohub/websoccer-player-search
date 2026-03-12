@@ -340,10 +340,32 @@ function getStrengthMetrics(player) {
       if (totalByMetric[b] !== totalByMetric[a]) return totalByMetric[b] - totalByMetric[a];
       return CORE_METRICS.indexOf(a) - CORE_METRICS.indexOf(b);
     });
-    return [first.metric, tie[0]];
+    const picked = [first.metric, tie[0]];
+    const maxByMetric = CORE_METRICS.reduce((acc, metric) => {
+      acc[metric] = Math.max(...periods.map((p) => (p?.metrics || {})[metric] || 0));
+      return acc;
+    }, {});
+    const hasAnyEightPlus = CORE_METRICS.some((metric) => (maxByMetric[metric] || 0) >= 8);
+    if (hasAnyEightPlus) {
+      const filtered = picked.filter((metric) => (maxByMetric[metric] || 0) >= 8);
+      if (filtered.length === 1) return filtered;
+      if (filtered.length === 2) return filtered;
+    }
+    return picked;
   }
 
-  return [first.metric, second.metric];
+  const picked = [first.metric, second.metric];
+  const maxByMetric = CORE_METRICS.reduce((acc, metric) => {
+    acc[metric] = Math.max(...periods.map((p) => (p?.metrics || {})[metric] || 0));
+    return acc;
+  }, {});
+  const hasAnyEightPlus = CORE_METRICS.some((metric) => (maxByMetric[metric] || 0) >= 8);
+  if (hasAnyEightPlus) {
+    const filtered = picked.filter((metric) => (maxByMetric[metric] || 0) >= 8);
+    if (filtered.length === 1) return filtered;
+    if (filtered.length === 2) return filtered;
+  }
+  return picked;
 }
 
 function getPeakMetrics(player) {
