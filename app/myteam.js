@@ -883,10 +883,6 @@ function playerCardHtml(player, season) {
   const pBottom = `${cx},${cy + r * nBottom}`;
   const pLeft = `${cx - r * nLeft},${cy}`;
   const areaPoints = `${pTop} ${pRight} ${pBottom} ${pLeft}`;
-  const typeLabel = getCategory(player);
-  const typeClass = typeClassByPlayer(player);
-  const pos = (player.position || "-").toUpperCase();
-  const posClass = positionClass(pos);
   const peakBlock = viewMode === 0 ? `<div class="peak-periods peak-in-body">${peakHtml}</div>` : "";
   const normalViewHtml = `
       <div class="param-view">
