@@ -580,7 +580,7 @@ button.ghost {
 .lineup-toggle {
   position: absolute;
   top: 6px;
-  right: 74px;
+  right: 8px;
   width: 48px;
   height: 22px;
   border-radius: 6px;
@@ -611,7 +611,7 @@ button.ghost {
   width: 300%;
   display: flex;
   transform: translateX(calc(var(--mode, 0) * -33.333333%));
-  transition: transform 0.18s ease;
+  transition: transform 0.20s ease;
 }
 
 .swipe-pane {

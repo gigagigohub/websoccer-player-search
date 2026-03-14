@@ -1288,6 +1288,7 @@ function cardHtml(player) {
   const thirdViewHtml = profileViewHtml(player, staticImg, actionImg);
   const bodyHtml = swipeDeckHtml(viewMode, normalViewHtml, detailViewHtml, thirdViewHtml);
   const cardStateClass = viewMode === 1 ? "is-expanded" : "is-collapsed";
+  const peakBlock = viewMode === 0 ? `<div class="peak-periods">${peakHtml}</div>` : "";
 
   return `
     <article class="card ${cardStateClass} mode-${viewMode}" data-player-id="${player.id}">
@@ -1300,7 +1301,7 @@ function cardHtml(player) {
             <span class="badge type-badge ${typeClass}">${typeLabel}</span>
             <span>${player.name}</span>
           </h3>
-          <div class="peak-periods">${peakHtml}</div>
+          ${peakBlock}
         </div>
       </div>
       <div class="card-body">
@@ -1452,13 +1453,39 @@ async function init() {
   els.results.addEventListener("touchstart", (e) => {
     const body = e.target.closest(".card-body");
     if (!body) return;
-    if (e.target.closest(".periods-scroll")) return;
+    if (e.target.closest(".periods-scroll, .profile-description")) return;
     const card = e.target.closest(".card");
+    const track = card?.querySelector(".swipe-track");
     const touch = e.touches && e.touches[0];
-    if (!card || !touch) return;
+    if (!card || !track || !touch) return;
     const playerId = Number(card.dataset.playerId);
     if (!Number.isInteger(playerId)) return;
-    swipeSession = { playerId, x: touch.clientX, y: touch.clientY };
+    const mode = getCardViewMode(playerId);
+    const width = body.clientWidth || 1;
+    swipeSession = {
+      playerId,
+      x: touch.clientX,
+      y: touch.clientY,
+      dx: 0,
+      mode,
+      width,
+      track,
+    };
+    track.style.transition = "none";
+  }, { passive: true });
+
+  els.results.addEventListener("touchmove", (e) => {
+    if (!swipeSession) return;
+    const touch = e.touches && e.touches[0];
+    if (!touch) return;
+    const dx = touch.clientX - swipeSession.x;
+    const dy = touch.clientY - swipeSession.y;
+    const horizontal = Math.abs(dx) > Math.abs(dy) + 8;
+    if (!horizontal) return;
+    swipeSession.dx = dx;
+    const baseX = -(swipeSession.mode * swipeSession.width);
+    const nextX = baseX + dx;
+    swipeSession.track.style.transform = `translateX(${nextX}px)`;
   }, { passive: true });
 
   els.results.addEventListener("touchend", (e) => {
@@ -1468,16 +1495,16 @@ async function init() {
       swipeSession = null;
       return;
     }
-    const dx = touch.clientX - swipeSession.x;
+    const dx = swipeSession.dx || (touch.clientX - swipeSession.x);
     const dy = touch.clientY - swipeSession.y;
     const horizontal = Math.abs(dx) > Math.abs(dy) + 8;
     const threshold = 36;
+    let nextMode = swipeSession.mode;
     if (horizontal && Math.abs(dx) >= threshold) {
-      const current = getCardViewMode(swipeSession.playerId);
-      const next = dx < 0 ? nextCardViewMode(current, +1) : nextCardViewMode(current, -1);
-      cardViewModeById.set(swipeSession.playerId, next);
-      rerenderSingleCard(swipeSession.playerId);
+      nextMode = dx < 0 ? nextCardViewMode(swipeSession.mode, +1) : nextCardViewMode(swipeSession.mode, -1);
     }
+    cardViewModeById.set(swipeSession.playerId, nextMode);
+    rerenderSingleCard(swipeSession.playerId);
     swipeSession = null;
   }, { passive: true });
 
