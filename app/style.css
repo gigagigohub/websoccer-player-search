@@ -116,10 +116,16 @@ body {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: min(560px, calc(100vw - 24px));
+  width: min(980px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  overflow: hidden;
+  padding-top: 0;
+}
+
+#playerCardHost {
+  width: 100%;
   max-height: calc(100vh - 24px);
   overflow: auto;
-  padding-top: 16px;
 }
 
 #playerCardHost .card {
