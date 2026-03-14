@@ -581,7 +581,7 @@ button.ghost {
 .lineup-toggle {
   position: absolute;
   top: 6px;
-  right: 8px;
+  right: 146px;
   width: 48px;
   height: 22px;
   border-radius: 6px;
@@ -592,6 +592,34 @@ button.ghost {
   font-weight: 700;
   line-height: 1;
   padding: 0;
+}
+
+.card-tabs {
+  position: absolute;
+  top: 2px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  z-index: 6;
+}
+
+.card-tab {
+  min-width: 50px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1px solid #36507e;
+  background: #16223a;
+  color: #cfe0ff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0 8px;
+}
+
+.card-tab.is-active {
+  background: #2a3f66;
+  border-color: #5d82c4;
+  color: #ffffff;
 }
 
 .expanded-view {

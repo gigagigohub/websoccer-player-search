@@ -26,8 +26,8 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-15T01:29:02+09:00";
-const APP_UPDATED_AT_JST = "2026-03-15 01:29 JST";
+const APP_UPDATED_AT_ISO = "2026-03-15T01:34:54+09:00";
+const APP_UPDATED_AT_JST = "2026-03-15 01:34 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function formatIsoToJstLabel(isoString) {
@@ -1184,9 +1184,26 @@ function getCardViewMode(playerId) {
   return cardViewModeById.get(playerId) || 0;
 }
 
-function nextCardViewMode(mode, dir) {
-  const len = 3;
-  return (mode + dir + len) % len;
+function cardTabsHtml(playerId, viewMode) {
+  const tabs = [
+    { mode: 0, label: "PRM" },
+    { mode: 1, label: "DTL" },
+    { mode: 2, label: "SCR" },
+  ];
+  return `
+    <div class="card-tabs" role="tablist" aria-label="Card View Tabs">
+      ${tabs.map((t) => `
+        <button
+          type="button"
+          class="card-tab${viewMode === t.mode ? " is-active" : ""}"
+          data-player-id="${playerId}"
+          data-mode="${t.mode}"
+          role="tab"
+          aria-selected="${viewMode === t.mode ? "true" : "false"}"
+        >${t.label}</button>
+      `).join("")}
+    </div>
+  `;
 }
 
 function swipeDeckHtml(viewMode, normalViewHtml, detailViewHtml, thirdViewHtml) {
@@ -1304,6 +1321,7 @@ function cardHtml(player) {
   return `
     <article class="card ${cardStateClass} mode-${viewMode}" data-player-id="${player.id}">
       <div class="card-top">
+        ${cardTabsHtml(player.id, viewMode)}
         <button type="button" class="lineup-toggle" data-player-id="${player.id}" aria-label="スタメン登録">Add</button>
         <span class="card-id">ID: ${player.id}</span>
         <div class="card-head-main">
@@ -1458,66 +1476,15 @@ async function init() {
       }
       return;
     }
-
+    const tabBtn = e.target.closest(".card-tab");
+    if (!tabBtn) return;
+    const id = Number(tabBtn.dataset.playerId);
+    const mode = Number(tabBtn.dataset.mode);
+    if (!Number.isInteger(id)) return;
+    if (!Number.isInteger(mode) || mode < 0 || mode > 2) return;
+    cardViewModeById.set(id, mode);
+    rerenderSingleCard(id);
   });
-  let swipeSession = null;
-  els.results.addEventListener("touchstart", (e) => {
-    const body = e.target.closest(".card-body");
-    if (!body) return;
-    if (e.target.closest(".periods-scroll, .profile-description")) return;
-    const card = e.target.closest(".card");
-    const track = card?.querySelector(".swipe-track");
-    const touch = e.touches && e.touches[0];
-    if (!card || !track || !touch) return;
-    const playerId = Number(card.dataset.playerId);
-    if (!Number.isInteger(playerId)) return;
-    const mode = getCardViewMode(playerId);
-    const width = body.clientWidth || 1;
-    swipeSession = {
-      playerId,
-      x: touch.clientX,
-      y: touch.clientY,
-      dx: 0,
-      mode,
-      width,
-      track,
-    };
-    track.style.transition = "none";
-  }, { passive: true });
-
-  els.results.addEventListener("touchmove", (e) => {
-    if (!swipeSession) return;
-    const touch = e.touches && e.touches[0];
-    if (!touch) return;
-    const dx = touch.clientX - swipeSession.x;
-    const dy = touch.clientY - swipeSession.y;
-    const horizontal = Math.abs(dx) > Math.abs(dy) + 8;
-    if (!horizontal) return;
-    swipeSession.dx = dx;
-    const baseX = -(swipeSession.mode * swipeSession.width);
-    const nextX = baseX + dx;
-    swipeSession.track.style.transform = `translateX(${nextX}px)`;
-  }, { passive: true });
-
-  els.results.addEventListener("touchend", (e) => {
-    if (!swipeSession) return;
-    const touch = e.changedTouches && e.changedTouches[0];
-    if (!touch) {
-      swipeSession = null;
-      return;
-    }
-    const dx = swipeSession.dx || (touch.clientX - swipeSession.x);
-    const dy = touch.clientY - swipeSession.y;
-    const horizontal = Math.abs(dx) > Math.abs(dy) + 8;
-    const threshold = 36;
-    let nextMode = swipeSession.mode;
-    if (horizontal && Math.abs(dx) >= threshold) {
-      nextMode = dx < 0 ? nextCardViewMode(swipeSession.mode, +1) : nextCardViewMode(swipeSession.mode, -1);
-    }
-    cardViewModeById.set(swipeSession.playerId, nextMode);
-    rerenderSingleCard(swipeSession.playerId);
-    swipeSession = null;
-  }, { passive: true });
 
   if (els.lineupBackdrop) {
     els.lineupBackdrop.addEventListener("click", closeLineupModal);
