@@ -26,8 +26,8 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-15T02:23:18+09:00";
-const APP_UPDATED_AT_JST = "2026-03-15 02:23 JST";
+const APP_UPDATED_AT_ISO = "2026-03-15T02:31:24+09:00";
+const APP_UPDATED_AT_JST = "2026-03-15 02:31 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function formatIsoToJstLabel(isoString) {
@@ -1819,6 +1819,18 @@ async function init() {
   appUpdatedAtJst = formatIsoToJstLabel(latestIso) || APP_UPDATED_AT_JST;
   syncAptitudeAreaLabel();
   syncNRAllChip();
+  const initialAddParam = new URLSearchParams(window.location.search).get("addPlayerId");
+  const initialAddPlayerId = Number(initialAddParam);
+  if (Number.isInteger(initialAddPlayerId)) {
+    if (isLoggedIn()) {
+      openLineupModal(initialAddPlayerId);
+    } else {
+      pendingLoginForAddPlayerId = initialAddPlayerId;
+      openLoginModal();
+    }
+    const cleanUrl = `${window.location.pathname}${window.location.hash || ""}`;
+    window.history.replaceState({}, "", cleanUrl);
+  }
 
   renderHeaderMeta();
   els.resultCount.textContent = "0 results";

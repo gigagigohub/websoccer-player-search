@@ -48,7 +48,6 @@ const els = {
   playerCardModal: document.querySelector("#playerCardModal"),
   playerCardBackdrop: document.querySelector("#playerCardBackdrop"),
   playerCardHost: document.querySelector("#playerCardHost"),
-  playerDeleteButton: document.querySelector("#playerDeleteButton"),
   myteamSettingModal: document.querySelector("#myteamSettingModal"),
   myteamSettingBackdrop: document.querySelector("#myteamSettingBackdrop"),
   myteamSettingClose: document.querySelector("#myteamSettingClose"),
@@ -63,8 +62,8 @@ let cloudConfig = { url: "", anonKey: "", lineupKey: "" };
 let selectedSlotIndex = null;
 let selectedPlayerId = null;
 let selectedPlayerMode = "starter";
-let selectedCardExpanded = false;
 let lifecycleModeEnabled = false;
+const cardViewModeById = new Map();
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -758,13 +757,78 @@ function periodTableHtml(player, staticImg, actionImg, currentSeason) {
   `;
 }
 
-function playerCardHtml(player, season, expanded, baseSeason = null) {
+function profileViewHtml(player, staticImg, actionImg) {
+  const nationality = player.nationality || (player.nationId != null ? `国籍ID:${player.nationId}` : "-");
+  const playType = player.playType || "-";
+  const height = Number(player.height);
+  const weight = Number(player.weight);
+  const hwText = `${Number.isFinite(height) && height > 0 ? height : "-"}cm / ${Number.isFinite(weight) && weight > 0 ? weight : "-"}kg`;
+  const description = (player.description || "").trim() || "説明なし";
+
+  return `
+    <div class="profile-view">
+      <div class="media-row">
+        <div class="thumbs">
+          <img loading="lazy" src="${staticImg}" alt="${player.name} 静止" />
+          <img loading="lazy" src="${actionImg}" alt="${player.name} アクション" />
+        </div>
+        <div class="profile-side">
+          <div class="profile-item"><span class="k">国籍</span><span class="v">${nationality}</span></div>
+          <div class="profile-item"><span class="k">身長体重</span><span class="v">${hwText}</span></div>
+          <div class="profile-item"><span class="k">タイプ</span><span class="v">${playType}</span></div>
+        </div>
+      </div>
+      <div class="profile-description-wrap">
+        <div class="profile-description-title">PLAYER DETAIL</div>
+        <div class="profile-description">${description}</div>
+      </div>
+    </div>
+  `;
+}
+
+function getCardViewMode(playerId) {
+  return cardViewModeById.get(playerId) || 0;
+}
+
+function cardTabsHtml(playerId, viewMode) {
+  const tabs = [
+    { mode: 0, label: "PRM" },
+    { mode: 1, label: "DTL" },
+    { mode: 2, label: "SCR" },
+  ];
+  return `
+    <div class="card-tabs" role="tablist" aria-label="Card View Tabs">
+      ${tabs.map((t) => `
+        <button
+          type="button"
+          class="card-tab${viewMode === t.mode ? " is-active" : ""}"
+          data-player-id="${playerId}"
+          data-mode="${t.mode}"
+          role="tab"
+          aria-selected="${viewMode === t.mode ? "true" : "false"}"
+        >${t.label}</button>
+      `).join("")}
+    </div>
+  `;
+}
+
+function swipeDeckHtml(viewMode, normalViewHtml, detailViewHtml, thirdViewHtml) {
+  return `
+    <div class="swipe-deck" style="--mode:${viewMode}">
+      <div class="swipe-track">
+        <section class="swipe-pane">${normalViewHtml}</section>
+        <section class="swipe-pane">${detailViewHtml}</section>
+        <section class="swipe-pane">${thirdViewHtml}</section>
+      </div>
+    </div>
+  `;
+}
+
+function playerCardHtml(player, season) {
   const staticImg = `./images/chara/players/static/${player.id}.gif`;
   const actionImg = `./images/chara/players/action/${player.id}.gif`;
-  const selectedPeriod = findPeriodBySeason(player, season);
-  const displayMetrics = selectedPeriod?.metrics || getPeakMetrics(player);
-  const currentSeasonText = season ? `${season}目` : "-";
-  const baseSeasonText = baseSeason ? `現在${baseSeason}目` : null;
+  const displayMetrics = getPeakMetrics(player);
+  const viewMode = getCardViewMode(player.id);
   const peakTimeline = getPeakTimeline(player);
   const peakHtml = peakTimeline.length
     ? peakTimeline.map((x) => `<span class="peak-chip ${x.tier}">${x.season}</span>`).join("")
@@ -819,55 +883,62 @@ function playerCardHtml(player, season, expanded, baseSeason = null) {
   const pBottom = `${cx},${cy + r * nBottom}`;
   const pLeft = `${cx - r * nLeft},${cy}`;
   const areaPoints = `${pTop} ${pRight} ${pBottom} ${pLeft}`;
-
-  const collapsedHtml = `
-    <div class="media-row">
-      <div class="thumbs">
-        <img loading="lazy" src="${staticImg}" alt="${player.name} 静止" />
-        <img loading="lazy" src="${actionImg}" alt="${player.name} アクション" />
+  const typeLabel = getCategory(player);
+  const typeClass = typeClassByPlayer(player);
+  const pos = (player.position || "-").toUpperCase();
+  const posClass = positionClass(pos);
+  const peakBlock = viewMode === 0 ? `<div class="peak-periods peak-in-body">${peakHtml}</div>` : "";
+  const normalViewHtml = `
+      <div class="param-view">
+          <div class="media-row">
+            <div class="thumbs">
+              <img loading="lazy" src="${staticImg}" alt="${player.name} 静止" />
+              <img loading="lazy" src="${actionImg}" alt="${player.name} アクション" />
+            </div>
+            <div class="mind-chart" aria-label="知性感性個人組織チャート">
+              <svg viewBox="0 0 140 140" role="img">
+                <polygon class="grid" points="70,16 124,70 70,124 16,70"></polygon>
+                <polygon class="grid" points="70,34 106,70 70,106 34,70"></polygon>
+                <polygon class="grid" points="70,52 88,70 70,88 52,70"></polygon>
+                <line class="axis" x1="70" y1="16" x2="70" y2="124"></line>
+                <line class="axis" x1="16" y1="70" x2="124" y2="70"></line>
+                <polygon class="area" points="${areaPoints}"></polygon>
+              </svg>
+              <div class="mind-label top">知性 ${mind.zisei}</div>
+              <div class="mind-label right">組織 ${mind.soshiki}</div>
+              <div class="mind-label bottom">感性 ${mind.kansei}</div>
+              <div class="mind-label left">個人 ${mind.kojin}</div>
+            </div>
+          </div>
+      ${peakBlock}
+      <div class="metrics-wrap">
+        <div class="metrics main-3">${mainMetrics.map(metricBox).join("")}</div>
+        <div class="metric-group">
+          <div class="metrics group-4">${group2.map(metricBox).join("")}</div>
+        </div>
+        <div class="metric-group">
+          <div class="metrics group-4">${group1.map(metricBox).join("")}</div>
+        </div>
       </div>
-      <div class="mind-chart" aria-label="知性感性個人組織チャート">
-        <svg viewBox="0 0 140 140" role="img">
-          <polygon class="grid" points="70,16 124,70 70,124 16,70"></polygon>
-          <polygon class="grid" points="70,34 106,70 70,106 34,70"></polygon>
-          <polygon class="grid" points="70,52 88,70 70,88 52,70"></polygon>
-          <line class="axis" x1="70" y1="16" x2="70" y2="124"></line>
-          <line class="axis" x1="16" y1="70" x2="124" y2="70"></line>
-          <polygon class="area" points="${areaPoints}"></polygon>
-        </svg>
-        <div class="mind-label top">知性 ${mind.zisei}</div>
-        <div class="mind-label right">組織 ${mind.soshiki}</div>
-        <div class="mind-label bottom">感性 ${mind.kansei}</div>
-        <div class="mind-label left">個人 ${mind.kojin}</div>
       </div>
-    </div>
-    <div class="metrics-wrap">
-      <div class="metrics main-3">${mainMetrics.map(metricBox).join("")}</div>
-      <div class="metric-group">
-        <div class="metrics group-4">${group2.map(metricBox).join("")}</div>
-      </div>
-      <div class="metric-group">
-        <div class="metrics group-4">${group1.map(metricBox).join("")}</div>
-      </div>
-    </div>
   `;
-
-  const bodyHtml = expanded ? periodTableHtml(player, staticImg, actionImg, season) : collapsedHtml;
+  const detailViewHtml = periodTableHtml(player, staticImg, actionImg, season);
+  const thirdViewHtml = profileViewHtml(player, staticImg, actionImg);
+  const bodyHtml = swipeDeckHtml(viewMode, normalViewHtml, detailViewHtml, thirdViewHtml);
+  const cardStateClass = viewMode === 1 ? "is-expanded" : "is-collapsed";
 
   return `
-    <article class="card ${expanded ? "is-expanded" : "is-collapsed"}" data-player-id="${player.id}">
+    <article class="card ${cardStateClass} mode-${viewMode}" data-player-id="${player.id}">
       <div class="card-top">
-        <button type="button" class="expand-toggle" data-player-id="${player.id}" aria-label="詳細表示切替">${expanded ? "−" : "+"}</button>
+        ${cardTabsHtml(player.id, viewMode)}
+        <button type="button" class="lineup-toggle" data-player-id="${player.id}" aria-label="スタメン登録">Add</button>
         <span class="card-id">ID: ${player.id}</span>
         <div class="card-head-main">
           <h3 class="card-name">
             <span class="badge pos-badge ${posClass}">${pos}</span>
             <span class="badge type-badge ${typeClass}">${typeLabel}</span>
             <span>${player.name}</span>
-            <span class="myteam-current-season">${currentSeasonText}</span>
-            ${baseSeasonText ? `<span class="myteam-current-season myteam-base-season">${baseSeasonText}</span>` : ""}
           </h3>
-          <div class="peak-periods">${peakHtml}</div>
         </div>
       </div>
       <div class="card-body">${bodyHtml}</div>
@@ -883,8 +954,7 @@ function renderPlayerCardModal() {
   const season = selectedPlayerMode === "successor"
     ? getSuccessorDisplaySeason(entry)
     : (entry?.season || null);
-  const baseSeason = selectedPlayerMode === "successor" ? (entry?.successor?.season || null) : null;
-  els.playerCardHost.innerHTML = playerCardHtml(player, season, selectedCardExpanded, baseSeason);
+  els.playerCardHost.innerHTML = playerCardHtml(player, season);
 }
 
 function openPlayerCardModal(slotIndex, mode = "starter") {
@@ -896,7 +966,6 @@ function openPlayerCardModal(slotIndex, mode = "starter") {
   selectedSlotIndex = slotIndex;
   selectedPlayerId = playerId;
   selectedPlayerMode = mode === "successor" ? "successor" : "starter";
-  selectedCardExpanded = false;
   renderPlayerCardModal();
   if (els.playerCardModal) els.playerCardModal.hidden = false;
 }
@@ -905,30 +974,7 @@ function closePlayerCardModal() {
   selectedSlotIndex = null;
   selectedPlayerId = null;
   selectedPlayerMode = "starter";
-  selectedCardExpanded = false;
   if (els.playerCardModal) els.playerCardModal.hidden = true;
-}
-
-async function deleteSelectedFromTeam() {
-  if (!Number.isInteger(selectedSlotIndex)) return;
-  if (selectedPlayerMode === "successor") {
-    const entry = lineup[selectedSlotIndex];
-    if (entry) {
-      lineup[selectedSlotIndex] = { ...entry, successor: null };
-    }
-  } else {
-    lineup[selectedSlotIndex] = null;
-  }
-  saveLineupLocal();
-  if (hasCloudConfig()) {
-    try {
-      await saveCloudLineup();
-    } catch (e) {
-      console.warn(e);
-    }
-  }
-  renderLineup();
-  closePlayerCardModal();
 }
 
 async function init() {
@@ -1011,12 +1057,22 @@ async function init() {
   }
 
   if (els.playerCardBackdrop) els.playerCardBackdrop.addEventListener("click", closePlayerCardModal);
-  if (els.playerDeleteButton) els.playerDeleteButton.addEventListener("click", deleteSelectedFromTeam);
   if (els.playerCardHost) {
     els.playerCardHost.addEventListener("click", (e) => {
-      const btn = e.target.closest(".expand-toggle");
-      if (!btn) return;
-      selectedCardExpanded = !selectedCardExpanded;
+      const lineupBtn = e.target.closest(".lineup-toggle");
+      if (lineupBtn) {
+        const id = Number(lineupBtn.dataset.playerId);
+        if (!Number.isInteger(id)) return;
+        window.location.href = `./index.html?addPlayerId=${id}`;
+        return;
+      }
+      const tabBtn = e.target.closest(".card-tab");
+      if (!tabBtn) return;
+      const id = Number(tabBtn.dataset.playerId);
+      const mode = Number(tabBtn.dataset.mode);
+      if (!Number.isInteger(id)) return;
+      if (!Number.isInteger(mode) || mode < 0 || mode > 2) return;
+      cardViewModeById.set(id, mode);
       renderPlayerCardModal();
     });
   }
