@@ -1143,12 +1143,12 @@ function positionHeatmapsHtml(player) {
 }
 
 function profileViewHtml(player, staticImg, actionImg) {
-  const fullName = player.fullName || player.name || "-";
   const nationality = player.nationality || (player.nationId != null ? `国籍ID:${player.nationId}` : "-");
   const playType = player.playType || "-";
   const height = Number(player.height);
   const weight = Number(player.weight);
-  const hw = `${Number.isFinite(height) && height > 0 ? height : "-"}cm / ${Number.isFinite(weight) && weight > 0 ? weight : "-"}kg`;
+  const heightText = `${Number.isFinite(height) && height > 0 ? height : "-"}cm`;
+  const weightText = `${Number.isFinite(weight) && weight > 0 ? weight : "-"}kg`;
   const description = (player.description || "").trim() || "説明なし";
 
   return `
@@ -1159,14 +1159,14 @@ function profileViewHtml(player, staticImg, actionImg) {
           <img loading="lazy" src="${actionImg}" alt="${player.name} アクション" />
         </div>
         <div class="profile-side">
-          <div class="profile-item"><span class="k">本名</span><span class="v">${fullName}</span></div>
           <div class="profile-item"><span class="k">国籍</span><span class="v">${nationality}</span></div>
+          <div class="profile-item"><span class="k">身長</span><span class="v">${heightText}</span></div>
+          <div class="profile-item"><span class="k">体重</span><span class="v">${weightText}</span></div>
           <div class="profile-item"><span class="k">タイプ</span><span class="v">${playType}</span></div>
-          <div class="profile-item"><span class="k">身長/体重</span><span class="v">${hw}</span></div>
         </div>
       </div>
       <div class="profile-description-wrap">
-        <div class="profile-description-title">詳細説明</div>
+        <div class="profile-description-title">PLAYER DETAIL</div>
         <div class="profile-description">${description}</div>
       </div>
     </div>
@@ -1177,8 +1177,26 @@ function getCardViewMode(playerId) {
   return cardViewModeById.get(playerId) || 0;
 }
 
-function nextCardViewMode(mode) {
-  return (mode + 1) % 3;
+function cardTabsHtml(playerId, viewMode) {
+  const tabs = [
+    { mode: 0, label: "PRM" },
+    { mode: 1, label: "DTL" },
+    { mode: 2, label: "SCR" },
+  ];
+  return `
+    <div class="card-tabs" role="tablist" aria-label="Card View Tabs">
+      ${tabs.map((t) => `
+        <button
+          type="button"
+          class="card-tab${viewMode === t.mode ? " is-active" : ""}"
+          data-player-id="${playerId}"
+          data-mode="${t.mode}"
+          role="tab"
+          aria-selected="${viewMode === t.mode ? "true" : "false"}"
+        >${t.label}</button>
+      `).join("")}
+    </div>
+  `;
 }
 
 function cardHtml(player) {
@@ -1276,13 +1294,12 @@ function cardHtml(player) {
   const detailViewHtml = periodTableHtml(player, staticImg, actionImg);
   const thirdViewHtml = profileViewHtml(player, staticImg, actionImg);
   const bodyHtml = viewMode === 1 ? detailViewHtml : viewMode === 2 ? thirdViewHtml : normalViewHtml;
-  const modeLabel = viewMode === 0 ? "A" : viewMode === 1 ? "B" : "C";
   const cardStateClass = viewMode === 1 ? "is-expanded" : "is-collapsed";
 
   return `
     <article class="card ${cardStateClass} mode-${viewMode}" data-player-id="${player.id}">
       <div class="card-top">
-        <button type="button" class="expand-toggle" data-player-id="${player.id}" aria-label="表示切替">${modeLabel}</button>
+        ${cardTabsHtml(player.id, viewMode)}
         <button type="button" class="lineup-toggle" data-player-id="${player.id}" aria-label="スタメン登録">Add</button>
         <span class="card-id">ID: ${player.id}</span>
         <div class="card-head-main">
@@ -1438,12 +1455,13 @@ async function init() {
       return;
     }
 
-    const btn = e.target.closest(".expand-toggle");
+    const btn = e.target.closest(".card-tab");
     if (!btn) return;
     const id = Number(btn.dataset.playerId);
+    const mode = Number(btn.dataset.mode);
     if (!Number.isInteger(id)) return;
-    const mode = getCardViewMode(id);
-    cardViewModeById.set(id, nextCardViewMode(mode));
+    if (!Number.isInteger(mode) || mode < 0 || mode > 2) return;
+    cardViewModeById.set(id, mode);
     rerenderSingleCard(id);
   });
 

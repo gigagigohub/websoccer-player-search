@@ -577,10 +577,37 @@ button.ghost {
   padding: 0;
 }
 
+.card-tabs {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  display: flex;
+  gap: 3px;
+}
+
+.card-tab {
+  width: 24px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1px solid #36507e;
+  background: #16223a;
+  color: #dce7ff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+}
+
+.card-tab.is-active {
+  background: #2a3f66;
+  border-color: #4f74b3;
+  color: #ffffff;
+}
+
 .lineup-toggle {
   position: absolute;
   top: 6px;
-  right: 34px;
+  right: 92px;
   width: 48px;
   height: 22px;
   border-radius: 6px;
@@ -594,7 +621,7 @@ button.ghost {
 }
 
 .expanded-view {
-  margin-top: 8px;
+  margin-top: 0;
   width: 100%;
   max-width: 100%;
   min-height: 0;
@@ -603,7 +630,7 @@ button.ghost {
 }
 
 .profile-view {
-  margin-top: 8px;
+  margin-top: 0;
   display: grid;
   gap: 8px;
 }
@@ -664,6 +691,7 @@ button.ghost {
   align-items: flex-start;
   justify-content: space-between;
   gap: 10px;
+  margin-top: 8px;
   margin-bottom: 8px;
 }
 
@@ -893,7 +921,7 @@ button.ghost {
 .thumbs {
   display: flex;
   gap: 6px;
-  margin-top: 8px;
+  margin-top: 0;
 }
 
 .thumbs img {
