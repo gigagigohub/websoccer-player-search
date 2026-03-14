@@ -771,8 +771,6 @@ button.ghost {
   border: 0;
   background: transparent;
   overflow: hidden;
-  --hm-top: 4px;
-  --hm-bottom: 14px;
 }
 
 .pitch-lines {
@@ -781,18 +779,15 @@ button.ghost {
 
 .hm-grid {
   position: absolute;
-  top: var(--hm-top);
-  left: 0;
-  right: 0;
-  bottom: var(--hm-bottom);
+  inset: 0;
 }
 
 .hm-cell {
   position: absolute;
   left: calc(var(--c) * 33.3333%);
-  top: calc(var(--r) * 20%);
+  top: calc(var(--r) * 16.6667%);
   width: 33.3333%;
-  height: 20%;
+  height: 16.6667%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -803,50 +798,11 @@ button.ghost {
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
 }
 
-.gk-cell {
-  position: absolute;
-  left: 50%;
-  top: calc(4 * 20%);
-  transform: translateX(-50%);
-  width: 33.3333%;
-  height: 20%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(190, 196, 210, 0.2);
-  font-size: 0.60rem;
-  font-weight: 700;
-  color: #fff;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
-}
-
-.hm-hidden {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: grid;
-  gap: 1px;
-  pointer-events: none;
-}
-
-.hm-hidden-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  font-size: 0.48rem;
-  line-height: 1;
-  color: rgba(225, 233, 255, 0.5);
-  text-align: center;
+.hm-cell.hm-dim {
+  background: rgba(255, 95, 34, 0.0);
+  color: rgba(225, 233, 255, 0.48);
+  text-shadow: none;
   font-weight: 600;
-  letter-spacing: 0.01em;
-}
-
-.hm-hidden-row-gk {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.hm-hidden-gap {
-  opacity: 0;
 }
 
 .hm-l1 { background: rgba(255, 95, 34, 0.00); }

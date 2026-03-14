@@ -667,57 +667,49 @@ function positionHeatmapsHtml(player) {
   if (!segments.length) return "";
   const isGK = (player.position || "").toUpperCase() === "GK";
   const singleClass = segments.length === 1 ? "single" : "multi";
+  const passiveCodes = new Set([13, 15, 16, 17, 18]);
   const hiddenVal = (seg, key, fallback = null) => {
     const v = seg?.hiddenR?.[key];
     if (v == null) return fallback;
     const n = Number(v);
     return Number.isFinite(n) ? Math.round(n) : fallback;
   };
+  const codeVal = (seg, grid, code) => {
+    if (code <= 12) {
+      const r = Math.floor((code - 1) / 3);
+      const c = (code - 1) % 3;
+      return grid?.[r]?.[c] ?? null;
+    }
+    if (code <= 15) return hiddenVal(seg, `R${code}`, grid?.[4]?.[code - 13] ?? null);
+    return hiddenVal(seg, `R${code}`, null);
+  };
 
   const items = segments.map((seg) => {
     const label = seg?.label || "";
     const grid = Array.isArray(seg?.grid) ? seg.grid : [];
-    const outRows = grid.slice(0, 4);
-    const outCells = outRows.map((row, rIdx) => {
-      const rowCells = (Array.isArray(row) ? row : []).slice(0, 3).map((v, cIdx) => {
-        if (v == null) return "";
-        const n = Math.max(1, Math.min(7, Number(v) || 1));
-        return `<div class="hm-cell hm-l${n}" style="--r:${rIdx};--c:${cIdx}">${n}</div>`;
-      }).join("");
-      return rowCells;
-    }).join("");
-
-    const gkVal = grid?.[4]?.[1];
-    const gkCell = (isGK && gkVal != null)
-      ? `<div class="gk-cell hm-l${Math.max(1, Math.min(7, Number(gkVal) || 1))}">${gkVal}</div>`
-      : "";
-    const r13 = hiddenVal(seg, "R13", grid?.[4]?.[0]);
-    const r14 = hiddenVal(seg, "R14", grid?.[4]?.[1]);
-    const r15 = hiddenVal(seg, "R15", grid?.[4]?.[2]);
-    const r16 = hiddenVal(seg, "R16", null);
-    const r17 = hiddenVal(seg, "R17", null);
-    const r18 = hiddenVal(seg, "R18", null);
-    const hiddenText = isGK
-      ? `
-          <div class="hm-hidden hm-hidden-gk">
-            <div class="hm-hidden-row hm-hidden-row-gk"><span>${r13 ?? "-"}</span><span class="hm-hidden-gap" aria-hidden="true"></span><span>${r15 ?? "-"}</span></div>
-            <div class="hm-hidden-row"><span>${r16 ?? "-"}</span><span>${r17 ?? "-"}</span><span>${r18 ?? "-"}</span></div>
-          </div>
-        `
-      : `
-          <div class="hm-hidden">
-            <div class="hm-hidden-row"><span>${r13 ?? "-"}</span><span>${r14 ?? "-"}</span><span>${r15 ?? "-"}</span></div>
-            <div class="hm-hidden-row"><span>${r16 ?? "-"}</span><span>${r17 ?? "-"}</span><span>${r18 ?? "-"}</span></div>
-          </div>
-        `;
+    const cells = [];
+    for (let r = 0; r < 6; r += 1) {
+      for (let c = 0; c < 3; c += 1) {
+        const code = r * 3 + c + 1;
+        const raw = codeVal(seg, grid, code);
+        const hasVal = raw != null;
+        const n = Math.max(1, Math.min(7, Number(raw) || 1));
+        const classes = ["hm-cell"];
+        if (passiveCodes.has(code)) {
+          classes.push("hm-dim");
+        } else if (hasVal) {
+          classes.push(`hm-l${n}`);
+        }
+        cells.push(`<div class="${classes.join(" ")}" style="--r:${r};--c:${c}">${hasVal ? Math.round(Number(raw)) : "-"}</div>`);
+      }
+    }
 
     return `
       <div class="pos-heatmap-seg">
         <div class="pos-heatmap-label">${label}</div>
         <div class="pitch-map ${isGK ? "is-gk" : "is-fp"}">
           <div class="pitch-lines"></div>
-          <div class="hm-grid">${outCells}${gkCell}</div>
-          ${hiddenText}
+          <div class="hm-grid">${cells.join("")}</div>
         </div>
       </div>
     `;
