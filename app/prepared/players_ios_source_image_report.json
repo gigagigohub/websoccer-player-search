@@ -1,0 +1,130 @@
+{
+  "generatedAt": "2026-03-14T23:48:12+09:00",
+  "coverage": {
+    "playerIdsInSqlite": 3157,
+    "zipStaticMatchedToSqlite": 3157,
+    "zipActionMatchedToSqlite": 3157,
+    "repoStaticMatchedToSqlite": 3023,
+    "repoActionMatchedToSqlite": 3023,
+    "sqliteMissingInZipStatic": [],
+    "sqliteMissingInZipAction": [],
+    "zipStaticMissingInSqlite": [],
+    "zipActionMissingInSqlite": []
+  },
+  "sampleChecks": [
+    {
+      "id": 35,
+      "static": {
+        "zipPath": "Resources/img/chara/players/static/35@2x.gif",
+        "repoPath": "app/images/chara/players/static/35.gif",
+        "zipSizeBytes": 3213,
+        "zipImageSize": [
+          164,
+          188
+        ],
+        "zipSha256": "149286fbe02ae9e4ec195d49aa03e689a4e4f7a94ae7c7944169aad526c65a68",
+        "repoSizeBytes": 1370,
+        "repoImageSize": [
+          164,
+          188
+        ],
+        "repoSha256": "52e2787966f4fb270c04bdf0f35cee953e48a262e61f1692fb66aa819149bf8d",
+        "sha256Equal": false
+      },
+      "action": {
+        "zipPath": "Resources/img/chara/players/action/35@2x.gif",
+        "repoPath": "app/images/chara/players/action/35.gif",
+        "zipSizeBytes": 3740,
+        "zipImageSize": [
+          164,
+          188
+        ],
+        "zipSha256": "e5b6236b750f74a3c69eed3e1ffca9eeb20a625a1f438eb2ff5966430ec61e82",
+        "repoSizeBytes": 1655,
+        "repoImageSize": [
+          164,
+          188
+        ],
+        "repoSha256": "376467710f2a4946f42ec500db21a4685a65ae4d118bbb16e0a3fe8846748b45",
+        "sha256Equal": false
+      }
+    },
+    {
+      "id": 646,
+      "static": {
+        "zipPath": "Resources/img/chara/players/static/646@2x.gif",
+        "repoPath": "app/images/chara/players/static/646.gif",
+        "zipSizeBytes": 3145,
+        "zipImageSize": [
+          164,
+          188
+        ],
+        "zipSha256": "da377e29eac666ff000ea230f1f52c6a7585071cf6a8ff93b453ea5e59ebaff6",
+        "repoSizeBytes": 1700,
+        "repoImageSize": [
+          164,
+          188
+        ],
+        "repoSha256": "03454c48f939969904bc89039631998caabe670c6bf192852380f1534afc5008",
+        "sha256Equal": false
+      },
+      "action": {
+        "zipPath": "Resources/img/chara/players/action/646@2x.gif",
+        "repoPath": "app/images/chara/players/action/646.gif",
+        "zipSizeBytes": 3901,
+        "zipImageSize": [
+          164,
+          188
+        ],
+        "zipSha256": "5c35a10be031732749ee9c26bcb66d405222921b3d23d023fa5bd4304f9c5aef",
+        "repoSizeBytes": 2142,
+        "repoImageSize": [
+          164,
+          188
+        ],
+        "repoSha256": "00536d7edc12f743dd92cb78b4d21a68f3756bd3c269f03d05d988747a117172",
+        "sha256Equal": false
+      }
+    },
+    {
+      "id": 1852,
+      "static": {
+        "zipPath": "Resources/img/chara/players/static/1852@2x.gif",
+        "repoPath": "app/images/chara/players/static/1852.gif",
+        "zipSizeBytes": 3018,
+        "zipImageSize": [
+          164,
+          188
+        ],
+        "zipSha256": "e51e5435de57e33efa174d5f1d0e18e7a414e34c060ae15d7c411da1969d430e",
+        "repoSizeBytes": 1650,
+        "repoImageSize": [
+          164,
+          188
+        ],
+        "repoSha256": "c94c36816d2a2eacb15a68a6310cb5d14050f498df8cf1a750b3af401b944b7f",
+        "sha256Equal": false
+      },
+      "action": {
+        "zipPath": "Resources/img/chara/players/action/1852@2x.gif",
+        "repoPath": "app/images/chara/players/action/1852.gif",
+        "zipSizeBytes": 2999,
+        "zipImageSize": [
+          164,
+          188
+        ],
+        "zipSha256": "79dbbccb841cbad64eedb281ba9ae1088cf758fa40d02c8367c86a796b69cd0a",
+        "repoSizeBytes": 1703,
+        "repoImageSize": [
+          164,
+          188
+        ],
+        "repoSha256": "5c92439682608410bfbc1f5d4e54128bc408a7601f1bed2c16e5dab3ae9a279c",
+        "sha256Equal": false
+      }
+    }
+  ],
+  "interpretation": {
+    "summary": "ZIP and repo images are both ID-based. Hashes are expected to differ in many cases due to @2x assets, but ID correspondence and dimensions can be compared."
+  }
+}

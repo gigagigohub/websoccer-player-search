@@ -1,0 +1,239 @@
+{
+  "generatedAt": "2026-03-15T00:10:36+09:00",
+  "counts": {
+    "CC": 9,
+    "NR": 1106,
+    "CM": 260,
+    "SS": 1782
+  },
+  "reasonCounts": {
+    "kept_CC": 9,
+    "collapse_start_le_6_to_SS": 1782,
+    "collapse_start_eq_7_to_CM": 260,
+    "other_to_NR": 1106
+  },
+  "examples": {
+    "SS": [
+      {
+        "id": 127,
+        "name": "ニクラス",
+        "collapseStartSeason": 6,
+        "collapseStartSeasonRaw": 5
+      },
+      {
+        "id": 352,
+        "name": "グローデス",
+        "collapseStartSeason": 4,
+        "collapseStartSeasonRaw": 3
+      },
+      {
+        "id": 723,
+        "name": "ジルマール",
+        "collapseStartSeason": 6,
+        "collapseStartSeasonRaw": 5
+      },
+      {
+        "id": 724,
+        "name": "バナー",
+        "collapseStartSeason": 6,
+        "collapseStartSeasonRaw": 5
+      },
+      {
+        "id": 725,
+        "name": "ウリエル",
+        "collapseStartSeason": 6,
+        "collapseStartSeasonRaw": 5
+      },
+      {
+        "id": 726,
+        "name": "カルロス・グスマン",
+        "collapseStartSeason": 6,
+        "collapseStartSeasonRaw": 5
+      },
+      {
+        "id": 727,
+        "name": "モウチーニョ",
+        "collapseStartSeason": 6,
+        "collapseStartSeasonRaw": 5
+      },
+      {
+        "id": 728,
+        "name": "マルシオ",
+        "collapseStartSeason": 6,
+        "collapseStartSeasonRaw": 5
+      },
+      {
+        "id": 729,
+        "name": "グレイシー",
+        "collapseStartSeason": 6,
+        "collapseStartSeasonRaw": 5
+      },
+      {
+        "id": 730,
+        "name": "ローズ",
+        "collapseStartSeason": 6,
+        "collapseStartSeasonRaw": 5
+      },
+      {
+        "id": 731,
+        "name": "マルクス",
+        "collapseStartSeason": 6,
+        "collapseStartSeasonRaw": 5
+      },
+      {
+        "id": 733,
+        "name": "マンダノビッチ",
+        "collapseStartSeason": 6,
+        "collapseStartSeasonRaw": 5
+      }
+    ],
+    "CM": [
+      {
+        "id": 69,
+        "name": "コンスタンティノ",
+        "collapseStartSeason": 7,
+        "collapseStartSeasonRaw": 6
+      },
+      {
+        "id": 88,
+        "name": "シルバ",
+        "collapseStartSeason": 7,
+        "collapseStartSeasonRaw": 6
+      },
+      {
+        "id": 89,
+        "name": "ジロラモ",
+        "collapseStartSeason": 7,
+        "collapseStartSeasonRaw": 6
+      },
+      {
+        "id": 120,
+        "name": "ナ・イリョン",
+        "collapseStartSeason": 7,
+        "collapseStartSeasonRaw": 6
+      },
+      {
+        "id": 153,
+        "name": "バロン",
+        "collapseStartSeason": 7,
+        "collapseStartSeasonRaw": 6
+      },
+      {
+        "id": 171,
+        "name": "ブラガ",
+        "collapseStartSeason": 7,
+        "collapseStartSeasonRaw": 6
+      },
+      {
+        "id": 231,
+        "name": "ロッコ",
+        "collapseStartSeason": 7,
+        "collapseStartSeasonRaw": 6
+      },
+      {
+        "id": 234,
+        "name": "ロハス",
+        "collapseStartSeason": 7,
+        "collapseStartSeasonRaw": 6
+      },
+      {
+        "id": 273,
+        "name": "オールマン",
+        "collapseStartSeason": 7,
+        "collapseStartSeasonRaw": 6
+      },
+      {
+        "id": 369,
+        "name": "ダ・ジェグロス",
+        "collapseStartSeason": 7,
+        "collapseStartSeasonRaw": 6
+      },
+      {
+        "id": 377,
+        "name": "リー・チュンユ",
+        "collapseStartSeason": 7,
+        "collapseStartSeasonRaw": 6
+      },
+      {
+        "id": 425,
+        "name": "アルセ",
+        "collapseStartSeason": 7,
+        "collapseStartSeasonRaw": 6
+      }
+    ],
+    "NR": [
+      {
+        "id": 1,
+        "name": "アイスマン",
+        "collapseStartSeason": 11,
+        "collapseStartSeasonRaw": 10
+      },
+      {
+        "id": 2,
+        "name": "秋月　春彦",
+        "collapseStartSeason": 10,
+        "collapseStartSeasonRaw": 9
+      },
+      {
+        "id": 3,
+        "name": "アブラーモ",
+        "collapseStartSeason": 11,
+        "collapseStartSeasonRaw": 10
+      },
+      {
+        "id": 4,
+        "name": "アプレア",
+        "collapseStartSeason": 11,
+        "collapseStartSeasonRaw": 10
+      },
+      {
+        "id": 5,
+        "name": "アマデュー",
+        "collapseStartSeason": 11,
+        "collapseStartSeasonRaw": 10
+      },
+      {
+        "id": 6,
+        "name": "アルノー",
+        "collapseStartSeason": 11,
+        "collapseStartSeasonRaw": 10
+      },
+      {
+        "id": 7,
+        "name": "アルバレス",
+        "collapseStartSeason": 11,
+        "collapseStartSeasonRaw": 10
+      },
+      {
+        "id": 8,
+        "name": "アルベス",
+        "collapseStartSeason": 13,
+        "collapseStartSeasonRaw": 12
+      },
+      {
+        "id": 9,
+        "name": "アルベルト",
+        "collapseStartSeason": 11,
+        "collapseStartSeasonRaw": 10
+      },
+      {
+        "id": 10,
+        "name": "アルンスト",
+        "collapseStartSeason": 11,
+        "collapseStartSeasonRaw": 10
+      },
+      {
+        "id": 11,
+        "name": "アレサンドロ",
+        "collapseStartSeason": 11,
+        "collapseStartSeasonRaw": 10
+      },
+      {
+        "id": 12,
+        "name": "アンセルム",
+        "collapseStartSeason": 12,
+        "collapseStartSeasonRaw": 11
+      }
+    ]
+  }
+}

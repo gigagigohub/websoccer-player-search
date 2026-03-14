@@ -1,0 +1,338 @@
+{
+  "ZMOPLAYER": [
+    {
+      "original": "Z_PK",
+      "normalized": "PK",
+      "type": "INTEGER"
+    },
+    {
+      "original": "Z_ENT",
+      "normalized": "ENT",
+      "type": "INTEGER"
+    },
+    {
+      "original": "Z_OPT",
+      "normalized": "OPT",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZACT_SZN",
+      "normalized": "ACT_SZN",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZAGE",
+      "normalized": "AGE",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZBASE_LINE",
+      "normalized": "BASE_LINE",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZBASE_POS",
+      "normalized": "BASE_POS",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZFLG_LISTUP",
+      "normalized": "FLG_LISTUP",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZNATION_ID",
+      "normalized": "NATION_ID",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZPERSON_ID",
+      "normalized": "PERSON_ID",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZPLAYER_ID",
+      "normalized": "PLAYER_ID",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZPOS_ROLE",
+      "normalized": "POS_ROLE",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZPOS_TYPE",
+      "normalized": "POS_TYPE",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZRARITY",
+      "normalized": "RARITY",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZSTATUS",
+      "normalized": "STATUS",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZTALL",
+      "normalized": "TALL",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZWEIGHT",
+      "normalized": "WEIGHT",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZINFO",
+      "normalized": "INFO",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZPARAM",
+      "normalized": "PARAM",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZFULLNAME",
+      "normalized": "FULLNAME",
+      "type": "VARCHAR"
+    },
+    {
+      "original": "ZNAME",
+      "normalized": "NAME",
+      "type": "VARCHAR"
+    },
+    {
+      "original": "ZNAMERUBY",
+      "normalized": "NAMERUBY",
+      "type": "VARCHAR"
+    }
+  ],
+  "ZMOPLAYERSPARAM": [
+    {
+      "original": "Z_PK",
+      "normalized": "PK",
+      "type": "INTEGER"
+    },
+    {
+      "original": "Z_ENT",
+      "normalized": "ENT",
+      "type": "INTEGER"
+    },
+    {
+      "original": "Z_OPT",
+      "normalized": "OPT",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZCAP",
+      "normalized": "CAP",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZCK",
+      "normalized": "CK",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZCST",
+      "normalized": "CST",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZFK",
+      "normalized": "FK",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZINTE",
+      "normalized": "INTE",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZPK",
+      "normalized": "PK",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZPLAYER_ID",
+      "normalized": "PLAYER_ID",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZPOP",
+      "normalized": "POP",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZPWR",
+      "normalized": "PWR",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZR1",
+      "normalized": "R1",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZR10",
+      "normalized": "R10",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZR11",
+      "normalized": "R11",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZR12",
+      "normalized": "R12",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZR13",
+      "normalized": "R13",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZR14",
+      "normalized": "R14",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZR15",
+      "normalized": "R15",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZR16",
+      "normalized": "R16",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZR17",
+      "normalized": "R17",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZR18",
+      "normalized": "R18",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZR2",
+      "normalized": "R2",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZR3",
+      "normalized": "R3",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZR4",
+      "normalized": "R4",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZR5",
+      "normalized": "R5",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZR6",
+      "normalized": "R6",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZR7",
+      "normalized": "R7",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZR8",
+      "normalized": "R8",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZR9",
+      "normalized": "R9",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZRGH",
+      "normalized": "RGH",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZSEN",
+      "normalized": "SEN",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZSPD",
+      "normalized": "SPD",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZSTDP",
+      "normalized": "STDP",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZSTM",
+      "normalized": "STM",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZSZN_NO",
+      "normalized": "SZN_NO",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZTEC",
+      "normalized": "TEC",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZTMP",
+      "normalized": "TMP",
+      "type": "INTEGER"
+    }
+  ],
+  "ZMOPLAYERSINFO": [
+    {
+      "original": "Z_PK",
+      "normalized": "PK",
+      "type": "INTEGER"
+    },
+    {
+      "original": "Z_ENT",
+      "normalized": "ENT",
+      "type": "INTEGER"
+    },
+    {
+      "original": "Z_OPT",
+      "normalized": "OPT",
+      "type": "INTEGER"
+    },
+    {
+      "original": "ZDESCRIPTION_TEXT",
+      "normalized": "DESCRIPTION_TEXT",
+      "type": "VARCHAR"
+    },
+    {
+      "original": "ZPLAY_TYPE",
+      "normalized": "PLAY_TYPE",
+      "type": "VARCHAR"
+    },
+    {
+      "original": "ZSUBTITLE",
+      "normalized": "SUBTITLE",
+      "type": "VARCHAR"
+    }
+  ]
+}
