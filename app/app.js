@@ -26,7 +26,8 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-15 00:48 JST";
+const APP_UPDATED_AT_ISO = "2026-03-15T01:26:51+09:00";
+const APP_UPDATED_AT_JST = "2026-03-15 01:26 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function formatIsoToJstLabel(isoString) {
@@ -43,6 +44,14 @@ function formatIsoToJstLabel(isoString) {
   }).formatToParts(d);
   const get = (type) => parts.find((p) => p.type === type)?.value || "";
   return `${get("year")}-${get("month")}-${get("day")} ${get("hour")}:${get("minute")} JST`;
+}
+
+function pickLatestIso(a, b) {
+  const ta = new Date(a).getTime();
+  const tb = new Date(b).getTime();
+  if (Number.isNaN(ta)) return b;
+  if (Number.isNaN(tb)) return a;
+  return ta >= tb ? a : b;
 }
 
 function metricLabel(metric) {
@@ -1288,7 +1297,9 @@ function cardHtml(player) {
   const thirdViewHtml = profileViewHtml(player, staticImg, actionImg);
   const bodyHtml = swipeDeckHtml(viewMode, normalViewHtml, detailViewHtml, thirdViewHtml);
   const cardStateClass = viewMode === 1 ? "is-expanded" : "is-collapsed";
-  const peakBlock = viewMode === 0 ? `<div class="peak-periods">${peakHtml}</div>` : "";
+  const peakBlock = viewMode === 0
+    ? `<div class="peak-periods">${peakHtml}</div>`
+    : `<div class="peak-periods is-hidden">-</div>`;
 
   return `
     <article class="card ${cardStateClass} mode-${viewMode}" data-player-id="${player.id}">
@@ -1820,7 +1831,8 @@ async function init() {
   const res = await fetch("./data.json");
   const data = await res.json();
   players = data.players || [];
-  appUpdatedAtJst = formatIsoToJstLabel(data.generatedAt) || APP_UPDATED_AT_JST;
+  const latestIso = pickLatestIso(data.generatedAt, APP_UPDATED_AT_ISO);
+  appUpdatedAtJst = formatIsoToJstLabel(latestIso) || APP_UPDATED_AT_JST;
   syncAptitudeAreaLabel();
   syncNRAllChip();
 
