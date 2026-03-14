@@ -26,8 +26,8 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-15T02:09:09+09:00";
-const APP_UPDATED_AT_JST = "2026-03-15 02:09 JST";
+const APP_UPDATED_AT_ISO = "2026-03-15T02:14:45+09:00";
+const APP_UPDATED_AT_JST = "2026-03-15 02:14 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function formatIsoToJstLabel(isoString) {
@@ -1144,7 +1144,7 @@ function positionHeatmapsHtml(player) {
     const hiddenText = isGK
       ? `
           <div class="hm-hidden hm-hidden-gk">
-            <div class="hm-hidden-row hm-hidden-row-gk"><span>${r13 ?? "-"}</span><span>${r15 ?? "-"}</span></div>
+            <div class="hm-hidden-row hm-hidden-row-gk"><span>${r13 ?? "-"}</span><span class="hm-hidden-gap" aria-hidden="true"></span><span>${r15 ?? "-"}</span></div>
             <div class="hm-hidden-row"><span>${r16 ?? "-"}</span><span>${r17 ?? "-"}</span><span>${r18 ?? "-"}</span></div>
           </div>
         `
@@ -1160,8 +1160,7 @@ function positionHeatmapsHtml(player) {
         <div class="pos-heatmap-label">${label}</div>
         <div class="pitch-map ${isGK ? "is-gk" : "is-fp"}">
           <div class="pitch-lines"></div>
-          <div class="hm-grid">${outCells}</div>
-          ${gkCell}
+          <div class="hm-grid">${outCells}${gkCell}</div>
           ${hiddenText}
         </div>
       </div>

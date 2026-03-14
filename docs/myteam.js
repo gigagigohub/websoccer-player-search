@@ -700,7 +700,7 @@ function positionHeatmapsHtml(player) {
     const hiddenText = isGK
       ? `
           <div class="hm-hidden hm-hidden-gk">
-            <div class="hm-hidden-row hm-hidden-row-gk"><span>${r13 ?? "-"}</span><span>${r15 ?? "-"}</span></div>
+            <div class="hm-hidden-row hm-hidden-row-gk"><span>${r13 ?? "-"}</span><span class="hm-hidden-gap" aria-hidden="true"></span><span>${r15 ?? "-"}</span></div>
             <div class="hm-hidden-row"><span>${r16 ?? "-"}</span><span>${r17 ?? "-"}</span><span>${r18 ?? "-"}</span></div>
           </div>
         `
@@ -716,8 +716,7 @@ function positionHeatmapsHtml(player) {
         <div class="pos-heatmap-label">${label}</div>
         <div class="pitch-map ${isGK ? "is-gk" : "is-fp"}">
           <div class="pitch-lines"></div>
-          <div class="hm-grid">${outCells}</div>
-          ${gkCell}
+          <div class="hm-grid">${outCells}${gkCell}</div>
           ${hiddenText}
         </div>
       </div>

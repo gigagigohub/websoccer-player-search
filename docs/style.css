@@ -754,13 +754,14 @@ button.ghost {
 
 .pos-heatmap-seg {
   display: grid;
-  gap: 3px;
+  gap: 2px;
 }
 
 .pos-heatmap-label {
   font-size: 0.62rem;
   color: #cbd9fb;
   text-align: center;
+  transform: translateY(-1px);
 }
 
 .pitch-map {
@@ -770,6 +771,8 @@ button.ghost {
   border: 0;
   background: transparent;
   overflow: hidden;
+  --hm-top: 4px;
+  --hm-bottom: 14px;
 }
 
 .pitch-lines {
@@ -778,7 +781,10 @@ button.ghost {
 
 .hm-grid {
   position: absolute;
-  inset: -10px 0 0;
+  top: var(--hm-top);
+  left: 0;
+  right: 0;
+  bottom: var(--hm-bottom);
 }
 
 .hm-cell {
@@ -801,7 +807,7 @@ button.ghost {
   position: absolute;
   left: 50%;
   top: calc(4 * 20%);
-  transform: translate(-50%, -10px);
+  transform: translateX(-50%);
   width: 33.3333%;
   height: 20%;
   display: flex;
@@ -836,7 +842,11 @@ button.ghost {
 }
 
 .hm-hidden-row-gk {
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.hm-hidden-gap {
+  opacity: 0;
 }
 
 .hm-l1 { background: rgba(255, 95, 34, 0.00); }
