@@ -4,6 +4,7 @@ import datetime as dt
 import json
 import os
 import shutil
+import sqlite3
 import zipfile
 from collections import OrderedDict
 
@@ -146,13 +147,31 @@ def extract_images(resources_zip: str, out_static_dir: str, out_action_dir: str)
     return count_static, count_action
 
 
-def convert_players(input_players: list):
+def build_nation_lookup(sqlite_path: str):
+    nation_lookup = {}
+    if sqlite_path and os.path.exists(sqlite_path):
+        conn = sqlite3.connect(sqlite_path)
+        cur = conn.cursor()
+        cur.execute("SELECT ZNATION_ID, ZNAME FROM ZMONATION")
+        for nid, name in cur.fetchall():
+            try:
+                nation_lookup[int(nid)] = str(name or "")
+            except (TypeError, ValueError):
+                continue
+        conn.close()
+    return nation_lookup
+
+
+def convert_players(input_players: list, nation_lookup: dict):
     out = []
     for src in sorted(input_players, key=lambda p: int(p['playerId'])):
         pid = int(src['playerId'])
         p = src.get('player', {})
         params = src.get('params', [])
         category = src.get('category') or 'NR'
+        info = src.get('info') or {}
+        nation_id = int(p.get('NATION_ID', 0) or 0)
+        nation_name = nation_lookup.get(nation_id) or f"国籍ID:{nation_id}"
 
         periods = make_periods(params)
         metric_values, best_total = pick_peak_metrics(periods)
@@ -180,6 +199,13 @@ def convert_players(input_players: list):
             'rate': int(p.get('RARITY', 0) or 0),
             'positionHeatmaps': segments,
             'positionHeatmapBySeason': by_season,
+            'fullName': p.get('FULLNAME') or p.get('NAME') or '',
+            'nationality': nation_name,
+            'nationId': nation_id,
+            'playType': info.get('PLAY_TYPE') or '',
+            'height': int(p.get('TALL', 0) or 0),
+            'weight': int(p.get('WEIGHT', 0) or 0),
+            'description': info.get('DESCRIPTION_TEXT') or '',
         })
     return out
 
@@ -190,12 +216,14 @@ def main():
     ap.add_argument('--resources-zip', required=True)
     ap.add_argument('--app-dir', default='app')
     ap.add_argument('--docs-dir', default='docs')
+    ap.add_argument('--sqlite-path', default='')
     args = ap.parse_args()
 
     with open(args.input_json, 'r', encoding='utf-8') as f:
         src = json.load(f)
 
-    players = convert_players(src.get('players', []))
+    nation_lookup = build_nation_lookup(args.sqlite_path)
+    players = convert_players(src.get('players', []), nation_lookup)
 
     now = dt.datetime.now(dt.timezone(dt.timedelta(hours=9))).isoformat(timespec='seconds')
     out_data = {

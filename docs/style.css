@@ -545,6 +545,9 @@ button.ghost {
 .card.is-expanded .card-body {
   overflow: hidden;
 }
+.card.mode-2 .card-body {
+  overflow: auto;
+}
 
 .card-id {
   position: absolute;
@@ -597,6 +600,63 @@ button.ghost {
   min-height: 0;
   display: flex;
   flex-direction: column;
+}
+
+.profile-view {
+  margin-top: 8px;
+  display: grid;
+  gap: 8px;
+}
+
+.profile-side {
+  margin-left: auto;
+  width: 148px;
+  display: grid;
+  gap: 4px;
+  transform: translateX(-10px);
+}
+
+.profile-item {
+  display: grid;
+  gap: 1px;
+  background: #121d31;
+  border: 1px solid #334a70;
+  border-radius: 6px;
+  padding: 3px 5px;
+}
+
+.profile-item .k {
+  font-size: 0.60rem;
+  color: #8ea8d6;
+  line-height: 1.1;
+}
+
+.profile-item .v {
+  font-size: 0.68rem;
+  color: #e4eeff;
+  line-height: 1.15;
+  word-break: break-word;
+}
+
+.profile-description-wrap {
+  margin-top: 2px;
+  border: 1px solid #334a70;
+  border-radius: 8px;
+  background: #111b2d;
+  padding: 6px;
+}
+
+.profile-description-title {
+  font-size: 0.66rem;
+  color: #9bb4de;
+  margin-bottom: 4px;
+}
+
+.profile-description {
+  font-size: 0.70rem;
+  color: #dce7ff;
+  line-height: 1.45;
+  white-space: pre-wrap;
 }
 
 .expanded-media {
