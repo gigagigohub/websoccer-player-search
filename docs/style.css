@@ -800,6 +800,7 @@ button.ghost {
 
 .hm-cell.hm-dim {
   background: rgba(255, 95, 34, 0.0);
+  border-color: transparent;
   color: rgba(225, 233, 255, 0.48);
   text-shadow: none;
   font-weight: 600;
