@@ -522,6 +522,12 @@ button.ghost {
   margin-top: 8px;
 }
 
+.result-more {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
 .card {
   border: 1px solid var(--line);
   border-radius: 12px;

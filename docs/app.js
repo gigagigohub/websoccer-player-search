@@ -23,11 +23,12 @@ const DETAIL_METRIC_LABELS = {
 const LINEUP_SIZE = 11;
 const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
+const RENDER_BATCH_SIZE = 200;
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-15T02:49:32+09:00";
-const APP_UPDATED_AT_JST = "2026-03-15 02:49 JST";
+const APP_UPDATED_AT_ISO = "2026-03-15T03:14:39+09:00";
+const APP_UPDATED_AT_JST = "2026-03-15 03:14 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function formatIsoToJstLabel(isoString) {
@@ -89,6 +90,7 @@ const els = {
   resetCondition: document.querySelector("#resetCondition"),
   resultCount: document.querySelector("#resultCount"),
   results: document.querySelector("#results"),
+  loadMoreResults: document.querySelector("#loadMoreResults"),
   conditionTemplate: document.querySelector("#conditionTemplate"),
   lineupModal: document.querySelector("#lineupModal"),
   lineupBackdrop: document.querySelector("#lineupBackdrop"),
@@ -139,6 +141,8 @@ const els = {
 
 let players = [];
 const cardViewModeById = new Map();
+let currentFilteredPlayers = [];
+let renderedCount = 0;
 let pendingLineupPlayerId = null;
 let pendingLineupSlotIndex = null;
 let pendingLineupMode = "starter";
@@ -1391,9 +1395,39 @@ function render() {
     if (ar !== br) return ar - br;
     return (b.bestTotal - a.bestTotal) || a.name.localeCompare(b.name, "ja");
   });
+  currentFilteredPlayers = filtered;
+  renderedCount = 0;
+  els.results.innerHTML = "";
+  renderNextBatch(true);
+}
 
-  els.resultCount.textContent = `${filtered.length} results`;
-  els.results.innerHTML = filtered.map((p) => cardHtml(p)).join("");
+function updateResultSummary() {
+  const total = currentFilteredPlayers.length;
+  if (total > renderedCount) {
+    els.resultCount.textContent = `${total} results (showing ${renderedCount})`;
+  } else {
+    els.resultCount.textContent = `${total} results`;
+  }
+  if (els.loadMoreResults) {
+    els.loadMoreResults.hidden = renderedCount >= total;
+  }
+}
+
+function renderNextBatch(reset = false) {
+  if (reset) {
+    renderedCount = 0;
+    els.results.innerHTML = "";
+  }
+  const total = currentFilteredPlayers.length;
+  if (renderedCount >= total) {
+    updateResultSummary();
+    return;
+  }
+  const nextCount = Math.min(total, renderedCount + RENDER_BATCH_SIZE);
+  const chunk = currentFilteredPlayers.slice(renderedCount, nextCount);
+  els.results.insertAdjacentHTML("beforeend", chunk.map((p) => cardHtml(p)).join(""));
+  renderedCount = nextCount;
+  updateResultSummary();
 }
 
 async function init() {
@@ -1443,6 +1477,9 @@ async function init() {
   });
 
   els.applySearch.addEventListener("click", render);
+  if (els.loadMoreResults) {
+    els.loadMoreResults.addEventListener("click", () => renderNextBatch(false));
+  }
   if (els.menuButton) {
     els.menuButton.addEventListener("click", () => {
       if (!els.menuPanel) return;
@@ -1822,6 +1859,7 @@ async function init() {
   renderHeaderMeta();
   els.resultCount.textContent = "0 results";
   els.results.innerHTML = "";
+  if (els.loadMoreResults) els.loadMoreResults.hidden = true;
 }
 
 init().catch((e) => {
