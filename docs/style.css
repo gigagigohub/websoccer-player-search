@@ -664,9 +664,9 @@ button.ghost {
   border-radius: 8px;
   background: #111b2d;
   padding: 6px;
-  height: 160px;
-  min-height: 160px;
-  max-height: 160px;
+  height: 152px;
+  min-height: 152px;
+  max-height: 152px;
   display: grid;
   grid-template-rows: auto 1fr;
 }
