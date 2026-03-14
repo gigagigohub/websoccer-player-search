@@ -582,16 +582,20 @@ button.ghost {
   top: 6px;
   right: 8px;
   display: flex;
-  gap: 3px;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 8px;
+  border: 1px solid #2f4469;
+  background: #131f34;
 }
 
 .card-tab {
-  width: 24px;
+  width: 36px;
   height: 22px;
-  border-radius: 6px;
-  border: 1px solid #36507e;
-  background: #16223a;
-  color: #dce7ff;
+  border-radius: 6px 6px 4px 4px;
+  border: 1px solid #395684;
+  background: linear-gradient(180deg, #1d2d49 0%, #14223a 100%);
+  color: #cfe0ff;
   font-size: 0.62rem;
   font-weight: 700;
   line-height: 1;
@@ -599,15 +603,16 @@ button.ghost {
 }
 
 .card-tab.is-active {
-  background: #2a3f66;
-  border-color: #4f74b3;
+  background: linear-gradient(180deg, #3a5789 0%, #25416d 100%);
+  border-color: #6e97df;
   color: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24);
 }
 
 .lineup-toggle {
   position: absolute;
   top: 6px;
-  right: 92px;
+  right: 130px;
   width: 48px;
   height: 22px;
   border-radius: 6px;
@@ -632,7 +637,7 @@ button.ghost {
 .profile-view {
   margin-top: 0;
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .profile-side {
@@ -666,7 +671,7 @@ button.ghost {
 }
 
 .profile-description-wrap {
-  margin-top: 2px;
+  margin-top: 0;
   border: 1px solid #334a70;
   border-radius: 8px;
   background: #111b2d;

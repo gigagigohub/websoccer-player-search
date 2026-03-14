@@ -26,7 +26,8 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-15 00:42 JST";
+const APP_UPDATED_AT_ISO = "2026-03-15T01:04:00+09:00";
+const APP_UPDATED_AT_JST = "2026-03-15 01:04 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function formatIsoToJstLabel(isoString) {
@@ -43,6 +44,14 @@ function formatIsoToJstLabel(isoString) {
   }).formatToParts(d);
   const get = (type) => parts.find((p) => p.type === type)?.value || "";
   return `${get("year")}-${get("month")}-${get("day")} ${get("hour")}:${get("minute")} JST`;
+}
+
+function pickLatestIso(a, b) {
+  const ta = new Date(a).getTime();
+  const tb = new Date(b).getTime();
+  if (Number.isNaN(ta)) return b;
+  if (Number.isNaN(tb)) return a;
+  return ta >= tb ? a : b;
 }
 
 function metricLabel(metric) {
@@ -1147,8 +1156,7 @@ function profileViewHtml(player, staticImg, actionImg) {
   const playType = player.playType || "-";
   const height = Number(player.height);
   const weight = Number(player.weight);
-  const heightText = `${Number.isFinite(height) && height > 0 ? height : "-"}cm`;
-  const weightText = `${Number.isFinite(weight) && weight > 0 ? weight : "-"}kg`;
+  const hwText = `${Number.isFinite(height) && height > 0 ? height : "-"}cm / ${Number.isFinite(weight) && weight > 0 ? weight : "-"}kg`;
   const description = (player.description || "").trim() || "説明なし";
 
   return `
@@ -1160,8 +1168,7 @@ function profileViewHtml(player, staticImg, actionImg) {
         </div>
         <div class="profile-side">
           <div class="profile-item"><span class="k">国籍</span><span class="v">${nationality}</span></div>
-          <div class="profile-item"><span class="k">身長</span><span class="v">${heightText}</span></div>
-          <div class="profile-item"><span class="k">体重</span><span class="v">${weightText}</span></div>
+          <div class="profile-item"><span class="k">身長体重</span><span class="v">${hwText}</span></div>
           <div class="profile-item"><span class="k">タイプ</span><span class="v">${playType}</span></div>
         </div>
       </div>
@@ -1777,7 +1784,8 @@ async function init() {
   const res = await fetch("./data.json");
   const data = await res.json();
   players = data.players || [];
-  appUpdatedAtJst = formatIsoToJstLabel(data.generatedAt) || APP_UPDATED_AT_JST;
+  const latestIso = pickLatestIso(data.generatedAt, APP_UPDATED_AT_ISO);
+  appUpdatedAtJst = formatIsoToJstLabel(latestIso) || APP_UPDATED_AT_JST;
   syncAptitudeAreaLabel();
   syncNRAllChip();
 
