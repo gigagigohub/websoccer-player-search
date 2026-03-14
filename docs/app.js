@@ -22,13 +22,12 @@ const DETAIL_METRIC_LABELS = {
 };
 const LINEUP_SIZE = 11;
 const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
-const PENDING_ADD_PLAYER_ID_KEY = "ws_pending_add_player_id";
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-15T02:39:16+09:00";
-const APP_UPDATED_AT_JST = "2026-03-15 02:39 JST";
+const APP_UPDATED_AT_ISO = "2026-03-15T02:42:40+09:00";
+const APP_UPDATED_AT_JST = "2026-03-15 02:42 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function formatIsoToJstLabel(isoString) {
@@ -1820,18 +1819,6 @@ async function init() {
   appUpdatedAtJst = formatIsoToJstLabel(latestIso) || APP_UPDATED_AT_JST;
   syncAptitudeAreaLabel();
   syncNRAllChip();
-  const pendingAddRaw = sessionStorage.getItem(PENDING_ADD_PLAYER_ID_KEY);
-  const initialAddPlayerId = Number(pendingAddRaw);
-  if (Number.isInteger(initialAddPlayerId)) {
-    sessionStorage.removeItem(PENDING_ADD_PLAYER_ID_KEY);
-    if (isLoggedIn()) {
-      openLineupModal(initialAddPlayerId);
-    } else {
-      pendingLoginForAddPlayerId = initialAddPlayerId;
-      openLoginModal();
-    }
-  }
-
   renderHeaderMeta();
   els.resultCount.textContent = "0 results";
   els.results.innerHTML = "";

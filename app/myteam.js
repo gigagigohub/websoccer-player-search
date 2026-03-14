@@ -6,7 +6,6 @@ const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOi
 const LINEUP_SIZE = 11;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const CORE_METRICS = ["スピ", "テク", "パワ"];
-const PENDING_ADD_PLAYER_ID_KEY = "ws_pending_add_player_id";
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織"
@@ -1059,14 +1058,6 @@ async function init() {
   if (els.playerCardBackdrop) els.playerCardBackdrop.addEventListener("click", closePlayerCardModal);
   if (els.playerCardHost) {
     els.playerCardHost.addEventListener("click", (e) => {
-      const lineupBtn = e.target.closest(".lineup-toggle");
-      if (lineupBtn) {
-        const id = Number(lineupBtn.dataset.playerId);
-        if (!Number.isInteger(id)) return;
-        sessionStorage.setItem(PENDING_ADD_PLAYER_ID_KEY, String(id));
-        window.location.href = "./index.html";
-        return;
-      }
       const tabBtn = e.target.closest(".card-tab");
       if (!tabBtn) return;
       const id = Number(tabBtn.dataset.playerId);
