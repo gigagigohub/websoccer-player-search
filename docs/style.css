@@ -1191,14 +1191,14 @@ button.ghost {
 .metric-box {
   border: 1px solid #30415d;
   border-radius: 8px;
-  padding: 0 3px;
+  padding: 0 2px;
   background: #162136;
   text-align: left;
 }
 
 .metric-key {
   display: block;
-  font-size: 0.60rem;
+  font-size: 0.58rem;
   line-height: 1.0;
   color: var(--sub);
   margin-bottom: 0;
@@ -1207,12 +1207,12 @@ button.ghost {
 .metric-body {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 3px;
+  gap: 2px;
   align-items: center;
 }
 
 .metric-num {
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   font-weight: 700;
   font-style: italic;
   line-height: 1.0;
@@ -1224,7 +1224,7 @@ button.ghost {
 .gauge {
   margin-top: 1px;
   width: 100%;
-  height: 8px;
+  height: 9px;
   border-radius: 0;
   display: grid;
   grid-template-columns: repeat(10, minmax(0, 1fr));
@@ -1711,7 +1711,7 @@ button.ghost {
   }
 
   .metric-box {
-    padding: 6px 5px;
+    padding: 2px 3px;
   }
 
   .card {
