@@ -26,7 +26,24 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-15 00:26 JST";
+const APP_UPDATED_AT_JST = "2026-03-15 00:42 JST";
+let appUpdatedAtJst = APP_UPDATED_AT_JST;
+
+function formatIsoToJstLabel(isoString) {
+  const d = new Date(isoString);
+  if (Number.isNaN(d.getTime())) return null;
+  const parts = new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(d);
+  const get = (type) => parts.find((p) => p.type === type)?.value || "";
+  return `${get("year")}-${get("month")}-${get("day")} ${get("hour")}:${get("minute")} JST`;
+}
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -186,7 +203,7 @@ function renderHeaderMeta() {
   const loginBadge = isLoggedIn()
     ? `<span class="meta-login-badge">Login：${cloudConfig.lineupKey}</span>`
     : "";
-  els.metaText.innerHTML = `Updated: ${APP_UPDATED_AT_JST}${loginBadge ? ` / ${loginBadge}` : ""}`;
+  els.metaText.innerHTML = `Updated: ${appUpdatedAtJst}${loginBadge ? ` / ${loginBadge}` : ""}`;
 }
 
 function syncAptitudeAreaLabel() {
@@ -1703,6 +1720,7 @@ async function init() {
   const res = await fetch("./data.json");
   const data = await res.json();
   players = data.players || [];
+  appUpdatedAtJst = formatIsoToJstLabel(data.generatedAt) || APP_UPDATED_AT_JST;
   syncAptitudeAreaLabel();
   syncNRAllChip();
 
