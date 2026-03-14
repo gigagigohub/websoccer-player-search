@@ -6,6 +6,7 @@ const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOi
 const LINEUP_SIZE = 11;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const CORE_METRICS = ["スピ", "テク", "パワ"];
+const PENDING_ADD_PLAYER_ID_KEY = "ws_pending_add_player_id";
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織"
@@ -931,7 +932,6 @@ function playerCardHtml(player, season) {
     <article class="card ${cardStateClass} mode-${viewMode}" data-player-id="${player.id}">
       <div class="card-top">
         ${cardTabsHtml(player.id, viewMode)}
-        <button type="button" class="lineup-toggle" data-player-id="${player.id}" aria-label="スタメン登録">Add</button>
         <span class="card-id">ID: ${player.id}</span>
         <div class="card-head-main">
           <h3 class="card-name">
@@ -1063,7 +1063,8 @@ async function init() {
       if (lineupBtn) {
         const id = Number(lineupBtn.dataset.playerId);
         if (!Number.isInteger(id)) return;
-        window.location.href = `./index.html?addPlayerId=${id}`;
+        sessionStorage.setItem(PENDING_ADD_PLAYER_ID_KEY, String(id));
+        window.location.href = "./index.html";
         return;
       }
       const tabBtn = e.target.closest(".card-tab");
