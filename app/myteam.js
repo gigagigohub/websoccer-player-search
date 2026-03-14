@@ -667,6 +667,12 @@ function positionHeatmapsHtml(player) {
   if (!segments.length) return "";
   const isGK = (player.position || "").toUpperCase() === "GK";
   const singleClass = segments.length === 1 ? "single" : "multi";
+  const hiddenVal = (seg, key, fallback = null) => {
+    const v = seg?.hiddenR?.[key];
+    if (v == null) return fallback;
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.round(n) : fallback;
+  };
 
   const items = segments.map((seg) => {
     const label = seg?.label || "";
@@ -685,6 +691,25 @@ function positionHeatmapsHtml(player) {
     const gkCell = (isGK && gkVal != null)
       ? `<div class="gk-cell hm-l${Math.max(1, Math.min(7, Number(gkVal) || 1))}">${gkVal}</div>`
       : "";
+    const r13 = hiddenVal(seg, "R13", grid?.[4]?.[0]);
+    const r14 = hiddenVal(seg, "R14", grid?.[4]?.[1]);
+    const r15 = hiddenVal(seg, "R15", grid?.[4]?.[2]);
+    const r16 = hiddenVal(seg, "R16", null);
+    const r17 = hiddenVal(seg, "R17", null);
+    const r18 = hiddenVal(seg, "R18", null);
+    const hiddenText = isGK
+      ? `
+          <div class="hm-hidden hm-hidden-gk">
+            <div class="hm-hidden-row hm-hidden-row-gk"><span>${r13 ?? "-"}</span><span>${r15 ?? "-"}</span></div>
+            <div class="hm-hidden-row"><span>${r16 ?? "-"}</span><span>${r17 ?? "-"}</span><span>${r18 ?? "-"}</span></div>
+          </div>
+        `
+      : `
+          <div class="hm-hidden">
+            <div class="hm-hidden-row"><span>${r13 ?? "-"}</span><span>${r14 ?? "-"}</span><span>${r15 ?? "-"}</span></div>
+            <div class="hm-hidden-row"><span>${r16 ?? "-"}</span><span>${r17 ?? "-"}</span><span>${r18 ?? "-"}</span></div>
+          </div>
+        `;
 
     return `
       <div class="pos-heatmap-seg">
@@ -693,6 +718,7 @@ function positionHeatmapsHtml(player) {
           <div class="pitch-lines"></div>
           <div class="hm-grid">${outCells}</div>
           ${gkCell}
+          ${hiddenText}
         </div>
       </div>
     `;

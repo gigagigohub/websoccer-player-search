@@ -101,6 +101,14 @@ def make_heatmaps(params: list, pos_type: int):
         raw = int(row.get('SZN_NO', 0) or 0)
         label = season_label(raw)
         grid = to_grid(row, is_gk)
+        hidden_r = {
+            'R13': int(row.get('R13', 0) or 0),
+            'R14': int(row.get('R14', 0) or 0),
+            'R15': int(row.get('R15', 0) or 0),
+            'R16': int(row.get('R16', 0) or 0),
+            'R17': int(row.get('R17', 0) or 0),
+            'R18': int(row.get('R18', 0) or 0),
+        }
         by_season[label] = grid
 
         if prev_grid is None or grid != prev_grid:
@@ -109,6 +117,7 @@ def make_heatmaps(params: list, pos_type: int):
                 'label': f'{seg_start}期〜',
                 'start': seg_start,
                 'grid': grid,
+                'hiddenR': hidden_r,
             })
             prev_grid = grid
 

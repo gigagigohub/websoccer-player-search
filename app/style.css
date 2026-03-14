@@ -778,7 +778,7 @@ button.ghost {
 
 .hm-grid {
   position: absolute;
-  inset: 0;
+  inset: -10px 0 0;
 }
 
 .hm-cell {
@@ -801,7 +801,7 @@ button.ghost {
   position: absolute;
   left: 50%;
   top: calc(4 * 20%);
-  transform: translateX(-50%);
+  transform: translate(-50%, -10px);
   width: 33.3333%;
   height: 20%;
   display: flex;
@@ -812,6 +812,31 @@ button.ghost {
   font-weight: 700;
   color: #fff;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
+}
+
+.hm-hidden {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  gap: 1px;
+  pointer-events: none;
+}
+
+.hm-hidden-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  font-size: 0.48rem;
+  line-height: 1;
+  color: rgba(225, 233, 255, 0.5);
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.hm-hidden-row-gk {
+  grid-template-columns: repeat(2, 1fr);
 }
 
 .hm-l1 { background: rgba(255, 95, 34, 0.00); }
