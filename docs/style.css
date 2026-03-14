@@ -546,7 +546,7 @@ button.ghost {
   overflow: hidden;
 }
 .card.mode-2 .card-body {
-  overflow: auto;
+  overflow: hidden;
 }
 
 .card-id {
@@ -577,44 +577,10 @@ button.ghost {
   padding: 0;
 }
 
-.card-tabs {
-  position: absolute;
-  top: -6px;
-  right: 10px;
-  display: flex;
-  gap: 3px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  z-index: 6;
-}
-
-.card-tab {
-  min-width: 50px;
-  height: 20px;
-  border-radius: 6px 6px 0 0;
-  border: 1px solid #2f4469;
-  border-bottom-color: #1a2640;
-  background: linear-gradient(180deg, #1a2741 0%, #121f35 100%);
-  color: #bfd3f8;
-  font-size: 0.60rem;
-  font-weight: 700;
-  line-height: 1;
-  padding: 0 8px;
-}
-
-.card-tab.is-active {
-  background: linear-gradient(180deg, #284269 0%, #1d3354 100%);
-  border-color: #5d82c4;
-  border-bottom-color: #1a2640;
-  color: #ffffff;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
-}
-
 .lineup-toggle {
   position: absolute;
   top: 6px;
-  right: 146px;
+  right: 74px;
   width: 48px;
   height: 22px;
   border-radius: 6px;
@@ -634,6 +600,25 @@ button.ghost {
   min-height: 0;
   display: flex;
   flex-direction: column;
+}
+
+.swipe-deck {
+  width: 100%;
+  overflow: hidden;
+}
+
+.swipe-track {
+  width: 300%;
+  display: flex;
+  transform: translateX(calc(var(--mode, 0) * -33.333333%));
+  transition: transform 0.18s ease;
+}
+
+.swipe-pane {
+  width: 33.333333%;
+  flex: 0 0 33.333333%;
+  min-width: 0;
+  padding-right: 2px;
 }
 
 .profile-view {
@@ -691,6 +676,8 @@ button.ghost {
   color: #dce7ff;
   line-height: 1.45;
   white-space: pre-wrap;
+  max-height: 168px;
+  overflow: auto;
 }
 
 .expanded-media {

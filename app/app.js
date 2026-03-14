@@ -26,8 +26,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-15T01:16:00+09:00";
-const APP_UPDATED_AT_JST = "2026-03-15 01:16 JST";
+const APP_UPDATED_AT_JST = "2026-03-15 00:48 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function formatIsoToJstLabel(isoString) {
@@ -44,14 +43,6 @@ function formatIsoToJstLabel(isoString) {
   }).formatToParts(d);
   const get = (type) => parts.find((p) => p.type === type)?.value || "";
   return `${get("year")}-${get("month")}-${get("day")} ${get("hour")}:${get("minute")} JST`;
-}
-
-function pickLatestIso(a, b) {
-  const ta = new Date(a).getTime();
-  const tb = new Date(b).getTime();
-  if (Number.isNaN(ta)) return b;
-  if (Number.isNaN(tb)) return a;
-  return ta >= tb ? a : b;
 }
 
 function metricLabel(metric) {
@@ -1184,24 +1175,19 @@ function getCardViewMode(playerId) {
   return cardViewModeById.get(playerId) || 0;
 }
 
-function cardTabsHtml(playerId, viewMode) {
-  const tabs = [
-    { mode: 0, label: "PRM" },
-    { mode: 1, label: "DTL" },
-    { mode: 2, label: "SCR" },
-  ];
+function nextCardViewMode(mode, dir) {
+  const len = 3;
+  return (mode + dir + len) % len;
+}
+
+function swipeDeckHtml(viewMode, normalViewHtml, detailViewHtml, thirdViewHtml) {
   return `
-    <div class="card-tabs" role="tablist" aria-label="Card View Tabs">
-      ${tabs.map((t) => `
-        <button
-          type="button"
-          class="card-tab${viewMode === t.mode ? " is-active" : ""}"
-          data-player-id="${playerId}"
-          data-mode="${t.mode}"
-          role="tab"
-          aria-selected="${viewMode === t.mode ? "true" : "false"}"
-        >${t.label}</button>
-      `).join("")}
+    <div class="swipe-deck" style="--mode:${viewMode}">
+      <div class="swipe-track">
+        <section class="swipe-pane">${normalViewHtml}</section>
+        <section class="swipe-pane">${detailViewHtml}</section>
+        <section class="swipe-pane">${thirdViewHtml}</section>
+      </div>
     </div>
   `;
 }
@@ -1300,13 +1286,12 @@ function cardHtml(player) {
   `;
   const detailViewHtml = periodTableHtml(player, staticImg, actionImg);
   const thirdViewHtml = profileViewHtml(player, staticImg, actionImg);
-  const bodyHtml = viewMode === 1 ? detailViewHtml : viewMode === 2 ? thirdViewHtml : normalViewHtml;
+  const bodyHtml = swipeDeckHtml(viewMode, normalViewHtml, detailViewHtml, thirdViewHtml);
   const cardStateClass = viewMode === 1 ? "is-expanded" : "is-collapsed";
 
   return `
     <article class="card ${cardStateClass} mode-${viewMode}" data-player-id="${player.id}">
       <div class="card-top">
-        ${cardTabsHtml(player.id, viewMode)}
         <button type="button" class="lineup-toggle" data-player-id="${player.id}" aria-label="スタメン登録">Add</button>
         <span class="card-id">ID: ${player.id}</span>
         <div class="card-head-main">
@@ -1462,15 +1447,39 @@ async function init() {
       return;
     }
 
-    const btn = e.target.closest(".card-tab");
-    if (!btn) return;
-    const id = Number(btn.dataset.playerId);
-    const mode = Number(btn.dataset.mode);
-    if (!Number.isInteger(id)) return;
-    if (!Number.isInteger(mode) || mode < 0 || mode > 2) return;
-    cardViewModeById.set(id, mode);
-    rerenderSingleCard(id);
   });
+  let swipeSession = null;
+  els.results.addEventListener("touchstart", (e) => {
+    const body = e.target.closest(".card-body");
+    if (!body) return;
+    if (e.target.closest(".periods-scroll")) return;
+    const card = e.target.closest(".card");
+    const touch = e.touches && e.touches[0];
+    if (!card || !touch) return;
+    const playerId = Number(card.dataset.playerId);
+    if (!Number.isInteger(playerId)) return;
+    swipeSession = { playerId, x: touch.clientX, y: touch.clientY };
+  }, { passive: true });
+
+  els.results.addEventListener("touchend", (e) => {
+    if (!swipeSession) return;
+    const touch = e.changedTouches && e.changedTouches[0];
+    if (!touch) {
+      swipeSession = null;
+      return;
+    }
+    const dx = touch.clientX - swipeSession.x;
+    const dy = touch.clientY - swipeSession.y;
+    const horizontal = Math.abs(dx) > Math.abs(dy) + 8;
+    const threshold = 36;
+    if (horizontal && Math.abs(dx) >= threshold) {
+      const current = getCardViewMode(swipeSession.playerId);
+      const next = dx < 0 ? nextCardViewMode(current, +1) : nextCardViewMode(current, -1);
+      cardViewModeById.set(swipeSession.playerId, next);
+      rerenderSingleCard(swipeSession.playerId);
+    }
+    swipeSession = null;
+  }, { passive: true });
 
   if (els.lineupBackdrop) {
     els.lineupBackdrop.addEventListener("click", closeLineupModal);
@@ -1784,8 +1793,7 @@ async function init() {
   const res = await fetch("./data.json");
   const data = await res.json();
   players = data.players || [];
-  const latestIso = pickLatestIso(data.generatedAt, APP_UPDATED_AT_ISO);
-  appUpdatedAtJst = formatIsoToJstLabel(latestIso) || APP_UPDATED_AT_JST;
+  appUpdatedAtJst = formatIsoToJstLabel(data.generatedAt) || APP_UPDATED_AT_JST;
   syncAptitudeAreaLabel();
   syncNRAllChip();
 
