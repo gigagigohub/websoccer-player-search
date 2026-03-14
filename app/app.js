@@ -26,8 +26,8 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-15T01:42:00+09:00";
-const APP_UPDATED_AT_JST = "2026-03-15 01:42 JST";
+const APP_UPDATED_AT_ISO = "2026-03-15T01:43:44+09:00";
+const APP_UPDATED_AT_JST = "2026-03-15 01:43 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function formatIsoToJstLabel(isoString) {
@@ -1279,6 +1279,7 @@ function cardHtml(player) {
   const typeClass = typeClassByPlayer(player);
   const pos = (player.position || "-").toUpperCase();
   const posClass = positionClass(pos);
+  const peakBlock = viewMode === 0 ? `<div class="peak-periods peak-in-body">${peakHtml}</div>` : "";
   const normalViewHtml = `
       <div class="param-view">
           <div class="media-row">
@@ -1301,6 +1302,7 @@ function cardHtml(player) {
               <div class="mind-label left">個人 ${mind.kojin}</div>
             </div>
           </div>
+      ${peakBlock}
       <div class="metrics-wrap">
         <div class="metrics main-3">${mainMetrics.map(metricBox).join("")}</div>
         <div class="metric-group">
@@ -1316,9 +1318,6 @@ function cardHtml(player) {
   const thirdViewHtml = profileViewHtml(player, staticImg, actionImg);
   const bodyHtml = swipeDeckHtml(viewMode, normalViewHtml, detailViewHtml, thirdViewHtml);
   const cardStateClass = viewMode === 1 ? "is-expanded" : "is-collapsed";
-  const peakBlock = viewMode === 0
-    ? `<div class="peak-periods">${peakHtml}</div>`
-    : `<div class="peak-periods is-hidden">-</div>`;
 
   return `
     <article class="card ${cardStateClass} mode-${viewMode}" data-player-id="${player.id}">
@@ -1332,7 +1331,6 @@ function cardHtml(player) {
             <span class="badge type-badge ${typeClass}">${typeLabel}</span>
             <span>${player.name}</span>
           </h3>
-          ${peakBlock}
         </div>
       </div>
       <div class="card-body">
