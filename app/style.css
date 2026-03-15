@@ -1299,6 +1299,11 @@ button.ghost {
   overflow: hidden;
 }
 
+.metric-box .gauge {
+  transform: scaleY(2);
+  transform-origin: center;
+}
+
 .peak-periods.peak-in-body {
   margin-top: 1px;
   margin-bottom: 2px;
