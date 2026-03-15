@@ -694,6 +694,7 @@ function positionHeatmapsHtml(player) {
         const hasVal = raw != null;
         const n = Math.max(1, Math.min(7, Number(raw) || 1));
         const classes = ["hm-cell"];
+        classes.push(`hm-code-${code}`);
         if (passiveCodes.has(code)) {
           classes.push("hm-dim");
         } else if (hasVal) {
