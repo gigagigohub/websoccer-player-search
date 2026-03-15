@@ -27,8 +27,8 @@ const RENDER_BATCH_SIZE = 200;
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-15T03:14:39+09:00";
-const APP_UPDATED_AT_JST = "2026-03-15 03:14 JST";
+const APP_UPDATED_AT_ISO = "2026-03-15T09:38:49+09:00";
+const APP_UPDATED_AT_JST = "2026-03-15 09:38 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function formatIsoToJstLabel(isoString) {
@@ -72,6 +72,7 @@ const els = {
   settingButton: document.querySelector("#settingButton"),
   logoutButton: document.querySelector("#logoutButton"),
   nameQuery: document.querySelector("#nameQuery"),
+  nameSuggest: document.querySelector("#nameSuggest"),
   positionFilter: document.querySelector("#positionFilter"),
   aptitudePositionFilter: document.querySelector("#aptitudePositionFilter"),
   aptitudeIncludeSix: document.querySelector("#aptitudeIncludeSix"),
@@ -732,6 +733,44 @@ function toHiragana(s) {
     .replace(/[\u30a1-\u30f6]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0x60))
     .replace(/[・･·\.．]/g, "")
     .replace(/\s+/g, "");
+}
+
+function hideNameSuggest() {
+  if (!els.nameSuggest) return;
+  els.nameSuggest.hidden = true;
+  els.nameSuggest.innerHTML = "";
+}
+
+function getNameSuggestions(rawQuery, limit = 3) {
+  const query = toHiragana(String(rawQuery || "").toLowerCase().trim());
+  if (!query) return [];
+  const seen = new Set();
+  const hits = [];
+  for (const player of players) {
+    const name = String(player?.name || "");
+    if (!name || seen.has(name)) continue;
+    const norm = toHiragana(name.toLowerCase());
+    const idx = norm.indexOf(query);
+    if (idx < 0) continue;
+    seen.add(name);
+    const score = idx === 0 ? 0 : (idx + 1);
+    hits.push({ name, score, len: name.length });
+  }
+  hits.sort((a, b) => a.score - b.score || a.len - b.len || a.name.localeCompare(b.name, "ja"));
+  return hits.slice(0, limit).map((x) => x.name);
+}
+
+function updateNameSuggest() {
+  if (!els.nameSuggest || !els.nameQuery) return;
+  const list = getNameSuggestions(els.nameQuery.value, 3);
+  if (!list.length) {
+    hideNameSuggest();
+    return;
+  }
+  els.nameSuggest.innerHTML = list
+    .map((name) => `<button type="button" class="name-suggest-item" data-name="${name}">${name}</button>`)
+    .join("");
+  els.nameSuggest.hidden = false;
 }
 
 function addConditionRow(defaults = {}) {
@@ -1443,6 +1482,7 @@ async function init() {
   els.resetCondition.addEventListener("click", () => {
     els.conditions.innerHTML = "";
     els.nameQuery.value = "";
+    hideNameSuggest();
     [
       els.nrWhiteOnly, els.nrBronzeOnly, els.nrSilverOnly, els.nrGoldOnly, els.nrAllOnly,
       els.ssOnly, els.cmOnly, els.ccOnly,
@@ -1477,6 +1517,20 @@ async function init() {
   });
 
   els.applySearch.addEventListener("click", render);
+  if (els.nameQuery) {
+    els.nameQuery.addEventListener("input", updateNameSuggest);
+    els.nameQuery.addEventListener("focus", updateNameSuggest);
+  }
+  if (els.nameSuggest) {
+    els.nameSuggest.addEventListener("click", (e) => {
+      const btn = e.target.closest(".name-suggest-item");
+      if (!btn || !els.nameQuery) return;
+      const name = String(btn.dataset.name || "");
+      els.nameQuery.value = name;
+      hideNameSuggest();
+      els.nameQuery.focus();
+    });
+  }
   if (els.loadMoreResults) {
     els.loadMoreResults.addEventListener("click", () => renderNextBatch(false));
   }
@@ -1515,6 +1569,11 @@ async function init() {
     if (els.menuPanel.hidden) return;
     if (e.target.closest("#menuButton") || e.target.closest("#menuPanel")) return;
     closeMenuPanel();
+  });
+  document.addEventListener("click", (e) => {
+    if (!els.nameSuggest || !els.nameQuery || els.nameSuggest.hidden) return;
+    if (e.target.closest("#nameQuery") || e.target.closest("#nameSuggest")) return;
+    hideNameSuggest();
   });
   els.results.addEventListener("click", (e) => {
     const lineupBtn = e.target.closest(".lineup-toggle");
@@ -1846,6 +1905,10 @@ async function init() {
     }
     if (e.key === "Escape" && els.settingModal && !els.settingModal.hidden) {
       closeSettingModal();
+      return;
+    }
+    if (e.key === "Escape" && els.nameSuggest && !els.nameSuggest.hidden) {
+      hideNameSuggest();
     }
   });
 

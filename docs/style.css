@@ -198,6 +198,34 @@ body {
   letter-spacing: 0.01em;
 }
 
+.name-suggest {
+  margin-top: 4px;
+  border: 1px solid #314767;
+  border-radius: 8px;
+  background: #111b2d;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.name-suggest button {
+  width: 100%;
+  border: 0;
+  border-top: 1px solid rgba(80, 108, 154, 0.4);
+  background: transparent;
+  color: #e6efff;
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 0.86rem;
+}
+
+.name-suggest button:first-child {
+  border-top: 0;
+}
+
+.name-suggest button:active {
+  background: #1a2a45;
+}
+
 .panel {
   background: var(--panel);
   border: 1px solid var(--line);
