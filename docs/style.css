@@ -208,9 +208,12 @@ body {
 }
 
 .name-suggest button {
+  appearance: none;
+  -webkit-appearance: none;
   width: 100%;
   border: 0;
   border-top: 1px solid rgba(80, 108, 154, 0.4);
+  border-radius: 0;
   background: transparent;
   color: #e6efff;
   text-align: left;

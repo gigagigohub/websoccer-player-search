@@ -27,8 +27,8 @@ const RENDER_BATCH_SIZE = 200;
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-15T09:41:43+09:00";
-const APP_UPDATED_AT_JST = "2026-03-15 09:41 JST";
+const APP_UPDATED_AT_ISO = "2026-03-15T09:44:38+09:00";
+const APP_UPDATED_AT_JST = "2026-03-15 09:44 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function formatIsoToJstLabel(isoString) {
@@ -748,12 +748,16 @@ function getNameSuggestions(rawQuery, limit = 3) {
   const hits = [];
   for (const player of players) {
     const name = String(player?.name || "");
+    const type = String(player?.playType || "");
     if (!name || seen.has(name)) continue;
     const norm = toHiragana(name.toLowerCase());
-    const idx = norm.indexOf(query);
-    if (idx < 0) continue;
+    const typeNorm = toHiragana(type.toLowerCase());
+    const nameIdx = norm.indexOf(query);
+    const typeIdx = typeNorm.indexOf(query);
+    if (nameIdx < 0 && typeIdx < 0) continue;
     seen.add(name);
-    const score = idx === 0 ? 0 : (idx + 1);
+    const baseIdx = nameIdx >= 0 ? nameIdx : typeIdx;
+    const score = baseIdx === 0 ? 0 : (baseIdx + 1);
     hits.push({ name, score, len: name.length });
   }
   hits.sort((a, b) => a.score - b.score || a.len - b.len || a.name.localeCompare(b.name, "ja"));
@@ -1079,7 +1083,8 @@ function filterPlayers(conditions = getConditions()) {
       return false;
     }
     const playerName = toHiragana((player.name || "").toLowerCase());
-    if (query && !playerName.includes(query)) {
+    const playerType = toHiragana((player.playType || "").toLowerCase());
+    if (query && !playerName.includes(query) && !playerType.includes(query)) {
       return false;
     }
     if (positionFilter && player.position !== positionFilter) {
