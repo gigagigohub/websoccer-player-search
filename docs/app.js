@@ -27,8 +27,8 @@ const RENDER_BATCH_SIZE = 200;
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-15T09:44:38+09:00";
-const APP_UPDATED_AT_JST = "2026-03-15 09:44 JST";
+const APP_UPDATED_AT_ISO = "2026-03-15T10:01:03+09:00";
+const APP_UPDATED_AT_JST = "2026-03-15 10:01 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function formatIsoToJstLabel(isoString) {
@@ -744,24 +744,34 @@ function hideNameSuggest() {
 function getNameSuggestions(rawQuery, limit = 3) {
   const query = toHiragana(String(rawQuery || "").toLowerCase().trim());
   if (!query) return [];
-  const seen = new Set();
-  const hits = [];
+  const seenName = new Set();
+  const seenType = new Set();
+  const nameHits = [];
+  const typeHits = [];
   for (const player of players) {
     const name = String(player?.name || "");
     const type = String(player?.playType || "");
-    if (!name || seen.has(name)) continue;
+    if (!name) continue;
     const norm = toHiragana(name.toLowerCase());
     const typeNorm = toHiragana(type.toLowerCase());
     const nameIdx = norm.indexOf(query);
     const typeIdx = typeNorm.indexOf(query);
-    if (nameIdx < 0 && typeIdx < 0) continue;
-    seen.add(name);
-    const baseIdx = nameIdx >= 0 ? nameIdx : typeIdx;
-    const score = baseIdx === 0 ? 0 : (baseIdx + 1);
-    hits.push({ name, score, len: name.length });
+    if (nameIdx >= 0 && !seenName.has(name)) {
+      seenName.add(name);
+      const score = nameIdx === 0 ? 0 : (nameIdx + 1);
+      nameHits.push({ value: name, score, len: name.length });
+    }
+    if (type && typeIdx >= 0 && !seenType.has(type)) {
+      seenType.add(type);
+      const score = typeIdx === 0 ? 0 : (typeIdx + 1);
+      typeHits.push({ value: type, score, len: type.length });
+    }
   }
-  hits.sort((a, b) => a.score - b.score || a.len - b.len || a.name.localeCompare(b.name, "ja"));
-  return hits.slice(0, limit).map((x) => x.name);
+  const sorter = (a, b) => a.score - b.score || a.len - b.len || a.value.localeCompare(b.value, "ja");
+  nameHits.sort(sorter);
+  typeHits.sort(sorter);
+  if (typeHits.length > 0) return typeHits.slice(0, limit).map((x) => x.value);
+  return nameHits.slice(0, limit).map((x) => x.value);
 }
 
 function updateNameSuggest() {
