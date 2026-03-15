@@ -1300,7 +1300,7 @@ button.ghost {
 }
 
 .metric-box .gauge {
-  transform: scaleY(2);
+  transform: scaleY(1.6);
   transform-origin: center;
 }
 
