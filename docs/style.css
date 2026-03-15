@@ -1268,6 +1268,7 @@ button.ghost {
   line-height: 1.05;
   color: var(--sub);
   margin: 0;
+  transform: translateY(-0.55em);
 }
 
 .metric-body {
