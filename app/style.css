@@ -803,6 +803,7 @@ button.ghost {
 .pos-heatmap-label {
   font-size: 0.62rem;
   color: #cbd9fb;
+  width: 75%;
   text-align: center;
   transform: translateY(-1px);
 }
