@@ -201,7 +201,7 @@ body {
 .name-suggest {
   margin-top: 4px;
   border: 1px solid #314767;
-  border-radius: 8px;
+  border-radius: 0;
   background: #111b2d;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
   overflow: hidden;
