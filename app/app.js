@@ -2,7 +2,9 @@ const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織"
 ];
+const CONDITION_METRICS = ["ID", ...METRICS];
 const METRIC_LABELS = {
+  "ID": "ID",
   "スピ": "スピード",
   "テク": "テクニック",
   "パワ": "パワー",
@@ -27,8 +29,8 @@ const RENDER_BATCH_SIZE = 200;
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-15T17:51:26+09:00";
-const APP_UPDATED_AT_JST = "2026-03-15 17:51 JST";
+const APP_UPDATED_AT_ISO = "2026-03-15T23:01:42+09:00";
+const APP_UPDATED_AT_JST = "2026-03-15 23:01 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function formatIsoToJstLabel(isoString) {
@@ -735,6 +737,12 @@ function toHiragana(s) {
     .replace(/\s+/g, "");
 }
 
+function normalizedPlayerSearchName(player) {
+  const base = String(player?.name || "");
+  const ruby = String(player?.nameRuby || "");
+  return toHiragana(`${base}${ruby}`.toLowerCase());
+}
+
 function hideNameSuggest() {
   if (!els.nameSuggest) return;
   els.nameSuggest.hidden = true;
@@ -752,7 +760,7 @@ function getNameSuggestions(rawQuery, limit = 3) {
     const name = String(player?.name || "");
     const type = String(player?.playType || "");
     if (!name) continue;
-    const norm = toHiragana(name.toLowerCase());
+    const norm = normalizedPlayerSearchName(player);
     const typeNorm = toHiragana(type.toLowerCase());
     const nameIdx = norm.indexOf(query);
     const typeIdx = typeNorm.indexOf(query);
@@ -795,7 +803,7 @@ function addConditionRow(defaults = {}) {
   const value2 = node.querySelector(".value2");
   const remove = node.querySelector(".remove");
 
-  METRICS.forEach((m) => {
+  CONDITION_METRICS.forEach((m) => {
     const option = document.createElement("option");
     option.value = m;
     option.textContent = metricLabel(m);
@@ -901,7 +909,10 @@ function getMatchingPeriods(player, conditions) {
 
   return periods.filter((period) => {
     const metrics = period?.metrics || {};
-    const checks = conditions.map((c) => checkValueCondition(metrics[c.metric], c));
+    const checks = conditions.map((c) => {
+      const targetValue = c.metric === "ID" ? Number(player?.id) : metrics[c.metric];
+      return checkValueCondition(targetValue, c);
+    });
     return checks.every(Boolean);
   });
 }
@@ -1092,7 +1103,7 @@ function filterPlayers(conditions = getConditions()) {
     if (category === "RT") {
       return false;
     }
-    const playerName = toHiragana((player.name || "").toLowerCase());
+    const playerName = normalizedPlayerSearchName(player);
     const playerType = toHiragana((player.playType || "").toLowerCase());
     if (query && !playerName.includes(query) && !playerType.includes(query)) {
       return false;
