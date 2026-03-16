@@ -200,8 +200,12 @@ def extract_summary_tails_from_session(chlsx_path: Path) -> List[str]:
     return sorted(tails)
 
 
+def session_files(match_root: Path) -> List[Path]:
+    return sorted(match_root.glob("*.chlsx"), key=lambda p: p.stat().st_mtime, reverse=True)
+
+
 def latest_session_file(match_root: Path) -> Optional[Path]:
-    files = sorted(match_root.glob("*.chlsx"), key=lambda p: p.stat().st_mtime, reverse=True)
+    files = session_files(match_root)
     return files[0] if files else None
 
 
@@ -251,6 +255,60 @@ def extract_auth_from_chlsx(chlsx_path: Path) -> Optional[AuthHeaders]:
     if not gate_key:
         return None
     return AuthHeaders(cookie=cookie, gate_key=gate_key, user_agent=user_agent)
+
+
+def extract_auth_from_session_files(files: Sequence[Path]) -> Optional[AuthHeaders]:
+    best_ms = -1
+    best_auth: Optional[AuthHeaders] = None
+    for fp in files:
+        try:
+            root = ET.parse(fp).getroot()
+        except Exception:
+            continue
+        latest_headers: Dict[str, str] = {}
+        local_best_ms = -1
+        for tx in root.findall(".//transaction"):
+            host = tx.attrib.get("host", "")
+            path = tx.attrib.get("path", "")
+            if host != API_HOST:
+                continue
+            if not (
+                path.startswith("/match/summary/cc/")
+                or path.startswith("/cc/tournament/")
+                or path.startswith("/cc/preliminary/")
+            ):
+                continue
+            millis_raw = tx.attrib.get("startTimeMillis", "0")
+            try:
+                millis = int(millis_raw)
+            except Exception:
+                millis = 0
+            headers_node = tx.find("./request/headers")
+            if headers_node is None:
+                continue
+            hdrs: Dict[str, str] = {}
+            for h in headers_node.findall("header"):
+                name = (h.findtext("name") or "").strip()
+                value = (h.findtext("value") or "").strip()
+                if name:
+                    hdrs[name.lower()] = value
+            if millis >= local_best_ms:
+                local_best_ms = millis
+                latest_headers = hdrs
+        gate_key = latest_headers.get("websoccer-gate-key", "")
+        if not gate_key:
+            continue
+        auth = AuthHeaders(
+            cookie=latest_headers.get("cookie", ""),
+            gate_key=gate_key,
+            user_agent=latest_headers.get(
+                "user-agent", "WebSoccer/1.3.28 CFNetwork/3860.400.51 Darwin/25.3.0"
+            ),
+        )
+        if local_best_ms >= best_ms:
+            best_ms = local_best_ms
+            best_auth = auth
+    return best_auth
 
 
 def output_path(match_root: Path, match_id: int, world_id: int) -> Path:
@@ -335,14 +393,23 @@ def main() -> int:
             user_agent=(args.user_agent.strip() or "WebSoccer/1.3.28 CFNetwork/3860.400.51 Darwin/25.3.0"),
         )
     else:
-        if not sfile or not sfile.exists():
-            print("[ERROR] session file not found. Provide --session-file or place .chlsx under match root.")
-            return 2
-        auth = extract_auth_from_chlsx(sfile)
+        if args.session_file:
+            if not sfile or not sfile.exists():
+                print("[ERROR] session file not found. Provide --session-file or place .chlsx under match root.")
+                return 2
+            auth = extract_auth_from_chlsx(sfile)
+            source_text = str(sfile)
+        else:
+            sfiles = session_files(match_root)
+            if not sfiles:
+                print("[ERROR] no .chlsx files found under match root.")
+                return 2
+            auth = extract_auth_from_session_files(sfiles)
+            source_text = f"{len(sfiles)} session files under {match_root}"
         if not auth:
-            print(f"[ERROR] could not extract Cookie/Websoccer-gate-key from: {sfile}")
+            print(f"[ERROR] could not extract Cookie/Websoccer-gate-key from: {source_text}")
             return 2
-        print(f"[INFO] auth extracted from: {sfile}")
+        print(f"[INFO] auth extracted from: {source_text}")
 
     limit = args.limit if args.limit and args.limit > 0 else len(pairs)
     targets = pairs[:limit]
