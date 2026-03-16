@@ -3,8 +3,8 @@
 Fetch completed CC group-league match summaries across worlds.
 
 Target list source:
-  /cc/preliminary/{team_id}/{world_id}/{flg_szn}/{mode}.json
-where mode is typically 0 and 1.
+  /cc/preliminary/{team_id}/{world_id}/{group_idx}/{season_sel}.json
+where `group_idx` should be swept (typically 0-8) to collect all group-league matches.
 
 Flow:
   1) Extract latest gate-key/user-agent(/cookie) from Charles .chlsx files
@@ -56,15 +56,15 @@ def parse_args() -> argparse.Namespace:
         help='World range/list, e.g. "1-21" or "1,2,20" (default: 1-21)',
     )
     ap.add_argument(
-        "--flg-szn",
+        "--season-sel",
         type=int,
         default=1,
-        help="Season selector used by list endpoints (default: 1).",
+        help="Season selector used by preliminary endpoints (0=current, 1=previous).",
     )
     ap.add_argument(
-        "--modes",
-        default="0,1",
-        help='Preliminary mode list, e.g. "0,1" (default: 0,1).',
+        "--groups",
+        default="0-8",
+        help='Group index range/list, e.g. "0-8" or "0,2,3" (default: 0-8).',
     )
     ap.add_argument("--delay-sec", type=float, default=0.08, help="Delay between summary requests")
     ap.add_argument("--timeout-sec", type=float, default=10.0, help="HTTP timeout")
@@ -74,9 +74,15 @@ def parse_args() -> argparse.Namespace:
     return ap.parse_args()
 
 
-def parse_modes(raw: str) -> List[int]:
+def parse_groups(raw: str) -> List[int]:
+    raw = (raw or "").strip()
+    if "-" in raw and "," not in raw:
+        a, b = raw.split("-", 1)
+        s, e = int(a), int(b)
+        lo, hi = min(s, e), max(s, e)
+        return list(range(lo, hi + 1))
     out: List[int] = []
-    for part in (raw or "").split(","):
+    for part in raw.split(","):
         part = part.strip()
         if not part:
             continue
@@ -104,11 +110,18 @@ def fetch_summary(match_id: int, world_id: int, tails: Sequence[str], auth, time
     return False, last_err
 
 
-def fetch_world_pairs(team_id: str, world_id: int, flg_szn: int, modes: Sequence[int], auth, timeout_sec: float) -> Tuple[List[int], str]:
+def fetch_world_pairs(
+    team_id: str,
+    world_id: int,
+    season_sel: int,
+    groups: Sequence[int],
+    auth,
+    timeout_sec: float,
+) -> Tuple[List[int], str]:
     mids: set[int] = set()
     used: List[str] = []
-    for mode in modes:
-        p = f"/cc/preliminary/{team_id}/{world_id}/{flg_szn}/{mode}.json"
+    for group_idx in groups:
+        p = f"/cc/preliminary/{team_id}/{world_id}/{group_idx}/{season_sel}.json"
         ok, data = request_json(p, auth, timeout_sec)
         if not ok:
             continue
@@ -160,19 +173,19 @@ def main() -> int:
         return 2
 
     worlds = parse_worlds(args.worlds)
-    modes = parse_modes(args.modes)
+    groups = parse_groups(args.groups)
     tails = [args.summary_tail] if args.summary_tail else (extract_summary_tails_from_session_files(files) or ["1", "0"])
 
     print(f"[INFO] session files: {len(files)}")
     print(f"[INFO] team_id: {team_id}")
-    print(f"[INFO] flg_szn: {args.flg_szn}")
-    print(f"[INFO] modes: {modes}")
+    print(f"[INFO] season_sel: {args.season_sel}")
+    print(f"[INFO] groups: {groups}")
     print(f"[INFO] worlds: {worlds[:5]} ... {worlds[-5:] if len(worlds) > 5 else worlds} (count={len(worlds)})")
     print(f"[INFO] summary tail candidates: {tails}")
 
     pairs: List[Tuple[int, int]] = []
     for wid in worlds:
-        mids, src = fetch_world_pairs(team_id, wid, args.flg_szn, modes, auth, args.timeout_sec)
+        mids, src = fetch_world_pairs(team_id, wid, args.season_sel, groups, auth, args.timeout_sec)
         for mid in mids:
             pairs.append((mid, wid))
         print(f"[LIST] world={wid} completed_matches={len(mids)} source={src}")
