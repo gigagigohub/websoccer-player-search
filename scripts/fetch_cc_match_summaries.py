@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
 Fetch CC match summary JSON files in bulk using:
-  1) saved tournament list JSON files (/cc/tournament/.../*.json)
+  1) saved list JSON files (/cc/tournament/.../*.json or /cc/preliminary/.../*.json)
   2) auth headers (Cookie + Websoccer-gate-key) extracted from Charles .chlsx
 
 Typical flow:
   - Open one match/result on iPhone (through Charles) so fresh auth headers exist.
-  - Run this script to fetch many /match/summary/cc/{match_id}/{world_id}/1 endpoints.
+  - Run this script to fetch many /match/summary/cc/{match_id}/{world_id}/{tail} endpoints.
 """
 
 from __future__ import annotations
@@ -15,6 +15,7 @@ import argparse
 import glob
 import json
 import os
+import ssl
 import time
 import urllib.error
 import urllib.request
@@ -32,6 +33,16 @@ class AuthHeaders:
     cookie: str
     gate_key: str
     user_agent: str
+
+
+def iter_match_rows(node):
+    """Yield dict rows recursively from m_data which can be nested lists."""
+    if isinstance(node, dict):
+        yield node
+        return
+    if isinstance(node, list):
+        for x in node:
+            yield from iter_match_rows(x)
 
 
 def parse_args() -> argparse.Namespace:
@@ -84,12 +95,24 @@ def parse_args() -> argparse.Namespace:
         default=0,
         help="Fetch at most N matches (0 = no limit).",
     )
+    ap.add_argument(
+        "--summary-tail",
+        default="",
+        help="Override summary tail value (e.g. 0 or 1). Default: infer from session, fallback [1,0].",
+    )
     return ap.parse_args()
 
 
 def tournament_json_files(match_root: Path) -> List[Path]:
-    pattern = str(match_root / API_HOST / "cc" / "tournament" / "*" / "*" / "*" / "*" / "*.json")
-    return sorted(Path(p) for p in glob.glob(pattern))
+    patterns = [
+        str(match_root / API_HOST / "cc" / "tournament" / "*" / "*" / "*" / "*" / "*.json"),
+        str(match_root / API_HOST / "cc" / "preliminary" / "*" / "*" / "*" / "*.json"),
+    ]
+    out: set[Path] = set()
+    for pat in patterns:
+        for p in glob.glob(pat):
+            out.add(Path(p))
+    return sorted(out)
 
 
 def extract_world_match_pairs(files: Sequence[Path]) -> List[Tuple[int, int]]:
@@ -107,9 +130,7 @@ def extract_world_match_pairs(files: Sequence[Path]) -> List[Tuple[int, int]]:
             wid = int(world_id)
         except Exception:
             continue
-        for row in m_data:
-            if not isinstance(row, dict):
-                continue
+        for row in iter_match_rows(m_data):
             mid = row.get("id")
             try:
                 match_id = int(mid)
@@ -131,7 +152,7 @@ def extract_pairs_from_session_tournament(chlsx_path: Path) -> List[Tuple[int, i
         path = tx.attrib.get("path", "")
         if host != API_HOST:
             continue
-        if not path.startswith("/cc/tournament/"):
+        if not (path.startswith("/cc/tournament/") or path.startswith("/cc/preliminary/")):
             continue
         body_node = tx.find("./response/body")
         if body_node is None:
@@ -151,15 +172,32 @@ def extract_pairs_from_session_tournament(chlsx_path: Path) -> List[Tuple[int, i
             wid = int(world_id)
         except Exception:
             continue
-        for row in m_data:
-            if not isinstance(row, dict):
-                continue
+        for row in iter_match_rows(m_data):
             mid = row.get("id")
             try:
                 pairs.add((int(mid), wid))
             except Exception:
                 continue
     return sorted(pairs)
+
+
+def extract_summary_tails_from_session(chlsx_path: Path) -> List[str]:
+    tails: set[str] = set()
+    try:
+        root = ET.parse(chlsx_path).getroot()
+    except Exception:
+        return []
+
+    for tx in root.findall(".//transaction"):
+        host = tx.attrib.get("host", "")
+        path = tx.attrib.get("path", "")
+        if host != API_HOST:
+            continue
+        parts = path.strip("/").split("/")
+        # /match/summary/cc/{match_id}/{world_id}/{tail}
+        if len(parts) == 6 and parts[:3] == ["match", "summary", "cc"]:
+            tails.add(parts[-1])
+    return sorted(tails)
 
 
 def latest_session_file(match_root: Path) -> Optional[Path]:
@@ -181,7 +219,11 @@ def extract_auth_from_chlsx(chlsx_path: Path) -> Optional[AuthHeaders]:
         path = tx.attrib.get("path", "")
         if host != API_HOST:
             continue
-        if not (path.startswith("/match/summary/cc/") or path.startswith("/cc/tournament/")):
+        if not (
+            path.startswith("/match/summary/cc/")
+            or path.startswith("/cc/tournament/")
+            or path.startswith("/cc/preliminary/")
+        ):
             continue
         millis_raw = tx.attrib.get("startTimeMillis", "0")
         try:
@@ -206,7 +248,7 @@ def extract_auth_from_chlsx(chlsx_path: Path) -> Optional[AuthHeaders]:
     user_agent = latest_headers.get(
         "user-agent", "WebSoccer/1.3.28 CFNetwork/3860.400.51 Darwin/25.3.0"
     )
-    if not cookie or not gate_key:
+    if not gate_key:
         return None
     return AuthHeaders(cookie=cookie, gate_key=gate_key, user_agent=user_agent)
 
@@ -220,35 +262,41 @@ def fetch_one(
     world_id: int,
     headers: AuthHeaders,
     timeout_sec: float,
+    summary_tails: Sequence[str],
 ) -> Tuple[bool, str]:
-    url = f"https://{API_HOST}/match/summary/cc/{match_id}/{world_id}/1"
-    req = urllib.request.Request(
-        url,
-        headers={
-            "Accept": "*/*",
-            "Cookie": headers.cookie,
-            "Websoccer-gate-key": headers.gate_key,
-            "User-Agent": headers.user_agent,
-            "Accept-Language": "en-US,en;q=0.9",
-            "Connection": "keep-alive",
-        },
-        method="GET",
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=timeout_sec) as res:
-            body = res.read().decode("utf-8", errors="replace")
-            return True, body
-    except urllib.error.HTTPError as e:
-        msg = f"HTTP {e.code}"
+    last_err = "unknown"
+    for tail in summary_tails:
+        url = f"https://{API_HOST}/match/summary/cc/{match_id}/{world_id}/{tail}"
+        req = urllib.request.Request(
+            url,
+            headers={
+                "Accept": "*/*",
+                "Websoccer-gate-key": headers.gate_key,
+                "User-Agent": headers.user_agent,
+                "Accept-Language": "en-US,en;q=0.9",
+                "Connection": "keep-alive",
+            },
+            method="GET",
+        )
+        if headers.cookie:
+            req.add_header("Cookie", headers.cookie)
         try:
-            detail = e.read().decode("utf-8", errors="replace")[:200]
-            if detail:
-                msg += f" {detail}"
-        except Exception:
-            pass
-        return False, msg
-    except Exception as e:  # noqa: BLE001
-        return False, str(e)
+            context = ssl._create_unverified_context()
+            with urllib.request.urlopen(req, timeout=timeout_sec, context=context) as res:
+                body = res.read().decode("utf-8", errors="replace")
+                return True, body
+        except urllib.error.HTTPError as e:
+            msg = f"HTTP {e.code}"
+            try:
+                detail = e.read().decode("utf-8", errors="replace")[:200]
+                if detail:
+                    msg += f" {detail}"
+            except Exception:
+                pass
+            last_err = f"tail={tail} {msg}"
+        except Exception as e:  # noqa: BLE001
+            last_err = f"tail={tail} {e}"
+    return False, last_err
 
 
 def main() -> int:
@@ -298,6 +346,11 @@ def main() -> int:
 
     limit = args.limit if args.limit and args.limit > 0 else len(pairs)
     targets = pairs[:limit]
+    if args.summary_tail:
+        summary_tails = [args.summary_tail]
+    else:
+        inferred = extract_summary_tails_from_session(sfile) if sfile and sfile.exists() else []
+        summary_tails = inferred or ["1", "0"]
 
     fetched_ok = 0
     skipped_exists = 0
@@ -306,6 +359,7 @@ def main() -> int:
     print(f"[INFO] list files: {len(list_files)}")
     print(f"[INFO] unique targets: {len(pairs)}")
     print(f"[INFO] fetch count this run: {len(targets)}")
+    print(f"[INFO] summary tail candidates: {summary_tails}")
 
     for idx, (mid, wid) in enumerate(targets, start=1):
         out = output_path(match_root, mid, wid)
@@ -315,7 +369,7 @@ def main() -> int:
             skipped_exists += 1
             continue
 
-        ok, data_or_err = fetch_one(mid, wid, auth, args.timeout_sec)
+        ok, data_or_err = fetch_one(mid, wid, auth, args.timeout_sec, summary_tails)
         if not ok:
             failed += 1
             print(f"[WARN] {idx}/{len(targets)} mid={mid} wid={wid} failed: {data_or_err}")
