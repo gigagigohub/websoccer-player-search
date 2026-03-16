@@ -57,6 +57,12 @@ def parse_args() -> argparse.Namespace:
         default="1-21",
         help='World range/list, e.g. "1-21" or "1,2,20" (default: 1-21)',
     )
+    ap.add_argument(
+        "--flg-szn",
+        type=int,
+        default=0,
+        help="Season selector used by list endpoints (0=current, 1=previous in many cases).",
+    )
     ap.add_argument("--delay-sec", type=float, default=0.08, help="Delay between summary requests")
     ap.add_argument("--timeout-sec", type=float, default=10.0, help="HTTP timeout")
     ap.add_argument("--force", action="store_true", help="Refetch even if output exists")
@@ -211,10 +217,12 @@ def is_completed_row(row: dict) -> bool:
     return True
 
 
-def fetch_world_pairs(team_id: str, world_id: int, auth: AuthHeaders, timeout_sec: float) -> Tuple[List[int], str]:
+def fetch_world_pairs(
+    team_id: str, world_id: int, flg_szn: int, auth: AuthHeaders, timeout_sec: float
+) -> Tuple[List[int], str]:
     paths = [
-        f"/cc/preliminary/{team_id}/{world_id}/0/0.json",
-        f"/cc/tournament/{team_id}/{world_id}/0/1/1.json",
+        f"/cc/preliminary/{team_id}/{world_id}/{flg_szn}/0.json",
+        f"/cc/tournament/{team_id}/{world_id}/{flg_szn}/1/1.json",
     ]
     last_err = "no_response"
     for p in paths:
@@ -286,13 +294,14 @@ def main() -> int:
 
     print(f"[INFO] session files: {len(files)}")
     print(f"[INFO] team_id: {team_id}")
+    print(f"[INFO] flg_szn: {args.flg_szn}")
     print(f"[INFO] worlds: {worlds[:5]} ... {worlds[-5:] if len(worlds) > 5 else worlds} (count={len(worlds)})")
     print(f"[INFO] summary tail candidates: {tails}")
 
     pairs: List[Tuple[int, int]] = []
     list_sources: Dict[int, str] = {}
     for wid in worlds:
-        mids, src = fetch_world_pairs(team_id, wid, auth, args.timeout_sec)
+        mids, src = fetch_world_pairs(team_id, wid, args.flg_szn, auth, args.timeout_sec)
         list_sources[wid] = src
         for mid in mids:
             pairs.append((mid, wid))
@@ -334,4 +343,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
