@@ -1191,6 +1191,11 @@ button.ghost {
     0 0 8px rgba(255, 255, 255, 0.32),
     0 1px 0 rgba(18, 26, 48, 0.72);
   background:
+    repeating-conic-gradient(
+      from -8deg at 52% 48%,
+      rgba(255, 255, 255, 0.2) 0deg 3deg,
+      rgba(255, 255, 255, 0) 3deg 8deg
+    ),
     radial-gradient(circle at 16% 18%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 34%),
     linear-gradient(90deg,
       #b8ef4b 0%,
