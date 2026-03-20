@@ -1192,7 +1192,7 @@ button.ghost {
     0 1px 0 rgba(18, 26, 48, 0.72);
   background:
     radial-gradient(circle at 16% 18%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 34%),
-    linear-gradient(258deg,
+    linear-gradient(90deg,
       #b8ef4b 0%,
       #55c95a 24%,
       #f0dc55 41%,
