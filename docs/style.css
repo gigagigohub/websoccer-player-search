@@ -1192,28 +1192,18 @@ button.ghost {
     0 1px 0 rgba(18, 26, 48, 0.72);
   background:
     repeating-conic-gradient(
-      from -16deg at 52% 48%,
-      rgba(184, 239, 75, 0.28) 0deg 11deg,
-      rgba(85, 201, 90, 0.22) 11deg 23deg,
-      rgba(240, 220, 85, 0.22) 23deg 34deg,
-      rgba(255, 106, 69, 0.24) 34deg 46deg,
-      rgba(79, 118, 230, 0.24) 46deg 58deg,
-      rgba(180, 59, 150, 0.26) 58deg 70deg,
-      rgba(255, 255, 255, 0) 70deg 78deg
-    ),
-    repeating-conic-gradient(
       from -8deg at 52% 48%,
       rgba(255, 255, 255, 0.2) 0deg 3deg,
       rgba(255, 255, 255, 0) 3deg 8deg
     ),
     radial-gradient(circle at 16% 18%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 34%),
     linear-gradient(90deg,
-      #2ea24b 0%,
-      #2ea24b 34%,
-      #d8e152 46%,
-      #ff6b4f 52%,
-      #4f77e4 58%,
-      #7a45cf 66%,
+      #2a9f48 0%,
+      #2a9f48 42%,
+      #d9e35a 48%,
+      #ff6d52 52%,
+      #5a63dd 56%,
+      #7a45cf 62%,
       #7a45cf 100%);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.46),
