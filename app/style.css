@@ -1197,7 +1197,7 @@ button.ghost {
       rgba(255, 255, 255, 0) 3deg 8deg
     ),
     radial-gradient(circle at 16% 18%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 34%),
-    linear-gradient(95deg,
+    linear-gradient(85deg,
       rgba(255, 255, 255, 0) 44%,
       rgba(226, 224, 102, 0.78) 48%,
       rgba(255, 111, 85, 0.78) 52%,
