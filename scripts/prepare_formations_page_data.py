@@ -146,10 +146,7 @@ def build_data(src):
         coach_to_formations[cid].append({"formationId": fid, "depth": depth})
         formation_to_coaches_all[fid].append({"coachId": cid, "depth": depth})
 
-        # Depth4: keep the current-era filter (stride=1) as current implementation.
-        stride = to_int(formation_by_id[fid].get("stride"))
-        if stride != 1:
-            continue
+        # Depth4: use raw understanding depth as-is.
         if depth == 4:
             coach_to_formations_depth4[cid].append({"formationId": fid, "depth": depth})
             formation_to_coaches_depth4[fid].append({"coachId": cid, "depth": depth})
