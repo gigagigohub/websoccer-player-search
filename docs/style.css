@@ -2019,8 +2019,9 @@ button.ghost {
 
 .formation-detail-grid {
   display: grid;
-  grid-template-columns: 170px 1fr;
+  grid-template-columns: 176px minmax(0, 1fr);
   gap: 12px;
+  align-items: start;
 }
 
 .formation-block {
@@ -2048,7 +2049,7 @@ button.ghost {
   position: relative;
   width: 160px;
   max-width: 100%;
-  margin: 0 auto;
+  margin: 0;
   aspect-ratio: 0.95;
   border: 1px solid rgba(255,255,255,0.2);
   border-radius: 8px;
