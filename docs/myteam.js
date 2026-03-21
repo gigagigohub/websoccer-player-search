@@ -33,6 +33,7 @@ const els = {
   myteamMenuButton: document.querySelector("#myteamMenuButton"),
   myteamMenuPanel: document.querySelector("#myteamMenuPanel"),
   myteamDatabaseButton: document.querySelector("#myteamDatabaseButton"),
+  myteamFormationsButton: document.querySelector("#myteamFormationsButton"),
   myteamSettingButton: document.querySelector("#myteamSettingButton"),
   myteamLogoutButton: document.querySelector("#myteamLogoutButton"),
   myTeamMeta: document.querySelector("#myTeamMeta"),
@@ -986,6 +987,11 @@ async function init() {
   if (els.myteamDatabaseButton) {
     els.myteamDatabaseButton.addEventListener("click", () => {
       window.location.href = "./index.html";
+    });
+  }
+  if (els.myteamFormationsButton) {
+    els.myteamFormationsButton.addEventListener("click", () => {
+      window.location.href = "./formations.html";
     });
   }
   if (els.myteamSettingButton) {

@@ -29,8 +29,8 @@ const RENDER_BATCH_SIZE = 200;
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-21T05:43:05+09:00";
-const APP_UPDATED_AT_JST = "2026-03-21 05:43 JST";
+const APP_UPDATED_AT_ISO = "2026-03-21T21:24:00+09:00";
+const APP_UPDATED_AT_JST = "2026-03-21 21:24 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function formatIsoToJstLabel(isoString) {
@@ -70,6 +70,7 @@ const els = {
   menuButton: document.querySelector("#menuButton"),
   menuPanel: document.querySelector("#menuPanel"),
   loginButton: document.querySelector("#loginButton"),
+  formationsButton: document.querySelector("#formationsButton"),
   myTeamButton: document.querySelector("#myTeamButton"),
   settingButton: document.querySelector("#settingButton"),
   logoutButton: document.querySelector("#logoutButton"),
@@ -1571,6 +1572,12 @@ async function init() {
     els.myTeamButton.addEventListener("click", () => {
       closeMenuPanel();
       window.location.href = "./myteam.html";
+    });
+  }
+  if (els.formationsButton) {
+    els.formationsButton.addEventListener("click", () => {
+      closeMenuPanel();
+      window.location.href = "./formations.html";
     });
   }
   if (els.loginButton) {

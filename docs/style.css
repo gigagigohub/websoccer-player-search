@@ -1921,3 +1921,226 @@ button.ghost {
     font-size: 0.6rem;
   }
 }
+
+/* Formations page */
+.formation-filter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.coach-mode-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.coach-mode-btn {
+  border: 1px solid var(--line-soft);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.coach-mode-btn.is-on {
+  background: linear-gradient(180deg, #2f59a5, #223b73);
+  border-color: #4f79c4;
+}
+
+.formation-list {
+  display: grid;
+  gap: 10px;
+}
+
+.formation-item {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02));
+  color: var(--text-main);
+  padding: 10px;
+  cursor: pointer;
+}
+
+.formation-item-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.formation-system {
+  font-size: 12px;
+  color: var(--text-sub);
+}
+
+.formation-item-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  font-size: 12px;
+  color: var(--text-sub);
+}
+
+.formation-dialog {
+  width: min(960px, calc(100vw - 24px));
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  border-radius: 12px;
+  border: 1px solid var(--line-soft);
+  background: var(--panel-bg);
+  padding: 14px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.46);
+}
+
+.formation-detail-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 12px;
+}
+
+.formation-block {
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+.formation-block h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+
+.formation-param-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px 10px;
+  font-size: 12px;
+  color: var(--text-sub);
+}
+
+.formation-pitch {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 0.95;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08), transparent 44%),
+    linear-gradient(180deg, rgba(52,74,42,0.45), rgba(31,44,31,0.44));
+  overflow: hidden;
+}
+
+.formation-pitch::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 2px solid rgba(255,255,255,0.26);
+  border-radius: 2px;
+}
+
+.formation-slot-point {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 50%;
+  background: rgba(20, 30, 58, 0.82);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.formation-kp-list {
+  display: grid;
+  gap: 8px;
+}
+
+.formation-kp-item {
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.formation-kp-title {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.formation-kp-desc {
+  font-size: 12px;
+  color: var(--text-sub);
+  margin-top: 4px;
+}
+
+.formation-slot-top-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.slot-top-item {
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.03);
+  color: var(--text-main);
+  text-align: left;
+  padding: 8px;
+  display: grid;
+  gap: 2px;
+  cursor: pointer;
+}
+
+.inline-pill {
+  display: inline-block;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  font-size: 11px;
+  line-height: 1;
+  padding: 4px 8px;
+  margin: 0 4px 4px 0;
+  color: var(--text-main);
+  background: rgba(255,255,255,0.04);
+}
+
+.slot-table-wrap {
+  overflow: auto;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+}
+
+.slot-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.slot-table th,
+.slot-table td {
+  border-bottom: 1px solid var(--line-soft);
+  padding: 6px 8px;
+  text-align: left;
+}
+
+.slot-table thead th {
+  position: sticky;
+  top: 0;
+  background: rgba(23, 32, 56, 0.96);
+}
+
+.dim {
+  color: var(--text-sub);
+}
+
+@media (max-width: 840px) {
+  .formation-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

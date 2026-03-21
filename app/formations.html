@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WebSoccer Ordinary 2026 - Formations</title>
+  <meta property="og:title" content="WebSoccer Ordinary 2026" />
+  <meta property="og:site_name" content="WebSoccer Ordinary 2026" />
+  <meta name="twitter:title" content="WebSoccer Ordinary 2026" />
+  <link rel="apple-touch-icon" href="./icons/wsdb-icon-160.png" />
+  <link rel="icon" type="image/png" sizes="160x160" href="./icons/wsdb-icon-160.png" />
+  <link rel="shortcut icon" href="./icons/wsdb-icon-160.png" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <main class="container">
+    <header class="hero">
+      <button id="menuButton" type="button" class="menu-button" aria-label="メニュー">☰</button>
+      <div id="menuPanel" class="menu-panel" hidden>
+        <button id="playersButton" type="button" class="menu-item">Players</button>
+        <button id="loginButton" type="button" class="menu-item">Login</button>
+        <button id="myTeamButton" type="button" class="menu-item" hidden>MyTeam</button>
+        <button id="logoutButton" type="button" class="menu-item logout" hidden>Logout</button>
+      </div>
+      <h1>Formations</h1>
+      <p class="meta" id="metaText">Loading...</p>
+    </header>
+
+    <section class="panel formation-filter-panel">
+      <div class="formation-filter-grid">
+        <div>
+          <label class="label" for="sortKey">Sort Key</label>
+          <select id="sortKey"></select>
+        </div>
+        <div>
+          <label class="label" for="sortDir">Order</label>
+          <select id="sortDir">
+            <option value="desc">DESC</option>
+            <option value="asc">ASC</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="formation-filter-grid">
+        <div>
+          <label class="label" for="coachFilter">Coach Filter</label>
+          <select id="coachFilter">
+            <option value="">ALL</option>
+          </select>
+        </div>
+        <div>
+          <label class="label">Coach Mode</label>
+          <div class="coach-mode-row">
+            <button id="coachModeAll" type="button" class="coach-mode-btn is-on">ALL</button>
+            <button id="coachModeDepth4" type="button" class="coach-mode-btn">Depth 4</button>
+            <button id="coachModeObtainable" type="button" class="coach-mode-btn">Obtainable</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="result-head">
+        <h2>Formations</h2>
+        <span id="formationCount">0 formations</span>
+      </div>
+      <div id="formationList" class="formation-list"></div>
+    </section>
+  </main>
+
+  <div id="loginModal" class="season-modal" hidden>
+    <div id="loginBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+      <div class="season-head">
+        <h2 id="loginTitle">Login</h2>
+        <button id="loginClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <p class="season-target">TeamIDを入力してください</p>
+      <label class="label" for="loginLineupKey">TeamID</label>
+      <input id="loginLineupKey" type="text" />
+      <div class="season-actions">
+        <button id="loginApply" type="button">Login</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="formationModal" class="season-modal" hidden>
+    <div id="formationBackdrop" class="season-backdrop"></div>
+    <div class="formation-dialog" role="dialog" aria-modal="true" aria-labelledby="formationTitle">
+      <div class="season-head">
+        <h2 id="formationTitle">Formation Detail</h2>
+        <button id="formationClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <div id="formationDetail" class="formation-detail"></div>
+    </div>
+  </div>
+
+  <div id="slotModal" class="season-modal" hidden>
+    <div id="slotBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog" role="dialog" aria-modal="true" aria-labelledby="slotTitle">
+      <div class="season-head">
+        <h2 id="slotTitle">Slot Detail</h2>
+        <button id="slotClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <div id="slotDetail" class="slot-detail"></div>
+    </div>
+  </div>
+
+  <script src="./formations.js"></script>
+</body>
+</html>
