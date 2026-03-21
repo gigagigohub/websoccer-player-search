@@ -131,6 +131,7 @@ def build_data(src):
         }
 
     coach_to_formations = defaultdict(list)
+    coach_to_formations_depth4 = defaultdict(list)
     formation_to_coaches_all = defaultdict(list)
     formation_to_coaches_depth4 = defaultdict(list)
 
@@ -140,13 +141,24 @@ def build_data(src):
         depth = to_int(row.get("ZDEPTH"))
         if cid not in coach_by_id or fid not in formation_by_id:
             continue
-        coach_to_formations[cid].append({"formationId": fid, "depth": depth})
-        formation_to_coaches_all[fid].append({"coachId": cid, "depth": depth})
+
+        # Use current-era formations only (stride=1).
+        # In this dataset, obtainable/depth4 sets are encoded as depth=2/4.
+        stride = to_int(formation_by_id[fid].get("stride"))
+        if stride != 1:
+            continue
+
+        if depth == 2:
+            coach_to_formations[cid].append({"formationId": fid, "depth": depth})
+            formation_to_coaches_all[fid].append({"coachId": cid, "depth": depth})
         if depth == 4:
+            coach_to_formations_depth4[cid].append({"formationId": fid, "depth": depth})
             formation_to_coaches_depth4[fid].append({"coachId": cid, "depth": depth})
 
     for cid in coach_to_formations:
-        coach_to_formations[cid].sort(key=lambda x: (-x["depth"], x["formationId"]))
+        coach_to_formations[cid].sort(key=lambda x: x["formationId"])
+    for cid in coach_to_formations_depth4:
+        coach_to_formations_depth4[cid].sort(key=lambda x: x["formationId"])
 
     # Team-level aggregate for usage/win rate and coach usage.
     formation_team_counts = defaultdict(int)
@@ -284,9 +296,10 @@ def build_data(src):
     for cid in sorted(coach_by_id):
         c = coach_by_id[cid]
         rel = coach_to_formations[cid]
+        rel4 = coach_to_formations_depth4[cid]
         coaches.append({
             **c,
-            "formationDepth4": [x["formationId"] for x in rel if x["depth"] == 4],
+            "formationDepth4": [x["formationId"] for x in rel4],
             "formationObtainable": [x["formationId"] for x in rel],
         })
 
