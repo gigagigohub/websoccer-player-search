@@ -5,6 +5,7 @@ const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
 const LINEUP_SIZE = 11;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
+const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
 const CORE_METRICS = ["スピ", "テク", "パワ"];
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
@@ -42,6 +43,7 @@ const els = {
   lifecycleToggle: document.querySelector("#lifecycleToggle"),
   advanceSeasonButton: document.querySelector("#advanceSeasonButton"),
   rewindSeasonButton: document.querySelector("#rewindSeasonButton"),
+  myTeamFormationSelect: document.querySelector("#myTeamFormationSelect"),
   emptySlotModal: document.querySelector("#emptySlotModal"),
   emptySlotBackdrop: document.querySelector("#emptySlotBackdrop"),
   emptySlotClose: document.querySelector("#emptySlotClose"),
@@ -65,6 +67,8 @@ let selectedPlayerId = null;
 let selectedPlayerMode = "starter";
 let lifecycleModeEnabled = false;
 const cardViewModeById = new Map();
+let formations = [];
+let selectedFormationId = null;
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -72,6 +76,73 @@ function metricLabel(metric) {
 
 function detailMetricLabel(metric) {
   return DETAIL_METRIC_LABELS[metric] || metric;
+}
+
+function pct(v) {
+  return `${(Number(v || 0) * 100).toFixed(2)}%`;
+}
+
+function avg(v) {
+  return Number(v || 0).toFixed(2);
+}
+
+function formatFormationYearLabel(year, stride) {
+  const y = Number(year);
+  const s = Number(stride);
+  if (!Number.isFinite(y) || y <= 0) return "";
+  if (s === 1) {
+    const next = String((y + 1) % 100).padStart(2, "0");
+    return `${y}-${next}`;
+  }
+  return String(y);
+}
+
+function loadSelectedFormationId() {
+  const raw = String(localStorage.getItem(MYTEAM_FORMATION_STORAGE_KEY) || "").trim();
+  const id = Number(raw);
+  selectedFormationId = Number.isInteger(id) && id > 0 ? id : null;
+}
+
+function saveSelectedFormationId() {
+  if (Number.isInteger(selectedFormationId) && selectedFormationId > 0) {
+    localStorage.setItem(MYTEAM_FORMATION_STORAGE_KEY, String(selectedFormationId));
+  } else {
+    localStorage.removeItem(MYTEAM_FORMATION_STORAGE_KEY);
+  }
+}
+
+function buildFormationOptions() {
+  if (!els.myTeamFormationSelect) return;
+  const rows = (Array.isArray(formations) ? formations : []).slice().sort((a, b) => {
+    const n = String(a?.name || "").localeCompare(String(b?.name || ""), "ja");
+    if (n !== 0) return n;
+    return Number(a?.year || 0) - Number(b?.year || 0);
+  });
+  const options = rows.map((f) => {
+    const id = Number(f?.id);
+    if (!Number.isInteger(id)) return "";
+    const year = formatFormationYearLabel(f?.year, f?.stride);
+    const suffix = year ? ` ${year}` : "";
+    return `<option value="${id}">${f?.name || `Formation ${id}`}${suffix}</option>`;
+  }).join("");
+  els.myTeamFormationSelect.innerHTML = `<option value=\"\">Not selected</option>${options}`;
+  const exists = rows.some((f) => Number(f?.id) === selectedFormationId);
+  els.myTeamFormationSelect.value = exists ? String(selectedFormationId) : "";
+  if (!exists) {
+    selectedFormationId = null;
+    saveSelectedFormationId();
+  }
+}
+
+function findCcSlotStat(formationId, slot, playerId) {
+  const fid = Number(formationId);
+  const sid = Number(slot);
+  const pid = Number(playerId);
+  if (!Number.isInteger(fid) || !Number.isInteger(sid) || !Number.isInteger(pid)) return null;
+  const formation = formations.find((f) => Number(f?.id) === fid);
+  const rows = formation?.slotStats?.[String(sid)];
+  if (!Array.isArray(rows)) return null;
+  return rows.find((r) => Number(r?.playerId) === pid) || null;
 }
 
 function closeMenuPanel() {
@@ -621,6 +692,14 @@ function renderLineup() {
       : `<div class="lineup-empty-thumb"></div>`;
     const selectedPeriod = player ? findPeriodBySeason(player, season) : null;
     const selectedMetrics = selectedPeriod?.metrics || (player ? getPeakMetrics(player) : null);
+    const ccStat = (player && Number.isInteger(selectedFormationId))
+      ? findCcSlotStat(selectedFormationId, slot, player.id)
+      : null;
+    const ccStatText = Number.isInteger(selectedFormationId)
+      ? (ccStat
+        ? `CC使用率 ${pct(ccStat.usageRate)} / 平均評価 ${avg(ccStat.avgPts)}`
+        : "CC使用率 - / 平均評価 -")
+      : "";
     const rightPaneHtml = player
       ? (lifecycleModeEnabled
         ? successorSummaryHtml(entry, remaining)
@@ -645,6 +724,7 @@ function renderLineup() {
               ${seasonBadge}
             </div>
             <span class="slot-name">${name}</span>
+            ${ccStatText ? `<span class="lineup-cc-stat">${ccStatText}</span>` : ""}
           </div>
           ${rightPaneHtml}
         </div>
@@ -977,6 +1057,7 @@ function closePlayerCardModal() {
 async function init() {
   loadCloudConfig();
   loadLifecycleMode();
+  loadSelectedFormationId();
   renderLifecycleControls();
   if (els.myteamMenuButton) {
     els.myteamMenuButton.addEventListener("click", () => {
@@ -1033,6 +1114,14 @@ async function init() {
       const ok = window.confirm(confirmText);
       if (!ok) return;
       await shiftAllLineupSeasons(-1);
+    });
+  }
+  if (els.myTeamFormationSelect) {
+    els.myTeamFormationSelect.addEventListener("change", () => {
+      const id = Number(els.myTeamFormationSelect.value || 0);
+      selectedFormationId = Number.isInteger(id) && id > 0 ? id : null;
+      saveSelectedFormationId();
+      renderLineup();
     });
   }
   document.addEventListener("click", (e) => {
@@ -1138,9 +1227,19 @@ async function init() {
     });
   }
 
-  const dataRes = await fetch("./data.json");
+  const [dataRes, formationsRes] = await Promise.all([
+    fetch("./data.json"),
+    fetch("./formations_data.json").catch(() => null),
+  ]);
   const data = await dataRes.json();
   players = data.players || [];
+  if (formationsRes && formationsRes.ok) {
+    const formationsData = await formationsRes.json();
+    formations = Array.isArray(formationsData?.formations) ? formationsData.formations : [];
+  } else {
+    formations = [];
+  }
+  buildFormationOptions();
 
   if (!hasCloudConfig()) {
     if (els.myTeamTarget) els.myTeamTarget.textContent = "TeamIDが未設定です（先にLoginしてください）";

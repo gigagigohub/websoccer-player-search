@@ -249,6 +249,13 @@ body {
   align-items: center;
 }
 
+.formation-select-row {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4px;
+}
+
 .lifecycle-toggle {
   padding: 7px 8px;
   font-size: 0.86rem;
@@ -1586,6 +1593,14 @@ button.ghost {
   margin-top: 3px;
 }
 
+.lineup-cc-stat {
+  font-size: 0.56rem;
+  color: #9ab3dd;
+  line-height: 1.2;
+  margin-top: 2px;
+  display: block;
+}
+
 .lineup-core {
   margin-left: auto;
   display: grid;
@@ -1915,6 +1930,10 @@ button.ghost {
   .slot-name {
     font-size: 0.62rem;
     margin-top: 3px;
+  }
+
+  .lineup-cc-stat {
+    font-size: 0.52rem;
   }
 
   .lineup-badges .lineup-season {

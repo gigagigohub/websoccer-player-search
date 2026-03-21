@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>WebSoccer Ordinary 2026 - MyTeam</title>
+  <title>WebSoccer Ordinary 2026 - My Team</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
@@ -16,7 +16,7 @@
         <button id="myteamSettingButton" type="button" class="menu-item">Setting</button>
         <button id="myteamLogoutButton" type="button" class="menu-item logout">Logout</button>
       </div>
-      <h1>MyTeam</h1>
+      <h1>My Team</h1>
       <p class="meta" id="myTeamMeta">Loading...</p>
     </header>
 
@@ -25,6 +25,12 @@
         <button id="lifecycleToggle" type="button" class="lifecycle-toggle">Cycle Management Mode</button>
         <button id="advanceSeasonButton" type="button" class="season-step-btn">Season +1</button>
         <button id="rewindSeasonButton" type="button" class="season-step-back" aria-label="1期戻す">-1</button>
+      </div>
+      <div class="formation-select-row">
+        <label class="label" for="myTeamFormationSelect">Using Formation</label>
+        <select id="myTeamFormationSelect">
+          <option value="">Not selected</option>
+        </select>
       </div>
     </section>
 
