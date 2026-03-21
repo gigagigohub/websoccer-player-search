@@ -142,15 +142,14 @@ def build_data(src):
         if cid not in coach_by_id or fid not in formation_by_id:
             continue
 
-        # Use current-era formations only (stride=1).
-        # In this dataset, obtainable/depth4 sets are encoded as depth=2/4.
+        # Obtainable: keep original understanding-linked set (all depth rows).
+        coach_to_formations[cid].append({"formationId": fid, "depth": depth})
+        formation_to_coaches_all[fid].append({"coachId": cid, "depth": depth})
+
+        # Depth4: keep the current-era filter (stride=1) as current implementation.
         stride = to_int(formation_by_id[fid].get("stride"))
         if stride != 1:
             continue
-
-        if depth == 2:
-            coach_to_formations[cid].append({"formationId": fid, "depth": depth})
-            formation_to_coaches_all[fid].append({"coachId": cid, "depth": depth})
         if depth == 4:
             coach_to_formations_depth4[cid].append({"formationId": fid, "depth": depth})
             formation_to_coaches_depth4[fid].append({"coachId": cid, "depth": depth})
