@@ -300,9 +300,13 @@ def fetch_world_pairs(
     sources: List[str] = []
 
     # 1) tournament rounds sweep (main source for full-season history)
+    # NOTE:
+    #   tournament endpoint order is:
+    #     /cc/tournament/{team_id}/{world_id}/{p_g}/{flg_szn}/{round}.json
+    #   (p_g then flg_szn)
     empty_rounds = 0
     for rnd in range(1, max(1, round_max) + 1):
-        p = f"/cc/tournament/{team_id}/{world_id}/{flg_szn}/1/{rnd}.json"
+        p = f"/cc/tournament/{team_id}/{world_id}/1/{flg_szn}/{rnd}.json"
         ok, data = request_json(p, auth, timeout_sec)
         if not ok:
             continue
@@ -330,7 +334,9 @@ def fetch_world_pairs(
                 break
 
     # 2) preliminary (kept as supplement)
-    p_pre = f"/cc/preliminary/{team_id}/{world_id}/{flg_szn}/0.json"
+    # preliminary endpoint order is:
+    #   /cc/preliminary/{team_id}/{world_id}/{group_idx}/{season_sel}.json
+    p_pre = f"/cc/preliminary/{team_id}/{world_id}/0/{flg_szn}.json"
     ok, data = request_json(p_pre, auth, timeout_sec)
     if ok:
         obj = data if isinstance(data, dict) else {}
