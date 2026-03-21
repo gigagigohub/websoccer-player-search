@@ -1,7 +1,7 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-21 22:45 JST";
+const APP_UPDATED_AT_JST = "2026-03-21 23:04 JST";
 
 const PARAM_LABELS = {
   spd: "Speed",
@@ -40,8 +40,6 @@ const els = {
   sortKey: document.querySelector("#sortKey"),
   sortDir: document.querySelector("#sortDir"),
   coachFilter: document.querySelector("#coachFilter"),
-  coachModeDepth4: document.querySelector("#coachModeDepth4"),
-  coachModeObtainable: document.querySelector("#coachModeObtainable"),
   formationCount: document.querySelector("#formationCount"),
   formationList: document.querySelector("#formationList"),
   loginModal: document.querySelector("#loginModal"),
@@ -64,7 +62,6 @@ const els = {
 let cloudConfig = { url: "", anonKey: "", lineupKey: "" };
 let formations = [];
 let coaches = [];
-let coachMode = "depth4";
 let filteredAndSorted = [];
 let currentFormation = null;
 
@@ -181,17 +178,6 @@ function buildCoachFilter() {
   els.coachFilter.innerHTML = `<option value="">ALL</option>${options}`;
 }
 
-function updateCoachModeButtons() {
-  const map = {
-    depth4: els.coachModeDepth4,
-    obtainable: els.coachModeObtainable,
-  };
-  Object.entries(map).forEach(([k, el]) => {
-    if (!el) return;
-    el.classList.toggle("is-on", coachMode === k);
-  });
-}
-
 function applyFilterAndSort() {
   const sortKey = els.sortKey?.value || "cc.usageRate";
   const sortDir = els.sortDir?.value === "asc" ? 1 : -1;
@@ -200,9 +186,7 @@ function applyFilterAndSort() {
   let rows = formations.slice();
   if (coachId > 0) {
     rows = rows.filter((f) => {
-      const list = coachMode === "depth4"
-        ? (f.coaches?.depth4 || [])
-        : (f.coaches?.obtainable || []);
+      const list = f.coaches?.depth4 || [];
       return list.some((c) => Number(c?.id) === coachId || Number(c?.coachId) === coachId);
     });
   }
@@ -445,10 +429,6 @@ function openFormationModal(formation) {
           ${renderFormationParamGrid(formation.params)}
         </div>
         <div class="formation-block">
-          <h3>Obtainable Coaches</h3>
-          <div>${renderCoachesList(formation.coaches?.obtainable)}</div>
-        </div>
-        <div class="formation-block">
           <h3>Depth 4 Coaches</h3>
           <div>${renderCoachesList(formation.coaches?.depth4)}</div>
         </div>
@@ -563,21 +543,6 @@ function bindEvents() {
     els.coachFilter.addEventListener("input", renderList);
   }
 
-  if (els.coachModeDepth4) {
-    els.coachModeDepth4.addEventListener("click", () => {
-      coachMode = "depth4";
-      updateCoachModeButtons();
-      renderList();
-    });
-  }
-  if (els.coachModeObtainable) {
-    els.coachModeObtainable.addEventListener("click", () => {
-      coachMode = "obtainable";
-      updateCoachModeButtons();
-      renderList();
-    });
-  }
-
   if (els.formationList) {
     els.formationList.addEventListener("click", (e) => {
       const item = e.target.closest(".formation-item");
@@ -623,7 +588,6 @@ function bindEvents() {
 async function init() {
   loadCloudConfig();
   buildSortOptions();
-  updateCoachModeButtons();
   bindEvents();
 
   const res = await fetch("./formations_data.json");
