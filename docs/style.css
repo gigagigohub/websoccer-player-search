@@ -1974,6 +1974,19 @@ button.ghost {
   margin-bottom: 6px;
 }
 
+.formation-name-wrap {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.formation-year {
+  font-size: 12px;
+  color: var(--text-sub);
+  font-style: italic;
+}
+
 .formation-system {
   font-size: 12px;
   color: var(--text-sub);
@@ -1993,9 +2006,14 @@ button.ghost {
   overflow: auto;
   border-radius: 12px;
   border: 1px solid var(--line-soft);
-  background: var(--panel-bg);
+  background: #0f1729;
   padding: 14px;
   box-shadow: 0 24px 60px rgba(0,0,0,0.46);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
 }
 
 .formation-detail-grid {
@@ -2009,6 +2027,7 @@ button.ghost {
   border-radius: 10px;
   padding: 10px;
   margin-top: 10px;
+  background: #111a2c;
 }
 
 .formation-block h3 {

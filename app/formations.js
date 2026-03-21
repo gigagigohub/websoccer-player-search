@@ -1,7 +1,7 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-21 21:24 JST";
+const APP_UPDATED_AT_JST = "2026-03-21 21:42 JST";
 
 const PARAM_LABELS = {
   spd: "Speed",
@@ -27,8 +27,6 @@ const SORT_OPTIONS = [
   { key: "params.ttl", label: "Total" },
   { key: "params.stm", label: "Stamina" },
   { key: "params.dif", label: "Difficulty" },
-  { key: "year", label: "Year" },
-  { key: "stride", label: "Stride" },
 ];
 
 const els = {
@@ -42,7 +40,6 @@ const els = {
   sortKey: document.querySelector("#sortKey"),
   sortDir: document.querySelector("#sortDir"),
   coachFilter: document.querySelector("#coachFilter"),
-  coachModeAll: document.querySelector("#coachModeAll"),
   coachModeDepth4: document.querySelector("#coachModeDepth4"),
   coachModeObtainable: document.querySelector("#coachModeObtainable"),
   formationCount: document.querySelector("#formationCount"),
@@ -67,7 +64,7 @@ const els = {
 let cloudConfig = { url: "", anonKey: "", lineupKey: "" };
 let formations = [];
 let coaches = [];
-let coachMode = "all";
+let coachMode = "depth4";
 let filteredAndSorted = [];
 let currentFormation = null;
 
@@ -175,7 +172,6 @@ function buildCoachFilter() {
 
 function updateCoachModeButtons() {
   const map = {
-    all: els.coachModeAll,
     depth4: els.coachModeDepth4,
     obtainable: els.coachModeObtainable,
   };
@@ -191,7 +187,7 @@ function applyFilterAndSort() {
   const coachId = Number(els.coachFilter?.value || 0);
 
   let rows = formations.slice();
-  if (coachId > 0 && coachMode !== "all") {
+  if (coachId > 0) {
     const coach = coaches.find((c) => Number(c.id) === coachId);
     if (coach) {
       const allowSet = new Set((coachMode === "depth4" ? coach.formationDepth4 : coach.formationObtainable).map(Number));
@@ -219,10 +215,14 @@ function applyFilterAndSort() {
 }
 
 function formationCardHtml(f) {
+  const yearText = Number.isFinite(Number(f.year)) && Number(f.year) > 0 ? Number(f.year) : "-";
   return `
     <button type="button" class="formation-item" data-formation-id="${f.id}">
       <div class="formation-item-head">
-        <strong>${f.name}</strong>
+        <div class="formation-name-wrap">
+          <strong>${f.name}</strong>
+          <span class="formation-year">${yearText}</span>
+        </div>
         <span class="formation-system">${f.system || "-"}</span>
       </div>
       <div class="formation-item-metrics">
@@ -447,13 +447,6 @@ function bindEvents() {
   if (els.sortDir) els.sortDir.addEventListener("change", renderList);
   if (els.coachFilter) els.coachFilter.addEventListener("change", renderList);
 
-  if (els.coachModeAll) {
-    els.coachModeAll.addEventListener("click", () => {
-      coachMode = "all";
-      updateCoachModeButtons();
-      renderList();
-    });
-  }
   if (els.coachModeDepth4) {
     els.coachModeDepth4.addEventListener("click", () => {
       coachMode = "depth4";
