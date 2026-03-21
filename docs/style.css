@@ -2239,6 +2239,16 @@ button.ghost {
   font-size: 0.74rem;
   color: #a7bbe5;
   font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.slot-top-key-star {
+  font-size: 0.75rem;
+  line-height: 1;
+  color: #ffd95a;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
 }
 
 .slot-top-thumb {
