@@ -77,6 +77,7 @@ def parse_args() -> argparse.Namespace:
     )
     ap.add_argument("--delay-sec", type=float, default=0.08, help="Delay between summary requests")
     ap.add_argument("--timeout-sec", type=float, default=10.0, help="HTTP timeout")
+    ap.add_argument("--progress-every", type=int, default=20, help="Print progress every N targets (default: 20)")
     ap.add_argument("--force", action="store_true", help="Refetch even if output exists")
     ap.add_argument("--summary-tail", default="", help='Summary tail override (e.g. "0" or "1")')
     ap.add_argument("--dry-run", action="store_true", help="Only list targets, do not fetch summaries")
@@ -385,7 +386,7 @@ def main() -> int:
 
     files = [Path(args.session_file).expanduser().resolve()] if args.session_file else session_files(match_root)
     if not files:
-        print("[ERROR] no .chlsx files found.")
+        print("[ERROR] no .chlsx/.chlsj files found.")
         return 2
 
     auth = extract_auth_from_session_files(files)
@@ -430,19 +431,42 @@ def main() -> int:
     ok_count = 0
     skip_count = 0
     fail_count = 0
+    started = time.time()
+    every = max(1, int(args.progress_every or 20))
     for i, (mid, wid) in enumerate(pairs, start=1):
         out = output_path(match_root, mid, wid)
         out.parent.mkdir(parents=True, exist_ok=True)
         if out.exists() and not args.force:
             skip_count += 1
+            if i == 1 or i % every == 0 or i == len(pairs):
+                elapsed = time.time() - started
+                print(
+                    f"[PROGRESS] {i}/{len(pairs)} ok={ok_count} skip={skip_count} fail={fail_count} "
+                    f"elapsed={elapsed:.1f}s last=skip mid={mid} wid={wid}",
+                    flush=True,
+                )
             continue
         ok, payload_or_err = fetch_summary(mid, wid, tails, auth, args.timeout_sec)
         if not ok:
             fail_count += 1
             print(f"[WARN] {i}/{len(pairs)} mid={mid} wid={wid} {payload_or_err}")
+            if i == 1 or i % every == 0 or i == len(pairs):
+                elapsed = time.time() - started
+                print(
+                    f"[PROGRESS] {i}/{len(pairs)} ok={ok_count} skip={skip_count} fail={fail_count} "
+                    f"elapsed={elapsed:.1f}s last=fail mid={mid} wid={wid}",
+                    flush=True,
+                )
             continue
         out.write_text(payload_or_err, encoding="utf-8")
         ok_count += 1
+        if i == 1 or i % every == 0 or i == len(pairs):
+            elapsed = time.time() - started
+            print(
+                f"[PROGRESS] {i}/{len(pairs)} ok={ok_count} skip={skip_count} fail={fail_count} "
+                f"elapsed={elapsed:.1f}s last=ok mid={mid} wid={wid}",
+                flush=True,
+            )
         if args.delay_sec > 0:
             time.sleep(args.delay_sec)
 

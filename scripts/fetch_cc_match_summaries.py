@@ -91,6 +91,12 @@ def parse_args() -> argparse.Namespace:
         help="HTTP timeout in seconds (default: 10)",
     )
     ap.add_argument(
+        "--progress-every",
+        type=int,
+        default=20,
+        help="Print progress every N targets (default: 20)",
+    )
+    ap.add_argument(
         "--force",
         action="store_true",
         help="Refetch even if output JSON already exists.",
@@ -454,7 +460,7 @@ def main() -> int:
         else:
             sfiles = session_files(match_root)
             if not sfiles:
-                print("[ERROR] no .chlsx files found under match root.")
+                print("[ERROR] no .chlsx/.chlsj files found under match root.")
                 return 2
             auth = extract_auth_from_session_files(sfiles)
             source_text = f"{len(sfiles)} session files under {match_root}"
@@ -474,6 +480,8 @@ def main() -> int:
     fetched_ok = 0
     skipped_exists = 0
     failed = 0
+    started = time.time()
+    every = max(1, int(args.progress_every or 20))
 
     print(f"[INFO] list files: {len(list_files)}")
     print(f"[INFO] unique targets: {len(pairs)}")
@@ -486,12 +494,26 @@ def main() -> int:
 
         if out.exists() and not args.force:
             skipped_exists += 1
+            if idx == 1 or idx % every == 0 or idx == len(targets):
+                elapsed = time.time() - started
+                print(
+                    f"[PROGRESS] {idx}/{len(targets)} ok={fetched_ok} skip={skipped_exists} fail={failed} "
+                    f"elapsed={elapsed:.1f}s last=skip mid={mid} wid={wid}",
+                    flush=True,
+                )
             continue
 
         ok, data_or_err = fetch_one(mid, wid, auth, args.timeout_sec, summary_tails)
         if not ok:
             failed += 1
             print(f"[WARN] {idx}/{len(targets)} mid={mid} wid={wid} failed: {data_or_err}")
+            if idx == 1 or idx % every == 0 or idx == len(targets):
+                elapsed = time.time() - started
+                print(
+                    f"[PROGRESS] {idx}/{len(targets)} ok={fetched_ok} skip={skipped_exists} fail={failed} "
+                    f"elapsed={elapsed:.1f}s last=fail mid={mid} wid={wid}",
+                    flush=True,
+                )
             continue
 
         # quick validity check
@@ -501,14 +523,35 @@ def main() -> int:
             if code != "000":
                 failed += 1
                 print(f"[WARN] {idx}/{len(targets)} mid={mid} wid={wid} code={code}")
+                if idx == 1 or idx % every == 0 or idx == len(targets):
+                    elapsed = time.time() - started
+                    print(
+                        f"[PROGRESS] {idx}/{len(targets)} ok={fetched_ok} skip={skipped_exists} fail={failed} "
+                        f"elapsed={elapsed:.1f}s last=code mid={mid} wid={wid}",
+                        flush=True,
+                    )
                 continue
         except Exception:
             failed += 1
             print(f"[WARN] {idx}/{len(targets)} mid={mid} wid={wid} invalid JSON")
+            if idx == 1 or idx % every == 0 or idx == len(targets):
+                elapsed = time.time() - started
+                print(
+                    f"[PROGRESS] {idx}/{len(targets)} ok={fetched_ok} skip={skipped_exists} fail={failed} "
+                    f"elapsed={elapsed:.1f}s last=invalid mid={mid} wid={wid}",
+                    flush=True,
+                )
             continue
 
         out.write_text(data_or_err, encoding="utf-8")
         fetched_ok += 1
+        if idx == 1 or idx % every == 0 or idx == len(targets):
+            elapsed = time.time() - started
+            print(
+                f"[PROGRESS] {idx}/{len(targets)} ok={fetched_ok} skip={skipped_exists} fail={failed} "
+                f"elapsed={elapsed:.1f}s last=ok mid={mid} wid={wid}",
+                flush=True,
+            )
 
         if args.delay_sec > 0:
             time.sleep(args.delay_sec)
