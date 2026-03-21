@@ -1,7 +1,7 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-22 02:21 JST";
+const APP_UPDATED_AT_JST = "2026-03-22 02:23 JST";
 
 const PARAM_LABELS = {
   spd: "Speed",
@@ -261,10 +261,6 @@ function formationCardHtml(f) {
       <div class="formation-item-metrics">
         <span>Usage ${pct(f.cc.usageRate)}</span>
         <span>Win ${pct(f.cc.winRate)}</span>
-        <span>Speed ${f.params.spd}</span>
-        <span>Tech ${f.params.tec}</span>
-        <span>Power ${f.params.pwr}</span>
-        <span>Total ${f.params.ttl}</span>
       </div>
     </button>
   `;
