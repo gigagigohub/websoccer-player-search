@@ -2282,6 +2282,18 @@ button.ghost {
   color: var(--text-sub);
 }
 
+.slot-top-statline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.slot-top-statline .type-badge {
+  min-width: 2.05em;
+  padding: 1px 6px;
+  font-size: 0.7rem;
+}
+
 .inline-pill {
   display: inline-block;
   border: 1px solid var(--line-soft);

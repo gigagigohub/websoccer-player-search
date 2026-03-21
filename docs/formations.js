@@ -1,7 +1,7 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-21 23:53 JST";
+const APP_UPDATED_AT_JST = "2026-03-22 00:10 JST";
 
 const PARAM_LABELS = {
   spd: "Speed",
@@ -161,6 +161,21 @@ function getCcCategoryLabelByPlayerId(playerId) {
   const id = Number(playerId);
   if (!Number.isInteger(id)) return "-";
   return normalizeCategory(playerCategoryById.get(id));
+}
+
+function categoryBadgeClass(category) {
+  const c = normalizeCategory(category);
+  if (c === "CC") return "cat-cc";
+  if (c === "SS") return "cat-ss";
+  if (c === "CM") return "cat-cm";
+  if (c === "CM/SS") return "cat-cmss";
+  if (c === "NR") return "cat-nr-r13";
+  return "cat-na";
+}
+
+function categoryBadgeHtml(category) {
+  const c = normalizeCategory(category);
+  return `<span class="badge type-badge ${categoryBadgeClass(c)}">${c}</span>`;
 }
 
 function formatFormationYearLabel(year, stride) {
@@ -341,7 +356,10 @@ function renderSlotTop(slotTop) {
               </div>
               <div class="slot-top-meta">
                 <strong class="slot-top-name">${top.playerName}</strong>
-                <span>(${getCcCategoryLabelByPlayerId(top.playerId)}) 使用率 ${pct(top.usageRate)} / 平均 ${avg(top.avgPts)}</span>
+                <span class="slot-top-statline">
+                  ${categoryBadgeHtml(getCcCategoryLabelByPlayerId(top.playerId))}
+                  <span>使用率 ${pct(top.usageRate)} / 平均 ${avg(top.avgPts)}</span>
+                </span>
               </div>
             </button>
           `;
@@ -477,7 +495,7 @@ function openSlotModal(slot) {
       <div class="slot-table-wrap">
         <table class="slot-table">
           <thead>
-            <tr><th>Rank</th><th>Player</th><th>Usage</th><th>Avg Pts</th><th>ID</th></tr>
+            <tr><th>Rank</th><th>Player</th><th>Category</th><th>Usage</th><th>Avg Pts</th></tr>
           </thead>
           <tbody>
             ${rows
@@ -486,9 +504,9 @@ function openSlotModal(slot) {
                   <tr>
                     <td>${idx + 1}</td>
                     <td>${r.playerName}</td>
+                    <td>${categoryBadgeHtml(getCcCategoryLabelByPlayerId(r.playerId))}</td>
                     <td>${pct(r.usageRate)} (${r.uses})</td>
                     <td>${avg(r.avgPts)}</td>
-                    <td>${r.playerId}</td>
                   </tr>
                 `
               )

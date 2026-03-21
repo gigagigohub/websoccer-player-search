@@ -140,11 +140,25 @@ function findCcSlotStat(formationId, slot, playerId) {
   const fid = Number(formationId);
   const sid = Number(slot);
   const pid = Number(playerId);
-  if (!Number.isInteger(fid) || !Number.isInteger(sid) || !Number.isInteger(pid)) return null;
+  if (!Number.isInteger(fid) || !Number.isInteger(sid) || !Number.isInteger(pid)) return { row: null, refCategory: null, byName: false };
   const formation = formations.find((f) => Number(f?.id) === fid);
   const rows = formation?.slotStats?.[String(sid)];
-  if (!Array.isArray(rows)) return null;
-  return rows.find((r) => Number(r?.playerId) === pid) || null;
+  if (!Array.isArray(rows)) return { row: null, refCategory: null, byName: false };
+  const byId = rows.find((r) => Number(r?.playerId) === pid) || null;
+  if (byId) return { row: byId, refCategory: null, byName: false };
+
+  const basePlayer = players.find((p) => Number(p?.id) === pid);
+  const baseName = String(basePlayer?.name || "").trim();
+  if (!baseName) return { row: null, refCategory: null, byName: false };
+  const byNameRows = rows.filter((r) => String(r?.playerName || "").trim() === baseName);
+  if (!byNameRows.length) return { row: null, refCategory: null, byName: false };
+  const refRow = byNameRows[0];
+  const refPlayer = players.find((p) => Number(p?.id) === Number(refRow?.playerId));
+  return {
+    row: refRow,
+    refCategory: refPlayer ? getCategory(refPlayer) : "-",
+    byName: true,
+  };
 }
 
 function closeMenuPanel() {
@@ -694,12 +708,12 @@ function renderLineup() {
       : `<div class="lineup-empty-thumb"></div>`;
     const selectedPeriod = player ? findPeriodBySeason(player, season) : null;
     const selectedMetrics = selectedPeriod?.metrics || (player ? getPeakMetrics(player) : null);
-    const ccStat = (player && Number.isInteger(selectedFormationId))
+    const ccStatInfo = (player && Number.isInteger(selectedFormationId))
       ? findCcSlotStat(selectedFormationId, slot, player.id)
       : null;
     const ccStatText = Number.isInteger(selectedFormationId)
-      ? (ccStat
-        ? `${pct(ccStat.usageRate)} / ${avg(ccStat.avgPts)}`
+      ? (ccStatInfo?.row
+        ? `${ccStatInfo.byName ? `(${ccStatInfo.refCategory || "-"}) ` : ""}${pct(ccStatInfo.row.usageRate)} / ${avg(ccStatInfo.row.avgPts)}`
         : "- / -")
       : "";
     const rightPaneHtml = player
