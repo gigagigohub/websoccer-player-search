@@ -1,7 +1,7 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-21 21:50 JST";
+const APP_UPDATED_AT_JST = "2026-03-21 22:02 JST";
 
 const PARAM_LABELS = {
   spd: "Speed",
@@ -306,18 +306,33 @@ function renderKeyPositions(keyPositions) {
 function renderSlotTop(slotTop) {
   const slots = Array.from({ length: 11 }, (_, i) => i + 1);
   return `
-    <div class="formation-slot-top-grid">
+    <div class="formation-slot-top-list">
       ${slots
         .map((slot) => {
           const top = slotTop?.[String(slot)] || null;
           if (!top) {
-            return `<button type="button" class="slot-top-item" data-slot="${slot}"><span>Slot ${slot}</span><span class="dim">No data</span></button>`;
+            return `
+              <button type="button" class="slot-top-row" data-slot="${slot}">
+                <span class="slot-top-slotno">Slot ${slot}</span>
+                <div class="slot-top-thumb slot-top-thumb-empty"></div>
+                <div class="slot-top-meta">
+                  <strong class="slot-top-name">No data</strong>
+                  <span class="dim">-</span>
+                </div>
+              </button>
+            `;
           }
+          const imgSrc = `./images/chara/players/static/${top.playerId}.gif`;
           return `
-            <button type="button" class="slot-top-item" data-slot="${slot}">
-              <span>Slot ${slot}</span>
-              <strong>${top.playerName}</strong>
-              <span>${pct(top.usageRate)} / ${avg(top.avgPts)}</span>
+            <button type="button" class="slot-top-row" data-slot="${slot}">
+              <span class="slot-top-slotno">Slot ${slot}</span>
+              <div class="slot-top-thumb">
+                <img loading="lazy" src="${imgSrc}" alt="${top.playerName}" />
+              </div>
+              <div class="slot-top-meta">
+                <strong class="slot-top-name">${top.playerName}</strong>
+                <span>${pct(top.usageRate)} / ${avg(top.avgPts)} / ID ${top.playerId}</span>
+              </div>
             </button>
           `;
         })

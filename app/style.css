@@ -2019,7 +2019,7 @@ button.ghost {
 
 .formation-detail-grid {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 286px 1fr;
   gap: 12px;
 }
 
@@ -2050,25 +2050,19 @@ button.ghost {
   aspect-ratio: 0.95;
   border: 1px solid rgba(255,255,255,0.2);
   border-radius: 8px;
-  background:
-    url("./images/formation/formation_bg@2x.png") center / cover no-repeat,
-    linear-gradient(180deg, rgba(52,74,42,0.45), rgba(31,44,31,0.44));
+  background: url("./images/formation/formation_bg@2x.png") center / cover no-repeat;
   overflow: hidden;
 }
 
 .formation-pitch::before {
-  content: "";
-  position: absolute;
-  inset: 8px;
-  border: 2px solid rgba(255,255,255,0.26);
-  border-radius: 2px;
+  content: none;
 }
 
 .formation-slot-point {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 36px;
-  height: 42px;
+  width: 30px;
+  height: 36px;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -2085,8 +2079,8 @@ button.ghost {
 }
 
 .formation-slot-icon {
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   image-rendering: -webkit-optimize-contrast;
 }
 
@@ -2121,22 +2115,71 @@ button.ghost {
   margin-top: 4px;
 }
 
-.formation-slot-top-grid {
+.formation-slot-top-list {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: 1fr;
+  gap: 6px;
 }
 
-.slot-top-item {
-  border: 1px solid var(--line-soft);
+.slot-top-row {
+  border: 1px solid #30486b;
   border-radius: 8px;
-  background: rgba(255,255,255,0.03);
+  background: #121f36;
   color: var(--text-main);
   text-align: left;
-  padding: 8px;
+  padding: 6px 8px;
   display: grid;
-  gap: 2px;
+  grid-template-columns: 58px 40px 1fr;
+  align-items: center;
+  column-gap: 8px;
   cursor: pointer;
+}
+
+.slot-top-slotno {
+  font-size: 0.74rem;
+  color: #a7bbe5;
+  font-weight: 700;
+}
+
+.slot-top-thumb {
+  width: 34px;
+  height: 32px;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.slot-top-thumb img {
+  width: 54px;
+  height: 92px;
+  object-fit: contain;
+  object-position: center bottom;
+  transform: translateY(34px);
+}
+
+.slot-top-thumb-empty {
+  background: rgba(132, 152, 186, 0.15);
+  border-radius: 4px;
+}
+
+.slot-top-meta {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.slot-top-name {
+  font-size: 0.76rem;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.slot-top-meta > span {
+  font-size: 0.7rem;
+  color: var(--text-sub);
 }
 
 .inline-pill {
