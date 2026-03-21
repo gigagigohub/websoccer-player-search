@@ -2286,6 +2286,10 @@ button.ghost {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .slot-top-statline .type-badge {
@@ -2323,6 +2327,7 @@ button.ghost {
   border-bottom: 1px solid var(--line-soft);
   padding: 6px 8px;
   text-align: left;
+  white-space: nowrap;
 }
 
 .slot-table thead th {

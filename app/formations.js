@@ -1,7 +1,7 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-22 00:10 JST";
+const APP_UPDATED_AT_JST = "2026-03-21 23:41 JST";
 
 const PARAM_LABELS = {
   spd: "Speed",
@@ -63,6 +63,7 @@ let cloudConfig = { url: "", anonKey: "", lineupKey: "" };
 let formations = [];
 let coaches = [];
 let playerCategoryById = new Map();
+let playerRateById = new Map();
 let filteredAndSorted = [];
 let currentFormation = null;
 
@@ -163,19 +164,28 @@ function getCcCategoryLabelByPlayerId(playerId) {
   return normalizeCategory(playerCategoryById.get(id));
 }
 
-function categoryBadgeClass(category) {
+function categoryBadgeClass(category, rate = null) {
   const c = normalizeCategory(category);
   if (c === "CC") return "cat-cc";
   if (c === "SS") return "cat-ss";
   if (c === "CM") return "cat-cm";
   if (c === "CM/SS") return "cat-cmss";
-  if (c === "NR") return "cat-nr-r13";
+  if (c === "NR") {
+    const r = Number(rate);
+    if (r === 7) return "cat-nr-r7";
+    if (r === 5 || r === 6) return "cat-nr-r56";
+    if (r === 4) return "cat-nr-r4";
+    return "cat-nr-r13";
+  }
   return "cat-na";
 }
 
-function categoryBadgeHtml(category) {
+function categoryBadgeHtmlByPlayerId(playerId) {
+  const id = Number(playerId);
+  const category = getCcCategoryLabelByPlayerId(id);
+  const rate = Number(playerRateById.get(id));
   const c = normalizeCategory(category);
-  return `<span class="badge type-badge ${categoryBadgeClass(c)}">${c}</span>`;
+  return `<span class="badge type-badge ${categoryBadgeClass(c, rate)}">${c}</span>`;
 }
 
 function formatFormationYearLabel(year, stride) {
@@ -357,7 +367,7 @@ function renderSlotTop(slotTop) {
               <div class="slot-top-meta">
                 <strong class="slot-top-name">${top.playerName}</strong>
                 <span class="slot-top-statline">
-                  ${categoryBadgeHtml(getCcCategoryLabelByPlayerId(top.playerId))}
+                  ${categoryBadgeHtmlByPlayerId(top.playerId)}
                   <span>使用率 ${pct(top.usageRate)} / 平均 ${avg(top.avgPts)}</span>
                 </span>
               </div>
@@ -504,7 +514,7 @@ function openSlotModal(slot) {
                   <tr>
                     <td>${idx + 1}</td>
                     <td>${r.playerName}</td>
-                    <td>${categoryBadgeHtml(getCcCategoryLabelByPlayerId(r.playerId))}</td>
+                    <td>${categoryBadgeHtmlByPlayerId(r.playerId)}</td>
                     <td>${pct(r.usageRate)} (${r.uses})</td>
                     <td>${avg(r.avgPts)}</td>
                   </tr>
@@ -634,6 +644,11 @@ async function init() {
       playerCategoryById = new Map(
         rows
           .map((p) => [Number(p?.id), normalizeCategory(p?.category)])
+          .filter(([id]) => Number.isInteger(id))
+      );
+      playerRateById = new Map(
+        rows
+          .map((p) => [Number(p?.id), Number(p?.rate)])
           .filter(([id]) => Number.isInteger(id))
       );
     } catch (e) {
