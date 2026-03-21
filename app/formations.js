@@ -1,7 +1,7 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-21 22:21 JST";
+const APP_UPDATED_AT_JST = "2026-03-21 22:28 JST";
 
 const PARAM_LABELS = {
   spd: "Speed",
@@ -157,8 +157,7 @@ function avg(v) {
 function formatFormationYearLabel(year) {
   const y = Number(year);
   if (!Number.isFinite(y) || y <= 0) return "-";
-  const next = String((y + 1) % 100).padStart(2, "0");
-  return `${y}-${next}`;
+  return String(y);
 }
 
 function buildSortOptions() {
