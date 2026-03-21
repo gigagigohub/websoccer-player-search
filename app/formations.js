@@ -1,7 +1,7 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-21 22:24 JST";
+const APP_UPDATED_AT_JST = "2026-03-21 22:35 JST";
 
 const PARAM_LABELS = {
   spd: "Speed",
@@ -274,13 +274,8 @@ function renderFormationPitch(positions, formationId) {
         .map((p) => {
           const nx = (p.x - minX) / (maxX - minX);
           const ny = (p.y - minY) / (maxY - minY);
-          // FW側(上部)の左右寄りを抑えるため、上に行くほど横方向を中央寄せ補正
-          const fwSideCompression = 0.82 + Math.max(0, Math.min(1, ny)) * 0.18;
-          const nxAdjusted = 0.5 + (nx - 0.5) * fwSideCompression;
-          // 上段の張り付き防止のため、上側に追加余白をかける
-          const nyAdjusted = Math.pow(Math.max(0, Math.min(1, ny)), 0.88);
-          const left = padLeft + nxAdjusted * (100 - padLeft - padRight);
-          const top = padTop + nyAdjusted * (100 - padTop - padBottom);
+          const left = padLeft + nx * (100 - padLeft - padRight);
+          const top = padTop + ny * (100 - padTop - padBottom);
           return `
             <button type="button" class="formation-slot-point" data-slot="${p.slot}" style="left:${left.toFixed(2)}%;top:${top.toFixed(2)}%">
               <img class="formation-slot-icon" src="${markerSrc}" alt="" />

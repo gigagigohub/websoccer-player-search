@@ -2215,11 +2215,11 @@ button.ghost {
 }
 
 .slot-top-thumb img {
-  width: 54px;
-  height: 92px;
+  width: 50px;
+  height: 86px;
   object-fit: contain;
   object-position: center bottom;
-  transform: translateY(34px);
+  transform: translateY(27px);
 }
 
 .slot-top-thumb-empty {
@@ -2289,6 +2289,6 @@ button.ghost {
 
 @media (max-width: 840px) {
   .formation-detail-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 176px minmax(0, 1fr);
   }
 }
