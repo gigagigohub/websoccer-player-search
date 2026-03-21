@@ -664,7 +664,30 @@
             "avgPts": 3.3333
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 9,
+          "coachName": "ホッベル",
+          "uses": 9,
+          "usageRate": 0.473684,
+          "avgPts": 3.1111
+        },
+        {
+          "coachId": 17,
+          "coachName": "カラヴァン",
+          "uses": 6,
+          "usageRate": 0.315789,
+          "avgPts": 3.0
+        },
+        {
+          "coachId": 6,
+          "coachName": "フルニエ",
+          "uses": 4,
+          "usageRate": 0.210526,
+          "avgPts": 3.75
+        }
+      ]
     },
     {
       "id": 2,
@@ -1226,7 +1249,23 @@
             "avgPts": 2.3333
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 12,
+          "coachName": "フィヨルトフト",
+          "uses": 8,
+          "usageRate": 0.727273,
+          "avgPts": 3.125
+        },
+        {
+          "coachId": 21,
+          "coachName": "ラクテオノフ",
+          "uses": 3,
+          "usageRate": 0.272727,
+          "avgPts": 3.3333
+        }
+      ]
     },
     {
       "id": 3,
@@ -2129,7 +2168,37 @@
             "avgPts": 1.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 7,
+          "usageRate": 0.291667,
+          "avgPts": 2.7143
+        },
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 7,
+          "usageRate": 0.291667,
+          "avgPts": 2.1429
+        },
+        {
+          "coachId": 4,
+          "coachName": "ブリッジス",
+          "uses": 6,
+          "usageRate": 0.25,
+          "avgPts": 3.0
+        },
+        {
+          "coachId": 13,
+          "coachName": "ガウルテリオ",
+          "uses": 4,
+          "usageRate": 0.166667,
+          "avgPts": 4.0
+        }
+      ]
     },
     {
       "id": 4,
@@ -2558,7 +2627,16 @@
             "avgPts": 1.6667
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 4,
+          "coachName": "ブリッジス",
+          "uses": 3,
+          "usageRate": 1.0,
+          "avgPts": 2.3333
+        }
+      ]
     },
     {
       "id": 5,
@@ -3212,7 +3290,23 @@
             "avgPts": 2.6667
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 12,
+          "coachName": "フィヨルトフト",
+          "uses": 7,
+          "usageRate": 0.636364,
+          "avgPts": 2.2857
+        },
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 4,
+          "usageRate": 0.363636,
+          "avgPts": 3.5
+        }
+      ]
     },
     {
       "id": 6,
@@ -3443,7 +3537,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 7,
@@ -3719,7 +3814,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 8,
@@ -4514,7 +4610,23 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 12,
+          "coachName": "フィヨルトフト",
+          "uses": 16,
+          "usageRate": 0.842105,
+          "avgPts": 2.625
+        },
+        {
+          "coachId": 10,
+          "coachName": "ドラゴビッチ",
+          "uses": 3,
+          "usageRate": 0.157895,
+          "avgPts": 3.0
+        }
+      ]
     },
     {
       "id": 9,
@@ -4780,7 +4892,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 10,
@@ -5223,7 +5336,23 @@
             "avgPts": 5.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 2,
+          "coachName": "ジャンヌ",
+          "uses": 2,
+          "usageRate": 0.666667,
+          "avgPts": 2.5
+        },
+        {
+          "coachId": 36,
+          "coachName": "千波　公一",
+          "uses": 1,
+          "usageRate": 0.333333,
+          "avgPts": 3.0
+        }
+      ]
     },
     {
       "id": 11,
@@ -5519,7 +5648,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 12,
@@ -5770,7 +5900,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 13,
@@ -6066,7 +6197,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 14,
@@ -6540,7 +6672,16 @@
             "avgPts": 3.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 10,
+          "coachName": "ドラゴビッチ",
+          "uses": 4,
+          "usageRate": 1.0,
+          "avgPts": 2.25
+        }
+      ]
     },
     {
       "id": 15,
@@ -6791,7 +6932,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 16,
@@ -7062,7 +7204,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 17,
@@ -7508,7 +7651,16 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 4,
+          "coachName": "ブリッジス",
+          "uses": 4,
+          "usageRate": 1.0,
+          "avgPts": 2.75
+        }
+      ]
     },
     {
       "id": 18,
@@ -8313,7 +8465,23 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 12,
+          "coachName": "フィヨルトフト",
+          "uses": 11,
+          "usageRate": 0.647059,
+          "avgPts": 3.2727
+        },
+        {
+          "coachId": 28,
+          "coachName": "リッター",
+          "uses": 6,
+          "usageRate": 0.352941,
+          "avgPts": 3.0
+        }
+      ]
     },
     {
       "id": 19,
@@ -8923,7 +9091,30 @@
             "avgPts": 2.6667
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 6,
+          "coachName": "フルニエ",
+          "uses": 3,
+          "usageRate": 0.428571,
+          "avgPts": 2.6667
+        },
+        {
+          "coachId": 28,
+          "coachName": "リッター",
+          "uses": 2,
+          "usageRate": 0.285714,
+          "avgPts": 2.5
+        },
+        {
+          "coachId": 12,
+          "coachName": "フィヨルトフト",
+          "uses": 2,
+          "usageRate": 0.285714,
+          "avgPts": 2.0
+        }
+      ]
     },
     {
       "id": 20,
@@ -9821,7 +10012,30 @@
             "avgPts": 3.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 20,
+          "usageRate": 0.714286,
+          "avgPts": 3.25
+        },
+        {
+          "coachId": 6,
+          "coachName": "フルニエ",
+          "uses": 7,
+          "usageRate": 0.25,
+          "avgPts": 3.0
+        },
+        {
+          "coachId": 21,
+          "coachName": "ラクテオノフ",
+          "uses": 1,
+          "usageRate": 0.035714,
+          "avgPts": 4.0
+        }
+      ]
     },
     {
       "id": 21,
@@ -10083,7 +10297,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 22,
@@ -10350,7 +10565,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 23,
@@ -10597,7 +10813,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 24,
@@ -10923,7 +11140,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 25,
@@ -11229,7 +11447,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 26,
@@ -12122,7 +12341,44 @@
             "avgPts": 3.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 5,
+          "coachName": "イエーガー",
+          "uses": 8,
+          "usageRate": 0.275862,
+          "avgPts": 2.75
+        },
+        {
+          "coachId": 10,
+          "coachName": "ドラゴビッチ",
+          "uses": 7,
+          "usageRate": 0.241379,
+          "avgPts": 3.7143
+        },
+        {
+          "coachId": 6,
+          "coachName": "フルニエ",
+          "uses": 7,
+          "usageRate": 0.241379,
+          "avgPts": 2.4286
+        },
+        {
+          "coachId": 32,
+          "coachName": "ザイド・ファタラ",
+          "uses": 4,
+          "usageRate": 0.137931,
+          "avgPts": 2.75
+        },
+        {
+          "coachId": 33,
+          "coachName": "ハッサン",
+          "uses": 3,
+          "usageRate": 0.103448,
+          "avgPts": 3.6667
+        }
+      ]
     },
     {
       "id": 27,
@@ -12358,7 +12614,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 28,
@@ -13351,7 +13608,51 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 5,
+          "coachName": "イエーガー",
+          "uses": 22,
+          "usageRate": 0.354839,
+          "avgPts": 2.8636
+        },
+        {
+          "coachId": 15,
+          "coachName": "ゴンザレス",
+          "uses": 10,
+          "usageRate": 0.16129,
+          "avgPts": 3.8
+        },
+        {
+          "coachId": 9,
+          "coachName": "ホッベル",
+          "uses": 10,
+          "usageRate": 0.16129,
+          "avgPts": 3.6
+        },
+        {
+          "coachId": 4,
+          "coachName": "ブリッジス",
+          "uses": 9,
+          "usageRate": 0.145161,
+          "avgPts": 3.0
+        },
+        {
+          "coachId": 17,
+          "coachName": "カラヴァン",
+          "uses": 8,
+          "usageRate": 0.129032,
+          "avgPts": 3.75
+        },
+        {
+          "coachId": 13,
+          "coachName": "ガウルテリオ",
+          "uses": 3,
+          "usageRate": 0.048387,
+          "avgPts": 2.0
+        }
+      ]
     },
     {
       "id": 29,
@@ -13602,7 +13903,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 30,
@@ -14481,7 +14783,37 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 5,
+          "coachName": "イエーガー",
+          "uses": 11,
+          "usageRate": 0.392857,
+          "avgPts": 3.2727
+        },
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 7,
+          "usageRate": 0.25,
+          "avgPts": 3.0
+        },
+        {
+          "coachId": 12,
+          "coachName": "フィヨルトフト",
+          "uses": 7,
+          "usageRate": 0.25,
+          "avgPts": 2.5714
+        },
+        {
+          "coachId": 21,
+          "coachName": "ラクテオノフ",
+          "uses": 3,
+          "usageRate": 0.107143,
+          "avgPts": 3.0
+        }
+      ]
     },
     {
       "id": 31,
@@ -14936,7 +15268,16 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 1,
+          "usageRate": 1.0,
+          "avgPts": 3.0
+        }
+      ]
     },
     {
       "id": 32,
@@ -16006,7 +16347,30 @@
             "avgPts": 1.6667
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 28,
+          "coachName": "リッター",
+          "uses": 50,
+          "usageRate": 0.819672,
+          "avgPts": 2.9
+        },
+        {
+          "coachId": 22,
+          "coachName": "コンティ",
+          "uses": 6,
+          "usageRate": 0.098361,
+          "avgPts": 3.3333
+        },
+        {
+          "coachId": 2,
+          "coachName": "ジャンヌ",
+          "uses": 5,
+          "usageRate": 0.081967,
+          "avgPts": 4.4
+        }
+      ]
     },
     {
       "id": 33,
@@ -17035,7 +17399,37 @@
             "avgPts": 1.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 4,
+          "coachName": "ブリッジス",
+          "uses": 53,
+          "usageRate": 0.509615,
+          "avgPts": 3.4717
+        },
+        {
+          "coachId": 6,
+          "coachName": "フルニエ",
+          "uses": 30,
+          "usageRate": 0.288462,
+          "avgPts": 3.5333
+        },
+        {
+          "coachId": 22,
+          "coachName": "コンティ",
+          "uses": 14,
+          "usageRate": 0.134615,
+          "avgPts": 3.2857
+        },
+        {
+          "coachId": 36,
+          "coachName": "千波　公一",
+          "uses": 7,
+          "usageRate": 0.067308,
+          "avgPts": 3.5714
+        }
+      ]
     },
     {
       "id": 34,
@@ -17845,7 +18239,30 @@
             "avgPts": 1.5
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 14,
+          "usageRate": 0.583333,
+          "avgPts": 3.0
+        },
+        {
+          "coachId": 14,
+          "coachName": "アルメイダ",
+          "uses": 6,
+          "usageRate": 0.25,
+          "avgPts": 2.8333
+        },
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 4,
+          "usageRate": 0.166667,
+          "avgPts": 2.75
+        }
+      ]
     },
     {
       "id": 35,
@@ -18607,7 +19024,23 @@
             "avgPts": 1.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 23,
+          "usageRate": 0.884615,
+          "avgPts": 2.6087
+        },
+        {
+          "coachId": 15,
+          "coachName": "ゴンザレス",
+          "uses": 3,
+          "usageRate": 0.115385,
+          "avgPts": 2.6667
+        }
+      ]
     },
     {
       "id": 36,
@@ -19845,7 +20278,51 @@
             "avgPts": 1.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 12,
+          "coachName": "フィヨルトフト",
+          "uses": 46,
+          "usageRate": 0.422018,
+          "avgPts": 3.0
+        },
+        {
+          "coachId": 23,
+          "coachName": "アクエル",
+          "uses": 27,
+          "usageRate": 0.247706,
+          "avgPts": 3.2963
+        },
+        {
+          "coachId": 21,
+          "coachName": "ラクテオノフ",
+          "uses": 19,
+          "usageRate": 0.174312,
+          "avgPts": 2.8421
+        },
+        {
+          "coachId": 6,
+          "coachName": "フルニエ",
+          "uses": 13,
+          "usageRate": 0.119266,
+          "avgPts": 3.0769
+        },
+        {
+          "coachId": 10,
+          "coachName": "ドラゴビッチ",
+          "uses": 3,
+          "usageRate": 0.027523,
+          "avgPts": 3.3333
+        },
+        {
+          "coachId": 3,
+          "coachName": "タウンゼント",
+          "uses": 1,
+          "usageRate": 0.009174,
+          "avgPts": 4.0
+        }
+      ]
     },
     {
       "id": 37,
@@ -20162,7 +20639,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 38,
@@ -21763,7 +22241,30 @@
             "avgPts": 1.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 12,
+          "coachName": "フィヨルトフト",
+          "uses": 120,
+          "usageRate": 0.740741,
+          "avgPts": 3.3
+        },
+        {
+          "coachId": 32,
+          "coachName": "ザイド・ファタラ",
+          "uses": 25,
+          "usageRate": 0.154321,
+          "avgPts": 3.4
+        },
+        {
+          "coachId": 21,
+          "coachName": "ラクテオノフ",
+          "uses": 17,
+          "usageRate": 0.104938,
+          "avgPts": 3.0
+        }
+      ]
     },
     {
       "id": 39,
@@ -22822,7 +23323,37 @@
             "avgPts": 2.5
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 113,
+          "usageRate": 0.882812,
+          "avgPts": 3.5133
+        },
+        {
+          "coachId": 32,
+          "coachName": "ザイド・ファタラ",
+          "uses": 7,
+          "usageRate": 0.054688,
+          "avgPts": 3.5714
+        },
+        {
+          "coachId": 23,
+          "coachName": "アクエル",
+          "uses": 5,
+          "usageRate": 0.039062,
+          "avgPts": 4.0
+        },
+        {
+          "coachId": 26,
+          "coachName": "シマク",
+          "uses": 3,
+          "usageRate": 0.023438,
+          "avgPts": 2.6667
+        }
+      ]
     },
     {
       "id": 40,
@@ -23434,7 +23965,23 @@
             "avgPts": 2.3333
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 6,
+          "usageRate": 0.6,
+          "avgPts": 2.6667
+        },
+        {
+          "coachId": 6,
+          "coachName": "フルニエ",
+          "uses": 4,
+          "usageRate": 0.4,
+          "avgPts": 3.0
+        }
+      ]
     },
     {
       "id": 41,
@@ -23911,7 +24458,16 @@
             "avgPts": 2.3333
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 6,
+          "coachName": "フルニエ",
+          "uses": 3,
+          "usageRate": 1.0,
+          "avgPts": 2.3333
+        }
+      ]
     },
     {
       "id": 42,
@@ -24222,7 +24778,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 43,
@@ -25222,7 +25779,44 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 18,
+          "usageRate": 0.4,
+          "avgPts": 4.1111
+        },
+        {
+          "coachId": 5,
+          "coachName": "イエーガー",
+          "uses": 11,
+          "usageRate": 0.244444,
+          "avgPts": 2.9091
+        },
+        {
+          "coachId": 8,
+          "coachName": "Ｊ・フィルマーニ",
+          "uses": 9,
+          "usageRate": 0.2,
+          "avgPts": 3.5556
+        },
+        {
+          "coachId": 32,
+          "coachName": "ザイド・ファタラ",
+          "uses": 6,
+          "usageRate": 0.133333,
+          "avgPts": 3.8333
+        },
+        {
+          "coachId": 20,
+          "coachName": "フェルナンデス",
+          "uses": 1,
+          "usageRate": 0.022222,
+          "avgPts": 5.0
+        }
+      ]
     },
     {
       "id": 44,
@@ -25474,7 +26068,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 45,
@@ -26592,7 +27187,30 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 36,
+          "usageRate": 0.765957,
+          "avgPts": 3.4444
+        },
+        {
+          "coachId": 4,
+          "coachName": "ブリッジス",
+          "uses": 10,
+          "usageRate": 0.212766,
+          "avgPts": 3.1
+        },
+        {
+          "coachId": 2,
+          "coachName": "ジャンヌ",
+          "uses": 1,
+          "usageRate": 0.021277,
+          "avgPts": 5.0
+        }
+      ]
     },
     {
       "id": 46,
@@ -27048,7 +27666,16 @@
             "avgPts": 2.6667
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 6,
+          "coachName": "フルニエ",
+          "uses": 3,
+          "usageRate": 1.0,
+          "avgPts": 3.3333
+        }
+      ]
     },
     {
       "id": 47,
@@ -27816,7 +28443,37 @@
             "avgPts": 3.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 28,
+          "coachName": "リッター",
+          "uses": 9,
+          "usageRate": 0.391304,
+          "avgPts": 3.5556
+        },
+        {
+          "coachId": 31,
+          "coachName": "ジョルジュ",
+          "uses": 6,
+          "usageRate": 0.26087,
+          "avgPts": 2.5
+        },
+        {
+          "coachId": 12,
+          "coachName": "フィヨルトフト",
+          "uses": 5,
+          "usageRate": 0.217391,
+          "avgPts": 3.2
+        },
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 3,
+          "usageRate": 0.130435,
+          "avgPts": 2.3333
+        }
+      ]
     },
     {
       "id": 48,
@@ -28626,7 +29283,23 @@
             "avgPts": 1.3333
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 32,
+          "usageRate": 0.914286,
+          "avgPts": 3.375
+        },
+        {
+          "coachId": 23,
+          "coachName": "アクエル",
+          "uses": 3,
+          "usageRate": 0.085714,
+          "avgPts": 3.6667
+        }
+      ]
     },
     {
       "id": 49,
@@ -29090,7 +29763,16 @@
             "avgPts": 1.6667
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 4,
+          "coachName": "ブリッジス",
+          "uses": 3,
+          "usageRate": 1.0,
+          "avgPts": 4.0
+        }
+      ]
     },
     {
       "id": 50,
@@ -29983,7 +30665,37 @@
             "avgPts": 3.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 34,
+          "coachName": "デューラー",
+          "uses": 10,
+          "usageRate": 0.357143,
+          "avgPts": 2.5
+        },
+        {
+          "coachId": 15,
+          "coachName": "ゴンザレス",
+          "uses": 8,
+          "usageRate": 0.285714,
+          "avgPts": 3.0
+        },
+        {
+          "coachId": 27,
+          "coachName": "ドイル",
+          "uses": 7,
+          "usageRate": 0.25,
+          "avgPts": 3.5714
+        },
+        {
+          "coachId": 1,
+          "coachName": "ケルクホフ",
+          "uses": 3,
+          "usageRate": 0.107143,
+          "avgPts": 2.3333
+        }
+      ]
     },
     {
       "id": 51,
@@ -31461,7 +32173,37 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 73,
+          "usageRate": 0.695238,
+          "avgPts": 3.3973
+        },
+        {
+          "coachId": 5,
+          "coachName": "イエーガー",
+          "uses": 22,
+          "usageRate": 0.209524,
+          "avgPts": 3.4091
+        },
+        {
+          "coachId": 8,
+          "coachName": "Ｊ・フィルマーニ",
+          "uses": 6,
+          "usageRate": 0.057143,
+          "avgPts": 2.1667
+        },
+        {
+          "coachId": 22,
+          "coachName": "コンティ",
+          "uses": 4,
+          "usageRate": 0.038095,
+          "avgPts": 2.75
+        }
+      ]
     },
     {
       "id": 52,
@@ -32539,7 +33281,23 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 23,
+          "usageRate": 0.534884,
+          "avgPts": 2.4348
+        },
+        {
+          "coachId": 12,
+          "coachName": "フィヨルトフト",
+          "uses": 20,
+          "usageRate": 0.465116,
+          "avgPts": 3.05
+        }
+      ]
     },
     {
       "id": 53,
@@ -33153,7 +33911,30 @@
             "avgPts": 3.3333
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 5,
+          "coachName": "イエーガー",
+          "uses": 7,
+          "usageRate": 0.4375,
+          "avgPts": 3.0
+        },
+        {
+          "coachId": 15,
+          "coachName": "ゴンザレス",
+          "uses": 6,
+          "usageRate": 0.375,
+          "avgPts": 3.5
+        },
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 3,
+          "usageRate": 0.1875,
+          "avgPts": 3.0
+        }
+      ]
     },
     {
       "id": 54,
@@ -34259,7 +35040,37 @@
             "avgPts": 4.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 59,
+          "usageRate": 0.483607,
+          "avgPts": 3.1017
+        },
+        {
+          "coachId": 32,
+          "coachName": "ザイド・ファタラ",
+          "uses": 29,
+          "usageRate": 0.237705,
+          "avgPts": 3.0345
+        },
+        {
+          "coachId": 6,
+          "coachName": "フルニエ",
+          "uses": 26,
+          "usageRate": 0.213115,
+          "avgPts": 3.3462
+        },
+        {
+          "coachId": 4,
+          "coachName": "ブリッジス",
+          "uses": 8,
+          "usageRate": 0.065574,
+          "avgPts": 3.375
+        }
+      ]
     },
     {
       "id": 55,
@@ -34771,7 +35582,23 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 13,
+          "coachName": "ガウルテリオ",
+          "uses": 4,
+          "usageRate": 0.571429,
+          "avgPts": 3.5
+        },
+        {
+          "coachId": 17,
+          "coachName": "カラヴァン",
+          "uses": 3,
+          "usageRate": 0.428571,
+          "avgPts": 3.0
+        }
+      ]
     },
     {
       "id": 56,
@@ -35565,7 +36392,58 @@
             "avgPts": 3.1667
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 32,
+          "coachName": "ザイド・ファタラ",
+          "uses": 31,
+          "usageRate": 0.364706,
+          "avgPts": 3.2903
+        },
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 22,
+          "usageRate": 0.258824,
+          "avgPts": 3.7273
+        },
+        {
+          "coachId": 29,
+          "coachName": "ダビーサス",
+          "uses": 10,
+          "usageRate": 0.117647,
+          "avgPts": 3.8
+        },
+        {
+          "coachId": 26,
+          "coachName": "シマク",
+          "uses": 9,
+          "usageRate": 0.105882,
+          "avgPts": 3.6667
+        },
+        {
+          "coachId": 27,
+          "coachName": "ドイル",
+          "uses": 5,
+          "usageRate": 0.058824,
+          "avgPts": 3.8
+        },
+        {
+          "coachId": 5,
+          "coachName": "イエーガー",
+          "uses": 4,
+          "usageRate": 0.047059,
+          "avgPts": 3.0
+        },
+        {
+          "coachId": 34,
+          "coachName": "デューラー",
+          "uses": 4,
+          "usageRate": 0.047059,
+          "avgPts": 2.5
+        }
+      ]
     },
     {
       "id": 57,
@@ -36034,7 +36912,16 @@
             "avgPts": 3.25
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 17,
+          "coachName": "カラヴァン",
+          "uses": 4,
+          "usageRate": 1.0,
+          "avgPts": 3.5
+        }
+      ]
     },
     {
       "id": 58,
@@ -36579,7 +37466,23 @@
             "avgPts": 3.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 22,
+          "coachName": "コンティ",
+          "uses": 11,
+          "usageRate": 0.916667,
+          "avgPts": 3.1818
+        },
+        {
+          "coachId": 8,
+          "coachName": "Ｊ・フィルマーニ",
+          "uses": 1,
+          "usageRate": 0.083333,
+          "avgPts": 2.0
+        }
+      ]
     },
     {
       "id": 59,
@@ -37097,7 +38000,23 @@
             "avgPts": 1.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 12,
+          "coachName": "フィヨルトフト",
+          "uses": 4,
+          "usageRate": 0.571429,
+          "avgPts": 4.0
+        },
+        {
+          "coachId": 32,
+          "coachName": "ザイド・ファタラ",
+          "uses": 3,
+          "usageRate": 0.428571,
+          "avgPts": 3.0
+        }
+      ]
     },
     {
       "id": 60,
@@ -37536,7 +38455,16 @@
             "avgPts": 3.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 12,
+          "coachName": "フィヨルトフト",
+          "uses": 2,
+          "usageRate": 1.0,
+          "avgPts": 1.5
+        }
+      ]
     },
     {
       "id": 61,
@@ -38784,7 +39712,30 @@
             "avgPts": 1.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 83,
+          "usageRate": 0.873684,
+          "avgPts": 3.1928
+        },
+        {
+          "coachId": 29,
+          "coachName": "ダビーサス",
+          "uses": 6,
+          "usageRate": 0.063158,
+          "avgPts": 3.1667
+        },
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 6,
+          "usageRate": 0.063158,
+          "avgPts": 2.8333
+        }
+      ]
     },
     {
       "id": 62,
@@ -39530,7 +40481,30 @@
             "avgPts": 2.4
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 18,
+          "usageRate": 0.75,
+          "avgPts": 3.0556
+        },
+        {
+          "coachId": 12,
+          "coachName": "フィヨルトフト",
+          "uses": 5,
+          "usageRate": 0.208333,
+          "avgPts": 3.4
+        },
+        {
+          "coachId": 23,
+          "coachName": "アクエル",
+          "uses": 1,
+          "usageRate": 0.041667,
+          "avgPts": 2.0
+        }
+      ]
     },
     {
       "id": 63,
@@ -39806,7 +40780,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 64,
@@ -41287,7 +42262,51 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 62,
+          "usageRate": 0.696629,
+          "avgPts": 3.0161
+        },
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 14,
+          "usageRate": 0.157303,
+          "avgPts": 3.6429
+        },
+        {
+          "coachId": 27,
+          "coachName": "ドイル",
+          "uses": 4,
+          "usageRate": 0.044944,
+          "avgPts": 3.25
+        },
+        {
+          "coachId": 23,
+          "coachName": "アクエル",
+          "uses": 3,
+          "usageRate": 0.033708,
+          "avgPts": 3.6667
+        },
+        {
+          "coachId": 4,
+          "coachName": "ブリッジス",
+          "uses": 3,
+          "usageRate": 0.033708,
+          "avgPts": 2.0
+        },
+        {
+          "coachId": 10,
+          "coachName": "ドラゴビッチ",
+          "uses": 3,
+          "usageRate": 0.033708,
+          "avgPts": 1.6667
+        }
+      ]
     },
     {
       "id": 65,
@@ -41903,7 +42922,23 @@
             "avgPts": 1.3333
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 4,
+          "coachName": "ブリッジス",
+          "uses": 7,
+          "usageRate": 0.7,
+          "avgPts": 3.2857
+        },
+        {
+          "coachId": 27,
+          "coachName": "ドイル",
+          "uses": 3,
+          "usageRate": 0.3,
+          "avgPts": 4.0
+        }
+      ]
     },
     {
       "id": 66,
@@ -42862,7 +43897,51 @@
             "avgPts": 4.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 8,
+          "coachName": "Ｊ・フィルマーニ",
+          "uses": 7,
+          "usageRate": 0.304348,
+          "avgPts": 2.8571
+        },
+        {
+          "coachId": 4,
+          "coachName": "ブリッジス",
+          "uses": 6,
+          "usageRate": 0.26087,
+          "avgPts": 2.1667
+        },
+        {
+          "coachId": 27,
+          "coachName": "ドイル",
+          "uses": 3,
+          "usageRate": 0.130435,
+          "avgPts": 4.0
+        },
+        {
+          "coachId": 6,
+          "coachName": "フルニエ",
+          "uses": 3,
+          "usageRate": 0.130435,
+          "avgPts": 3.0
+        },
+        {
+          "coachId": 22,
+          "coachName": "コンティ",
+          "uses": 3,
+          "usageRate": 0.130435,
+          "avgPts": 2.3333
+        },
+        {
+          "coachId": 2,
+          "coachName": "ジャンヌ",
+          "uses": 1,
+          "usageRate": 0.043478,
+          "avgPts": 3.0
+        }
+      ]
     },
     {
       "id": 67,
@@ -43504,7 +44583,23 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 11,
+          "usageRate": 0.6875,
+          "avgPts": 3.0909
+        },
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 5,
+          "usageRate": 0.3125,
+          "avgPts": 3.6
+        }
+      ]
     },
     {
       "id": 68,
@@ -44044,7 +45139,23 @@
             "avgPts": 3.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 17,
+          "coachName": "カラヴァン",
+          "uses": 3,
+          "usageRate": 0.6,
+          "avgPts": 2.3333
+        },
+        {
+          "coachId": 6,
+          "coachName": "フルニエ",
+          "uses": 2,
+          "usageRate": 0.4,
+          "avgPts": 4.5
+        }
+      ]
     },
     {
       "id": 69,
@@ -45186,7 +46297,44 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 36,
+          "usageRate": 0.705882,
+          "avgPts": 2.8611
+        },
+        {
+          "coachId": 26,
+          "coachName": "シマク",
+          "uses": 6,
+          "usageRate": 0.117647,
+          "avgPts": 3.8333
+        },
+        {
+          "coachId": 17,
+          "coachName": "カラヴァン",
+          "uses": 5,
+          "usageRate": 0.098039,
+          "avgPts": 3.0
+        },
+        {
+          "coachId": 5,
+          "coachName": "イエーガー",
+          "uses": 3,
+          "usageRate": 0.058824,
+          "avgPts": 3.0
+        },
+        {
+          "coachId": 14,
+          "coachName": "アルメイダ",
+          "uses": 1,
+          "usageRate": 0.019608,
+          "avgPts": 3.0
+        }
+      ]
     },
     {
       "id": 70,
@@ -45447,7 +46595,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 71,
@@ -46313,7 +47462,23 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 4,
+          "coachName": "ブリッジス",
+          "uses": 23,
+          "usageRate": 0.766667,
+          "avgPts": 3.5217
+        },
+        {
+          "coachId": 9,
+          "coachName": "ホッベル",
+          "uses": 7,
+          "usageRate": 0.233333,
+          "avgPts": 3.0
+        }
+      ]
     },
     {
       "id": 72,
@@ -46777,7 +47942,16 @@
             "avgPts": 3.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 30,
+          "coachName": "チャールズ",
+          "uses": 3,
+          "usageRate": 1.0,
+          "avgPts": 3.3333
+        }
+      ]
     },
     {
       "id": 73,
@@ -47736,7 +48910,30 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 12,
+          "coachName": "フィヨルトフト",
+          "uses": 22,
+          "usageRate": 0.628571,
+          "avgPts": 3.0
+        },
+        {
+          "coachId": 32,
+          "coachName": "ザイド・ファタラ",
+          "uses": 10,
+          "usageRate": 0.285714,
+          "avgPts": 3.2
+        },
+        {
+          "coachId": 21,
+          "coachName": "ラクテオノフ",
+          "uses": 3,
+          "usageRate": 0.085714,
+          "avgPts": 2.6667
+        }
+      ]
     },
     {
       "id": 74,
@@ -48311,7 +49508,16 @@
             "avgPts": 1.3333
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 8,
+          "usageRate": 1.0,
+          "avgPts": 3.0
+        }
+      ]
     },
     {
       "id": 75,
@@ -48882,7 +50088,23 @@
             "avgPts": 2.3333
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 21,
+          "coachName": "ラクテオノフ",
+          "uses": 7,
+          "usageRate": 0.538462,
+          "avgPts": 3.2857
+        },
+        {
+          "coachId": 28,
+          "coachName": "リッター",
+          "uses": 6,
+          "usageRate": 0.461538,
+          "avgPts": 3.3333
+        }
+      ]
     },
     {
       "id": 76,
@@ -49679,7 +50901,30 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 12,
+          "coachName": "フィヨルトフト",
+          "uses": 21,
+          "usageRate": 0.75,
+          "avgPts": 2.8095
+        },
+        {
+          "coachId": 32,
+          "coachName": "ザイド・ファタラ",
+          "uses": 6,
+          "usageRate": 0.214286,
+          "avgPts": 3.6667
+        },
+        {
+          "coachId": 26,
+          "coachName": "シマク",
+          "uses": 1,
+          "usageRate": 0.035714,
+          "avgPts": 3.0
+        }
+      ]
     },
     {
       "id": 77,
@@ -49971,7 +51216,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 78,
@@ -51146,7 +52392,44 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 13,
+          "usageRate": 0.333333,
+          "avgPts": 2.6923
+        },
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 10,
+          "usageRate": 0.25641,
+          "avgPts": 2.9
+        },
+        {
+          "coachId": 4,
+          "coachName": "ブリッジス",
+          "uses": 7,
+          "usageRate": 0.179487,
+          "avgPts": 3.0
+        },
+        {
+          "coachId": 32,
+          "coachName": "ザイド・ファタラ",
+          "uses": 7,
+          "usageRate": 0.179487,
+          "avgPts": 2.8571
+        },
+        {
+          "coachId": 21,
+          "coachName": "ラクテオノフ",
+          "uses": 2,
+          "usageRate": 0.051282,
+          "avgPts": 3.0
+        }
+      ]
     },
     {
       "id": 79,
@@ -51417,7 +52700,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 80,
@@ -51704,7 +52988,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 81,
@@ -52398,7 +53683,30 @@
             "avgPts": 3.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 12,
+          "coachName": "フィヨルトフト",
+          "uses": 8,
+          "usageRate": 0.571429,
+          "avgPts": 3.25
+        },
+        {
+          "coachId": 34,
+          "coachName": "デューラー",
+          "uses": 4,
+          "usageRate": 0.285714,
+          "avgPts": 2.0
+        },
+        {
+          "coachId": 18,
+          "coachName": "佐伯　玲子",
+          "uses": 2,
+          "usageRate": 0.142857,
+          "avgPts": 2.5
+        }
+      ]
     },
     {
       "id": 82,
@@ -53030,7 +54338,30 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 5,
+          "usageRate": 0.416667,
+          "avgPts": 3.8
+        },
+        {
+          "coachId": 28,
+          "coachName": "リッター",
+          "uses": 4,
+          "usageRate": 0.333333,
+          "avgPts": 3.0
+        },
+        {
+          "coachId": 21,
+          "coachName": "ラクテオノフ",
+          "uses": 3,
+          "usageRate": 0.25,
+          "avgPts": 3.0
+        }
+      ]
     },
     {
       "id": 83,
@@ -53803,7 +55134,30 @@
             "avgPts": 1.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 6,
+          "coachName": "フルニエ",
+          "uses": 13,
+          "usageRate": 0.481481,
+          "avgPts": 3.4615
+        },
+        {
+          "coachId": 8,
+          "coachName": "Ｊ・フィルマーニ",
+          "uses": 11,
+          "usageRate": 0.407407,
+          "avgPts": 3.0
+        },
+        {
+          "coachId": 29,
+          "coachName": "ダビーサス",
+          "uses": 3,
+          "usageRate": 0.111111,
+          "avgPts": 2.6667
+        }
+      ]
     },
     {
       "id": 84,
@@ -54362,7 +55716,30 @@
             "avgPts": 2.75
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 9,
+          "usageRate": 0.642857,
+          "avgPts": 3.8889
+        },
+        {
+          "coachId": 9,
+          "coachName": "ホッベル",
+          "uses": 4,
+          "usageRate": 0.285714,
+          "avgPts": 3.75
+        },
+        {
+          "coachId": 23,
+          "coachName": "アクエル",
+          "uses": 1,
+          "usageRate": 0.071429,
+          "avgPts": 5.0
+        }
+      ]
     },
     {
       "id": 85,
@@ -54624,7 +56001,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 86,
@@ -55373,7 +56751,30 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 10,
+          "usageRate": 0.5,
+          "avgPts": 3.3
+        },
+        {
+          "coachId": 28,
+          "coachName": "リッター",
+          "uses": 6,
+          "usageRate": 0.3,
+          "avgPts": 2.3333
+        },
+        {
+          "coachId": 12,
+          "coachName": "フィヨルトフト",
+          "uses": 4,
+          "usageRate": 0.2,
+          "avgPts": 2.75
+        }
+      ]
     },
     {
       "id": 87,
@@ -56382,7 +57783,30 @@
             "avgPts": 3.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 24,
+          "usageRate": 0.6,
+          "avgPts": 3.0
+        },
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 12,
+          "usageRate": 0.3,
+          "avgPts": 3.5
+        },
+        {
+          "coachId": 35,
+          "coachName": "ルビーニョ",
+          "uses": 4,
+          "usageRate": 0.1,
+          "avgPts": 3.75
+        }
+      ]
     },
     {
       "id": 88,
@@ -57102,7 +58526,37 @@
             "avgPts": 4.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 6,
+          "coachName": "フルニエ",
+          "uses": 3,
+          "usageRate": 0.3,
+          "avgPts": 3.3333
+        },
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 3,
+          "usageRate": 0.3,
+          "avgPts": 3.3333
+        },
+        {
+          "coachId": 28,
+          "coachName": "リッター",
+          "uses": 3,
+          "usageRate": 0.3,
+          "avgPts": 3.3333
+        },
+        {
+          "coachId": 5,
+          "coachName": "イエーガー",
+          "uses": 1,
+          "usageRate": 0.1,
+          "avgPts": 2.0
+        }
+      ]
     },
     {
       "id": 89,
@@ -57648,7 +59102,30 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 3,
+          "usageRate": 0.5,
+          "avgPts": 3.3333
+        },
+        {
+          "coachId": 21,
+          "coachName": "ラクテオノフ",
+          "uses": 2,
+          "usageRate": 0.333333,
+          "avgPts": 2.5
+        },
+        {
+          "coachId": 31,
+          "coachName": "ジョルジュ",
+          "uses": 1,
+          "usageRate": 0.166667,
+          "avgPts": 4.0
+        }
+      ]
     },
     {
       "id": 90,
@@ -59031,7 +60508,51 @@
             "avgPts": 1.6667
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 21,
+          "coachName": "ラクテオノフ",
+          "uses": 26,
+          "usageRate": 0.276596,
+          "avgPts": 3.0385
+        },
+        {
+          "coachId": 6,
+          "coachName": "フルニエ",
+          "uses": 24,
+          "usageRate": 0.255319,
+          "avgPts": 2.625
+        },
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 21,
+          "usageRate": 0.223404,
+          "avgPts": 2.9524
+        },
+        {
+          "coachId": 4,
+          "coachName": "ブリッジス",
+          "uses": 20,
+          "usageRate": 0.212766,
+          "avgPts": 3.3
+        },
+        {
+          "coachId": 29,
+          "coachName": "ダビーサス",
+          "uses": 2,
+          "usageRate": 0.021277,
+          "avgPts": 1.5
+        },
+        {
+          "coachId": 12,
+          "coachName": "フィヨルトフト",
+          "uses": 1,
+          "usageRate": 0.010638,
+          "avgPts": 2.0
+        }
+      ]
     },
     {
       "id": 91,
@@ -59278,7 +60799,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 92,
@@ -59564,7 +61086,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 93,
@@ -60293,7 +61816,37 @@
             "avgPts": 1.5
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 12,
+          "coachName": "フィヨルトフト",
+          "uses": 9,
+          "usageRate": 0.45,
+          "avgPts": 3.2222
+        },
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 5,
+          "usageRate": 0.25,
+          "avgPts": 3.6
+        },
+        {
+          "coachId": 5,
+          "coachName": "イエーガー",
+          "uses": 4,
+          "usageRate": 0.2,
+          "avgPts": 2.5
+        },
+        {
+          "coachId": 4,
+          "coachName": "ブリッジス",
+          "uses": 2,
+          "usageRate": 0.1,
+          "avgPts": 3.0
+        }
+      ]
     },
     {
       "id": 94,
@@ -60549,7 +62102,8 @@
         ]
       },
       "slotTop": {},
-      "slotStats": {}
+      "slotStats": {},
+      "coachStats": []
     },
     {
       "id": 95,
@@ -61009,7 +62563,16 @@
             "avgPts": 2.75
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 4,
+          "usageRate": 1.0,
+          "avgPts": 3.75
+        }
+      ]
     },
     {
       "id": 96,
@@ -61963,7 +63526,30 @@
             "avgPts": 3.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 28,
+          "coachName": "リッター",
+          "uses": 16,
+          "usageRate": 0.551724,
+          "avgPts": 3.125
+        },
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 10,
+          "usageRate": 0.344828,
+          "avgPts": 2.9
+        },
+        {
+          "coachId": 4,
+          "coachName": "ブリッジス",
+          "uses": 3,
+          "usageRate": 0.103448,
+          "avgPts": 2.0
+        }
+      ]
     },
     {
       "id": 97,
@@ -62530,7 +64116,23 @@
             "avgPts": 3.3333
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 28,
+          "coachName": "リッター",
+          "uses": 9,
+          "usageRate": 0.75,
+          "avgPts": 3.8889
+        },
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 3,
+          "usageRate": 0.25,
+          "avgPts": 2.3333
+        }
+      ]
     },
     {
       "id": 98,
@@ -62980,7 +64582,16 @@
             "avgPts": 1.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 3,
+          "usageRate": 1.0,
+          "avgPts": 3.3333
+        }
+      ]
     },
     {
       "id": 99,
@@ -63409,7 +65020,16 @@
             "avgPts": 2.3333
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 3,
+          "usageRate": 1.0,
+          "avgPts": 2.3333
+        }
+      ]
     },
     {
       "id": 100,
@@ -64491,7 +66111,23 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 26,
+          "usageRate": 0.65,
+          "avgPts": 3.0
+        },
+        {
+          "coachId": 4,
+          "coachName": "ブリッジス",
+          "uses": 14,
+          "usageRate": 0.35,
+          "avgPts": 2.2143
+        }
+      ]
     },
     {
       "id": 101,
@@ -65075,7 +66711,23 @@
             "avgPts": 2.6
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 14,
+          "coachName": "アルメイダ",
+          "uses": 8,
+          "usageRate": 0.615385,
+          "avgPts": 3.375
+        },
+        {
+          "coachId": 34,
+          "coachName": "デューラー",
+          "uses": 5,
+          "usageRate": 0.384615,
+          "avgPts": 3.4
+        }
+      ]
     },
     {
       "id": 102,
@@ -66253,7 +67905,37 @@
             "avgPts": 1.5
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 36,
+          "usageRate": 0.705882,
+          "avgPts": 2.9167
+        },
+        {
+          "coachId": 21,
+          "coachName": "ラクテオノフ",
+          "uses": 8,
+          "usageRate": 0.156863,
+          "avgPts": 3.125
+        },
+        {
+          "coachId": 32,
+          "coachName": "ザイド・ファタラ",
+          "uses": 4,
+          "usageRate": 0.078431,
+          "avgPts": 2.5
+        },
+        {
+          "coachId": 4,
+          "coachName": "ブリッジス",
+          "uses": 3,
+          "usageRate": 0.058824,
+          "avgPts": 2.3333
+        }
+      ]
     },
     {
       "id": 103,
@@ -67047,7 +68729,37 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 22,
+          "coachName": "コンティ",
+          "uses": 12,
+          "usageRate": 0.571429,
+          "avgPts": 3.0
+        },
+        {
+          "coachId": 5,
+          "coachName": "イエーガー",
+          "uses": 4,
+          "usageRate": 0.190476,
+          "avgPts": 2.5
+        },
+        {
+          "coachId": 14,
+          "coachName": "アルメイダ",
+          "uses": 3,
+          "usageRate": 0.142857,
+          "avgPts": 3.0
+        },
+        {
+          "coachId": 2,
+          "coachName": "ジャンヌ",
+          "uses": 2,
+          "usageRate": 0.095238,
+          "avgPts": 3.0
+        }
+      ]
     },
     {
       "id": 104,
@@ -67731,7 +69443,30 @@
             "avgPts": 5.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 8,
+          "usageRate": 0.666667,
+          "avgPts": 3.375
+        },
+        {
+          "coachId": 6,
+          "coachName": "フルニエ",
+          "uses": 3,
+          "usageRate": 0.25,
+          "avgPts": 2.6667
+        },
+        {
+          "coachId": 1,
+          "coachName": "ケルクホフ",
+          "uses": 1,
+          "usageRate": 0.083333,
+          "avgPts": 4.0
+        }
+      ]
     },
     {
       "id": 105,
@@ -68269,7 +70004,16 @@
             "avgPts": 1.6667
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 21,
+          "coachName": "ラクテオノフ",
+          "uses": 6,
+          "usageRate": 1.0,
+          "avgPts": 2.8333
+        }
+      ]
     },
     {
       "id": 106,
@@ -69018,7 +70762,37 @@
             "avgPts": 3.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 9,
+          "coachName": "ホッベル",
+          "uses": 7,
+          "usageRate": 0.4375,
+          "avgPts": 3.1429
+        },
+        {
+          "coachId": 17,
+          "coachName": "カラヴァン",
+          "uses": 4,
+          "usageRate": 0.25,
+          "avgPts": 3.25
+        },
+        {
+          "coachId": 27,
+          "coachName": "ドイル",
+          "uses": 3,
+          "usageRate": 0.1875,
+          "avgPts": 2.3333
+        },
+        {
+          "coachId": 26,
+          "coachName": "シマク",
+          "uses": 2,
+          "usageRate": 0.125,
+          "avgPts": 3.5
+        }
+      ]
     },
     {
       "id": 107,
@@ -70078,7 +71852,30 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 12,
+          "coachName": "フィヨルトフト",
+          "uses": 16,
+          "usageRate": 0.432432,
+          "avgPts": 3.4375
+        },
+        {
+          "coachId": 32,
+          "coachName": "ザイド・ファタラ",
+          "uses": 11,
+          "usageRate": 0.297297,
+          "avgPts": 2.9091
+        },
+        {
+          "coachId": 28,
+          "coachName": "リッター",
+          "uses": 10,
+          "usageRate": 0.27027,
+          "avgPts": 3.6
+        }
+      ]
     },
     {
       "id": 108,
@@ -70851,7 +72648,16 @@
             "avgPts": 3.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 28,
+          "coachName": "リッター",
+          "uses": 14,
+          "usageRate": 1.0,
+          "avgPts": 2.7143
+        }
+      ]
     },
     {
       "id": 109,
@@ -71694,7 +73500,37 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 29,
+          "coachName": "ダビーサス",
+          "uses": 10,
+          "usageRate": 0.416667,
+          "avgPts": 3.7
+        },
+        {
+          "coachId": 17,
+          "coachName": "カラヴァン",
+          "uses": 7,
+          "usageRate": 0.291667,
+          "avgPts": 3.1429
+        },
+        {
+          "coachId": 9,
+          "coachName": "ホッベル",
+          "uses": 4,
+          "usageRate": 0.166667,
+          "avgPts": 2.75
+        },
+        {
+          "coachId": 20,
+          "coachName": "フェルナンデス",
+          "uses": 3,
+          "usageRate": 0.125,
+          "avgPts": 2.0
+        }
+      ]
     },
     {
       "id": 110,
@@ -72123,7 +73959,16 @@
             "avgPts": 3.25
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 6,
+          "coachName": "フルニエ",
+          "uses": 4,
+          "usageRate": 1.0,
+          "avgPts": 2.75
+        }
+      ]
     },
     {
       "id": 111,
@@ -72719,7 +74564,23 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 12,
+          "coachName": "フィヨルトフト",
+          "uses": 10,
+          "usageRate": 0.769231,
+          "avgPts": 2.9
+        },
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 3,
+          "usageRate": 0.230769,
+          "avgPts": 2.3333
+        }
+      ]
     },
     {
       "id": 112,
@@ -73589,7 +75450,23 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 15,
+          "coachName": "ゴンザレス",
+          "uses": 31,
+          "usageRate": 0.704545,
+          "avgPts": 3.0645
+        },
+        {
+          "coachId": 9,
+          "coachName": "ホッベル",
+          "uses": 13,
+          "usageRate": 0.295455,
+          "avgPts": 2.3077
+        }
+      ]
     },
     {
       "id": 113,
@@ -74216,7 +76093,16 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 16,
+          "usageRate": 1.0,
+          "avgPts": 3.375
+        }
+      ]
     },
     {
       "id": 114,
@@ -74697,7 +76583,16 @@
             "avgPts": 1.6667
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 16,
+          "coachName": "敏林　浩",
+          "uses": 3,
+          "usageRate": 1.0,
+          "avgPts": 3.0
+        }
+      ]
     },
     {
       "id": 115,
@@ -75530,7 +77425,37 @@
             "avgPts": 4.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 5,
+          "coachName": "イエーガー",
+          "uses": 5,
+          "usageRate": 0.333333,
+          "avgPts": 3.2
+        },
+        {
+          "coachId": 28,
+          "coachName": "リッター",
+          "uses": 4,
+          "usageRate": 0.266667,
+          "avgPts": 3.0
+        },
+        {
+          "coachId": 15,
+          "coachName": "ゴンザレス",
+          "uses": 3,
+          "usageRate": 0.2,
+          "avgPts": 2.6667
+        },
+        {
+          "coachId": 24,
+          "coachName": "シモンズ",
+          "uses": 3,
+          "usageRate": 0.2,
+          "avgPts": 2.3333
+        }
+      ]
     },
     {
       "id": 116,
@@ -76264,7 +78189,37 @@
             "avgPts": 2.3333
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 22,
+          "coachName": "コンティ",
+          "uses": 10,
+          "usageRate": 0.454545,
+          "avgPts": 3.5
+        },
+        {
+          "coachId": 28,
+          "coachName": "リッター",
+          "uses": 5,
+          "usageRate": 0.227273,
+          "avgPts": 3.8
+        },
+        {
+          "coachId": 6,
+          "coachName": "フルニエ",
+          "uses": 4,
+          "usageRate": 0.181818,
+          "avgPts": 4.25
+        },
+        {
+          "coachId": 4,
+          "coachName": "ブリッジス",
+          "uses": 3,
+          "usageRate": 0.136364,
+          "avgPts": 2.0
+        }
+      ]
     },
     {
       "id": 117,
@@ -77070,7 +79025,51 @@
             "avgPts": 2.0
           }
         ]
-      }
+      },
+      "coachStats": [
+        {
+          "coachId": 21,
+          "coachName": "ラクテオノフ",
+          "uses": 13,
+          "usageRate": 0.382353,
+          "avgPts": 3.3846
+        },
+        {
+          "coachId": 5,
+          "coachName": "イエーガー",
+          "uses": 5,
+          "usageRate": 0.147059,
+          "avgPts": 3.4
+        },
+        {
+          "coachId": 11,
+          "coachName": "Ｍ・フィルマーニ",
+          "uses": 5,
+          "usageRate": 0.147059,
+          "avgPts": 3.4
+        },
+        {
+          "coachId": 15,
+          "coachName": "ゴンザレス",
+          "uses": 4,
+          "usageRate": 0.117647,
+          "avgPts": 3.75
+        },
+        {
+          "coachId": 22,
+          "coachName": "コンティ",
+          "uses": 4,
+          "usageRate": 0.117647,
+          "avgPts": 3.5
+        },
+        {
+          "coachId": 32,
+          "coachName": "ザイド・ファタラ",
+          "uses": 3,
+          "usageRate": 0.088235,
+          "avgPts": 2.0
+        }
+      ]
     }
   ],
   "coaches": [

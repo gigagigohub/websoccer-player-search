@@ -148,10 +148,13 @@ def build_data(src):
     for cid in coach_to_formations:
         coach_to_formations[cid].sort(key=lambda x: (-x["depth"], x["formationId"]))
 
-    # Team-level aggregate for usage/win rate.
+    # Team-level aggregate for usage/win rate and coach usage.
     formation_team_counts = defaultdict(int)
     formation_win_counts = defaultdict(int)
     total_team_rows = 0
+    coach_use_count = defaultdict(int)  # (formation, coach) -> use count
+    coach_pts_sum = defaultdict(float)  # (formation, coach) -> sum pts
+    coach_name_by_id = {}
 
     for row in team_rows:
         fid = to_int(row.get("formation_id"))
@@ -161,6 +164,14 @@ def build_data(src):
         formation_team_counts[fid] += 1
         if (row.get("result") or "").strip().upper() == "W":
             formation_win_counts[fid] += 1
+        cid = to_int(row.get("headcoach_id"))
+        if cid > 0:
+            key = (fid, cid)
+            coach_use_count[key] += 1
+            pts = to_float(row.get("headcoach_pts"), None)
+            if pts is not None:
+                coach_pts_sum[key] += pts
+            coach_name_by_id[cid] = row.get("headcoach_name") or coach_by_id.get(cid, {}).get("name") or str(cid)
 
     # Slot usage and pts by (formation, slot, player)
     formation_slot_total = defaultdict(int)
@@ -204,6 +215,21 @@ def build_data(src):
         for slot, items in slots.items():
             items.sort(key=lambda x: (-x["usageRate"], -x["uses"], -x["avgPts"], x["playerId"]))
             slot_top[fid][slot] = items[0]
+
+    coach_stats = defaultdict(list)
+    for (fid, cid), count in coach_use_count.items():
+        denom = formation_team_counts[fid] or 1
+        usage = count / denom
+        avg_pts = coach_pts_sum[(fid, cid)] / count if count else 0.0
+        coach_stats[fid].append({
+            "coachId": cid,
+            "coachName": coach_name_by_id.get(cid, str(cid)),
+            "uses": count,
+            "usageRate": round(usage, 6),
+            "avgPts": round(avg_pts, 4),
+        })
+    for fid in coach_stats:
+        coach_stats[fid].sort(key=lambda x: (-x["usageRate"], -x["uses"], -x["avgPts"], x["coachId"]))
 
     formations = []
     for fid in sorted(formation_by_id):
@@ -250,6 +276,7 @@ def build_data(src):
                 str(slot): slot_stats[fid][slot]
                 for slot in sorted(slot_stats[fid])
             },
+            "coachStats": coach_stats[fid],
         }
         formations.append(f_item)
 

@@ -2212,6 +2212,10 @@ button.ghost {
   cursor: pointer;
 }
 
+.coach-top-row {
+  cursor: default;
+}
+
 .slot-top-slotno {
   font-size: 0.74rem;
   color: #a7bbe5;

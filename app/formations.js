@@ -1,7 +1,7 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-21 22:41 JST";
+const APP_UPDATED_AT_JST = "2026-03-21 22:55 JST";
 
 const PARAM_LABELS = {
   spd: "Speed",
@@ -350,6 +350,34 @@ function renderSlotTop(slotTop) {
   `;
 }
 
+function renderCoachRanking(coachStats) {
+  const rows = Array.isArray(coachStats) ? coachStats : [];
+  if (!rows.length) {
+    return `<p class="dim">No coach usage data.</p>`;
+  }
+  return `
+    <div class="formation-slot-top-list">
+      ${rows
+        .map((c, idx) => {
+          const imgSrc = `./images/chara/headcoaches/static/${c.coachId}@2x.gif`;
+          return `
+            <div class="slot-top-row coach-top-row">
+              <span class="slot-top-slotno">#${idx + 1}</span>
+              <div class="slot-top-thumb">
+                <img loading="lazy" src="${imgSrc}" alt="${c.coachName}" />
+              </div>
+              <div class="slot-top-meta">
+                <strong class="slot-top-name">${c.coachName}</strong>
+                <span>${pct(c.usageRate)} / ${avg(c.avgPts)} / ID ${c.coachId}</span>
+              </div>
+            </div>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
+}
+
 function formationGaugeBox(label, value, className = "") {
   const max = 10;
   const num = Number(value || 0);
@@ -408,7 +436,7 @@ function openFormationModal(formation) {
     </div>
     <div class="formation-detail-stack">
         <div class="formation-block">
-          <h3>パラメーター</h3>
+          <h3>FormationData</h3>
           ${renderFormationParamGrid(formation.params)}
         </div>
         <div class="formation-block">
@@ -427,6 +455,10 @@ function openFormationModal(formation) {
     <div class="formation-block">
       <h3>CC Slot Top Player (Usage #1)</h3>
       ${renderSlotTop(formation.slotTop || {})}
+    </div>
+    <div class="formation-block">
+      <h3>CC Coach Ranking</h3>
+      ${renderCoachRanking(formation.coachStats)}
     </div>
   `;
   els.formationModal.hidden = false;
