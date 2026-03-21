@@ -1,7 +1,7 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-21 21:49 JST";
+const APP_UPDATED_AT_JST = "2026-03-21 21:52 JST";
 
 const PARAM_LABELS = {
   spd: "Speed",
@@ -195,11 +195,12 @@ function applyFilterAndSort() {
 
   let rows = formations.slice();
   if (coachId > 0) {
-    const coach = coaches.find((c) => Number(c.id) === coachId);
-    if (coach) {
-      const allowSet = new Set((coachMode === "depth4" ? coach.formationDepth4 : coach.formationObtainable).map(Number));
-      rows = rows.filter((f) => allowSet.has(Number(f.id)));
-    }
+    rows = rows.filter((f) => {
+      const list = coachMode === "depth4"
+        ? (f.coaches?.depth4 || [])
+        : (f.coaches?.obtainable || []);
+      return list.some((c) => Number(c?.id) === coachId || Number(c?.coachId) === coachId);
+    });
   }
 
   rows.sort((a, b) => {
@@ -553,7 +554,10 @@ function bindEvents() {
 
   if (els.sortKey) els.sortKey.addEventListener("change", renderList);
   if (els.sortDir) els.sortDir.addEventListener("change", renderList);
-  if (els.coachFilter) els.coachFilter.addEventListener("change", renderList);
+  if (els.coachFilter) {
+    els.coachFilter.addEventListener("change", renderList);
+    els.coachFilter.addEventListener("input", renderList);
+  }
 
   if (els.coachModeDepth4) {
     els.coachModeDepth4.addEventListener("click", () => {
