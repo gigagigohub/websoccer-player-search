@@ -1,7 +1,7 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-21 22:28 JST";
+const APP_UPDATED_AT_JST = "2026-03-21 22:45 JST";
 
 const PARAM_LABELS = {
   spd: "Speed",
@@ -154,9 +154,14 @@ function avg(v) {
   return Number(v || 0).toFixed(2);
 }
 
-function formatFormationYearLabel(year) {
+function formatFormationYearLabel(year, stride) {
   const y = Number(year);
-  if (!Number.isFinite(y) || y <= 0) return "-";
+  const s = Number(stride);
+  if (!Number.isFinite(y) || y <= 0) return "";
+  if (s === 1) {
+    const next = String((y + 1) % 100).padStart(2, "0");
+    return `${y}-${next}`;
+  }
   return String(y);
 }
 
@@ -222,13 +227,13 @@ function applyFilterAndSort() {
 }
 
 function formationCardHtml(f) {
-  const yearText = formatFormationYearLabel(f.year);
+  const yearText = formatFormationYearLabel(f.year, f.stride);
   return `
     <button type="button" class="formation-item" data-formation-id="${f.id}">
       <div class="formation-item-head">
         <div class="formation-name-wrap">
           <strong>${f.name}</strong>
-          <span class="formation-year">${yearText}</span>
+          ${yearText ? `<span class="formation-year">${yearText}</span>` : ""}
         </div>
         <span class="formation-system">${f.system || "-"}</span>
       </div>
@@ -419,8 +424,8 @@ function openFormationModal(formation) {
   currentFormation = formation;
   if (!els.formationModal || !els.formationTitle || !els.formationDetail) return;
 
-  const yearLabel = formatFormationYearLabel(formation.year);
-  els.formationTitle.textContent = `${formation.name} ${yearLabel} (${formation.system || "-"})`;
+  const yearLabel = formatFormationYearLabel(formation.year, formation.stride);
+  els.formationTitle.textContent = `${formation.name}${yearLabel ? ` ${yearLabel}` : ""} (${formation.system || "-"})`;
   els.formationDetail.innerHTML = `
     <div class="formation-detail-grid">
       <div class="formation-field-col">
