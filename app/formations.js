@@ -1,7 +1,7 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-21 22:02 JST";
+const APP_UPDATED_AT_JST = "2026-03-21 22:14 JST";
 
 const PARAM_LABELS = {
   spd: "Speed",
@@ -260,6 +260,11 @@ function renderFormationPitch(positions, formationId) {
   const maxY = 337;
   const pad = 10;
   const markerSrc = `./images/formation/${formationId}@2x.png`;
+  const keySlots = new Set(
+    (currentFormation?.keyPositions || [])
+      .map((k) => Number(k?.slot))
+      .filter((n) => Number.isInteger(n) && n > 0)
+  );
   return `
     <div class="formation-pitch">
       ${positions
@@ -271,6 +276,7 @@ function renderFormationPitch(positions, formationId) {
           return `
             <button type="button" class="formation-slot-point" data-slot="${p.slot}" style="left:${left.toFixed(2)}%;top:${top.toFixed(2)}%">
               <img class="formation-slot-icon" src="${markerSrc}" alt="" />
+              ${keySlots.has(Number(p.slot)) ? `<span class="formation-key-star" aria-hidden="true">★</span>` : ""}
               <span class="formation-slot-label">${p.slot}</span>
             </button>
           `;
@@ -341,13 +347,46 @@ function renderSlotTop(slotTop) {
   `;
 }
 
+function formationGaugeBox(label, value, className = "") {
+  const max = 10;
+  const num = Number(value || 0);
+  const bounded = Math.max(0, Math.min(max, Math.round(num)));
+  const cells = Array.from({ length: 10 }, (_, i) =>
+    `<span class="gauge-cell${i < bounded ? " on" : ""}"></span>`
+  ).join("");
+  return `
+    <div class="formation-param-box ${className}">
+      <span class="formation-param-key">${label}</span>
+      <div class="formation-param-body">
+        <div class="gauge">${cells}</div>
+        <span class="formation-param-num">${Number.isFinite(num) ? Math.round(num) : "-"}</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderFormationParamGrid(params) {
+  const p = params || {};
+  return `
+    <div class="formation-param-matrix">
+      ${formationGaugeBox("スピード", p.spd, "m-speed")}
+      ${formationGaugeBox("攻撃力", p.off, "m-sub")}
+      ${formationGaugeBox("総合力", p.ttl, "m-sub")}
+
+      ${formationGaugeBox("テクニック", p.tec, "m-tech")}
+      ${formationGaugeBox("守備力", p.def, "m-sub")}
+      ${formationGaugeBox("難易度", p.dif, "m-sub")}
+
+      ${formationGaugeBox("パワー", p.pwr, "m-power")}
+      ${formationGaugeBox("中盤構成力", p.mid, "m-sub")}
+      ${formationGaugeBox("スタミナ", p.stm, "m-sub")}
+    </div>
+  `;
+}
+
 function openFormationModal(formation) {
   currentFormation = formation;
   if (!els.formationModal || !els.formationTitle || !els.formationDetail) return;
-
-  const params = Object.entries(formation.params || {})
-    .map(([k, v]) => `<span>${PARAM_LABELS[k] || k}: ${v}</span>`)
-    .join("");
 
   const yearLabel = formatFormationYearLabel(formation.year);
   els.formationTitle.textContent = `${formation.name} ${yearLabel} (${formation.system || "-"})`;
@@ -363,8 +402,8 @@ function openFormationModal(formation) {
           <p>Win: ${pct(formation.cc.winRate)} (${formation.cc.wins}/${formation.cc.uses || 0})</p>
         </div>
         <div class="formation-block">
-          <h3>Parameters</h3>
-          <div class="formation-param-grid">${params}</div>
+          <h3>パラメーター</h3>
+          ${renderFormationParamGrid(formation.params)}
         </div>
         <div class="formation-block">
           <h3>Obtainable Coaches</h3>
