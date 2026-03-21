@@ -1,7 +1,7 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-22 02:57 JST";
+const APP_UPDATED_AT_JST = "2026-03-22 02:59 JST";
 
 const PARAM_LABELS = {
   spd: "Speed",
@@ -405,7 +405,7 @@ function renderSlotTop(slotStats, mode = "usage") {
                 <strong class="slot-top-name">${top.playerName}</strong>
                 <span class="slot-top-statline">
                   ${categoryBadgeHtmlByPlayerId(top.playerId)}
-                  <span>使用率 ${pct(top.usageRate)} / 平均 ${avg(top.avgPts)}</span>
+                  <span>Usage ${pct(top.usageRate)} / Avg ${avg(top.avgPts)}</span>
                 </span>
               </div>
             </button>
