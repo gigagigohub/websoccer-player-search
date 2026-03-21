@@ -697,8 +697,8 @@ function renderLineup() {
       : null;
     const ccStatText = Number.isInteger(selectedFormationId)
       ? (ccStat
-        ? `CC使用率 ${pct(ccStat.usageRate)} / 平均評価 ${avg(ccStat.avgPts)}`
-        : "CC使用率 - / 平均評価 -")
+        ? `${pct(ccStat.usageRate)} / ${avg(ccStat.avgPts)}`
+        : "- / -")
       : "";
     const rightPaneHtml = player
       ? (lifecycleModeEnabled
