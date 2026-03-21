@@ -2024,6 +2024,19 @@ button.ghost {
   align-items: start;
 }
 
+.formation-field-col {
+  min-width: 0;
+}
+
+.formation-cc-col {
+  min-width: 0;
+}
+
+.formation-detail-stack {
+  display: grid;
+  gap: 0;
+}
+
 .formation-block {
   border: 1px solid var(--line-soft);
   border-radius: 10px;

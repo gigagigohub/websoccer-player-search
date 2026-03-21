@@ -1,7 +1,7 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-21 22:35 JST";
+const APP_UPDATED_AT_JST = "2026-03-21 22:41 JST";
 
 const PARAM_LABELS = {
   spd: "Speed",
@@ -395,15 +395,18 @@ function openFormationModal(formation) {
   els.formationTitle.textContent = `${formation.name} ${yearLabel} (${formation.system || "-"})`;
   els.formationDetail.innerHTML = `
     <div class="formation-detail-grid">
-      <div>
+      <div class="formation-field-col">
         ${renderFormationPitch(formation.positions || [], formation.id)}
       </div>
-      <div>
-        <div class="formation-block">
+      <div class="formation-cc-col">
+        <div class="formation-block formation-cc-block">
           <h3>CC Stats</h3>
           <p>Usage: ${pct(formation.cc.usageRate)} (${formation.cc.uses})</p>
           <p>Win: ${pct(formation.cc.winRate)} (${formation.cc.wins}/${formation.cc.uses || 0})</p>
         </div>
+      </div>
+    </div>
+    <div class="formation-detail-stack">
         <div class="formation-block">
           <h3>パラメーター</h3>
           ${renderFormationParamGrid(formation.params)}
@@ -416,7 +419,6 @@ function openFormationModal(formation) {
           <h3>Depth 4 Coaches</h3>
           <div>${renderCoachesList(formation.coaches?.depth4)}</div>
         </div>
-      </div>
     </div>
     <div class="formation-block">
       <h3>Key Positions</h3>
