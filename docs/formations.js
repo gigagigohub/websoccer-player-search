@@ -1,7 +1,7 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-21 23:17 JST";
+const APP_UPDATED_AT_JST = "2026-03-21 23:53 JST";
 
 const PARAM_LABELS = {
   spd: "Speed",
@@ -62,6 +62,7 @@ const els = {
 let cloudConfig = { url: "", anonKey: "", lineupKey: "" };
 let formations = [];
 let coaches = [];
+let playerCategoryById = new Map();
 let filteredAndSorted = [];
 let currentFormation = null;
 
@@ -149,6 +150,17 @@ function pct(v) {
 
 function avg(v) {
   return Number(v || 0).toFixed(2);
+}
+
+function normalizeCategory(value) {
+  const c = String(value || "").trim().toUpperCase();
+  return c || "-";
+}
+
+function getCcCategoryLabelByPlayerId(playerId) {
+  const id = Number(playerId);
+  if (!Number.isInteger(id)) return "-";
+  return normalizeCategory(playerCategoryById.get(id));
 }
 
 function formatFormationYearLabel(year, stride) {
@@ -329,7 +341,7 @@ function renderSlotTop(slotTop) {
               </div>
               <div class="slot-top-meta">
                 <strong class="slot-top-name">${top.playerName}</strong>
-                <span>${pct(top.usageRate)} / ${avg(top.avgPts)} / ID ${top.playerId}</span>
+                <span>(${getCcCategoryLabelByPlayerId(top.playerId)}) 使用率 ${pct(top.usageRate)} / 平均 ${avg(top.avgPts)}</span>
               </div>
             </button>
           `;
@@ -590,10 +602,26 @@ async function init() {
   buildSortOptions();
   bindEvents();
 
-  const res = await fetch("./formations_data.json");
-  const data = await res.json();
-  formations = Array.isArray(data.formations) ? data.formations : [];
-  coaches = Array.isArray(data.coaches) ? data.coaches : [];
+  const [formationsRes, playersRes] = await Promise.all([
+    fetch("./formations_data.json"),
+    fetch("./data.json").catch(() => null),
+  ]);
+  const formationData = await formationsRes.json();
+  formations = Array.isArray(formationData.formations) ? formationData.formations : [];
+  coaches = Array.isArray(formationData.coaches) ? formationData.coaches : [];
+  if (playersRes && playersRes.ok) {
+    try {
+      const playersData = await playersRes.json();
+      const rows = Array.isArray(playersData?.players) ? playersData.players : [];
+      playerCategoryById = new Map(
+        rows
+          .map((p) => [Number(p?.id), normalizeCategory(p?.category)])
+          .filter(([id]) => Number.isInteger(id))
+      );
+    } catch (e) {
+      console.warn(e);
+    }
+  }
   buildCoachFilter();
   updateMenuState();
   renderList();
