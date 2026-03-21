@@ -2298,6 +2298,12 @@ button.ghost {
   font-size: 0.7rem;
 }
 
+.slot-table .type-badge {
+  min-width: 2.05em;
+  padding: 1px 6px;
+  font-size: 0.7rem;
+}
+
 .inline-pill {
   display: inline-block;
   border: 1px solid var(--line-soft);
