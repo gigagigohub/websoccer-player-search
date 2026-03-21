@@ -1,7 +1,7 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-22 02:53 JST";
+const APP_UPDATED_AT_JST = "2026-03-22 02:57 JST";
 
 const PARAM_LABELS = {
   spd: "Speed",
@@ -66,6 +66,27 @@ let playerCategoryById = new Map();
 let playerRateById = new Map();
 let filteredAndSorted = [];
 let currentFormation = null;
+let slotTopSortMode = "usage";
+
+function sortSlotRows(rows, mode) {
+  const list = Array.isArray(rows) ? rows.slice() : [];
+  if (mode === "avg") {
+    list.sort((a, b) =>
+      Number(b?.avgPts || 0) - Number(a?.avgPts || 0)
+      || Number(b?.usageRate || 0) - Number(a?.usageRate || 0)
+      || Number(b?.uses || 0) - Number(a?.uses || 0)
+      || Number(a?.playerId || 0) - Number(b?.playerId || 0)
+    );
+    return list;
+  }
+  list.sort((a, b) =>
+    Number(b?.usageRate || 0) - Number(a?.usageRate || 0)
+    || Number(b?.uses || 0) - Number(a?.uses || 0)
+    || Number(b?.avgPts || 0) - Number(a?.avgPts || 0)
+    || Number(a?.playerId || 0) - Number(b?.playerId || 0)
+  );
+  return list;
+}
 
 function normalizedSupabaseUrl(url) {
   return String(url || "").trim().replace(/\/+$/, "");
@@ -347,7 +368,7 @@ function renderKeyPositions(keyPositions) {
   `;
 }
 
-function renderSlotTop(slotTop) {
+function renderSlotTop(slotStats, mode = "usage") {
   const slots = Array.from({ length: 11 }, (_, i) => i + 1);
   const keySlots = new Set(
     (currentFormation?.keyPositions || [])
@@ -358,7 +379,8 @@ function renderSlotTop(slotTop) {
     <div class="formation-slot-top-list">
       ${slots
         .map((slot) => {
-          const top = slotTop?.[String(slot)] || null;
+          const rows = sortSlotRows(slotStats?.[String(slot)] || [], mode);
+          const top = rows[0] || null;
           const slotLabel = `Slot ${slot}${keySlots.has(slot) ? ` <span class="slot-top-key-star" aria-hidden="true">★</span>` : ""}`;
           if (!top) {
             return `
@@ -493,8 +515,14 @@ function openFormationModal(formation) {
       ${renderKeyPositions(formation.keyPositions || [])}
     </div>
     <div class="formation-block">
-      <h3>CC Slot Top Player (Usage #1)</h3>
-      ${renderSlotTop(formation.slotTop || {})}
+      <div class="slot-top-toolbar">
+        <h3>CC Slot Top Player (#1)</h3>
+        <div class="slot-top-sort-switch" role="group" aria-label="CC Slot Top sort mode">
+          <button type="button" class="slot-top-sort-btn${slotTopSortMode === "usage" ? " is-on" : ""}" data-slot-top-sort="usage">Usage</button>
+          <button type="button" class="slot-top-sort-btn${slotTopSortMode === "avg" ? " is-on" : ""}" data-slot-top-sort="avg">Avg</button>
+        </div>
+      </div>
+      ${renderSlotTop(formation.slotStats || {}, slotTopSortMode)}
     </div>
     <div class="formation-block">
       <h3>CC Coach Ranking</h3>
@@ -512,7 +540,7 @@ function closeFormationModal() {
 function openSlotModal(slot) {
   if (!currentFormation || !els.slotModal || !els.slotTitle || !els.slotDetail) return;
   const allRows = currentFormation.slotStats?.[String(slot)] || [];
-  const rows = allRows.slice(0, 20);
+  const rows = sortSlotRows(allRows, slotTopSortMode).slice(0, 20);
   els.slotTitle.textContent = `${currentFormation.name} / Slot ${slot}`;
   if (!rows.length) {
     els.slotDetail.innerHTML = `<p class="dim">No CC slot data.</p>`;
@@ -613,6 +641,15 @@ function bindEvents() {
 
   if (els.formationDetail) {
     els.formationDetail.addEventListener("click", (e) => {
+      const sortBtn = e.target.closest("[data-slot-top-sort]");
+      if (sortBtn) {
+        const mode = String(sortBtn.dataset.slotTopSort || "");
+        if (mode === "usage" || mode === "avg") {
+          slotTopSortMode = mode;
+          if (currentFormation) openFormationModal(currentFormation);
+        }
+        return;
+      }
       const slotBtn = e.target.closest("[data-slot]");
       if (!slotBtn) return;
       const slot = Number(slotBtn.dataset.slot);
