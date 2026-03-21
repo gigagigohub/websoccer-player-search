@@ -1,7 +1,7 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-21 22:55 JST";
+const APP_UPDATED_AT_JST = "2026-03-21 23:05 JST";
 
 const PARAM_LABELS = {
   spd: "Speed",
@@ -436,7 +436,7 @@ function openFormationModal(formation) {
     </div>
     <div class="formation-detail-stack">
         <div class="formation-block">
-          <h3>FormationData</h3>
+          <h3>Formation Data</h3>
           ${renderFormationParamGrid(formation.params)}
         </div>
         <div class="formation-block">

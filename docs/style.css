@@ -2064,7 +2064,7 @@ button.ghost {
   max-width: 100%;
   margin: 0;
   aspect-ratio: 0.95;
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 0;
   border-radius: 8px;
   background: url("./images/formation/formation_bg@2x.png") center / cover no-repeat;
   overflow: hidden;
