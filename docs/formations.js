@@ -1,7 +1,7 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-22 02:28 JST";
+const APP_UPDATED_AT_JST = "2026-03-22 02:32 JST";
 
 const PARAM_LABELS = {
   spd: "Speed",
@@ -259,8 +259,21 @@ function formationCardHtml(f) {
         <span class="formation-system">${f.system || "-"}</span>
       </div>
       <div class="formation-item-metrics">
-        <span>Usage ${pct(f.cc.usageRate)}</span>
-        <span>Win ${pct(f.cc.winRate)}</span>
+        <div class="formation-item-metrics-row formation-item-metrics-main">
+          <span>Usage ${pct(f.cc.usageRate)}</span>
+          <span>Win ${pct(f.cc.winRate)}</span>
+        </div>
+        <div class="formation-item-metrics-row formation-item-metrics-params">
+          <span>SPD ${f.params.spd}</span>
+          <span>TEC ${f.params.tec}</span>
+          <span>PWR ${f.params.pwr}</span>
+          <span>OFF ${f.params.off}</span>
+          <span>DEF ${f.params.def}</span>
+          <span>MID ${f.params.mid}</span>
+          <span>TTL ${f.params.ttl}</span>
+          <span>STM ${f.params.stm}</span>
+          <span>DIF ${f.params.dif}</span>
+        </div>
       </div>
     </button>
   `;

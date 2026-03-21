@@ -2013,11 +2013,34 @@ button.ghost {
 }
 
 .formation-item-metrics {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 12px;
+  display: grid;
+  gap: 4px;
   font-size: 12px;
   color: var(--text-sub);
+}
+
+.formation-item-metrics-row {
+  display: flex;
+  align-items: center;
+}
+
+.formation-item-metrics-main {
+  gap: 12px;
+  font-size: 12px;
+}
+
+.formation-item-metrics-params {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: 4px;
+  font-size: 9px;
+  line-height: 1.1;
+}
+
+.formation-item-metrics-params span {
+  min-width: 0;
+  white-space: nowrap;
+  text-align: center;
 }
 
 .formation-dialog {
