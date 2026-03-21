@@ -16,6 +16,7 @@ import glob
 import json
 import ssl
 import time
+from datetime import datetime
 import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -26,6 +27,11 @@ from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 API_HOST = "api.app.websoccer.jp"
 UA_FALLBACK = "WebSoccer/1.3.28 CFNetwork/3860.400.51 Darwin/25.3.0"
+DEFAULT_MATCH_ROOTS = [
+    Path.home() / "Desktop" / "CC_match_result_json",
+    Path.home() / "Desktop" / "match_result",
+    Path.home() / "Desktop" / "CM_match_result_json",
+]
 
 
 @dataclass
@@ -39,8 +45,8 @@ def parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser(description="Fetch completed CC summaries across worlds")
     ap.add_argument(
         "--match-root",
-        default=str(Path.home() / "Desktop" / "match_result"),
-        help="Root folder for saved data (default: ~/Desktop/match_result)",
+        default=str(Path.home() / "Desktop" / "CC_match_result_json"),
+        help="Root folder for saved data (default: ~/Desktop/CC_match_result_json)",
     )
     ap.add_argument(
         "--session-file",
@@ -62,6 +68,12 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=0,
         help="Season selector used by list endpoints (0=current, 1=previous in many cases).",
+    )
+    ap.add_argument(
+        "--round-max",
+        type=int,
+        default=12,
+        help="Max tournament round index to scan (default: 12).",
     )
     ap.add_argument("--delay-sec", type=float, default=0.08, help="Delay between summary requests")
     ap.add_argument("--timeout-sec", type=float, default=10.0, help="HTTP timeout")
@@ -88,7 +100,89 @@ def parse_worlds(raw: str) -> List[int]:
 
 
 def session_files(match_root: Path) -> List[Path]:
-    return sorted(match_root.glob("*.chlsx"), key=lambda p: p.stat().st_mtime, reverse=True)
+    files = sorted(
+        [*match_root.rglob("*.chlsx"), *match_root.rglob("*.chlsj")],
+        key=lambda p: p.stat().st_mtime,
+        reverse=True,
+    )
+    if files:
+        return files
+    desktop = Path.home() / "Desktop"
+    return sorted(
+        [*desktop.rglob("*.chlsx"), *desktop.rglob("*.chlsj")],
+        key=lambda p: p.stat().st_mtime,
+        reverse=True,
+    )
+
+
+def resolve_match_root(raw: str) -> Path:
+    req = Path(raw).expanduser()
+    if req.exists():
+        return req.resolve()
+    for cand in DEFAULT_MATCH_ROOTS:
+        if cand.exists():
+            print(f"[INFO] --match-root not found, using existing root: {cand}")
+            return cand.resolve()
+    return req.resolve()
+
+
+def _parse_start_ms_from_chlsj(tx: dict) -> int:
+    start = str((tx.get("times") or {}).get("start") or "").strip()
+    if not start:
+        return 0
+    try:
+        # ISO8601, e.g. 2026-03-22T00:05:46.305+09:00
+        return int(datetime.fromisoformat(start).timestamp() * 1000)
+    except Exception:
+        return 0
+
+
+def _iter_tx_from_session(fp: Path):
+    suffix = fp.suffix.lower()
+    if suffix == ".chlsx":
+        try:
+            root = ET.parse(fp).getroot()
+        except Exception:
+            return
+        for tx in root.findall(".//transaction"):
+            host = tx.attrib.get("host", "")
+            path = tx.attrib.get("path", "")
+            try:
+                ms = int(tx.attrib.get("startTimeMillis", "0"))
+            except Exception:
+                ms = 0
+            headers_node = tx.find("./request/headers")
+            hdrs: Dict[str, str] = {}
+            if headers_node is not None:
+                for h in headers_node.findall("header"):
+                    n = (h.findtext("name") or "").strip().lower()
+                    v = (h.findtext("value") or "").strip()
+                    if n:
+                        hdrs[n] = v
+            yield host, path, ms, hdrs
+        return
+    if suffix == ".chlsj":
+        try:
+            arr = json.loads(fp.read_text(encoding="utf-8"))
+        except Exception:
+            return
+        if not isinstance(arr, list):
+            return
+        for tx in arr:
+            if not isinstance(tx, dict):
+                continue
+            host = str(tx.get("host") or "")
+            path = str(tx.get("path") or "")
+            ms = _parse_start_ms_from_chlsj(tx)
+            hdrs: Dict[str, str] = {}
+            for h in (((tx.get("request") or {}).get("header") or {}).get("headers") or []):
+                if not isinstance(h, dict):
+                    continue
+                n = str(h.get("name") or "").strip().lower()
+                v = str(h.get("value") or "").strip()
+                if n:
+                    hdrs[n] = v
+            yield host, path, ms, hdrs
 
 
 def iter_match_rows(node):
@@ -104,15 +198,9 @@ def extract_auth_from_session_files(files: Sequence[Path]) -> Optional[AuthHeade
     best_ms = -1
     best_auth: Optional[AuthHeaders] = None
     for fp in files:
-        try:
-            root = ET.parse(fp).getroot()
-        except Exception:
-            continue
         local_best_ms = -1
         latest_headers: Dict[str, str] = {}
-        for tx in root.findall(".//transaction"):
-            host = tx.attrib.get("host", "")
-            path = tx.attrib.get("path", "")
+        for host, path, ms, hdrs in _iter_tx_from_session(fp):
             if host != API_HOST:
                 continue
             if not (
@@ -121,19 +209,6 @@ def extract_auth_from_session_files(files: Sequence[Path]) -> Optional[AuthHeade
                 or path.startswith("/cc/preliminary/")
             ):
                 continue
-            try:
-                ms = int(tx.attrib.get("startTimeMillis", "0"))
-            except Exception:
-                ms = 0
-            headers_node = tx.find("./request/headers")
-            if headers_node is None:
-                continue
-            hdrs: Dict[str, str] = {}
-            for h in headers_node.findall("header"):
-                n = (h.findtext("name") or "").strip().lower()
-                v = (h.findtext("value") or "").strip()
-                if n:
-                    hdrs[n] = v
             if ms >= local_best_ms:
                 local_best_ms = ms
                 latest_headers = hdrs
@@ -154,14 +229,9 @@ def extract_auth_from_session_files(files: Sequence[Path]) -> Optional[AuthHeade
 def extract_summary_tails_from_session_files(files: Sequence[Path]) -> List[str]:
     tails: set[str] = set()
     for fp in files:
-        try:
-            root = ET.parse(fp).getroot()
-        except Exception:
-            continue
-        for tx in root.findall(".//transaction"):
-            if tx.attrib.get("host", "") != API_HOST:
+        for host, path, _, _ in _iter_tx_from_session(fp):
+            if host != API_HOST:
                 continue
-            path = tx.attrib.get("path", "")
             parts = path.strip("/").split("/")
             if len(parts) == 6 and parts[:3] == ["match", "summary", "cc"]:
                 tails.add(parts[-1])
@@ -218,35 +288,74 @@ def is_completed_row(row: dict) -> bool:
 
 
 def fetch_world_pairs(
-    team_id: str, world_id: int, flg_szn: int, auth: AuthHeaders, timeout_sec: float
+    team_id: str,
+    world_id: int,
+    flg_szn: int,
+    round_max: int,
+    auth: AuthHeaders,
+    timeout_sec: float,
 ) -> Tuple[List[int], str]:
-    paths = [
-        f"/cc/preliminary/{team_id}/{world_id}/{flg_szn}/0.json",
-        f"/cc/tournament/{team_id}/{world_id}/{flg_szn}/1/1.json",
-    ]
-    last_err = "no_response"
-    for p in paths:
+    mids: set[int] = set()
+    sources: List[str] = []
+
+    # 1) tournament rounds sweep (main source for full-season history)
+    empty_rounds = 0
+    for rnd in range(1, max(1, round_max) + 1):
+        p = f"/cc/tournament/{team_id}/{world_id}/{flg_szn}/1/{rnd}.json"
         ok, data = request_json(p, auth, timeout_sec)
         if not ok:
-            last_err = str(data)
             continue
         obj = data if isinstance(data, dict) else {}
         if obj.get("code") != "000":
-            last_err = f"code={obj.get('code')}"
             continue
-        m_data = obj.get("m_data")
-        mids: List[int] = []
-        for row in iter_match_rows(m_data):
+        found_this_round = 0
+        for row in iter_match_rows(obj.get("m_data")):
             if not isinstance(row, dict):
                 continue
             if not is_completed_row(row):
                 continue
             try:
-                mids.append(int(row.get("id")))
+                mids.add(int(row.get("id")))
+                found_this_round += 1
             except Exception:
                 continue
-        return sorted(set(mids)), p
-    return [], last_err
+        if found_this_round > 0:
+            sources.append(p)
+            empty_rounds = 0
+        else:
+            empty_rounds += 1
+            # stop early if tournament rounds seem exhausted
+            if empty_rounds >= 3 and rnd >= 4:
+                break
+
+    # 2) preliminary (kept as supplement)
+    p_pre = f"/cc/preliminary/{team_id}/{world_id}/{flg_szn}/0.json"
+    ok, data = request_json(p_pre, auth, timeout_sec)
+    if ok:
+        obj = data if isinstance(data, dict) else {}
+        if obj.get("code") == "000":
+            added = 0
+            for row in iter_match_rows(obj.get("m_data")):
+                if not isinstance(row, dict):
+                    continue
+                if not is_completed_row(row):
+                    continue
+                try:
+                    before = len(mids)
+                    mids.add(int(row.get("id")))
+                    if len(mids) > before:
+                        added += 1
+                except Exception:
+                    continue
+            if added > 0:
+                sources.append(p_pre)
+
+    if not mids:
+        return [], "no_completed_rows"
+    src_label = " + ".join(sources[:2]) if sources else "unknown"
+    if len(sources) > 2:
+        src_label += f" (+{len(sources)-2} more)"
+    return sorted(mids), src_label
 
 
 def output_path(match_root: Path, match_id: int, world_id: int) -> Path:
@@ -271,7 +380,7 @@ def fetch_summary(match_id: int, world_id: int, tails: Sequence[str], auth: Auth
 
 def main() -> int:
     args = parse_args()
-    match_root = Path(args.match_root).expanduser().resolve()
+    match_root = resolve_match_root(args.match_root)
     match_root.mkdir(parents=True, exist_ok=True)
 
     files = [Path(args.session_file).expanduser().resolve()] if args.session_file else session_files(match_root)
@@ -301,7 +410,9 @@ def main() -> int:
     pairs: List[Tuple[int, int]] = []
     list_sources: Dict[int, str] = {}
     for wid in worlds:
-        mids, src = fetch_world_pairs(team_id, wid, args.flg_szn, auth, args.timeout_sec)
+        mids, src = fetch_world_pairs(
+            team_id, wid, args.flg_szn, args.round_max, auth, args.timeout_sec
+        )
         list_sources[wid] = src
         for mid in mids:
             pairs.append((mid, wid))

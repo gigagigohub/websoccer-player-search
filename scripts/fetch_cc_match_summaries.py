@@ -17,6 +17,7 @@ import json
 import os
 import ssl
 import time
+from datetime import datetime
 import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -26,6 +27,11 @@ from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 
 API_HOST = "api.app.websoccer.jp"
+DEFAULT_MATCH_ROOTS = [
+    Path.home() / "Desktop" / "CC_match_result_json",
+    Path.home() / "Desktop" / "match_result",
+    Path.home() / "Desktop" / "CM_match_result_json",
+]
 
 
 @dataclass
@@ -49,8 +55,8 @@ def parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser(description="Bulk fetch WebSoccer CC match summary JSON")
     ap.add_argument(
         "--match-root",
-        default=str(Path.home() / "Desktop" / "match_result"),
-        help="Root folder used by Charles Mirror output (default: ~/Desktop/match_result)",
+        default=str(Path.home() / "Desktop" / "CC_match_result_json"),
+        help="Root folder used by Charles Mirror output (default: ~/Desktop/CC_match_result_json)",
     )
     ap.add_argument(
         "--session-file",
@@ -142,22 +148,21 @@ def extract_world_match_pairs(files: Sequence[Path]) -> List[Tuple[int, int]]:
 
 def extract_pairs_from_session_tournament(chlsx_path: Path) -> List[Tuple[int, int]]:
     pairs: set[Tuple[int, int]] = set()
-    try:
-        root = ET.parse(chlsx_path).getroot()
-    except Exception:
-        return []
-
-    for tx in root.findall(".//transaction"):
-        host = tx.attrib.get("host", "")
-        path = tx.attrib.get("path", "")
+    for tx in iter_session_transactions(chlsx_path):
+        host = tx.get("host", "")
+        path = tx.get("path", "")
         if host != API_HOST:
             continue
+        # Fallback: direct summary call can also provide target pair.
+        parts = path.strip("/").split("/")
+        if len(parts) == 6 and parts[:3] == ["match", "summary", "cc"]:
+            try:
+                pairs.add((int(parts[3]), int(parts[4])))
+            except Exception:
+                pass
         if not (path.startswith("/cc/tournament/") or path.startswith("/cc/preliminary/")):
             continue
-        body_node = tx.find("./response/body")
-        if body_node is None:
-            continue
-        body = (body_node.text or "").strip()
+        body = str(tx.get("response_body") or "").strip()
         if not body:
             continue
         try:
@@ -183,14 +188,9 @@ def extract_pairs_from_session_tournament(chlsx_path: Path) -> List[Tuple[int, i
 
 def extract_summary_tails_from_session(chlsx_path: Path) -> List[str]:
     tails: set[str] = set()
-    try:
-        root = ET.parse(chlsx_path).getroot()
-    except Exception:
-        return []
-
-    for tx in root.findall(".//transaction"):
-        host = tx.attrib.get("host", "")
-        path = tx.attrib.get("path", "")
+    for tx in iter_session_transactions(chlsx_path):
+        host = tx.get("host", "")
+        path = tx.get("path", "")
         if host != API_HOST:
             continue
         parts = path.strip("/").split("/")
@@ -201,7 +201,19 @@ def extract_summary_tails_from_session(chlsx_path: Path) -> List[str]:
 
 
 def session_files(match_root: Path) -> List[Path]:
-    return sorted(match_root.glob("*.chlsx"), key=lambda p: p.stat().st_mtime, reverse=True)
+    files = sorted(
+        [*match_root.rglob("*.chlsx"), *match_root.rglob("*.chlsj")],
+        key=lambda p: p.stat().st_mtime,
+        reverse=True,
+    )
+    if files:
+        return files
+    desktop = Path.home() / "Desktop"
+    return sorted(
+        [*desktop.rglob("*.chlsx"), *desktop.rglob("*.chlsj")],
+        key=lambda p: p.stat().st_mtime,
+        reverse=True,
+    )
 
 
 def latest_session_file(match_root: Path) -> Optional[Path]:
@@ -209,18 +221,88 @@ def latest_session_file(match_root: Path) -> Optional[Path]:
     return files[0] if files else None
 
 
-def extract_auth_from_chlsx(chlsx_path: Path) -> Optional[AuthHeaders]:
+def _parse_start_ms_from_chlsj(tx: dict) -> int:
+    start = str((tx.get("times") or {}).get("start") or "").strip()
+    if not start:
+        return 0
     try:
-        root = ET.parse(chlsx_path).getroot()
+        return int(datetime.fromisoformat(start).timestamp() * 1000)
     except Exception:
-        return None
+        return 0
 
+
+def iter_session_transactions(session_file: Path):
+    suffix = session_file.suffix.lower()
+    if suffix == ".chlsx":
+        try:
+            root = ET.parse(session_file).getroot()
+        except Exception:
+            return
+        for tx in root.findall(".//transaction"):
+            host = tx.attrib.get("host", "")
+            path = tx.attrib.get("path", "")
+            try:
+                millis = int(tx.attrib.get("startTimeMillis", "0"))
+            except Exception:
+                millis = 0
+            headers: Dict[str, str] = {}
+            headers_node = tx.find("./request/headers")
+            if headers_node is not None:
+                for h in headers_node.findall("header"):
+                    name = (h.findtext("name") or "").strip()
+                    value = (h.findtext("value") or "").strip()
+                    if name:
+                        headers[name.lower()] = value
+            body_node = tx.find("./response/body")
+            response_body = (body_node.text or "") if body_node is not None else ""
+            yield {"host": host, "path": path, "start_ms": millis, "headers": headers, "response_body": response_body}
+        return
+    if suffix == ".chlsj":
+        try:
+            arr = json.loads(session_file.read_text(encoding="utf-8"))
+        except Exception:
+            return
+        if not isinstance(arr, list):
+            return
+        for tx in arr:
+            if not isinstance(tx, dict):
+                continue
+            headers: Dict[str, str] = {}
+            for h in (((tx.get("request") or {}).get("header") or {}).get("headers") or []):
+                if not isinstance(h, dict):
+                    continue
+                name = str(h.get("name") or "").strip()
+                value = str(h.get("value") or "").strip()
+                if name:
+                    headers[name.lower()] = value
+            response_body = str((((tx.get("response") or {}).get("body") or {}).get("text")) or "")
+            yield {
+                "host": str(tx.get("host") or ""),
+                "path": str(tx.get("path") or ""),
+                "start_ms": _parse_start_ms_from_chlsj(tx),
+                "headers": headers,
+                "response_body": response_body,
+            }
+
+
+def resolve_match_root(raw: str) -> Path:
+    req = Path(raw).expanduser()
+    if req.exists():
+        return req.resolve()
+    for cand in DEFAULT_MATCH_ROOTS:
+        if cand.exists():
+            print(f"[INFO] --match-root not found, using existing root: {cand}")
+            return cand.resolve()
+    return req.resolve()
+
+
+def extract_auth_from_chlsx(chlsx_path: Path) -> Optional[AuthHeaders]:
     latest_ms = -1
     latest_headers: Dict[str, str] = {}
 
-    for tx in root.findall(".//transaction"):
-        host = tx.attrib.get("host", "")
-        path = tx.attrib.get("path", "")
+    for tx in iter_session_transactions(chlsx_path):
+        host = tx.get("host", "")
+        path = tx.get("path", "")
         if host != API_HOST:
             continue
         if not (
@@ -229,20 +311,8 @@ def extract_auth_from_chlsx(chlsx_path: Path) -> Optional[AuthHeaders]:
             or path.startswith("/cc/preliminary/")
         ):
             continue
-        millis_raw = tx.attrib.get("startTimeMillis", "0")
-        try:
-            millis = int(millis_raw)
-        except Exception:
-            millis = 0
-        headers_node = tx.find("./request/headers")
-        if headers_node is None:
-            continue
-        hdrs: Dict[str, str] = {}
-        for h in headers_node.findall("header"):
-            name = (h.findtext("name") or "").strip()
-            value = (h.findtext("value") or "").strip()
-            if name:
-                hdrs[name.lower()] = value
+        millis = int(tx.get("start_ms") or 0)
+        hdrs = dict(tx.get("headers") or {})
         if millis >= latest_ms:
             latest_ms = millis
             latest_headers = hdrs
@@ -261,15 +331,11 @@ def extract_auth_from_session_files(files: Sequence[Path]) -> Optional[AuthHeade
     best_ms = -1
     best_auth: Optional[AuthHeaders] = None
     for fp in files:
-        try:
-            root = ET.parse(fp).getroot()
-        except Exception:
-            continue
         latest_headers: Dict[str, str] = {}
         local_best_ms = -1
-        for tx in root.findall(".//transaction"):
-            host = tx.attrib.get("host", "")
-            path = tx.attrib.get("path", "")
+        for tx in iter_session_transactions(fp):
+            host = tx.get("host", "")
+            path = tx.get("path", "")
             if host != API_HOST:
                 continue
             if not (
@@ -278,20 +344,8 @@ def extract_auth_from_session_files(files: Sequence[Path]) -> Optional[AuthHeade
                 or path.startswith("/cc/preliminary/")
             ):
                 continue
-            millis_raw = tx.attrib.get("startTimeMillis", "0")
-            try:
-                millis = int(millis_raw)
-            except Exception:
-                millis = 0
-            headers_node = tx.find("./request/headers")
-            if headers_node is None:
-                continue
-            hdrs: Dict[str, str] = {}
-            for h in headers_node.findall("header"):
-                name = (h.findtext("name") or "").strip()
-                value = (h.findtext("value") or "").strip()
-                if name:
-                    hdrs[name.lower()] = value
+            millis = int(tx.get("start_ms") or 0)
+            hdrs = dict(tx.get("headers") or {})
             if millis >= local_best_ms:
                 local_best_ms = millis
                 latest_headers = hdrs
@@ -359,10 +413,8 @@ def fetch_one(
 
 def main() -> int:
     args = parse_args()
-    match_root = Path(args.match_root).expanduser().resolve()
-    if not match_root.exists():
-        print(f"[ERROR] match root not found: {match_root}")
-        return 2
+    match_root = resolve_match_root(args.match_root)
+    match_root.mkdir(parents=True, exist_ok=True)
 
     list_files = tournament_json_files(match_root)
     pairs: List[Tuple[int, int]] = []

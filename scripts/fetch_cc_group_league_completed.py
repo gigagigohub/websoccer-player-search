@@ -29,6 +29,7 @@ from fetch_cc_all_worlds_completed import (
     iter_match_rows,
     parse_worlds,
     request_json,
+    resolve_match_root,
     session_files,
 )
 
@@ -37,8 +38,8 @@ def parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser(description="Fetch completed CC group-league summaries across worlds")
     ap.add_argument(
         "--match-root",
-        default=str(Path.home() / "Desktop" / "match_result"),
-        help="Root folder for saved data (default: ~/Desktop/match_result)",
+        default=str(Path.home() / "Desktop" / "CC_match_result_json"),
+        help="Root folder for saved data (default: ~/Desktop/CC_match_result_json)",
     )
     ap.add_argument(
         "--session-file",
@@ -154,7 +155,7 @@ def fetch_world_pairs(
 
 def main() -> int:
     args = parse_args()
-    match_root = Path(args.match_root).expanduser().resolve()
+    match_root = resolve_match_root(args.match_root)
     match_root.mkdir(parents=True, exist_ok=True)
 
     files = [Path(args.session_file).expanduser().resolve()] if args.session_file else session_files(match_root)
