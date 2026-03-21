@@ -1,7 +1,7 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-21 21:42 JST";
+const APP_UPDATED_AT_JST = "2026-03-21 21:50 JST";
 
 const PARAM_LABELS = {
   spd: "Speed",
@@ -154,6 +154,13 @@ function avg(v) {
   return Number(v || 0).toFixed(2);
 }
 
+function formatFormationYearLabel(year) {
+  const y = Number(year);
+  if (!Number.isFinite(y) || y <= 0) return "-";
+  const next = String((y + 1) % 100).padStart(2, "0");
+  return `${y}-${next}`;
+}
+
 function buildSortOptions() {
   if (!els.sortKey) return;
   els.sortKey.innerHTML = SORT_OPTIONS.map((o) => `<option value="${o.key}">${o.label}</option>`).join("");
@@ -215,7 +222,7 @@ function applyFilterAndSort() {
 }
 
 function formationCardHtml(f) {
-  const yearText = Number.isFinite(Number(f.year)) && Number(f.year) > 0 ? Number(f.year) : "-";
+  const yearText = formatFormationYearLabel(f.year);
   return `
     <button type="button" class="formation-item" data-formation-id="${f.id}">
       <div class="formation-item-head">
@@ -246,18 +253,27 @@ function renderList() {
   }
 }
 
-function renderFormationPitch(positions) {
+function renderFormationPitch(positions, formationId) {
   const minX = 1;
   const maxX = 321;
   const minY = 2;
   const maxY = 337;
+  const pad = 10;
+  const markerSrc = `./images/formation/${formationId}@2x.png`;
   return `
     <div class="formation-pitch">
       ${positions
         .map((p) => {
-          const left = ((p.x - minX) / (maxX - minX)) * 100;
-          const top = ((p.y - minY) / (maxY - minY)) * 100;
-          return `<button type="button" class="formation-slot-point" data-slot="${p.slot}" style="left:${left.toFixed(2)}%;top:${top.toFixed(2)}%">${p.slot}</button>`;
+          const nx = (p.x - minX) / (maxX - minX);
+          const ny = (p.y - minY) / (maxY - minY);
+          const left = pad + nx * (100 - pad * 2);
+          const top = pad + ny * (100 - pad * 2);
+          return `
+            <button type="button" class="formation-slot-point" data-slot="${p.slot}" style="left:${left.toFixed(2)}%;top:${top.toFixed(2)}%">
+              <img class="formation-slot-icon" src="${markerSrc}" alt="" />
+              <span class="formation-slot-label">${p.slot}</span>
+            </button>
+          `;
         })
         .join("")}
     </div>
@@ -318,11 +334,12 @@ function openFormationModal(formation) {
     .map(([k, v]) => `<span>${PARAM_LABELS[k] || k}: ${v}</span>`)
     .join("");
 
-  els.formationTitle.textContent = `${formation.name} (${formation.system || "-"})`;
+  const yearLabel = formatFormationYearLabel(formation.year);
+  els.formationTitle.textContent = `${formation.name} ${yearLabel} (${formation.system || "-"})`;
   els.formationDetail.innerHTML = `
     <div class="formation-detail-grid">
       <div>
-        ${renderFormationPitch(formation.positions || [])}
+        ${renderFormationPitch(formation.positions || [], formation.id)}
       </div>
       <div>
         <div class="formation-block">

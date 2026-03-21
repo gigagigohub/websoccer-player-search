@@ -1984,7 +1984,8 @@ button.ghost {
 .formation-year {
   font-size: 12px;
   color: var(--text-sub);
-  font-style: italic;
+  font-style: normal;
+  font-weight: 700;
 }
 
 .formation-system {
@@ -2050,7 +2051,7 @@ button.ghost {
   border: 1px solid rgba(255,255,255,0.2);
   border-radius: 8px;
   background:
-    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08), transparent 44%),
+    url("./images/formation/formation_bg@2x.png") center / cover no-repeat,
     linear-gradient(180deg, rgba(52,74,42,0.45), rgba(31,44,31,0.44));
   overflow: hidden;
 }
@@ -2066,15 +2067,36 @@ button.ghost {
 .formation-slot-point {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 28px;
-  height: 28px;
-  border: 1px solid rgba(255,255,255,0.35);
-  border-radius: 50%;
-  background: rgba(20, 30, 58, 0.82);
+  width: 36px;
+  height: 42px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: #fff;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 10px;
+  font-weight: 800;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
+  overflow: visible;
+}
+
+.formation-slot-icon {
+  width: 26px;
+  height: 26px;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+.formation-slot-label {
+  margin-top: 1px;
+  min-width: 16px;
+  text-align: center;
+  line-height: 1;
+  color: #e9f1ff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95);
 }
 
 .formation-kp-list {
