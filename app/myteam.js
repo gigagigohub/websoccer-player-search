@@ -98,16 +98,18 @@ function formatFormationYearLabel(year, stride) {
 }
 
 function loadSelectedFormationId() {
-  const raw = String(localStorage.getItem(MYTEAM_FORMATION_STORAGE_KEY) || "").trim();
+  const key = cloudConfig?.lineupKey ? `${MYTEAM_FORMATION_STORAGE_KEY}:${cloudConfig.lineupKey}` : MYTEAM_FORMATION_STORAGE_KEY;
+  const raw = String(localStorage.getItem(key) || "").trim();
   const id = Number(raw);
   selectedFormationId = Number.isInteger(id) && id > 0 ? id : null;
 }
 
 function saveSelectedFormationId() {
+  const key = cloudConfig?.lineupKey ? `${MYTEAM_FORMATION_STORAGE_KEY}:${cloudConfig.lineupKey}` : MYTEAM_FORMATION_STORAGE_KEY;
   if (Number.isInteger(selectedFormationId) && selectedFormationId > 0) {
-    localStorage.setItem(MYTEAM_FORMATION_STORAGE_KEY, String(selectedFormationId));
+    localStorage.setItem(key, String(selectedFormationId));
   } else {
-    localStorage.removeItem(MYTEAM_FORMATION_STORAGE_KEY);
+    localStorage.removeItem(key);
   }
 }
 
