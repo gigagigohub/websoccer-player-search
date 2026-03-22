@@ -18,6 +18,7 @@ body {
     radial-gradient(circle at 15% -10%, rgba(73, 119, 214, 0.3) 0, transparent 45%),
     radial-gradient(circle at 95% 5%, rgba(32, 54, 31, 0.25) 0, transparent 35%),
     var(--bg);
+  background-attachment: fixed, fixed, fixed;
   color: var(--text);
 }
 
