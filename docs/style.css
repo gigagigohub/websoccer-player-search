@@ -2410,6 +2410,14 @@ button.ghost {
   background: rgba(23, 32, 56, 0.96);
 }
 
+.slot-table tr.slot-player-row {
+  cursor: pointer;
+}
+
+.slot-table tr.slot-player-row:hover td {
+  background: rgba(112, 149, 240, 0.12);
+}
+
 .dim {
   color: var(--text-sub);
 }
