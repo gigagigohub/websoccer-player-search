@@ -716,6 +716,29 @@ button.ghost {
   transform: translateX(-10px);
 }
 
+.profile-view .media-row {
+  width: 100%;
+  min-width: 0;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.profile-view .thumbs {
+  flex: 0 0 auto;
+}
+
+.profile-view .profile-side {
+  margin-left: 0;
+  width: auto;
+  min-width: 108px;
+  max-width: calc(100% - 196px);
+  transform: none;
+}
+
+.profile-view .profile-item .v {
+  word-break: break-all;
+}
+
 .profile-item {
   display: grid;
   gap: 1px;
