@@ -269,6 +269,7 @@ body {
 
 .formation-select-row {
   margin-top: 8px;
+  margin-bottom: 10px;
   display: grid;
   grid-template-columns: 1fr;
   gap: 4px;
@@ -2080,7 +2081,7 @@ button.ghost {
 
 .coach-mode-btn {
   border: 1px solid var(--line-soft);
-  background: rgba(255, 255, 255, 0.05);
+  background: linear-gradient(180deg, #1c2a42 0%, #111a2a 100%);
   color: var(--text-main);
   border-radius: 6px;
   padding: 8px 10px;
@@ -2103,7 +2104,7 @@ button.ghost {
   text-align: left;
   border: 1px solid var(--line-soft);
   border-radius: 10px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02));
+  background: linear-gradient(180deg, #1a2740 0%, #131d31 100%);
   color: var(--text-main);
   padding: 10px;
   cursor: pointer;
