@@ -1606,8 +1606,8 @@ button.ghost {
 
 .slot-key-star {
   position: absolute;
-  top: -4px;
-  right: -10px;
+  top: -2px;
+  right: -5px;
   font-size: 0.74rem;
   line-height: 1;
   color: #ffd369;
