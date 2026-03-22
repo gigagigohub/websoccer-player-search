@@ -35,7 +35,7 @@ const els = {
   myteamMenuPanel: document.querySelector("#myteamMenuPanel"),
   myteamDatabaseButton: document.querySelector("#myteamDatabaseButton"),
   myteamFormationsButton: document.querySelector("#myteamFormationsButton"),
-  myteamSettingButton: document.querySelector("#myteamSettingButton"),
+  myteamLoginButton: document.querySelector("#myteamLoginButton"),
   myteamLogoutButton: document.querySelector("#myteamLogoutButton"),
   myTeamMeta: document.querySelector("#myTeamMeta"),
   myTeamTarget: document.querySelector("#myTeamTarget"),
@@ -248,7 +248,7 @@ function getSelectedFormationKeySlots() {
 
 function closeMenuPanel() {
   if (!els.myteamMenuPanel) return;
-  els.myteamMenuPanel.hidden = true;
+  els.myteamMenuPanel.classList.remove("is-open");
 }
 
 function openMyteamSettingModal() {
@@ -350,6 +350,8 @@ function renderMyTeamMeta() {
   } else {
     els.myTeamMeta.textContent = "Not logged in";
   }
+  if (els.myteamLoginButton) els.myteamLoginButton.hidden = hasCloudConfig();
+  if (els.myteamLogoutButton) els.myteamLogoutButton.hidden = !hasCloudConfig();
 }
 
 function hasCloudConfig() {
@@ -1233,7 +1235,7 @@ async function init() {
   if (els.myteamMenuButton) {
     els.myteamMenuButton.addEventListener("click", () => {
       if (!els.myteamMenuPanel) return;
-      els.myteamMenuPanel.hidden = !els.myteamMenuPanel.hidden;
+      els.myteamMenuPanel.classList.toggle("is-open");
     });
   }
   if (els.myteamDatabaseButton) {
@@ -1246,14 +1248,10 @@ async function init() {
       window.location.href = "./formations.html";
     });
   }
-  if (els.myteamSettingButton) {
-    els.myteamSettingButton.addEventListener("click", () => {
+  if (els.myteamLoginButton) {
+    els.myteamLoginButton.addEventListener("click", () => {
       closeMenuPanel();
-      if (!hasCloudConfig()) {
-        window.alert("TeamIDが未設定です。先にLoginしてください。");
-        return;
-      }
-      openMyteamSettingModal();
+      window.location.href = "./index.html";
     });
   }
   if (els.myteamLogoutButton) {
@@ -1316,7 +1314,7 @@ async function init() {
   }
   document.addEventListener("click", (e) => {
     if (!els.myteamMenuPanel || !els.myteamMenuButton) return;
-    if (els.myteamMenuPanel.hidden) return;
+    if (!els.myteamMenuPanel.classList.contains("is-open")) return;
     if (e.target.closest("#myteamMenuButton") || e.target.closest("#myteamMenuPanel")) return;
     closeMenuPanel();
   });

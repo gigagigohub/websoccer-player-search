@@ -1,7 +1,7 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-22 22:14 JST";
+const APP_UPDATED_AT_JST = "2026-03-22 22:29 JST";
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織",
@@ -57,6 +57,7 @@ const els = {
   menuButton: document.querySelector("#menuButton"),
   menuPanel: document.querySelector("#menuPanel"),
   playersButton: document.querySelector("#playersButton"),
+  formationsButton: document.querySelector("#formationsButton"),
   loginButton: document.querySelector("#loginButton"),
   myTeamButton: document.querySelector("#myTeamButton"),
   logoutButton: document.querySelector("#logoutButton"),
@@ -163,14 +164,13 @@ function renderMeta() {
 function updateMenuState() {
   const loggedIn = isLoggedIn();
   if (els.loginButton) els.loginButton.hidden = loggedIn;
-  if (els.myTeamButton) els.myTeamButton.hidden = !loggedIn;
   if (els.logoutButton) els.logoutButton.hidden = !loggedIn;
   renderMeta();
 }
 
 function closeMenuPanel() {
   if (!els.menuPanel) return;
-  els.menuPanel.hidden = true;
+  els.menuPanel.classList.remove("is-open");
 }
 
 function openLoginModal() {
@@ -1004,13 +1004,18 @@ function bindEvents() {
   if (els.menuButton) {
     els.menuButton.addEventListener("click", () => {
       if (!els.menuPanel) return;
-      els.menuPanel.hidden = !els.menuPanel.hidden;
+      els.menuPanel.classList.toggle("is-open");
     });
   }
   if (els.playersButton) {
     els.playersButton.addEventListener("click", () => {
       closeMenuPanel();
       window.location.href = "./index.html";
+    });
+  }
+  if (els.formationsButton) {
+    els.formationsButton.addEventListener("click", () => {
+      closeMenuPanel();
     });
   }
   if (els.loginButton) {
@@ -1110,7 +1115,7 @@ function bindEvents() {
   }
 
   document.addEventListener("click", (e) => {
-    if (!els.menuPanel || !els.menuButton || els.menuPanel.hidden) return;
+    if (!els.menuPanel || !els.menuButton || !els.menuPanel.classList.contains("is-open")) return;
     if (e.target.closest("#menuButton") || e.target.closest("#menuPanel")) return;
     closeMenuPanel();
   });

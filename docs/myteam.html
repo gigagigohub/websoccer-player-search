@@ -10,11 +10,12 @@
   <main class="container">
     <header class="hero">
       <button id="myteamMenuButton" type="button" class="menu-button" aria-label="メニュー">☰</button>
-      <div id="myteamMenuPanel" class="menu-panel" hidden>
+      <div id="myteamMenuPanel" class="menu-panel">
         <button id="myteamDatabaseButton" type="button" class="menu-item">Players</button>
         <button id="myteamFormationsButton" type="button" class="menu-item">Formations</button>
-        <button id="myteamSettingButton" type="button" class="menu-item">Setting</button>
-        <button id="myteamLogoutButton" type="button" class="menu-item logout">Logout</button>
+        <button id="myteamCurrentButton" type="button" class="menu-item is-current" aria-current="page">My Team</button>
+        <button id="myteamLoginButton" type="button" class="menu-item" hidden>Login</button>
+        <button id="myteamLogoutButton" type="button" class="menu-item logout" hidden>Logout</button>
       </div>
       <h1>My Team</h1>
       <p class="meta" id="myTeamMeta">Loading...</p>

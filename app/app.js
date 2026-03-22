@@ -29,8 +29,8 @@ const RENDER_BATCH_SIZE = 200;
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-22T22:14:56+09:00";
-const APP_UPDATED_AT_JST = "2026-03-22 22:14 JST";
+const APP_UPDATED_AT_ISO = "2026-03-22T22:29:17+09:00";
+const APP_UPDATED_AT_JST = "2026-03-22 22:29 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function metricLabel(metric) {
@@ -45,10 +45,10 @@ const els = {
   metaText: document.querySelector("#metaText"),
   menuButton: document.querySelector("#menuButton"),
   menuPanel: document.querySelector("#menuPanel"),
+  playersButton: document.querySelector("#playersButton"),
   loginButton: document.querySelector("#loginButton"),
   formationsButton: document.querySelector("#formationsButton"),
   myTeamButton: document.querySelector("#myTeamButton"),
-  settingButton: document.querySelector("#settingButton"),
   logoutButton: document.querySelector("#logoutButton"),
   nameQuery: document.querySelector("#nameQuery"),
   nameSuggest: document.querySelector("#nameSuggest"),
@@ -184,7 +184,7 @@ function setCloudStatus(message, isError = false) {
 
 function closeMenuPanel() {
   if (!els.menuPanel) return;
-  els.menuPanel.hidden = true;
+  els.menuPanel.classList.remove("is-open");
 }
 
 function isLoggedIn() {
@@ -208,8 +208,6 @@ function syncAptitudeAreaLabel() {
 function updateMenuState() {
   const loggedIn = isLoggedIn();
   if (els.loginButton) els.loginButton.hidden = loggedIn;
-  if (els.myTeamButton) els.myTeamButton.hidden = !loggedIn;
-  if (els.settingButton) els.settingButton.hidden = !loggedIn;
   if (els.logoutButton) els.logoutButton.hidden = !loggedIn;
   renderHeaderMeta();
 }
@@ -1541,7 +1539,12 @@ async function init() {
   if (els.menuButton) {
     els.menuButton.addEventListener("click", () => {
       if (!els.menuPanel) return;
-      els.menuPanel.hidden = !els.menuPanel.hidden;
+      els.menuPanel.classList.toggle("is-open");
+    });
+  }
+  if (els.playersButton) {
+    els.playersButton.addEventListener("click", () => {
+      closeMenuPanel();
     });
   }
   if (els.myTeamButton) {
@@ -1562,12 +1565,6 @@ async function init() {
       openLoginModal();
     });
   }
-  if (els.settingButton) {
-    els.settingButton.addEventListener("click", () => {
-      closeMenuPanel();
-      openSettingModal();
-    });
-  }
   if (els.logoutButton) {
     els.logoutButton.addEventListener("click", () => {
       closeMenuPanel();
@@ -1576,7 +1573,7 @@ async function init() {
   }
   document.addEventListener("click", (e) => {
     if (!els.menuPanel || !els.menuButton) return;
-    if (els.menuPanel.hidden) return;
+    if (!els.menuPanel.classList.contains("is-open")) return;
     if (e.target.closest("#menuButton") || e.target.closest("#menuPanel")) return;
     closeMenuPanel();
   });
