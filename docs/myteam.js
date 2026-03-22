@@ -37,6 +37,18 @@ const els = {
   myteamFormationsButton: document.querySelector("#myteamFormationsButton"),
   myteamLoginButton: document.querySelector("#myteamLoginButton"),
   myteamLogoutButton: document.querySelector("#myteamLogoutButton"),
+  loginModal: document.querySelector("#loginModal"),
+  loginBackdrop: document.querySelector("#loginBackdrop"),
+  loginClose: document.querySelector("#loginClose"),
+  loginLineupKey: document.querySelector("#loginLineupKey"),
+  loginApply: document.querySelector("#loginApply"),
+  signupOpen: document.querySelector("#signupOpen"),
+  signupModal: document.querySelector("#signupModal"),
+  signupBackdrop: document.querySelector("#signupBackdrop"),
+  signupClose: document.querySelector("#signupClose"),
+  signupLineupKey: document.querySelector("#signupLineupKey"),
+  signupCancel: document.querySelector("#signupCancel"),
+  signupApply: document.querySelector("#signupApply"),
   myTeamMeta: document.querySelector("#myTeamMeta"),
   myTeamTarget: document.querySelector("#myTeamTarget"),
   myTeamSlots: document.querySelector("#myTeamSlots"),
@@ -345,46 +357,102 @@ function logoutTeamId() {
 
 async function loginTeamIdFromMyTeam() {
   closeMenuPanel();
-  const current = String(cloudConfig.lineupKey || "").trim();
-  const input = window.prompt("TeamIDを入力してください", current);
-  if (input == null) return;
-  const nextKey = String(input).trim();
-  if (!nextKey) return;
+  openLoginModal();
+}
 
-  const prevKey = current;
+function openLoginModal() {
+  if (!els.loginModal) return;
+  if (els.loginLineupKey) {
+    els.loginLineupKey.value = cloudConfig.lineupKey || "";
+    els.loginLineupKey.focus();
+  }
+  els.loginModal.hidden = false;
+}
+
+function closeLoginModal() {
+  if (!els.loginModal) return;
+  els.loginModal.hidden = true;
+}
+
+function openSignupModal() {
+  if (!els.signupModal) return;
+  if (els.signupLineupKey) {
+    els.signupLineupKey.value = "";
+    els.signupLineupKey.focus();
+  }
+  els.signupModal.hidden = false;
+}
+
+function closeSignupModal() {
+  if (!els.signupModal) return;
+  els.signupModal.hidden = true;
+}
+
+async function applyLoginFromModal() {
+  const nextKey = String(els.loginLineupKey?.value || "").trim();
+  if (!nextKey) return;
+  const prevKey = String(cloudConfig.lineupKey || "").trim();
   cloudConfig.lineupKey = nextKey;
   localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
   renderMyTeamMeta();
   if (els.myTeamTarget) els.myTeamTarget.textContent = "";
-
   try {
     const exists = await cloudLineupExists(nextKey);
     if (!exists) {
-      const createOk = window.confirm("入力されたIDの登録はありません。\nこのIDを新規作成しますか？");
-      if (!createOk) {
-        cloudConfig.lineupKey = prevKey;
-        localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
-        renderMyTeamMeta();
-        return;
-      }
-      lineup = Array.from({ length: LINEUP_SIZE }, () => null);
-      saveLineupLocal();
-      await saveCloudLineup();
-      await saveCloudFormationId();
-    } else {
-      await loadCloudLineup();
-      await loadCloudFormationId();
+      cloudConfig.lineupKey = prevKey;
+      localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
+      renderMyTeamMeta();
+      window.alert("入力されたIDの登録はありません。Create New IDを使用してください。");
+      return;
     }
+    await loadCloudLineup();
+    await loadCloudFormationId();
     buildFormationOptions();
     closeFormationEditor();
     renderFormationCurrent();
     renderLineup();
+    closeLoginModal();
   } catch (e) {
     cloudConfig.lineupKey = prevKey;
     localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
     renderMyTeamMeta();
     if (els.myTeamTarget) els.myTeamTarget.textContent = "クラウド読込に失敗しました";
     window.alert("Loginに失敗しました。");
+  }
+}
+
+async function applySignupFromModal() {
+  const nextKey = String(els.signupLineupKey?.value || "").trim();
+  if (!nextKey) return;
+  const prevKey = String(cloudConfig.lineupKey || "").trim();
+  cloudConfig.lineupKey = nextKey;
+  localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
+  renderMyTeamMeta();
+  if (els.myTeamTarget) els.myTeamTarget.textContent = "";
+  try {
+    const exists = await cloudLineupExists(nextKey);
+    if (exists) {
+      cloudConfig.lineupKey = prevKey;
+      localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
+      renderMyTeamMeta();
+      window.alert("そのIDは既に使われています。別のIDを入力してください。");
+      return;
+    }
+    lineup = Array.from({ length: LINEUP_SIZE }, () => null);
+    saveLineupLocal();
+    await saveCloudLineup();
+    await saveCloudFormationId();
+    buildFormationOptions();
+    closeFormationEditor();
+    renderFormationCurrent();
+    renderLineup();
+    closeSignupModal();
+    closeLoginModal();
+  } catch (e) {
+    cloudConfig.lineupKey = prevKey;
+    localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
+    renderMyTeamMeta();
+    window.alert("Create New IDに失敗しました。");
   }
 }
 
@@ -1365,6 +1433,8 @@ async function init() {
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       closeMenuPanel();
+      closeLoginModal();
+      closeSignupModal();
       closeEmptySlotModal();
       closePlayerCardModal();
       closeMyteamSettingModal();
@@ -1401,6 +1471,28 @@ async function init() {
       if (!Number.isInteger(mode) || mode < 0 || mode > 2) return;
       cardViewModeById.set(id, mode);
       renderPlayerCardModal();
+    });
+  }
+
+  if (els.loginBackdrop) els.loginBackdrop.addEventListener("click", closeLoginModal);
+  if (els.loginClose) els.loginClose.addEventListener("click", closeLoginModal);
+  if (els.loginApply) {
+    els.loginApply.addEventListener("click", async () => {
+      await applyLoginFromModal();
+    });
+  }
+  if (els.signupOpen) {
+    els.signupOpen.addEventListener("click", () => {
+      closeLoginModal();
+      openSignupModal();
+    });
+  }
+  if (els.signupBackdrop) els.signupBackdrop.addEventListener("click", closeSignupModal);
+  if (els.signupClose) els.signupClose.addEventListener("click", closeSignupModal);
+  if (els.signupCancel) els.signupCancel.addEventListener("click", closeSignupModal);
+  if (els.signupApply) {
+    els.signupApply.addEventListener("click", async () => {
+      await applySignupFromModal();
     });
   }
 

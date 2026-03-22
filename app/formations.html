@@ -72,7 +72,24 @@
       <label class="label" for="loginLineupKey">TeamID</label>
       <input id="loginLineupKey" type="text" />
       <div class="season-actions">
+        <button id="signupOpen" type="button" class="add-btn">Create New ID</button>
         <button id="loginApply" type="button">Login</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="signupModal" class="season-modal" hidden>
+    <div id="signupBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog" role="dialog" aria-modal="true" aria-labelledby="signupTitle">
+      <div class="season-head">
+        <h2 id="signupTitle">Sign Up</h2>
+        <button id="signupClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <label class="label" for="signupLineupKey">TeamID</label>
+      <input id="signupLineupKey" type="text" placeholder="新規ID（任意の半角英数字記号）" />
+      <div class="season-actions">
+        <button id="signupCancel" type="button" class="ghost">Cancel</button>
+        <button id="signupApply" type="button">Create</button>
       </div>
     </div>
   </div>

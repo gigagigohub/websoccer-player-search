@@ -1,7 +1,9 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
+const SUPABASE_TABLE = "lineup_states";
+const LINEUP_SIZE = 11;
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-22 22:55 JST";
+const APP_UPDATED_AT_JST = "2026-03-22 23:01 JST";
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織",
@@ -71,6 +73,13 @@ const els = {
   loginClose: document.querySelector("#loginClose"),
   loginLineupKey: document.querySelector("#loginLineupKey"),
   loginApply: document.querySelector("#loginApply"),
+  signupOpen: document.querySelector("#signupOpen"),
+  signupModal: document.querySelector("#signupModal"),
+  signupBackdrop: document.querySelector("#signupBackdrop"),
+  signupClose: document.querySelector("#signupClose"),
+  signupLineupKey: document.querySelector("#signupLineupKey"),
+  signupCancel: document.querySelector("#signupCancel"),
+  signupApply: document.querySelector("#signupApply"),
   formationModal: document.querySelector("#formationModal"),
   formationBackdrop: document.querySelector("#formationBackdrop"),
   formationClose: document.querySelector("#formationClose"),
@@ -185,6 +194,62 @@ function openLoginModal() {
 function closeLoginModal() {
   if (!els.loginModal) return;
   els.loginModal.hidden = true;
+}
+
+function openSignupModal() {
+  if (!els.signupModal) return;
+  if (els.signupLineupKey) {
+    els.signupLineupKey.value = "";
+    els.signupLineupKey.focus();
+  }
+  els.signupModal.hidden = false;
+}
+
+function closeSignupModal() {
+  if (!els.signupModal) return;
+  els.signupModal.hidden = true;
+}
+
+async function supabaseRequest(pathWithQuery, options = {}) {
+  const res = await fetch(`${cloudConfig.url}/rest/v1/${pathWithQuery}`, {
+    ...options,
+    headers: {
+      apikey: cloudConfig.anonKey,
+      Authorization: `Bearer ${cloudConfig.anonKey}`,
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
+  });
+  if (!res.ok) throw new Error(`supabase ${res.status}`);
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+async function cloudLineupExists(lineupId) {
+  const id = String(lineupId || "").trim();
+  if (!id) return false;
+  const params = new URLSearchParams({
+    select: "lineup_id",
+    lineup_id: `eq.${id}`,
+    limit: "1",
+  });
+  const rows = await supabaseRequest(`${SUPABASE_TABLE}?${params.toString()}`, { method: "GET" });
+  return Array.isArray(rows) && rows.length > 0;
+}
+
+async function cloudCreateLineup(lineupId) {
+  const id = String(lineupId || "").trim();
+  if (!id) return;
+  const payload = {
+    lineup_id: id,
+    lineup_json: Array.from({ length: LINEUP_SIZE }, () => null),
+    updated_at: new Date().toISOString(),
+  };
+  await supabaseRequest(`${SUPABASE_TABLE}?on_conflict=lineup_id`, {
+    method: "POST",
+    headers: { Prefer: "resolution=merge-duplicates,return=representation" },
+    body: JSON.stringify(payload),
+  });
 }
 
 function logout() {
@@ -1038,11 +1103,62 @@ function bindEvents() {
   }
   if (els.loginBackdrop) els.loginBackdrop.addEventListener("click", closeLoginModal);
   if (els.loginClose) els.loginClose.addEventListener("click", closeLoginModal);
+  if (els.signupOpen) {
+    els.signupOpen.addEventListener("click", () => {
+      closeLoginModal();
+      openSignupModal();
+    });
+  }
   if (els.loginApply) {
-    els.loginApply.addEventListener("click", () => {
+    els.loginApply.addEventListener("click", async () => {
       const key = String(els.loginLineupKey?.value || "").trim();
+      const prevKey = String(cloudConfig.lineupKey || "").trim();
+      if (!key) return;
       saveCloudConfig(key);
+      try {
+        const exists = await cloudLineupExists(key);
+        if (!exists) {
+          saveCloudConfig(prevKey);
+          updateMenuState();
+          window.alert("入力されたIDの登録はありません。Create New IDを使用してください。");
+          return;
+        }
+      } catch (_) {
+        saveCloudConfig(prevKey);
+        updateMenuState();
+        window.alert("Loginに失敗しました。");
+        return;
+      }
       updateMenuState();
+      closeLoginModal();
+    });
+  }
+  if (els.signupBackdrop) els.signupBackdrop.addEventListener("click", closeSignupModal);
+  if (els.signupClose) els.signupClose.addEventListener("click", closeSignupModal);
+  if (els.signupCancel) els.signupCancel.addEventListener("click", closeSignupModal);
+  if (els.signupApply) {
+    els.signupApply.addEventListener("click", async () => {
+      const key = String(els.signupLineupKey?.value || "").trim();
+      const prevKey = String(cloudConfig.lineupKey || "").trim();
+      if (!key) return;
+      saveCloudConfig(key);
+      try {
+        const exists = await cloudLineupExists(key);
+        if (exists) {
+          saveCloudConfig(prevKey);
+          updateMenuState();
+          window.alert("そのIDは既に使われています。別のIDを入力してください。");
+          return;
+        }
+        await cloudCreateLineup(key);
+      } catch (_) {
+        saveCloudConfig(prevKey);
+        updateMenuState();
+        window.alert("Create New IDに失敗しました。");
+        return;
+      }
+      updateMenuState();
+      closeSignupModal();
       closeLoginModal();
     });
   }
@@ -1124,6 +1240,7 @@ function bindEvents() {
     if (e.key !== "Escape") return;
     closeMenuPanel();
     closeLoginModal();
+    closeSignupModal();
     closeFormationModal();
     closeSlotModal();
     closePlayerCardModal();
