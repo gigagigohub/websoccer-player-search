@@ -288,6 +288,10 @@ body {
   margin-top: 4px;
 }
 
+.formation-editor[hidden] {
+  display: none !important;
+}
+
 .formation-editor-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
