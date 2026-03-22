@@ -29,8 +29,8 @@ const RENDER_BATCH_SIZE = 200;
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-22T23:30:32+09:00";
-const APP_UPDATED_AT_JST = "2026-03-22 23:30 JST";
+const APP_UPDATED_AT_ISO = "2026-03-22T23:36:33+09:00";
+const APP_UPDATED_AT_JST = "2026-03-22 23:36 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function metricLabel(metric) {
