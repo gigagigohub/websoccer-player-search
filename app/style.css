@@ -578,8 +578,24 @@ button {
 }
 
 button.search-btn {
-  background: #2f63c6;
-  border-color: #2f63c6;
+  background: linear-gradient(180deg, #4e7fe0 0%, #2f63c6 58%, #2958b1 100%);
+  border-color: #2a56ad;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    inset 0 -1px 0 rgba(16, 33, 70, 0.45),
+    0 2px 6px rgba(8, 18, 38, 0.38);
+}
+
+button.search-btn:hover {
+  filter: brightness(1.04);
+}
+
+button.search-btn:active {
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(16, 33, 70, 0.35),
+    0 1px 3px rgba(8, 18, 38, 0.32);
 }
 
 button.add-btn {
