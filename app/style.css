@@ -649,6 +649,7 @@ button.ghost {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
+  margin-bottom: 12px;
 }
 
 .result-head h2 {
@@ -657,6 +658,11 @@ button.ghost {
 }
 
 #resultCount {
+  color: var(--sub);
+  font-size: 0.92rem;
+}
+
+#formationCount {
   color: var(--sub);
   font-size: 0.92rem;
 }
@@ -2114,6 +2120,7 @@ button.ghost {
 .formation-list {
   display: grid;
   gap: 10px;
+  margin-top: 8px;
 }
 
 .formation-item {
