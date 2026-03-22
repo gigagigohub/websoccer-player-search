@@ -12,14 +12,30 @@
 * { box-sizing: border-box; }
 
 body {
+  position: relative;
+  isolation: isolate;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  left: 50%;
+  top: 0;
+  width: 100vw;
+  height: 4600px;
+  transform: translateX(-50%);
+  z-index: -1;
+  pointer-events: none;
   background:
     radial-gradient(circle at 15% -10%, rgba(73, 119, 214, 0.3) 0, transparent 45%),
     radial-gradient(circle at 95% 5%, rgba(32, 54, 31, 0.25) 0, transparent 35%),
     var(--bg);
-  background-attachment: fixed, fixed, fixed;
-  color: var(--text);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
 }
 
 .container {
