@@ -803,7 +803,7 @@ function renderLineup() {
       : "";
     return `
       <button type="button" class="lineup-slot${player ? " has-player" : ""} myteam-slot" data-slot-index="${idx}">
-        <span class="slot-no">${slot}</span>
+        <span class="slot-no">${slot}${keyStar}</span>
         <div class="lineup-slot-main">
           <div class="lineup-thumb-wrap">${imageHtml}</div>
           <div class="lineup-player-meta">
@@ -817,7 +817,6 @@ function renderLineup() {
           </div>
           ${rightPaneHtml}
         </div>
-        ${keyStar}
       </button>
     `;
   }).join("");
