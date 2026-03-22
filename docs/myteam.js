@@ -343,6 +343,51 @@ function logoutTeamId() {
   localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
 }
 
+async function loginTeamIdFromMyTeam() {
+  closeMenuPanel();
+  const current = String(cloudConfig.lineupKey || "").trim();
+  const input = window.prompt("TeamIDを入力してください", current);
+  if (input == null) return;
+  const nextKey = String(input).trim();
+  if (!nextKey) return;
+
+  const prevKey = current;
+  cloudConfig.lineupKey = nextKey;
+  localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
+  renderMyTeamMeta();
+  if (els.myTeamTarget) els.myTeamTarget.textContent = "";
+
+  try {
+    const exists = await cloudLineupExists(nextKey);
+    if (!exists) {
+      const createOk = window.confirm("入力されたIDの登録はありません。\nこのIDを新規作成しますか？");
+      if (!createOk) {
+        cloudConfig.lineupKey = prevKey;
+        localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
+        renderMyTeamMeta();
+        return;
+      }
+      lineup = Array.from({ length: LINEUP_SIZE }, () => null);
+      saveLineupLocal();
+      await saveCloudLineup();
+      await saveCloudFormationId();
+    } else {
+      await loadCloudLineup();
+      await loadCloudFormationId();
+    }
+    buildFormationOptions();
+    closeFormationEditor();
+    renderFormationCurrent();
+    renderLineup();
+  } catch (e) {
+    cloudConfig.lineupKey = prevKey;
+    localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
+    renderMyTeamMeta();
+    if (els.myTeamTarget) els.myTeamTarget.textContent = "クラウド読込に失敗しました";
+    window.alert("Loginに失敗しました。");
+  }
+}
+
 function renderMyTeamMeta() {
   if (!els.myTeamMeta) return;
   if (hasCloudConfig()) {
@@ -1249,9 +1294,8 @@ async function init() {
     });
   }
   if (els.myteamLoginButton) {
-    els.myteamLoginButton.addEventListener("click", () => {
-      closeMenuPanel();
-      window.location.href = "./index.html?openLogin=1&returnTo=myteam";
+    els.myteamLoginButton.addEventListener("click", async () => {
+      await loginTeamIdFromMyTeam();
     });
   }
   if (els.myteamLogoutButton) {
