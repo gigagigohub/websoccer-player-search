@@ -188,6 +188,7 @@ function openSelectedFormationDetail() {
   if (!Number.isInteger(selectedFormationId) || selectedFormationId <= 0) return;
   const url = new URL("./formations.html", window.location.href);
   url.searchParams.set("openFormationId", String(selectedFormationId));
+  url.searchParams.set("returnTo", "myteam");
   window.location.href = url.toString();
 }
 
@@ -1225,11 +1226,7 @@ async function init() {
   }
   if (els.myTeamFormationChangeButton) {
     els.myTeamFormationChangeButton.addEventListener("click", () => {
-      if (isFormationEditorOpen) {
-        closeFormationEditor();
-      } else {
-        openFormationEditor();
-      }
+      openFormationEditor();
     });
   }
   if (els.myTeamFormationApply) {
