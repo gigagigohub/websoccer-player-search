@@ -1601,6 +1601,17 @@ button.ghost {
   width: 20px;
   flex: 0 0 20px;
   padding-top: 2px;
+  position: relative;
+}
+
+.slot-key-star {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  font-size: 0.74rem;
+  line-height: 1;
+  color: #ffd369;
+  text-shadow: 0 0 6px rgba(255, 170, 60, 0.55);
 }
 
 .lineup-slot-main {

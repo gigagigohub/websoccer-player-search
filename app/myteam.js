@@ -217,6 +217,19 @@ function findCcSlotStat(formationId, slot, playerId) {
   };
 }
 
+function getSelectedFormationKeySlots() {
+  const fid = Number(selectedFormationId);
+  if (!Number.isInteger(fid) || fid <= 0) return new Set();
+  const formation = formations.find((f) => Number(f?.id) === fid);
+  const rows = Array.isArray(formation?.keyPositions) ? formation.keyPositions : [];
+  const set = new Set();
+  rows.forEach((r) => {
+    const slot = Number(r?.slot);
+    if (Number.isInteger(slot) && slot >= 1 && slot <= LINEUP_SIZE) set.add(slot);
+  });
+  return set;
+}
+
 function closeMenuPanel() {
   if (!els.myteamMenuPanel) return;
   els.myteamMenuPanel.hidden = true;
@@ -744,6 +757,7 @@ function miniCoreMetric(metric, value) {
 
 function renderLineup() {
   if (!els.myTeamSlots) return;
+  const keySlots = getSelectedFormationKeySlots();
   const html = lineup.map((entry, idx) => {
     const slot = idx + 1;
     const playerId = Number(entry?.playerId);
@@ -784,9 +798,12 @@ function renderLineup() {
         `)
       : "";
 
+    const keyStar = keySlots.has(slot)
+      ? `<span class="slot-key-star" aria-label="Key Position" title="Key Position">★</span>`
+      : "";
     return `
       <button type="button" class="lineup-slot${player ? " has-player" : ""} myteam-slot" data-slot-index="${idx}">
-        <span class="slot-no">${slot}</span>
+        <span class="slot-no">${slot}${keyStar}</span>
         <div class="lineup-slot-main">
           <div class="lineup-thumb-wrap">${imageHtml}</div>
           <div class="lineup-player-meta">
