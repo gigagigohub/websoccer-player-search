@@ -56,8 +56,15 @@
 
   <div id="playerCardModal" class="season-modal" hidden>
     <div id="playerCardBackdrop" class="season-backdrop"></div>
-    <div class="player-card-wrap">
+    <div class="season-dialog player-card-wrap" role="dialog" aria-modal="true" aria-labelledby="playerCardTitle">
+      <div class="season-head">
+        <h2 id="playerCardTitle">Player</h2>
+        <button id="playerCardClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
       <div id="playerCardHost"></div>
+      <div class="player-card-actions">
+        <button id="playerDeleteBtn" type="button" class="player-delete-btn">Delete from Team</button>
+      </div>
     </div>
   </div>
 

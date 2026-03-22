@@ -50,7 +50,9 @@ const els = {
   emptySlotOk: document.querySelector("#emptySlotOk"),
   playerCardModal: document.querySelector("#playerCardModal"),
   playerCardBackdrop: document.querySelector("#playerCardBackdrop"),
+  playerCardClose: document.querySelector("#playerCardClose"),
   playerCardHost: document.querySelector("#playerCardHost"),
+  playerDeleteBtn: document.querySelector("#playerDeleteBtn"),
   myteamSettingModal: document.querySelector("#myteamSettingModal"),
   myteamSettingBackdrop: document.querySelector("#myteamSettingBackdrop"),
   myteamSettingClose: document.querySelector("#myteamSettingClose"),
@@ -1048,6 +1050,10 @@ function renderPlayerCardModal() {
     ? getSuccessorDisplaySeason(entry)
     : (entry?.season || null);
   els.playerCardHost.innerHTML = playerCardHtml(player, season);
+  if (els.playerDeleteBtn) {
+    els.playerDeleteBtn.textContent = selectedPlayerMode === "successor" ? "Remove Successor" : "Delete from Team";
+    els.playerDeleteBtn.hidden = false;
+  }
 }
 
 function openPlayerCardModal(slotIndex, mode = "starter") {
@@ -1068,6 +1074,31 @@ function closePlayerCardModal() {
   selectedPlayerId = null;
   selectedPlayerMode = "starter";
   if (els.playerCardModal) els.playerCardModal.hidden = true;
+  if (els.playerDeleteBtn) els.playerDeleteBtn.hidden = true;
+}
+
+async function removeSelectedPlayerFromTeam() {
+  if (!Number.isInteger(selectedSlotIndex)) return;
+  const idx = selectedSlotIndex;
+  const entry = lineup[idx];
+  if (!entry) return;
+
+  if (selectedPlayerMode === "successor") {
+    lineup[idx] = { ...entry, successor: null };
+  } else {
+    lineup[idx] = null;
+  }
+
+  saveLineupLocal();
+  if (hasCloudConfig()) {
+    try {
+      await saveCloudLineup();
+    } catch (e) {
+      window.alert("クラウド保存に失敗しました。");
+    }
+  }
+  renderLineup();
+  closePlayerCardModal();
 }
 
 async function init() {
@@ -1164,6 +1195,17 @@ async function init() {
   }
 
   if (els.playerCardBackdrop) els.playerCardBackdrop.addEventListener("click", closePlayerCardModal);
+  if (els.playerCardClose) els.playerCardClose.addEventListener("click", closePlayerCardModal);
+  if (els.playerDeleteBtn) {
+    els.playerDeleteBtn.addEventListener("click", async () => {
+      const msg = selectedPlayerMode === "successor"
+        ? "この後継選手を解除します。よろしいですか？"
+        : "この選手をチームから外します。よろしいですか？";
+      const ok = window.confirm(msg);
+      if (!ok) return;
+      await removeSelectedPlayerFromTeam();
+    });
+  }
   if (els.playerCardHost) {
     els.playerCardHost.addEventListener("click", (e) => {
       const tabBtn = e.target.closest(".card-tab");
