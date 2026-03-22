@@ -1575,6 +1575,7 @@ button.ghost {
   border-radius: 8px;
   border: 1px solid #36507c;
   background: #132038;
+  position: relative;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
@@ -1606,8 +1607,8 @@ button.ghost {
 
 .slot-key-star {
   position: absolute;
-  left: -3px;
-  bottom: -3px;
+  left: 6px;
+  bottom: 4px;
   font-size: 0.74rem;
   line-height: 1;
   color: #ffd369;
