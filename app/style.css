@@ -2212,6 +2212,14 @@ button.ghost {
   z-index: 2;
 }
 
+.formation-dialog .season-head {
+  margin-bottom: 10px;
+}
+
+.formation-dialog .season-head h2 {
+  font-size: 1.18rem;
+}
+
 .formation-detail-grid {
   display: grid;
   grid-template-columns: 176px minmax(0, 1fr);
@@ -2237,7 +2245,7 @@ button.ghost {
   border-radius: 10px;
   padding: 10px;
   margin-top: 10px;
-  background: #111a2c;
+  background: #16243c;
 }
 
 .formation-block h3 {
