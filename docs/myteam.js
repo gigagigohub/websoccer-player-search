@@ -1251,7 +1251,7 @@ async function init() {
   if (els.myteamLoginButton) {
     els.myteamLoginButton.addEventListener("click", () => {
       closeMenuPanel();
-      window.location.href = "./index.html";
+      window.location.href = "./index.html?openLogin=1";
     });
   }
   if (els.myteamLogoutButton) {
