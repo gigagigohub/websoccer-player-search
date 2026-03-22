@@ -3,6 +3,7 @@ const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
+const APP_UPDATED_AT_JST = "2026-03-22 23:03 JST";
 const LINEUP_SIZE = 11;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
@@ -58,6 +59,7 @@ const els = {
   myTeamFormationCurrent: document.querySelector("#myTeamFormationCurrent"),
   myTeamFormationChangeButton: document.querySelector("#myTeamFormationChangeButton"),
   myTeamFormationEditor: document.querySelector("#myTeamFormationEditor"),
+  myTeamFormationBackdrop: document.querySelector("#myTeamFormationBackdrop"),
   myTeamFormationSelect: document.querySelector("#myTeamFormationSelect"),
   myTeamFormationApply: document.querySelector("#myTeamFormationApply"),
   myTeamFormationCancel: document.querySelector("#myTeamFormationCancel"),
@@ -458,11 +460,10 @@ async function applySignupFromModal() {
 
 function renderMyTeamMeta() {
   if (!els.myTeamMeta) return;
-  if (hasCloudConfig()) {
-    els.myTeamMeta.textContent = `TeamID: ${cloudConfig.lineupKey}`;
-  } else {
-    els.myTeamMeta.textContent = "Not logged in";
-  }
+  const login = hasCloudConfig()
+    ? ` / <span class="meta-login-badge">Login：${cloudConfig.lineupKey}</span>`
+    : "";
+  els.myTeamMeta.innerHTML = `Updated: ${APP_UPDATED_AT_JST}${login}`;
   if (els.myteamLoginButton) els.myteamLoginButton.hidden = hasCloudConfig();
   if (els.myteamLogoutButton) els.myteamLogoutButton.hidden = !hasCloudConfig();
 }
@@ -1419,6 +1420,11 @@ async function init() {
       closeFormationEditor();
     });
   }
+  if (els.myTeamFormationBackdrop) {
+    els.myTeamFormationBackdrop.addEventListener("click", () => {
+      closeFormationEditor();
+    });
+  }
   if (els.myTeamFormationCurrent) {
     els.myTeamFormationCurrent.addEventListener("click", () => {
       openSelectedFormationDetail();
@@ -1435,6 +1441,7 @@ async function init() {
       closeMenuPanel();
       closeLoginModal();
       closeSignupModal();
+      closeFormationEditor();
       closeEmptySlotModal();
       closePlayerCardModal();
       closeMyteamSettingModal();

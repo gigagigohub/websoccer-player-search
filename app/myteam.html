@@ -28,15 +28,6 @@
           <button id="myTeamFormationCurrent" type="button" class="formation-current-btn">Not selected</button>
           <button id="myTeamFormationChangeButton" type="button" class="formation-change-btn">Change</button>
         </div>
-        <div id="myTeamFormationEditor" class="formation-editor" hidden>
-          <select id="myTeamFormationSelect">
-            <option value="">Not selected</option>
-          </select>
-          <div class="formation-editor-actions">
-            <button id="myTeamFormationApply" type="button" class="formation-apply-btn">Apply</button>
-            <button id="myTeamFormationCancel" type="button" class="formation-cancel-btn">Cancel</button>
-          </div>
-        </div>
       </div>
       <div class="lifecycle-controls">
         <button id="lifecycleToggle" type="button" class="lifecycle-toggle">Cycle Management Mode</button>
@@ -80,6 +71,23 @@
       <div class="season-actions">
         <button id="signupCancel" type="button" class="ghost">Cancel</button>
         <button id="signupApply" type="button">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="myTeamFormationEditor" class="season-modal" hidden>
+    <div id="myTeamFormationBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog" role="dialog" aria-modal="true" aria-labelledby="myTeamFormationTitle">
+      <div class="season-head">
+        <h2 id="myTeamFormationTitle">Formation</h2>
+        <button id="myTeamFormationCancel" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <label class="label" for="myTeamFormationSelect">Choose Formation</label>
+      <select id="myTeamFormationSelect">
+        <option value="">Not selected</option>
+      </select>
+      <div class="season-actions">
+        <button id="myTeamFormationApply" type="button">Apply</button>
       </div>
     </div>
   </div>
