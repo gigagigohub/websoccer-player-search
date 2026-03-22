@@ -105,11 +105,20 @@ function formatFormationYearLabel(year, stride) {
   return String(y);
 }
 
+function formationMetaId(lineupId = cloudConfig?.lineupKey) {
+  const id = String(lineupId || "").trim();
+  return id ? `${id}__meta` : "";
+}
+
+function normalizeFormationId(v) {
+  const n = Number(v);
+  return Number.isInteger(n) && n > 0 ? n : null;
+}
+
 function loadSelectedFormationId() {
   const key = cloudConfig?.lineupKey ? `${MYTEAM_FORMATION_STORAGE_KEY}:${cloudConfig.lineupKey}` : MYTEAM_FORMATION_STORAGE_KEY;
   const raw = String(localStorage.getItem(key) || "").trim();
-  const id = Number(raw);
-  selectedFormationId = Number.isInteger(id) && id > 0 ? id : null;
+  selectedFormationId = normalizeFormationId(raw);
 }
 
 function saveSelectedFormationId() {
@@ -174,11 +183,18 @@ function closeFormationEditor() {
   els.myTeamFormationEditor.hidden = true;
 }
 
-function applyFormationFromSelect() {
+async function applyFormationFromSelect() {
   if (!els.myTeamFormationSelect) return;
   const id = Number(els.myTeamFormationSelect.value || 0);
-  selectedFormationId = Number.isInteger(id) && id > 0 ? id : null;
+  selectedFormationId = normalizeFormationId(id);
   saveSelectedFormationId();
+  if (hasCloudConfig()) {
+    try {
+      await saveCloudFormationId();
+    } catch (_) {
+      window.alert("フォーメーションのクラウド保存に失敗しました。");
+    }
+  }
   renderFormationCurrent();
   renderLineup();
   closeFormationEditor();
@@ -374,6 +390,24 @@ async function loadCloudLineup() {
   return true;
 }
 
+async function loadCloudFormationId() {
+  const metaId = formationMetaId();
+  if (!metaId) return false;
+  const params = new URLSearchParams({
+    select: "lineup_json",
+    lineup_id: `eq.${metaId}`,
+    limit: "1",
+  });
+  const rows = await supabaseRequest(`${SUPABASE_TABLE}?${params.toString()}`, {
+    method: "GET",
+  });
+  if (!Array.isArray(rows) || !rows.length) return false;
+  const remote = rows[0]?.lineup_json;
+  selectedFormationId = normalizeFormationId(remote?.formationId);
+  saveSelectedFormationId();
+  return selectedFormationId != null;
+}
+
 async function cloudLineupExists(lineupId) {
   const id = String(lineupId || "").trim();
   if (!id) return false;
@@ -403,7 +437,26 @@ async function saveCloudLineup() {
   });
 }
 
-async function cloudDeleteLineupById(lineupId) {
+async function saveCloudFormationId() {
+  const metaId = formationMetaId();
+  if (!metaId) return;
+  const payload = {
+    lineup_id: metaId,
+    lineup_json: {
+      formationId: normalizeFormationId(selectedFormationId),
+    },
+    updated_at: new Date().toISOString(),
+  };
+  await supabaseRequest(`${SUPABASE_TABLE}?on_conflict=lineup_id`, {
+    method: "POST",
+    headers: {
+      Prefer: "resolution=merge-duplicates,return=representation",
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+async function cloudDeleteLineupById(lineupId, required = true) {
   const key = String(lineupId || "").trim();
   if (!key) return;
   const params = new URLSearchParams({
@@ -416,7 +469,7 @@ async function cloudDeleteLineupById(lineupId) {
     },
   });
   const deletedCount = Array.isArray(rows) ? rows.length : 0;
-  if (deletedCount < 1) {
+  if (required && deletedCount < 1) {
     throw new Error("delete_not_applied");
   }
 }
@@ -1247,8 +1300,8 @@ async function init() {
     });
   }
   if (els.myTeamFormationApply) {
-    els.myTeamFormationApply.addEventListener("click", () => {
-      applyFormationFromSelect();
+    els.myTeamFormationApply.addEventListener("click", async () => {
+      await applyFormationFromSelect();
     });
   }
   if (els.myTeamFormationCancel) {
@@ -1337,7 +1390,9 @@ async function init() {
         }
         lineup = normalizeLineupArray(lineup);
         await saveCloudLineup();
+        await saveCloudFormationId();
         await cloudDeleteLineupById(oldKey);
+        await cloudDeleteLineupById(formationMetaId(oldKey), false);
         saveLineupLocal();
         renderMyTeamMeta();
         closeMyteamSettingModal();
@@ -1360,6 +1415,7 @@ async function init() {
       if (!ok) return;
       try {
         await cloudDeleteLineupById(key);
+        await cloudDeleteLineupById(formationMetaId(key), false);
         lineup = Array.from({ length: LINEUP_SIZE }, () => null);
         saveLineupLocal();
         logoutTeamId();
@@ -1402,6 +1458,7 @@ async function init() {
   if (els.myTeamTarget) els.myTeamTarget.textContent = "";
   try {
     await loadCloudLineup();
+    await loadCloudFormationId();
   } catch (e) {
     if (els.myTeamTarget) els.myTeamTarget.textContent = "クラウド読込に失敗しました";
   }
