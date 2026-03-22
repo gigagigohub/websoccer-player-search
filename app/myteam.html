@@ -28,9 +28,19 @@
       </div>
       <div class="formation-select-row">
         <label class="label" for="myTeamFormationSelect">Using Formation</label>
-        <select id="myTeamFormationSelect">
-          <option value="">Not selected</option>
-        </select>
+        <div class="formation-current-row">
+          <button id="myTeamFormationCurrent" type="button" class="formation-current-btn">Not selected</button>
+          <button id="myTeamFormationChangeButton" type="button" class="formation-change-btn">Change</button>
+        </div>
+        <div id="myTeamFormationEditor" class="formation-editor" hidden>
+          <select id="myTeamFormationSelect">
+            <option value="">Not selected</option>
+          </select>
+          <div class="formation-editor-actions">
+            <button id="myTeamFormationApply" type="button" class="formation-apply-btn">Apply</button>
+            <button id="myTeamFormationCancel" type="button" class="formation-cancel-btn">Cancel</button>
+          </div>
+        </div>
       </div>
     </section>
 

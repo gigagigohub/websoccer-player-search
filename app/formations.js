@@ -946,6 +946,15 @@ function closeFormationModal() {
   els.formationModal.hidden = true;
 }
 
+function tryOpenFormationFromQuery() {
+  const params = new URLSearchParams(window.location.search || "");
+  const targetId = Number(params.get("openFormationId") || 0);
+  if (!Number.isInteger(targetId) || targetId <= 0) return;
+  const f = formations.find((x) => Number(x?.id) === targetId);
+  if (!f) return;
+  openFormationModal(f);
+}
+
 function openSlotModal(slot) {
   if (!currentFormation || !els.slotModal || !els.slotTitle || !els.slotDetail) return;
   const allRows = currentFormation.slotStats?.[String(slot)] || [];
@@ -1150,6 +1159,7 @@ async function init() {
   buildCoachFilter();
   updateMenuState();
   renderList();
+  tryOpenFormationFromQuery();
 }
 
 init().catch((e) => {

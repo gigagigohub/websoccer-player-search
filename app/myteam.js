@@ -43,7 +43,12 @@ const els = {
   lifecycleToggle: document.querySelector("#lifecycleToggle"),
   advanceSeasonButton: document.querySelector("#advanceSeasonButton"),
   rewindSeasonButton: document.querySelector("#rewindSeasonButton"),
+  myTeamFormationCurrent: document.querySelector("#myTeamFormationCurrent"),
+  myTeamFormationChangeButton: document.querySelector("#myTeamFormationChangeButton"),
+  myTeamFormationEditor: document.querySelector("#myTeamFormationEditor"),
   myTeamFormationSelect: document.querySelector("#myTeamFormationSelect"),
+  myTeamFormationApply: document.querySelector("#myTeamFormationApply"),
+  myTeamFormationCancel: document.querySelector("#myTeamFormationCancel"),
   emptySlotModal: document.querySelector("#emptySlotModal"),
   emptySlotBackdrop: document.querySelector("#emptySlotBackdrop"),
   emptySlotClose: document.querySelector("#emptySlotClose"),
@@ -71,6 +76,7 @@ let lifecycleModeEnabled = false;
 const cardViewModeById = new Map();
 let formations = [];
 let selectedFormationId = null;
+let isFormationEditorOpen = false;
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -136,6 +142,53 @@ function buildFormationOptions() {
     selectedFormationId = null;
     saveSelectedFormationId();
   }
+  renderFormationCurrent();
+}
+
+function renderFormationCurrent() {
+  if (!els.myTeamFormationCurrent) return;
+  if (!Number.isInteger(selectedFormationId) || selectedFormationId <= 0) {
+    els.myTeamFormationCurrent.textContent = "Not selected";
+    return;
+  }
+  const f = formations.find((x) => Number(x?.id) === selectedFormationId);
+  if (!f) {
+    els.myTeamFormationCurrent.textContent = "Not selected";
+    return;
+  }
+  const year = formatFormationYearLabel(f?.year, f?.stride);
+  els.myTeamFormationCurrent.textContent = `${f?.name || `Formation ${selectedFormationId}`}${year ? ` ${year}` : ""}`;
+}
+
+function openFormationEditor() {
+  if (!els.myTeamFormationEditor || !els.myTeamFormationSelect) return;
+  isFormationEditorOpen = true;
+  els.myTeamFormationEditor.hidden = false;
+  const exists = formations.some((f) => Number(f?.id) === selectedFormationId);
+  els.myTeamFormationSelect.value = exists ? String(selectedFormationId) : "";
+}
+
+function closeFormationEditor() {
+  if (!els.myTeamFormationEditor) return;
+  isFormationEditorOpen = false;
+  els.myTeamFormationEditor.hidden = true;
+}
+
+function applyFormationFromSelect() {
+  if (!els.myTeamFormationSelect) return;
+  const id = Number(els.myTeamFormationSelect.value || 0);
+  selectedFormationId = Number.isInteger(id) && id > 0 ? id : null;
+  saveSelectedFormationId();
+  renderFormationCurrent();
+  renderLineup();
+  closeFormationEditor();
+}
+
+function openSelectedFormationDetail() {
+  if (!Number.isInteger(selectedFormationId) || selectedFormationId <= 0) return;
+  const url = new URL("./formations.html", window.location.href);
+  url.searchParams.set("openFormationId", String(selectedFormationId));
+  window.location.href = url.toString();
 }
 
 function findCcSlotStat(formationId, slot, playerId) {
@@ -1165,10 +1218,33 @@ async function init() {
   }
   if (els.myTeamFormationSelect) {
     els.myTeamFormationSelect.addEventListener("change", () => {
-      const id = Number(els.myTeamFormationSelect.value || 0);
-      selectedFormationId = Number.isInteger(id) && id > 0 ? id : null;
-      saveSelectedFormationId();
-      renderLineup();
+      // Keep this for keyboard users. Final apply is via Apply button.
+      if (!isFormationEditorOpen) return;
+      renderFormationCurrent();
+    });
+  }
+  if (els.myTeamFormationChangeButton) {
+    els.myTeamFormationChangeButton.addEventListener("click", () => {
+      if (isFormationEditorOpen) {
+        closeFormationEditor();
+      } else {
+        openFormationEditor();
+      }
+    });
+  }
+  if (els.myTeamFormationApply) {
+    els.myTeamFormationApply.addEventListener("click", () => {
+      applyFormationFromSelect();
+    });
+  }
+  if (els.myTeamFormationCancel) {
+    els.myTeamFormationCancel.addEventListener("click", () => {
+      closeFormationEditor();
+    });
+  }
+  if (els.myTeamFormationCurrent) {
+    els.myTeamFormationCurrent.addEventListener("click", () => {
+      openSelectedFormationDetail();
     });
   }
   document.addEventListener("click", (e) => {
@@ -1298,6 +1374,8 @@ async function init() {
     formations = [];
   }
   buildFormationOptions();
+  closeFormationEditor();
+  renderFormationCurrent();
 
   if (!hasCloudConfig()) {
     if (els.myTeamTarget) els.myTeamTarget.textContent = "TeamIDが未設定です（先にLoginしてください）";
