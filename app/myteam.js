@@ -3,7 +3,7 @@ const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-23 22:58 JST";
+const APP_UPDATED_AT_JST = "2026-03-23 23:31 JST";
 const LINEUP_SIZE = 11;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
@@ -637,8 +637,33 @@ function getCategory(player) {
   return "NR";
 }
 
+function latestHistoryStart(player, key) {
+  const rows = Array.isArray(player?.[key]) ? player[key] : [];
+  let latest = "";
+  rows.forEach((row) => {
+    const s = String(row?.start || "");
+    if (s > latest) latest = s;
+  });
+  return latest;
+}
+
+function badgeCategoryByRecency(player) {
+  const category = getCategory(player);
+  if (category !== "CM/SS") return category;
+  const ssLatest = latestHistoryStart(player, "scoutHistory");
+  const cmLatest = latestHistoryStart(player, "cmHistory");
+  if (cmLatest && !ssLatest) return "CM";
+  if (ssLatest && !cmLatest) return "SS";
+  if (!cmLatest && !ssLatest) return "SS";
+  return cmLatest > ssLatest ? "CM" : "SS";
+}
+
+function typeLabelByPlayer(player) {
+  return badgeCategoryByRecency(player);
+}
+
 function typeClassByPlayer(player) {
-  const typeLabel = getCategory(player);
+  const typeLabel = typeLabelByPlayer(player);
   if (typeLabel === "NR") {
     const rate = Number(player?.rate);
     if (rate === 7) return "cat-nr-r7";
@@ -879,7 +904,7 @@ function successorSummaryHtml(entry, currentRemaining) {
   const sourceText = successor?.source ? `<span class="lineup-successor-source">${successor.source}</span>` : "";
   const pos = (successorPlayer.position || "-").toUpperCase();
   const posClass = positionClass(pos);
-  const typeLabel = getCategory(successorPlayer);
+  const typeLabel = typeLabelByPlayer(successorPlayer);
   const typeClass = typeClassByPlayer(successorPlayer);
 
   return `
@@ -977,7 +1002,7 @@ function renderLineup() {
       : `<span class="badge lineup-season">${seasonText}</span>`;
     const pos = (player?.position || "-").toUpperCase();
     const posClass = positionClass(pos);
-    const typeLabel = player ? getCategory(player) : "-";
+    const typeLabel = player ? typeLabelByPlayer(player) : "-";
     const typeClass = player ? typeClassByPlayer(player) : "cat-na";
     const imageHtml = player
       ? `<img loading="lazy" src="./images/chara/players/static/${player.id}.gif" alt="${player.name}" />`
@@ -1235,7 +1260,7 @@ function playerCardHtml(player, season) {
     `;
   };
 
-  const typeLabel = getCategory(player);
+  const typeLabel = typeLabelByPlayer(player);
   const typeClass = typeClassByPlayer(player);
   const pos = (player.position || "-").toUpperCase();
   const posClass = positionClass(pos);

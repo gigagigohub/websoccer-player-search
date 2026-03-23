@@ -29,8 +29,8 @@ const RENDER_BATCH_SIZE = 200;
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-23T23:22:59+09:00";
-const APP_UPDATED_AT_JST = "2026-03-23 23:22 JST";
+const APP_UPDATED_AT_ISO = "2026-03-23T23:31:39+09:00";
+const APP_UPDATED_AT_JST = "2026-03-23 23:31 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function metricLabel(metric) {
@@ -597,8 +597,7 @@ function successorSummaryHtml(entry, currentRemaining) {
   const remain = getRemainingPeakPeriods(successorPlayer, evalSeason);
   const pos = (successorPlayer.position || "-").toUpperCase();
   const posClass = positionClass(pos);
-  const typeLabel = getCategory(successorPlayer);
-  const typeClass = typeClassByPlayer(successorPlayer);
+  const typeBadges = categoryBadgesHtmlByPlayer(successorPlayer);
   return `
     <div class="lineup-successor">
       <div class="lineup-successor-arrow" aria-hidden="true">▶</div>
@@ -608,7 +607,7 @@ function successorSummaryHtml(entry, currentRemaining) {
       <div class="lineup-successor-meta">
         <div class="lineup-badges">
           <span class="badge pos-badge ${posClass}">${pos}</span>
-          <span class="badge type-badge ${typeClass}">${typeLabel}</span>
+          ${typeBadges}
           ${remainingBadgeHtml(remain)}
         </div>
         <span class="slot-name">${successorPlayer.name}</span>
@@ -669,8 +668,9 @@ function renderLineupSlots() {
     const disabledByModeRule = lineupRegisterMode === "successor" && !hasPlayer;
     const pos = (player?.position || "-").toUpperCase();
     const posClass = positionClass(pos);
-    const typeLabel = player ? getCategory(player) : "-";
-    const typeClass = player ? typeClassByPlayer(player) : "cat-na";
+    const typeBadges = player
+      ? categoryBadgesHtmlByPlayer(player)
+      : `<span class="badge type-badge cat-na">-</span>`;
     const imageHtml = player
       ? `<img loading="lazy" src="./images/chara/players/static/${player.id}.gif" alt="${player.name}" />`
       : `<div class="lineup-empty-thumb"></div>`;
@@ -699,7 +699,7 @@ function renderLineupSlots() {
           <div class="lineup-player-meta">
             <div class="lineup-badges">
               <span class="badge pos-badge ${posClass}">${pos}</span>
-              <span class="badge type-badge ${typeClass}">${typeLabel}</span>
+              ${typeBadges}
               <span class="badge lineup-season">${seasonText}</span>
             </div>
             <span class="slot-name">${name}</span>
@@ -928,6 +928,15 @@ function typeClassByPlayer(player) {
   if (typeLabel === "CM/SS") return "cat-cmss";
   if (typeLabel === "CC") return "cat-cc";
   return "cat-na";
+}
+
+function categoryBadgesHtmlByPlayer(player) {
+  const typeLabel = getCategory(player);
+  if (typeLabel === "CM/SS") {
+    return `<span class="badge type-badge cat-ss">SS</span><span class="badge type-badge cat-cm">CM</span>`;
+  }
+  const typeClass = typeClassByPlayer(player);
+  return `<span class="badge type-badge ${typeClass}">${typeLabel}</span>`;
 }
 
 function formatEventPeriod(start, end) {
@@ -1555,7 +1564,7 @@ function cardHtml(player) {
   const pLeft = `${cx - r * nLeft},${cy}`;
   const areaPoints = `${pTop} ${pRight} ${pBottom} ${pLeft}`;
   const typeLabel = getCategory(player);
-  const typeClass = typeClassByPlayer(player);
+  const typeBadges = categoryBadgesHtmlByPlayer(player);
   const hasScoutHistory = Array.isArray(player.scoutHistory) && player.scoutHistory.length > 0;
   const hasCMHistory = Array.isArray(player.cmHistory) && player.cmHistory.length > 0;
   const hasAnyListHistory = hasScoutHistory || hasCMHistory;
@@ -1612,7 +1621,7 @@ function cardHtml(player) {
         <div class="card-head-main">
           <h3 class="card-name">
             <span class="badge pos-badge ${posClass}">${pos}</span>
-            <span class="badge type-badge ${typeClass}">${typeLabel}</span>
+            ${typeBadges}
             <span>${player.name}</span>
           </h3>
         </div>

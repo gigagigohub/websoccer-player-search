@@ -3,7 +3,7 @@ const SUPABASE_TABLE = "lineup_states";
 const LINEUP_SIZE = 11;
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-23 22:58 JST";
+const APP_UPDATED_AT_JST = "2026-03-23 23:31 JST";
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織",
@@ -319,6 +319,27 @@ function normalizeCategory(value) {
   return c || "-";
 }
 
+function latestHistoryStart(player, key) {
+  const rows = Array.isArray(player?.[key]) ? player[key] : [];
+  let latest = "";
+  rows.forEach((row) => {
+    const s = String(row?.start || "");
+    if (s > latest) latest = s;
+  });
+  return latest;
+}
+
+function badgeCategoryByRecency(player, fallbackCategory) {
+  const category = normalizeCategory(fallbackCategory);
+  if (category !== "CM/SS") return category;
+  const ssLatest = latestHistoryStart(player, "scoutHistory");
+  const cmLatest = latestHistoryStart(player, "cmHistory");
+  if (cmLatest && !ssLatest) return "CM";
+  if (ssLatest && !cmLatest) return "SS";
+  if (!cmLatest && !ssLatest) return "SS";
+  return cmLatest > ssLatest ? "CM" : "SS";
+}
+
 function getCcCategoryLabelByPlayerId(playerId) {
   const id = Number(playerId);
   if (!Number.isInteger(id)) return "-";
@@ -343,7 +364,9 @@ function categoryBadgeClass(category, rate = null) {
 
 function categoryBadgeHtmlByPlayerId(playerId) {
   const id = Number(playerId);
-  const category = getCcCategoryLabelByPlayerId(id);
+  const rawCategory = getCcCategoryLabelByPlayerId(id);
+  const player = playersById.get(id);
+  const category = badgeCategoryByRecency(player, rawCategory);
   const rate = Number(playerRateById.get(id));
   const c = normalizeCategory(category);
   return `<span class="badge type-badge ${categoryBadgeClass(c, rate)}">${c}</span>`;
@@ -354,8 +377,12 @@ function getCategory(player) {
   return getCcCategoryLabelByPlayerId(player?.id);
 }
 
+function typeLabelByPlayer(player) {
+  return badgeCategoryByRecency(player, getCategory(player));
+}
+
 function typeClassByPlayer(player) {
-  const typeLabel = normalizeCategory(getCategory(player));
+  const typeLabel = normalizeCategory(typeLabelByPlayer(player));
   if (typeLabel === "NR") {
     const rate = Number(player?.rate);
     return categoryBadgeClass(typeLabel, rate);
@@ -858,7 +885,7 @@ function playerCardHtml(player) {
       </div>
     `;
   };
-  const typeLabel = getCategory(player);
+  const typeLabel = typeLabelByPlayer(player);
   const typeClass = typeClassByPlayer(player);
   const pos = (player.position || "-").toUpperCase();
   const posClass = positionClass(pos);
