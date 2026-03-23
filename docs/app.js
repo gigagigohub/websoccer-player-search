@@ -29,8 +29,8 @@ const RENDER_BATCH_SIZE = 200;
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-23T22:54:17+09:00";
-const APP_UPDATED_AT_JST = "2026-03-23 22:54 JST";
+const APP_UPDATED_AT_ISO = "2026-03-23T22:58:54+09:00";
+const APP_UPDATED_AT_JST = "2026-03-23 22:58 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function metricLabel(metric) {
@@ -1587,6 +1587,7 @@ function rerenderSingleCard(playerId) {
 function render() {
   const conditions = getConditions();
   const filtered = filterPlayers(conditions);
+  const scoutEventFilter = Number(els.scoutEventFilter?.value || 0);
   const categoryRank = {
     "NR": 0,
     "CC": 1,
@@ -1596,12 +1597,29 @@ function render() {
     "NA": 4,
     "RT": 99,
   };
-  filtered.sort((a, b) => {
-    const ar = categoryRank[getCategory(a)] ?? 50;
-    const br = categoryRank[getCategory(b)] ?? 50;
-    if (ar !== br) return ar - br;
-    return (b.bestTotal - a.bestTotal) || a.name.localeCompare(b.name, "ja");
-  });
+  if (scoutEventFilter > 0) {
+    const scout = scoutsByEventId.get(scoutEventFilter);
+    const orderMap = new Map(
+      (Array.isArray(scout?.playerIds) ? scout.playerIds : [])
+        .map((id, idx) => [Number(id), idx]),
+    );
+    filtered.sort((a, b) => {
+      const ai = orderMap.has(a.id) ? orderMap.get(a.id) : Number.MAX_SAFE_INTEGER;
+      const bi = orderMap.has(b.id) ? orderMap.get(b.id) : Number.MAX_SAFE_INTEGER;
+      if (ai !== bi) return ai - bi;
+      const ar = categoryRank[getCategory(a)] ?? 50;
+      const br = categoryRank[getCategory(b)] ?? 50;
+      if (ar !== br) return ar - br;
+      return (b.bestTotal - a.bestTotal) || a.name.localeCompare(b.name, "ja");
+    });
+  } else {
+    filtered.sort((a, b) => {
+      const ar = categoryRank[getCategory(a)] ?? 50;
+      const br = categoryRank[getCategory(b)] ?? 50;
+      if (ar !== br) return ar - br;
+      return (b.bestTotal - a.bestTotal) || a.name.localeCompare(b.name, "ja");
+    });
+  }
   currentFilteredPlayers = filtered;
   renderedCount = 0;
   els.results.innerHTML = "";
