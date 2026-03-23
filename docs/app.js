@@ -29,8 +29,8 @@ const RENDER_BATCH_SIZE = 200;
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-23T23:33:28+09:00";
-const APP_UPDATED_AT_JST = "2026-03-23 23:33 JST";
+const APP_UPDATED_AT_ISO = "2026-03-23T23:42:41+09:00";
+const APP_UPDATED_AT_JST = "2026-03-23 23:42 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function metricLabel(metric) {
@@ -1652,6 +1652,7 @@ function rerenderSingleCard(playerId) {
 function render() {
   const conditions = getConditions();
   const filtered = filterPlayers(conditions);
+  const hasIdCondition = conditions.some((c) => c?.metric === "ID");
   const scoutEventFilter = Number(els.scoutEventFilter?.value || 0);
   const cmEventFilter = Number(els.cmEventFilter?.value || 0);
   const categoryRank = {
@@ -1663,7 +1664,9 @@ function render() {
     "NA": 4,
     "RT": 99,
   };
-  if (cmEventFilter > 0) {
+  if (hasIdCondition) {
+    filtered.sort((a, b) => Number(a.id || 0) - Number(b.id || 0));
+  } else if (cmEventFilter > 0) {
     const event = cmEventsByEventId.get(cmEventFilter);
     const orderMap = new Map(
       (Array.isArray(event?.playerIds) ? event.playerIds : [])
