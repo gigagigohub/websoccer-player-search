@@ -760,6 +760,26 @@ button.ghost {
   padding: 0;
 }
 
+.scout-list-toggle {
+  position: absolute;
+  top: 6px;
+  right: 60px;
+  width: 48px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1px solid #7d6abc;
+  background: linear-gradient(180deg, #8b76d8 0%, #6a56c2 100%);
+  color: #f8f6ff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+}
+
+.scout-list-toggle:disabled {
+  opacity: 0.45;
+}
+
 .card-tabs {
   position: absolute;
   bottom: 8px;
@@ -1912,6 +1932,42 @@ button.ghost {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
+}
+
+.scout-list-items {
+  margin-top: 8px;
+  max-height: min(56vh, 420px);
+  overflow: auto;
+  display: grid;
+  gap: 6px;
+}
+
+.scout-list-item {
+  border: 1px solid #324667;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #1a2840 0%, #142036 100%);
+  color: #e3ecff;
+  text-align: left;
+  padding: 8px 10px;
+  display: grid;
+  gap: 2px;
+}
+
+.scout-list-name {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #f1f4ff;
+}
+
+.scout-list-period {
+  font-size: 0.73rem;
+  color: #a8bbdf;
+}
+
+.scout-list-empty {
+  color: #a8bbdf;
+  font-size: 0.84rem;
+  padding: 6px 2px;
 }
 
 .source-custom-wrap {

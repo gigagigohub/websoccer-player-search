@@ -29,8 +29,8 @@ const RENDER_BATCH_SIZE = 200;
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-22T23:43:35+09:00";
-const APP_UPDATED_AT_JST = "2026-03-22 23:43 JST";
+const APP_UPDATED_AT_ISO = "2026-03-23T22:18:24+09:00";
+const APP_UPDATED_AT_JST = "2026-03-23 22:18 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function metricLabel(metric) {
@@ -105,6 +105,11 @@ const els = {
   renameLineupKey: document.querySelector("#renameLineupKey"),
   renameIdApply: document.querySelector("#renameIdApply"),
   deleteIdApply: document.querySelector("#deleteIdApply"),
+  scoutListModal: document.querySelector("#scoutListModal"),
+  scoutListBackdrop: document.querySelector("#scoutListBackdrop"),
+  scoutListClose: document.querySelector("#scoutListClose"),
+  scoutListTarget: document.querySelector("#scoutListTarget"),
+  scoutListItems: document.querySelector("#scoutListItems"),
   successorSourceModal: document.querySelector("#successorSourceModal"),
   successorSourceBackdrop: document.querySelector("#successorSourceBackdrop"),
   successorSourceClose: document.querySelector("#successorSourceClose"),
@@ -120,6 +125,8 @@ const els = {
 };
 
 let players = [];
+let scouts = [];
+const scoutsByEventId = new Map();
 const cardViewModeById = new Map();
 let currentFilteredPlayers = [];
 let renderedCount = 0;
@@ -880,6 +887,72 @@ function typeClassByPlayer(player) {
   return "cat-na";
 }
 
+function formatScoutPeriod(start, end) {
+  const normalize = (s) => {
+    const raw = String(s || "").trim();
+    if (!raw) return "";
+    return raw.slice(0, 10);
+  };
+  const s = normalize(start);
+  const e = normalize(end);
+  if (s && e) return `${s} - ${e}`;
+  if (s) return s;
+  if (e) return e;
+  return "-";
+}
+
+function closeScoutListModal() {
+  if (!els.scoutListModal) return;
+  els.scoutListModal.hidden = true;
+}
+
+function renderScoutResultsByEvent(eventId) {
+  const scout = scoutsByEventId.get(eventId);
+  if (!scout) return;
+  const playerById = new Map(players.map((p) => [p.id, p]));
+  const ordered = (Array.isArray(scout.playerIds) ? scout.playerIds : [])
+    .map((id) => Number(id))
+    .map((id) => playerById.get(id))
+    .filter(Boolean);
+  currentFilteredPlayers = ordered;
+  renderedCount = 0;
+  els.results.innerHTML = "";
+  renderNextBatch(true);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function openScoutListModal(playerId) {
+  if (!els.scoutListModal || !els.scoutListItems) return;
+  const player = players.find((p) => p.id === playerId);
+  if (!player) return;
+  const history = Array.isArray(player.scoutHistory) ? [...player.scoutHistory] : [];
+  history.sort((a, b) => {
+    const as = String(a?.start || "");
+    const bs = String(b?.start || "");
+    if (as !== bs) return bs.localeCompare(as);
+    return Number(b?.eventId || 0) - Number(a?.eventId || 0);
+  });
+  if (els.scoutListTarget) {
+    els.scoutListTarget.textContent = `${player.name} のスカウト履歴`;
+  }
+  if (!history.length) {
+    els.scoutListItems.innerHTML = `<div class="scout-list-empty">履歴がありません</div>`;
+  } else {
+    els.scoutListItems.innerHTML = history.map((h) => {
+      const eventId = Number(h?.eventId || 0);
+      const name = String(h?.name || `Scout ${eventId}`);
+      const period = formatScoutPeriod(h?.start, h?.end);
+      return `
+        <button type="button" class="scout-list-item" data-event-id="${eventId}">
+          <span class="scout-list-name">${name}</span>
+          <span class="scout-list-period">${period}</span>
+        </button>
+      `;
+    }).join("");
+  }
+  els.scoutListModal.hidden = false;
+}
+
 function positionClass(position) {
   const pos = (position || "-").toUpperCase();
   if (pos === "GK") return "pos-gk";
@@ -1350,6 +1423,8 @@ function cardHtml(player) {
   const areaPoints = `${pTop} ${pRight} ${pBottom} ${pLeft}`;
   const typeLabel = getCategory(player);
   const typeClass = typeClassByPlayer(player);
+  const hasScoutHistory = Array.isArray(player.scoutHistory) && player.scoutHistory.length > 0;
+  const showScoutButton = typeLabel === "SS";
   const pos = (player.position || "-").toUpperCase();
   const posClass = positionClass(pos);
   const peakBlock = viewMode === 0 ? `<div class="peak-periods peak-in-body">${peakHtml}</div>` : "";
@@ -1396,6 +1471,7 @@ function cardHtml(player) {
     <article class="card ${cardStateClass} mode-${viewMode}" data-player-id="${player.id}">
       <div class="card-top">
         ${cardTabsHtml(player.id, viewMode)}
+        ${showScoutButton ? `<button type="button" class="scout-list-toggle" data-player-id="${player.id}" aria-label="スカウト履歴" ${hasScoutHistory ? "" : "disabled"}>List</button>` : ""}
         <button type="button" class="lineup-toggle" data-player-id="${player.id}" aria-label="スタメン登録">Add</button>
         <span class="card-id">ID: ${player.id}</span>
         <div class="card-head-main">
@@ -1601,6 +1677,14 @@ async function init() {
     hideNameSuggest();
   });
   els.results.addEventListener("click", (e) => {
+    const scoutBtn = e.target.closest(".scout-list-toggle");
+    if (scoutBtn) {
+      const scoutId = Number(scoutBtn.dataset.playerId);
+      if (Number.isInteger(scoutId)) {
+        openScoutListModal(scoutId);
+      }
+      return;
+    }
     const lineupBtn = e.target.closest(".lineup-toggle");
     if (lineupBtn) {
       const lineupId = Number(lineupBtn.dataset.playerId);
@@ -1804,6 +1888,22 @@ async function init() {
   if (els.settingClose) {
     els.settingClose.addEventListener("click", closeSettingModal);
   }
+  if (els.scoutListBackdrop) {
+    els.scoutListBackdrop.addEventListener("click", closeScoutListModal);
+  }
+  if (els.scoutListClose) {
+    els.scoutListClose.addEventListener("click", closeScoutListModal);
+  }
+  if (els.scoutListItems) {
+    els.scoutListItems.addEventListener("click", (e) => {
+      const btn = e.target.closest(".scout-list-item");
+      if (!btn) return;
+      const eventId = Number(btn.dataset.eventId);
+      if (!Number.isInteger(eventId)) return;
+      closeScoutListModal();
+      renderScoutResultsByEvent(eventId);
+    });
+  }
   if (els.renameIdApply) {
     els.renameIdApply.addEventListener("click", async () => {
       const oldKey = String(cloudConfig.lineupKey || "").trim();
@@ -1944,6 +2044,10 @@ async function init() {
       closeSettingModal();
       return;
     }
+    if (e.key === "Escape" && els.scoutListModal && !els.scoutListModal.hidden) {
+      closeScoutListModal();
+      return;
+    }
     if (e.key === "Escape" && els.nameSuggest && !els.nameSuggest.hidden) {
       hideNameSuggest();
     }
@@ -1952,6 +2056,12 @@ async function init() {
   const res = await fetch("./data.json");
   const data = await res.json();
   players = data.players || [];
+  scouts = Array.isArray(data.scouts) ? data.scouts : [];
+  scoutsByEventId.clear();
+  scouts.forEach((s) => {
+    const eventId = Number(s?.eventId || 0);
+    if (Number.isInteger(eventId)) scoutsByEventId.set(eventId, s);
+  });
   appUpdatedAtJst = APP_UPDATED_AT_JST;
   syncAptitudeAreaLabel();
   syncNRAllChip();
