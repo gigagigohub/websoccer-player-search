@@ -20,6 +20,18 @@ body {
   color: var(--text);
 }
 
+html.modal-scroll-lock,
+body.modal-scroll-lock {
+  overflow: hidden;
+}
+
+body.modal-scroll-lock {
+  position: fixed;
+  width: 100%;
+  left: 0;
+  right: 0;
+}
+
 body::before {
   content: "";
   position: absolute;

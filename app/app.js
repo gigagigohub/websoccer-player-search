@@ -29,8 +29,8 @@ const RENDER_BATCH_SIZE = 200;
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-23T22:30:16+09:00";
-const APP_UPDATED_AT_JST = "2026-03-23 22:30 JST";
+const APP_UPDATED_AT_ISO = "2026-03-23T22:35:15+09:00";
+const APP_UPDATED_AT_JST = "2026-03-23 22:35 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function metricLabel(metric) {
@@ -141,6 +141,43 @@ let startingLineup = Array.from({ length: LINEUP_SIZE }, () => null);
 let lineupSlotsLocked = false;
 let lineupRegisterMode = "starter";
 let cloudConfig = { url: "", anonKey: "", lineupKey: "" };
+let modalScrollLockY = 0;
+let modalScrollLocked = false;
+
+function setModalScrollLocked(locked) {
+  const root = document.documentElement;
+  const body = document.body;
+  if (!root || !body) return;
+  if (locked) {
+    if (modalScrollLocked) return;
+    modalScrollLockY = window.scrollY || window.pageYOffset || 0;
+    body.style.top = `-${modalScrollLockY}px`;
+    root.classList.add("modal-scroll-lock");
+    body.classList.add("modal-scroll-lock");
+    modalScrollLocked = true;
+    return;
+  }
+  if (!modalScrollLocked) return;
+  root.classList.remove("modal-scroll-lock");
+  body.classList.remove("modal-scroll-lock");
+  body.style.top = "";
+  window.scrollTo(0, modalScrollLockY);
+  modalScrollLocked = false;
+}
+
+function refreshModalScrollLock() {
+  const hasOpenModal = !!document.querySelector(
+    '[id$="Modal"]:not([hidden]), .season-modal:not([hidden]), .lineup-modal:not([hidden])'
+  );
+  setModalScrollLocked(hasOpenModal);
+}
+
+function setupModalScrollLock() {
+  const modals = [...document.querySelectorAll('[id$="Modal"], .season-modal, .lineup-modal')];
+  const observer = new MutationObserver(() => refreshModalScrollLock());
+  modals.forEach((m) => observer.observe(m, { attributes: true, attributeFilter: ["hidden"] }));
+  refreshModalScrollLock();
+}
 
 function normalizeSeasonInput(input) {
   const raw = String(input || "").trim();
@@ -1601,6 +1638,7 @@ function renderNextBatch(reset = false) {
 }
 
 async function init() {
+  setupModalScrollLock();
   loadStartingLineup();
   loadCloudConfig();
   setCloudStatus(hasCloudConfig() ? "Cloud: ready" : "Cloud: not configured");
