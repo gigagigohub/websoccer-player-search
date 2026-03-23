@@ -554,6 +554,10 @@ select {
   margin-top: 1em;
 }
 
+.scout-filter-wrap {
+  margin: 6px 0 12px;
+}
+
 .condition-row {
   margin-top: 9px;
   display: grid;

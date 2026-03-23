@@ -29,8 +29,8 @@ const RENDER_BATCH_SIZE = 200;
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-23T22:18:24+09:00";
-const APP_UPDATED_AT_JST = "2026-03-23 22:18 JST";
+const APP_UPDATED_AT_ISO = "2026-03-23T22:30:16+09:00";
+const APP_UPDATED_AT_JST = "2026-03-23 22:30 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function metricLabel(metric) {
@@ -64,6 +64,8 @@ const els = {
   nrGoldOnly: document.querySelector("#nrGoldOnly"),
   nrAllOnly: document.querySelector("#nrAllOnly"),
   ccOnly: document.querySelector("#ccOnly"),
+  scoutFilterWrap: document.querySelector("#scoutFilterWrap"),
+  scoutEventFilter: document.querySelector("#scoutEventFilter"),
   applySearch: document.querySelector("#applySearch"),
   conditions: document.querySelector("#conditions"),
   addCondition: document.querySelector("#addCondition"),
@@ -1143,6 +1145,38 @@ function syncNRAllChip() {
   setCategoryChipActive(els.nrAllOnly, allActive);
 }
 
+function renderScoutEventFilterOptions() {
+  if (!els.scoutEventFilter) return;
+  const current = String(els.scoutEventFilter.value || "");
+  const sorted = [...scouts].sort((a, b) => {
+    const as = String(a?.start || "");
+    const bs = String(b?.start || "");
+    if (as !== bs) return bs.localeCompare(as);
+    return Number(b?.eventId || 0) - Number(a?.eventId || 0);
+  });
+  const options = ['<option value="">ALL</option>'];
+  sorted.forEach((s) => {
+    const eventId = Number(s?.eventId || 0);
+    if (!Number.isInteger(eventId) || eventId <= 0) return;
+    const name = String(s?.name || `Scout ${eventId}`);
+    const period = formatScoutPeriod(s?.start, s?.end);
+    options.push(`<option value="${eventId}">${name} (${period})</option>`);
+  });
+  els.scoutEventFilter.innerHTML = options.join("");
+  if (current) els.scoutEventFilter.value = current;
+}
+
+function updateScoutFilterVisibility() {
+  if (!els.scoutFilterWrap || !els.scoutEventFilter) return;
+  const show = isCategoryChipActive(els.ssOnly);
+  els.scoutFilterWrap.hidden = !show;
+  if (!show) {
+    els.scoutEventFilter.value = "";
+    return;
+  }
+  renderScoutEventFilterOptions();
+}
+
 function filterPlayers(conditions = getConditions()) {
   const query = toHiragana(els.nameQuery.value.trim().toLowerCase());
   const positionFilter = els.positionFilter.value;
@@ -1156,6 +1190,7 @@ function filterPlayers(conditions = getConditions()) {
   const nrGoldOnly = isCategoryChipActive(els.nrGoldOnly);
   const nrAllOnly = isCategoryChipActive(els.nrAllOnly);
   const ccOnly = isCategoryChipActive(els.ccOnly);
+  const scoutEventFilter = Number(els.scoutEventFilter?.value || 0);
 
   return players.filter((player) => {
     const category = getCategory(player);
@@ -1191,6 +1226,13 @@ function filterPlayers(conditions = getConditions()) {
         (cmOnly && (category === "CM" || category === "CM/SS")) ||
         (ccOnly && category === "CC");
       if (!categoryMatched) return false;
+    }
+
+    if (scoutEventFilter > 0) {
+      const scoutHistory = Array.isArray(player.scoutHistory) ? player.scoutHistory : [];
+      if (!scoutHistory.some((x) => Number(x?.eventId || 0) === scoutEventFilter)) {
+        return false;
+      }
     }
 
     if (!conditions.length) {
@@ -1579,7 +1621,9 @@ async function init() {
     els.positionFilter.value = "";
     if (els.aptitudePositionFilter) els.aptitudePositionFilter.value = "";
     if (els.aptitudeIncludeSix) els.aptitudeIncludeSix.checked = false;
+    if (els.scoutEventFilter) els.scoutEventFilter.value = "";
     syncAptitudeAreaLabel();
+    updateScoutFilterVisibility();
   });
   if (els.aptitudeIncludeSix) {
     els.aptitudeIncludeSix.addEventListener("change", syncAptitudeAreaLabel);
@@ -1589,6 +1633,7 @@ async function init() {
       const next = !isCategoryChipActive(els.nrAllOnly);
       [els.nrAllOnly, els.nrWhiteOnly, els.nrBronzeOnly, els.nrSilverOnly, els.nrGoldOnly]
         .forEach((el) => setCategoryChipActive(el, next));
+      updateScoutFilterVisibility();
     });
   }
   [els.nrWhiteOnly, els.nrBronzeOnly, els.nrSilverOnly, els.nrGoldOnly].forEach((el) => {
@@ -1596,12 +1641,14 @@ async function init() {
     el.addEventListener("click", () => {
       setCategoryChipActive(el, !isCategoryChipActive(el));
       syncNRAllChip();
+      updateScoutFilterVisibility();
     });
   });
   [els.ccOnly, els.ssOnly, els.cmOnly].forEach((el) => {
     if (!el) return;
     el.addEventListener("click", () => {
       setCategoryChipActive(el, !isCategoryChipActive(el));
+      updateScoutFilterVisibility();
     });
   });
 
@@ -2065,6 +2112,8 @@ async function init() {
   appUpdatedAtJst = APP_UPDATED_AT_JST;
   syncAptitudeAreaLabel();
   syncNRAllChip();
+  renderScoutEventFilterOptions();
+  updateScoutFilterVisibility();
   renderHeaderMeta();
   els.resultCount.textContent = "0 results";
   els.results.innerHTML = "";
