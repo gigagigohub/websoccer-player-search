@@ -1288,9 +1288,6 @@ function filterPlayers(conditions = getConditions()) {
 
   return players.filter((player) => {
     const category = getCategory(player);
-    if (category === "RT") {
-      return false;
-    }
     const playerName = normalizedPlayerSearchName(player);
     const playerType = toHiragana((player.playType || "").toLowerCase());
     if (query && !playerName.includes(query) && !playerType.includes(query)) {
