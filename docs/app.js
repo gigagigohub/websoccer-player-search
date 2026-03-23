@@ -29,8 +29,8 @@ const RENDER_BATCH_SIZE = 200;
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-23T22:58:54+09:00";
-const APP_UPDATED_AT_JST = "2026-03-23 22:58 JST";
+const APP_UPDATED_AT_ISO = "2026-03-23T23:22:59+09:00";
+const APP_UPDATED_AT_JST = "2026-03-23 23:22 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function metricLabel(metric) {
@@ -66,6 +66,8 @@ const els = {
   ccOnly: document.querySelector("#ccOnly"),
   scoutFilterWrap: document.querySelector("#scoutFilterWrap"),
   scoutEventFilter: document.querySelector("#scoutEventFilter"),
+  cmFilterWrap: document.querySelector("#cmFilterWrap"),
+  cmEventFilter: document.querySelector("#cmEventFilter"),
   applySearch: document.querySelector("#applySearch"),
   conditions: document.querySelector("#conditions"),
   addCondition: document.querySelector("#addCondition"),
@@ -129,6 +131,8 @@ const els = {
 let players = [];
 let scouts = [];
 const scoutsByEventId = new Map();
+let cmEvents = [];
+const cmEventsByEventId = new Map();
 const cardViewModeById = new Map();
 let currentFilteredPlayers = [];
 let renderedCount = 0;
@@ -926,7 +930,7 @@ function typeClassByPlayer(player) {
   return "cat-na";
 }
 
-function formatScoutPeriod(start, end) {
+function formatEventPeriod(start, end) {
   const normalize = (s) => {
     const raw = String(s || "").trim();
     if (!raw) return "";
@@ -945,11 +949,12 @@ function closeScoutListModal() {
   els.scoutListModal.hidden = true;
 }
 
-function renderScoutResultsByEvent(eventId) {
-  const scout = scoutsByEventId.get(eventId);
-  if (!scout) return;
+function renderListResultsByEvent(eventId, source) {
+  const eventMap = source === "cm" ? cmEventsByEventId : scoutsByEventId;
+  const event = eventMap.get(eventId);
+  if (!event) return;
   const playerById = new Map(players.map((p) => [p.id, p]));
-  const ordered = (Array.isArray(scout.playerIds) ? scout.playerIds : [])
+  const ordered = (Array.isArray(event.playerIds) ? event.playerIds : [])
     .map((id) => Number(id))
     .map((id) => playerById.get(id))
     .filter(Boolean);
@@ -964,7 +969,13 @@ function openScoutListModal(playerId) {
   if (!els.scoutListModal || !els.scoutListItems) return;
   const player = players.find((p) => p.id === playerId);
   if (!player) return;
-  const history = Array.isArray(player.scoutHistory) ? [...player.scoutHistory] : [];
+  const scoutHistory = Array.isArray(player.scoutHistory)
+    ? player.scoutHistory.map((h) => ({ ...h, source: "scout" }))
+    : [];
+  const cmHistory = Array.isArray(player.cmHistory)
+    ? player.cmHistory.map((h) => ({ ...h, source: "cm" }))
+    : [];
+  const history = [...scoutHistory, ...cmHistory];
   history.sort((a, b) => {
     const as = String(a?.start || "");
     const bs = String(b?.start || "");
@@ -972,17 +983,21 @@ function openScoutListModal(playerId) {
     return Number(b?.eventId || 0) - Number(a?.eventId || 0);
   });
   if (els.scoutListTarget) {
-    els.scoutListTarget.textContent = `${player.name} のスカウト履歴`;
+    els.scoutListTarget.textContent = `${player.name} の履歴`;
   }
   if (!history.length) {
     els.scoutListItems.innerHTML = `<div class="scout-list-empty">履歴がありません</div>`;
   } else {
     els.scoutListItems.innerHTML = history.map((h) => {
       const eventId = Number(h?.eventId || 0);
-      const name = String(h?.name || `Scout ${eventId}`);
-      const period = formatScoutPeriod(h?.start, h?.end);
+      const source = String(h?.source || "scout");
+      const typeLabel = source === "cm" ? "CM" : "SS";
+      const fallback = source === "cm" ? `CM ${eventId}` : `Scout ${eventId}`;
+      const name = String(h?.name || fallback);
+      const period = formatEventPeriod(h?.start, h?.end);
       return `
-        <button type="button" class="scout-list-item" data-event-id="${eventId}">
+        <button type="button" class="scout-list-item" data-event-id="${eventId}" data-source="${source}">
+          <span class="scout-list-meta">${typeLabel}</span>
           <span class="scout-list-name">${name}</span>
           <span class="scout-list-period">${period}</span>
         </button>
@@ -1196,11 +1211,32 @@ function renderScoutEventFilterOptions() {
     const eventId = Number(s?.eventId || 0);
     if (!Number.isInteger(eventId) || eventId <= 0) return;
     const name = String(s?.name || `Scout ${eventId}`);
-    const period = formatScoutPeriod(s?.start, s?.end);
+    const period = formatEventPeriod(s?.start, s?.end);
     options.push(`<option value="${eventId}">${name} (${period})</option>`);
   });
   els.scoutEventFilter.innerHTML = options.join("");
   if (current) els.scoutEventFilter.value = current;
+}
+
+function renderCMEventFilterOptions() {
+  if (!els.cmEventFilter) return;
+  const current = String(els.cmEventFilter.value || "");
+  const sorted = [...cmEvents].sort((a, b) => {
+    const as = String(a?.start || "");
+    const bs = String(b?.start || "");
+    if (as !== bs) return bs.localeCompare(as);
+    return Number(b?.eventId || 0) - Number(a?.eventId || 0);
+  });
+  const options = ['<option value="">ALL</option>'];
+  sorted.forEach((s) => {
+    const eventId = Number(s?.eventId || 0);
+    if (!Number.isInteger(eventId) || eventId <= 0) return;
+    const name = String(s?.name || `CM ${eventId}`);
+    const period = formatEventPeriod(s?.start, s?.end);
+    options.push(`<option value="${eventId}">${name} (${period})</option>`);
+  });
+  els.cmEventFilter.innerHTML = options.join("");
+  if (current) els.cmEventFilter.value = current;
 }
 
 function updateScoutFilterVisibility() {
@@ -1212,6 +1248,17 @@ function updateScoutFilterVisibility() {
     return;
   }
   renderScoutEventFilterOptions();
+}
+
+function updateCMFilterVisibility() {
+  if (!els.cmFilterWrap || !els.cmEventFilter) return;
+  const show = isCategoryChipActive(els.cmOnly);
+  els.cmFilterWrap.hidden = !show;
+  if (!show) {
+    els.cmEventFilter.value = "";
+    return;
+  }
+  renderCMEventFilterOptions();
 }
 
 function filterPlayers(conditions = getConditions()) {
@@ -1228,6 +1275,7 @@ function filterPlayers(conditions = getConditions()) {
   const nrAllOnly = isCategoryChipActive(els.nrAllOnly);
   const ccOnly = isCategoryChipActive(els.ccOnly);
   const scoutEventFilter = Number(els.scoutEventFilter?.value || 0);
+  const cmEventFilter = Number(els.cmEventFilter?.value || 0);
 
   return players.filter((player) => {
     const category = getCategory(player);
@@ -1268,6 +1316,12 @@ function filterPlayers(conditions = getConditions()) {
     if (scoutEventFilter > 0) {
       const scoutHistory = Array.isArray(player.scoutHistory) ? player.scoutHistory : [];
       if (!scoutHistory.some((x) => Number(x?.eventId || 0) === scoutEventFilter)) {
+        return false;
+      }
+    }
+    if (cmEventFilter > 0) {
+      const cmHistory = Array.isArray(player.cmHistory) ? player.cmHistory : [];
+      if (!cmHistory.some((x) => Number(x?.eventId || 0) === cmEventFilter)) {
         return false;
       }
     }
@@ -1503,7 +1557,9 @@ function cardHtml(player) {
   const typeLabel = getCategory(player);
   const typeClass = typeClassByPlayer(player);
   const hasScoutHistory = Array.isArray(player.scoutHistory) && player.scoutHistory.length > 0;
-  const showScoutButton = typeLabel === "SS";
+  const hasCMHistory = Array.isArray(player.cmHistory) && player.cmHistory.length > 0;
+  const hasAnyListHistory = hasScoutHistory || hasCMHistory;
+  const showScoutButton = typeLabel === "SS" || typeLabel === "CM" || typeLabel === "CM/SS";
   const pos = (player.position || "-").toUpperCase();
   const posClass = positionClass(pos);
   const peakBlock = viewMode === 0 ? `<div class="peak-periods peak-in-body">${peakHtml}</div>` : "";
@@ -1550,7 +1606,7 @@ function cardHtml(player) {
     <article class="card ${cardStateClass} mode-${viewMode}" data-player-id="${player.id}">
       <div class="card-top">
         ${cardTabsHtml(player.id, viewMode)}
-        ${showScoutButton ? `<button type="button" class="scout-list-toggle" data-player-id="${player.id}" aria-label="スカウト履歴" ${hasScoutHistory ? "" : "disabled"}>List</button>` : ""}
+        ${showScoutButton ? `<button type="button" class="scout-list-toggle" data-player-id="${player.id}" aria-label="履歴" ${hasAnyListHistory ? "" : "disabled"}>List</button>` : ""}
         <button type="button" class="lineup-toggle" data-player-id="${player.id}" aria-label="スタメン登録">Add</button>
         <span class="card-id">ID: ${player.id}</span>
         <div class="card-head-main">
@@ -1588,6 +1644,7 @@ function render() {
   const conditions = getConditions();
   const filtered = filterPlayers(conditions);
   const scoutEventFilter = Number(els.scoutEventFilter?.value || 0);
+  const cmEventFilter = Number(els.cmEventFilter?.value || 0);
   const categoryRank = {
     "NR": 0,
     "CC": 1,
@@ -1597,7 +1654,22 @@ function render() {
     "NA": 4,
     "RT": 99,
   };
-  if (scoutEventFilter > 0) {
+  if (cmEventFilter > 0) {
+    const event = cmEventsByEventId.get(cmEventFilter);
+    const orderMap = new Map(
+      (Array.isArray(event?.playerIds) ? event.playerIds : [])
+        .map((id, idx) => [Number(id), idx]),
+    );
+    filtered.sort((a, b) => {
+      const ai = orderMap.has(a.id) ? orderMap.get(a.id) : Number.MAX_SAFE_INTEGER;
+      const bi = orderMap.has(b.id) ? orderMap.get(b.id) : Number.MAX_SAFE_INTEGER;
+      if (ai !== bi) return ai - bi;
+      const ar = categoryRank[getCategory(a)] ?? 50;
+      const br = categoryRank[getCategory(b)] ?? 50;
+      if (ar !== br) return ar - br;
+      return (b.bestTotal - a.bestTotal) || a.name.localeCompare(b.name, "ja");
+    });
+  } else if (scoutEventFilter > 0) {
     const scout = scoutsByEventId.get(scoutEventFilter);
     const orderMap = new Map(
       (Array.isArray(scout?.playerIds) ? scout.playerIds : [])
@@ -1678,8 +1750,10 @@ async function init() {
     if (els.aptitudePositionFilter) els.aptitudePositionFilter.value = "";
     if (els.aptitudeIncludeSix) els.aptitudeIncludeSix.checked = false;
     if (els.scoutEventFilter) els.scoutEventFilter.value = "";
+    if (els.cmEventFilter) els.cmEventFilter.value = "";
     syncAptitudeAreaLabel();
     updateScoutFilterVisibility();
+    updateCMFilterVisibility();
   });
   if (els.aptitudeIncludeSix) {
     els.aptitudeIncludeSix.addEventListener("change", syncAptitudeAreaLabel);
@@ -1690,6 +1764,7 @@ async function init() {
       [els.nrAllOnly, els.nrWhiteOnly, els.nrBronzeOnly, els.nrSilverOnly, els.nrGoldOnly]
         .forEach((el) => setCategoryChipActive(el, next));
       updateScoutFilterVisibility();
+      updateCMFilterVisibility();
     });
   }
   [els.nrWhiteOnly, els.nrBronzeOnly, els.nrSilverOnly, els.nrGoldOnly].forEach((el) => {
@@ -1698,6 +1773,7 @@ async function init() {
       setCategoryChipActive(el, !isCategoryChipActive(el));
       syncNRAllChip();
       updateScoutFilterVisibility();
+      updateCMFilterVisibility();
     });
   });
   [els.ccOnly, els.ssOnly, els.cmOnly].forEach((el) => {
@@ -1705,6 +1781,7 @@ async function init() {
     el.addEventListener("click", () => {
       setCategoryChipActive(el, !isCategoryChipActive(el));
       updateScoutFilterVisibility();
+      updateCMFilterVisibility();
     });
   });
 
@@ -2002,9 +2079,10 @@ async function init() {
       const btn = e.target.closest(".scout-list-item");
       if (!btn) return;
       const eventId = Number(btn.dataset.eventId);
+      const source = String(btn.dataset.source || "scout");
       if (!Number.isInteger(eventId)) return;
       closeScoutListModal();
-      renderScoutResultsByEvent(eventId);
+      renderListResultsByEvent(eventId, source);
     });
   }
   if (els.renameIdApply) {
@@ -2160,16 +2238,24 @@ async function init() {
   const data = await res.json();
   players = data.players || [];
   scouts = Array.isArray(data.scouts) ? data.scouts : [];
+  cmEvents = Array.isArray(data.cmEvents) ? data.cmEvents : [];
   scoutsByEventId.clear();
   scouts.forEach((s) => {
     const eventId = Number(s?.eventId || 0);
     if (Number.isInteger(eventId)) scoutsByEventId.set(eventId, s);
   });
+  cmEventsByEventId.clear();
+  cmEvents.forEach((s) => {
+    const eventId = Number(s?.eventId || 0);
+    if (Number.isInteger(eventId)) cmEventsByEventId.set(eventId, s);
+  });
   appUpdatedAtJst = APP_UPDATED_AT_JST;
   syncAptitudeAreaLabel();
   syncNRAllChip();
   renderScoutEventFilterOptions();
+  renderCMEventFilterOptions();
   updateScoutFilterVisibility();
+  updateCMFilterVisibility();
   renderHeaderMeta();
   els.resultCount.textContent = "0 results";
   els.results.innerHTML = "";
