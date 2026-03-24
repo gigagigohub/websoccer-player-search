@@ -29,8 +29,8 @@ const RENDER_BATCH_SIZE = 200;
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-24T00:41:01+09:00";
-const APP_UPDATED_AT_JST = "2026-03-24 01:36 JST";
+const APP_UPDATED_AT_ISO = "2026-03-24T21:49:47+09:00";
+const APP_UPDATED_AT_JST = "2026-03-24 21:49 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function metricLabel(metric) {
@@ -959,19 +959,40 @@ function closeScoutListModal() {
 }
 
 function renderListResultsByEvent(eventId, source) {
-  const eventMap = source === "cm" ? cmEventsByEventId : scoutsByEventId;
-  const event = eventMap.get(eventId);
-  if (!event) return;
-  const playerById = new Map(players.map((p) => [p.id, p]));
-  const ordered = (Array.isArray(event.playerIds) ? event.playerIds : [])
-    .map((id) => Number(id))
-    .map((id) => playerById.get(id))
-    .filter(Boolean);
-  currentFilteredPlayers = ordered;
-  renderedCount = 0;
-  els.results.innerHTML = "";
-  renderNextBatch(true);
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  const isCM = source === "cm";
+  const eventMap = isCM ? cmEventsByEventId : scoutsByEventId;
+  if (!eventMap.has(eventId)) return;
+
+  // Reset all filters, then keep only the selected SS/CM event filter active.
+  els.conditions.innerHTML = "";
+  els.nameQuery.value = "";
+  hideNameSuggest();
+  if (els.positionFilter) els.positionFilter.value = "";
+  if (els.aptitudePositionFilter) els.aptitudePositionFilter.value = "";
+  if (els.aptitudeIncludeSix) els.aptitudeIncludeSix.checked = false;
+  syncAptitudeAreaLabel();
+
+  [
+    els.nrWhiteOnly, els.nrBronzeOnly, els.nrSilverOnly, els.nrGoldOnly, els.nrAllOnly,
+    els.ssOnly, els.cmOnly, els.ccOnly,
+  ].forEach((el) => setCategoryChipActive(el, false));
+  setCategoryChipActive(isCM ? els.cmOnly : els.ssOnly, true);
+
+  updateScoutFilterVisibility();
+  updateCMFilterVisibility();
+
+  if (els.scoutEventFilter) els.scoutEventFilter.value = isCM ? "" : String(eventId);
+  if (els.cmEventFilter) els.cmEventFilter.value = isCM ? String(eventId) : "";
+
+  render();
+
+  // Move viewport to the top of result section.
+  const resultHead = document.querySelector(".result-head");
+  if (resultHead) {
+    resultHead.scrollIntoView({ behavior: "smooth", block: "start" });
+  } else {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 }
 
 function openScoutListModal(playerId) {
