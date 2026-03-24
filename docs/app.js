@@ -26,11 +26,12 @@ const LINEUP_SIZE = 11;
 const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const RENDER_BATCH_SIZE = 200;
+const RENDER_CARDS_PER_FRAME = 24;
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-24T21:54:24+09:00";
-const APP_UPDATED_AT_JST = "2026-03-24 21:54 JST";
+const APP_UPDATED_AT_ISO = "2026-03-24T22:00:38+09:00";
+const APP_UPDATED_AT_JST = "2026-03-24 22:00 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function metricLabel(metric) {
@@ -145,6 +146,7 @@ let startingLineup = Array.from({ length: LINEUP_SIZE }, () => null);
 let lineupSlotsLocked = false;
 let lineupRegisterMode = "starter";
 let cloudConfig = { url: "", anonKey: "", lineupKey: "" };
+let renderJobToken = 0;
 let modalScrollLockY = 0;
 let modalScrollLocked = false;
 
@@ -1567,25 +1569,6 @@ function cardHtml(player) {
   const mainMetrics = ["スピ", "テク", "パワ", "個性"];
   const group1 = ["スタ", "ラフ", "人気"];
   const group2 = ["PK", "FK", "CK", "CP"];
-  const mind = {
-    zisei: displayMetrics?.["知性"] ?? 0,
-    kansei: displayMetrics?.["感性"] ?? 0,
-    kojin: displayMetrics?.["個人"] ?? 0,
-    soshiki: displayMetrics?.["組織"] ?? 0,
-  };
-
-  const cx = 70;
-  const cy = 70;
-  const r = 54;
-  const nTop = Math.max(0, Math.min(30, mind.zisei)) / 30;
-  const nRight = Math.max(0, Math.min(30, mind.soshiki)) / 30;
-  const nBottom = Math.max(0, Math.min(30, mind.kansei)) / 30;
-  const nLeft = Math.max(0, Math.min(30, mind.kojin)) / 30;
-  const pTop = `${cx},${cy - r * nTop}`;
-  const pRight = `${cx + r * nRight},${cy}`;
-  const pBottom = `${cx},${cy + r * nBottom}`;
-  const pLeft = `${cx - r * nLeft},${cy}`;
-  const areaPoints = `${pTop} ${pRight} ${pBottom} ${pLeft}`;
   const typeLabel = getCategory(player);
   const typeBadges = categoryBadgesHtmlByPlayer(player);
   const hasScoutHistory = Array.isArray(player.scoutHistory) && player.scoutHistory.length > 0;
@@ -1594,8 +1577,29 @@ function cardHtml(player) {
   const showScoutButton = typeLabel === "SS" || typeLabel === "CM" || typeLabel === "CM/SS";
   const pos = (player.position || "-").toUpperCase();
   const posClass = positionClass(pos);
-  const peakBlock = viewMode === 0 ? `<div class="peak-periods peak-in-body">${peakHtml}</div>` : "";
-  const normalViewHtml = `
+  const peakBlock = `<div class="peak-periods peak-in-body">${peakHtml}</div>`;
+  let normalViewHtml = `<div class="param-view deferred-pane"></div>`;
+  if (viewMode === 0) {
+    const mind = {
+      zisei: displayMetrics?.["知性"] ?? 0,
+      kansei: displayMetrics?.["感性"] ?? 0,
+      kojin: displayMetrics?.["個人"] ?? 0,
+      soshiki: displayMetrics?.["組織"] ?? 0,
+    };
+
+    const cx = 70;
+    const cy = 70;
+    const r = 54;
+    const nTop = Math.max(0, Math.min(30, mind.zisei)) / 30;
+    const nRight = Math.max(0, Math.min(30, mind.soshiki)) / 30;
+    const nBottom = Math.max(0, Math.min(30, mind.kansei)) / 30;
+    const nLeft = Math.max(0, Math.min(30, mind.kojin)) / 30;
+    const pTop = `${cx},${cy - r * nTop}`;
+    const pRight = `${cx + r * nRight},${cy}`;
+    const pBottom = `${cx},${cy + r * nBottom}`;
+    const pLeft = `${cx - r * nLeft},${cy}`;
+    const areaPoints = `${pTop} ${pRight} ${pBottom} ${pLeft}`;
+    normalViewHtml = `
       <div class="param-view">
           <div class="media-row">
             <div class="thumbs">
@@ -1628,9 +1632,14 @@ function cardHtml(player) {
         </div>
       </div>
       </div>
-  `;
-  const detailViewHtml = periodTableHtml(player, staticImg, actionImg);
-  const thirdViewHtml = profileViewHtml(player, staticImg, actionImg);
+    `;
+  }
+  const detailViewHtml = viewMode === 1
+    ? periodTableHtml(player, staticImg, actionImg)
+    : `<div class="expanded-view deferred-pane"></div>`;
+  const thirdViewHtml = viewMode === 2
+    ? profileViewHtml(player, staticImg, actionImg)
+    : `<div class="profile-view deferred-pane"></div>`;
   const bodyHtml = swipeDeckHtml(viewMode, normalViewHtml, detailViewHtml, thirdViewHtml);
   const cardStateClass = viewMode === 1 ? "is-expanded" : "is-collapsed";
 
@@ -1673,6 +1682,7 @@ function rerenderSingleCard(playerId) {
 }
 
 function render() {
+  renderJobToken += 1;
   const conditions = getConditions();
   const filtered = filterPlayers(conditions);
   const hasIdCondition = conditions.some((c) => c?.metric === "ID");
@@ -1746,6 +1756,7 @@ function updateResultSummary() {
 }
 
 function renderNextBatch(reset = false) {
+  const jobToken = ++renderJobToken;
   if (reset) {
     renderedCount = 0;
     els.results.innerHTML = "";
@@ -1756,10 +1767,22 @@ function renderNextBatch(reset = false) {
     return;
   }
   const nextCount = Math.min(total, renderedCount + RENDER_BATCH_SIZE);
-  const chunk = currentFilteredPlayers.slice(renderedCount, nextCount);
-  els.results.insertAdjacentHTML("beforeend", chunk.map((p) => cardHtml(p)).join(""));
-  renderedCount = nextCount;
-  updateResultSummary();
+  const appendStep = () => {
+    if (jobToken !== renderJobToken) return;
+    if (renderedCount >= nextCount) {
+      updateResultSummary();
+      return;
+    }
+    const frameCount = Math.min(RENDER_CARDS_PER_FRAME, nextCount - renderedCount);
+    const chunk = currentFilteredPlayers.slice(renderedCount, renderedCount + frameCount);
+    els.results.insertAdjacentHTML("beforeend", chunk.map((p) => cardHtml(p)).join(""));
+    renderedCount += frameCount;
+    updateResultSummary();
+    if (renderedCount < nextCount) {
+      requestAnimationFrame(appendStep);
+    }
+  };
+  requestAnimationFrame(appendStep);
 }
 
 async function init() {
