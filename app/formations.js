@@ -3,7 +3,7 @@ const SUPABASE_TABLE = "lineup_states";
 const LINEUP_SIZE = 11;
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-25 21:52 JST";
+const APP_UPDATED_AT_JST = "2026-03-25 22:00 JST";
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織",
@@ -1203,7 +1203,7 @@ function renderCoachDetail(coachId) {
       ? `<div class="coach-tab-panel coach-tab-scroll"><div class="profile-description-title">Available Formation</div><div class="coach-formation-list">${obtainHtml || "-"}</div></div>`
       : tab === "understood"
         ? `<div class="coach-tab-panel coach-tab-scroll"><div class="profile-description-title">Understood Formation</div><div class="coach-formation-list">${depth4Html || "-"}</div></div>`
-        : `<div class="coach-tab-panel coach-tab-scroll"><div class="profile-description-title">Leadership</div>${leadTable || "-"}</div>`;
+        : `<div class="coach-tab-panel coach-tab-scroll coach-tab-panel-lead"><div class="profile-description-title">Leadership</div>${leadTable || "-"}</div>`;
   els.coachTitle.textContent = "Coach";
   els.coachDetail.innerHTML = `
     <article class="coach-card coach-card-fixed">
@@ -1213,7 +1213,7 @@ function renderCoachDetail(coachId) {
       <div class="coach-card-body">
         <div class="thumbs coach-thumbs">
           <img loading="lazy" src="${staticImg}" alt="${coach.name}" onerror="this.src='${actionImg}'" />
-          <img loading="lazy" src="${actionImg}" alt="${coach.name}" />
+          <img class="coach-motion" loading="lazy" src="${actionImg}" alt="${coach.name}" />
         </div>
         <div class="profile-side coach-profile-side">
           <div class="profile-item"><span class="k">国籍</span><span class="v">${nationText}</span></div>
