@@ -3,7 +3,7 @@ const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-25 23:59 JST";
+const APP_UPDATED_AT_JST = "2026-03-25 20:36 JST";
 const LINEUP_SIZE = 11;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
@@ -154,6 +154,32 @@ function avg(v) {
   return Number(v || 0).toFixed(2);
 }
 
+function coachSeasonNumber(seasonText) {
+  const n = Number(String(seasonText || "").replace(/[^0-9]/g, ""));
+  return Number.isFinite(n) && n > 0 ? n : 1;
+}
+
+function coachSeasonLabel(seasonText) {
+  return `${coachSeasonNumber(seasonText)}期目`;
+}
+
+function coachLeadershipTableHtml(leadership, currentSeason = null) {
+  const rows = Array.isArray(leadership) ? leadership : [];
+  if (!rows.length) return `<p class="dim">-</p>`;
+  const headers = rows.map((_, i) => `<th>${i + 1}期目</th>`).join("");
+  const cells = rows
+    .map((v, i) => `<td class="${Number(currentSeason) === i + 1 ? "is-current" : ""}">${Number(v)}</td>`)
+    .join("");
+  return `
+    <div class="coach-table-wrap">
+      <table class="coach-lead-table">
+        <thead><tr>${headers}</tr></thead>
+        <tbody><tr>${cells}</tr></tbody>
+      </table>
+    </div>
+  `;
+}
+
 function formatFormationYearLabel(year, stride) {
   const y = Number(year);
   const s = Number(stride);
@@ -178,7 +204,7 @@ function normalizeFormationId(v) {
 function normalizeCoach(raw) {
   const id = Number(raw?.coachId);
   if (!Number.isInteger(id) || id <= 0) return null;
-  const season = raw?.season == null ? "1期" : String(raw?.season);
+  const season = raw?.season == null ? "1期目" : coachSeasonLabel(raw?.season);
   return { coachId: id, season };
 }
 
@@ -974,10 +1000,10 @@ async function shiftAllLineupSeasons(delta) {
   if (selectedCoach && Number.isInteger(Number(selectedCoach.coachId))) {
     const coach = (Array.isArray(coaches) ? coaches : []).find((c) => Number(c?.id) === Number(selectedCoach.coachId));
     const max = Math.max(1, Array.isArray(coach?.leadershipBySeason) ? coach.leadershipBySeason.length : 1);
-    const cur = Number(String(selectedCoach.season || "1").replace(/[^0-9]/g, "")) || 1;
+    const cur = coachSeasonNumber(selectedCoach.season || "1期目");
     const next = Math.max(1, Math.min(max, cur + delta));
     if (next !== cur) {
-      selectedCoach = { ...selectedCoach, season: `${next}期` };
+      selectedCoach = { ...selectedCoach, season: `${next}期目` };
       changed = true;
     }
   }
@@ -1112,7 +1138,10 @@ function renderCoachSection() {
   const name = coach?.name || `Coach ${coachId}`;
   const type = Number(coach?.type || 0);
   const typeLabel = type === 1 ? "超攻撃型" : type === 2 ? "攻撃型" : type === 3 ? "バランス型" : type === 4 ? "守備型" : type === 5 ? "超守備型" : "-";
-  const season = selectedCoach?.season || "1期";
+  const season = coachSeasonLabel(selectedCoach?.season || "1期目");
+  const seasonNum = coachSeasonNumber(season);
+  const leadership = Array.isArray(coach?.leadershipBySeason) ? coach.leadershipBySeason : [];
+  const currentLeadership = leadership.length ? leadership[Math.max(0, Math.min(leadership.length - 1, seasonNum - 1))] : null;
   const img = `./images/chara/headcoaches/static/${coachId}@2x.gif`;
   els.myTeamCoachWrap.innerHTML = `
     <button type="button" class="lineup-slot myteam-slot myteam-coach-slot has-player" id="myTeamCoachSlot">
@@ -1123,10 +1152,14 @@ function renderCoachSection() {
           <div class="lineup-badges">
             <span class="badge pos-badge hc-badge">HC</span>
             <span class="badge lineup-season">${season}</span>
+            <span class="badge lineup-season">${currentLeadership == null ? "-" : `統率力 ${Number(currentLeadership)}`}</span>
           </div>
           <span class="slot-name">${name}</span>
           <span class="lineup-cc-stat">${typeLabel}</span>
         </div>
+      </div>
+      <div class="lineup-coach-lead-wrap">
+        ${coachLeadershipTableHtml(leadership, seasonNum)}
       </div>
     </button>
   `;
@@ -1493,6 +1526,10 @@ function renderCoachCardModal() {
   const actionImg = `./images/chara/headcoaches/action/${coachId}@2x.gif`;
   const type = Number(coach?.type || 0);
   const typeLabel = type === 1 ? "超攻撃型" : type === 2 ? "攻撃型" : type === 3 ? "バランス型" : type === 4 ? "守備型" : type === 5 ? "超守備型" : "-";
+  const season = coachSeasonLabel(selectedCoach?.season || "1期目");
+  const seasonNum = coachSeasonNumber(season);
+  const leadership = Array.isArray(coach?.leadershipBySeason) ? coach.leadershipBySeason : [];
+  const currentLeadership = leadership.length ? leadership[Math.max(0, Math.min(leadership.length - 1, seasonNum - 1))] : null;
   els.coachCardHost.innerHTML = `
     <article class="coach-card">
       <div class="coach-card-top">
@@ -1504,11 +1541,13 @@ function renderCoachCardModal() {
           <img loading="lazy" src="${actionImg}" alt="${coach?.name || `Coach ${coachId}`}" onerror="this.src='${staticImg}'" />
         </div>
         <div class="coach-meta-grid">
-          <div><span class="k">期</span><span class="v">${selectedCoach.season || "1期"}</span></div>
+          <div><span class="k">期</span><span class="v">${season}</span></div>
+          <div><span class="k">現在統率力</span><span class="v">${currentLeadership == null ? "-" : Number(currentLeadership)}</span></div>
           <div><span class="k">タイプ</span><span class="v">${typeLabel}</span></div>
           <div><span class="k">年齢</span><span class="v">${coach?.age || "-"}</span></div>
         </div>
       </div>
+      ${coachLeadershipTableHtml(leadership, seasonNum)}
     </article>
   `;
 }

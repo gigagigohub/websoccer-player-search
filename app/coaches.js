@@ -2,7 +2,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-25 23:59 JST";
+const APP_UPDATED_AT_JST = "2026-03-25 20:36 JST";
 
 const TYPE_LABELS = {
   1: "超攻撃型",
@@ -71,6 +71,7 @@ let nationNameById = new Map();
 let filteredCoaches = [];
 let selectedCoachIdForAdd = null;
 let selectedCoachIdForDetail = null;
+const coachTabModeById = new Map();
 let modalScrollLockY = 0;
 let modalScrollLocked = false;
 
@@ -78,9 +79,19 @@ function normalizeSeasonInput(input) {
   const raw = String(input || "").trim();
   if (!raw) return "";
   const n = raw.replace(/[^0-9]/g, "");
-  if (n.length > 0) return `${Number(n)}期`;
-  if (raw.endsWith("期")) return raw;
+  if (n.length > 0) return `${Number(n)}期目`;
+  if (raw.endsWith("期目")) return raw;
+  if (raw.endsWith("期")) return `${raw}目`;
   return raw;
+}
+
+function seasonNumber(seasonText) {
+  const n = Number(String(seasonText || "").replace(/[^0-9]/g, ""));
+  return Number.isFinite(n) && n > 0 ? n : 1;
+}
+
+function seasonLabel(seasonText) {
+  return `${seasonNumber(seasonText)}期目`;
 }
 
 function setModalScrollLocked(locked) {
@@ -207,7 +218,7 @@ function openSeasonModal(coachId) {
   if (els.seasonTarget) {
     els.seasonTarget.textContent = coach ? `${coach.name}を監督登録します` : "監督登録";
   }
-  els.seasonSelect.innerHTML = Array.from({ length: max }, (_, i) => `<option value="${i + 1}">${i + 1}期</option>`).join("");
+  els.seasonSelect.innerHTML = Array.from({ length: max }, (_, i) => `<option value="${i + 1}">${i + 1}期目</option>`).join("");
   els.seasonSelect.value = "1";
   els.seasonModal.hidden = false;
 }
@@ -227,7 +238,7 @@ function normalizeMeta(raw) {
   return {
     formationId: Number.isInteger(fid) && fid > 0 ? fid : null,
     ownedFormationIds: [...new Set(owned)],
-    coach: Number.isInteger(coachId) && coachId > 0 ? { coachId, season: coachSeason || "1期" } : null,
+    coach: Number.isInteger(coachId) && coachId > 0 ? { coachId, season: coachSeason || "1期目" } : null,
   };
 }
 
@@ -334,14 +345,53 @@ function getFormationName(fid) {
   return `${f.name}${y ? ` ${y}` : ""}`;
 }
 
+function leadershipTableHtml(leadership, currentSeason = null) {
+  const rows = Array.isArray(leadership) ? leadership : [];
+  if (!rows.length) return `<p class="dim">-</p>`;
+  const headers = rows.map((_, i) => `<th>${i + 1}期目</th>`).join("");
+  const cells = rows
+    .map((v, i) => `<td class="${Number(currentSeason) === i + 1 ? "is-current" : ""}">${Number(v)}</td>`)
+    .join("");
+  return `
+    <div class="coach-table-wrap">
+      <table class="coach-lead-table">
+        <thead><tr>${headers}</tr></thead>
+        <tbody><tr>${cells}</tr></tbody>
+      </table>
+    </div>
+  `;
+}
+
+function coachFormationPills(list, withSeason = false) {
+  const rows = Array.isArray(list) ? list : [];
+  if (!rows.length) return "-";
+  return rows
+    .map((row) => {
+      const fid = Number(withSeason ? row?.formationId : row);
+      if (!Number.isInteger(fid)) return "";
+      const suffix = withSeason && Number(row?.fromSeason) > 1 ? ` (${Number(row.fromSeason)}期目〜)` : "";
+      const owned = cloudMeta.ownedFormationIds?.includes(fid) ? "is-owned" : "";
+      return `<button type="button" class="inline-pill coach-formation-pill ${owned}" data-formation-id="${fid}">${getFormationName(fid)}${suffix}</button>`;
+    })
+    .join(" ");
+}
+
 function coachCardHtml(coach) {
   const staticImg = `./images/chara/headcoaches/static/${coach.id}@2x.gif`;
   const actionImg = `./images/chara/headcoaches/action/${coach.id}@2x.gif`;
   const nation = getNationName(coach.nationId);
   const leadership = Array.isArray(coach.leadershipBySeason) ? coach.leadershipBySeason : [];
-  const leadText = leadership.length
-    ? leadership.map((v, i) => `${i + 1}期:${v}`).join(" / ")
-    : "-";
+  const currentSeason = selectedCoach && Number(selectedCoach?.coachId) === Number(coach.id)
+    ? seasonNumber(selectedCoach?.season)
+    : null;
+  const tab = coachTabModeById.get(Number(coach.id)) || "lead";
+  const tabPanelHtml =
+    tab === "obtain"
+      ? `<div class="coach-tab-panel">${coachFormationPills(coach.obtainable, true)}</div>`
+      : tab === "understood"
+        ? `<div class="coach-tab-panel">${coachFormationPills(coach.depth4FormationIds || [], false)}</div>`
+        : `<div class="coach-tab-panel">${leadershipTableHtml(leadership, currentSeason)}</div>`;
+
   return `
     <article class="coach-card" data-coach-id="${coach.id}">
       <div class="coach-card-top">
@@ -352,19 +402,24 @@ function coachCardHtml(coach) {
         <button type="button" class="lineup-toggle coach-add-btn" data-coach-id="${coach.id}" aria-label="監督登録">Add</button>
       </div>
       <div class="coach-card-body">
-        <button type="button" class="coach-images-btn" data-coach-detail-id="${coach.id}">
+        <div class="coach-images-btn">
           <div class="thumbs coach-thumbs">
             <img loading="lazy" src="${staticImg}" alt="${coach.name}" />
             <img loading="lazy" src="${actionImg}" alt="${coach.name}" onerror="this.src='${staticImg}'" />
           </div>
-        </button>
+        </div>
         <div class="coach-meta-grid">
           <div><span class="k">国籍</span><span class="v">${nation}</span></div>
           <div><span class="k">年齢</span><span class="v">${coach.age || "-"}</span></div>
           <div><span class="k">タイプ</span><span class="v">${typeLabel(coach.type)}</span></div>
-          <div><span class="k">統率力推移</span><span class="v coach-lead-line">${leadText}</span></div>
         </div>
       </div>
+      <div class="coach-tab-row">
+        <button type="button" class="coach-tab-btn ${tab === "lead" ? "is-on" : ""}" data-coach-tab="lead" data-coach-id="${coach.id}">LEAD</button>
+        <button type="button" class="coach-tab-btn ${tab === "obtain" ? "is-on" : ""}" data-coach-tab="obtain" data-coach-id="${coach.id}">OBT</button>
+        <button type="button" class="coach-tab-btn ${tab === "understood" ? "is-on" : ""}" data-coach-tab="understood" data-coach-id="${coach.id}">UND</button>
+      </div>
+      ${tabPanelHtml}
     </article>
   `;
 }
@@ -396,27 +451,21 @@ function renderCoachDetail(coachId) {
   }
   els.coachTitle.textContent = coach.name;
   const leadership = Array.isArray(coach.leadershipBySeason) ? coach.leadershipBySeason : [];
-  const leadChips = leadership.map((v, i) => `<span class="inline-pill">${i + 1}期:${v}</span>`).join(" ");
-  const depth4 = (coach.depth4FormationIds || []).map((fid) => `
-    <button type="button" class="inline-pill coach-formation-pill ${cloudMeta.ownedFormationIds?.includes(fid) ? "is-owned" : ""}" data-formation-id="${fid}">${getFormationName(fid)}</button>
-  `).join(" ");
-  const obtain = (coach.obtainable || []).map((row) => {
-    const suffix = Number(row.fromSeason) > 1 ? ` (${row.fromSeason}期目〜)` : "";
-    const owned = cloudMeta.ownedFormationIds?.includes(Number(row.formationId)) ? "is-owned" : "";
-    return `<button type="button" class="inline-pill coach-formation-pill ${owned}" data-formation-id="${row.formationId}">${getFormationName(row.formationId)}${suffix}</button>`;
-  }).join(" ");
+  const leadTable = leadershipTableHtml(leadership, null);
+  const depth4 = coachFormationPills(coach.depth4FormationIds || [], false);
+  const obtain = coachFormationPills(coach.obtainable || [], true);
 
   els.coachDetail.innerHTML = `
     <div class="formation-block">
       <h3>Leadership</h3>
-      <div>${leadChips || "-"}</div>
+      <div>${leadTable || "-"}</div>
     </div>
     <div class="formation-block">
       <h3>Obtainable Formations</h3>
       <div class="coach-formation-list">${obtain || "-"}</div>
     </div>
     <div class="formation-block">
-      <h3>Depth 4 Formations</h3>
+      <h3>Understood Formations</h3>
       <div class="coach-formation-list">${depth4 || "-"}</div>
     </div>
   `;
@@ -462,7 +511,7 @@ async function registerCoachFromSeason() {
   const coachId = Number(selectedCoachIdForAdd);
   if (!Number.isInteger(coachId)) return;
   const season = normalizeSeasonInput(els.seasonSelect?.value || "1");
-  cloudMeta.coach = { coachId, season: season || "1期" };
+  cloudMeta.coach = { coachId, season: season || "1期目" };
   if (isLoggedIn()) {
     try {
       await saveCloudMeta();
@@ -514,20 +563,21 @@ function bindEvents() {
         if (Number.isInteger(coachId)) await ensureLoginAndOpenSeason(coachId);
         return;
       }
-      const detailBtn = e.target.closest("[data-coach-detail-id]");
-      if (detailBtn) {
-        const coachId = Number(detailBtn.dataset.coachDetailId);
-        if (Number.isInteger(coachId)) openCoachModal(coachId);
+      const tabBtn = e.target.closest("[data-coach-tab][data-coach-id]");
+      if (tabBtn) {
+        const coachId = Number(tabBtn.dataset.coachId);
+        const tab = String(tabBtn.dataset.coachTab || "");
+        if (Number.isInteger(coachId) && (tab === "lead" || tab === "obtain" || tab === "understood")) {
+          coachTabModeById.set(coachId, tab);
+          renderCoaches();
+        }
+        return;
       }
-    });
-  }
-
-  if (els.coachDetail) {
-    els.coachDetail.addEventListener("click", (e) => {
       const fbtn = e.target.closest("[data-formation-id]");
-      if (!fbtn) return;
-      const fid = Number(fbtn.dataset.formationId);
-      if (Number.isInteger(fid)) openFormationModal(fid);
+      if (fbtn) {
+        const fid = Number(fbtn.dataset.formationId);
+        if (Number.isInteger(fid)) openFormationModal(fid);
+      }
     });
   }
 

@@ -776,6 +776,14 @@ button.ghost {
   padding: 0;
 }
 
+.coach-add-btn {
+  position: static;
+  width: 48px;
+  min-width: 48px;
+  height: 22px;
+  margin-left: auto;
+}
+
 .scout-list-toggle {
   position: absolute;
   top: 6px;
@@ -2696,6 +2704,10 @@ button.ghost {
   margin-top: 0.55rem;
 }
 
+.coach-card-body.single-col {
+  display: block;
+}
+
 .coach-images-btn {
   border: 0;
   background: transparent;
@@ -2724,6 +2736,69 @@ button.ghost {
 
 .coach-lead-line {
   font-size: 0.75rem;
+}
+
+.coach-tab-row {
+  margin-top: 0.55rem;
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.coach-tab-btn {
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #dce6f7;
+  font-size: 0.72rem;
+  font-weight: 700;
+  height: 24px;
+  padding: 0 10px;
+}
+
+.coach-tab-btn.is-on {
+  border-color: rgba(126, 172, 255, 0.75);
+  background: rgba(61, 106, 182, 0.52);
+  color: #f2f7ff;
+}
+
+.coach-tab-panel {
+  margin-top: 0.5rem;
+}
+
+.coach-table-wrap {
+  overflow-x: auto;
+}
+
+.coach-lead-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 0.74rem;
+}
+
+.coach-lead-table th,
+.coach-lead-table td {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  text-align: center;
+  padding: 0.22rem 0.15rem;
+  white-space: nowrap;
+}
+
+.coach-lead-table th {
+  color: #c9d8ef;
+  background: rgba(255, 255, 255, 0.04);
+  font-weight: 700;
+}
+
+.coach-lead-table td {
+  color: #eef4ff;
+}
+
+.coach-lead-table td.is-current {
+  background: rgba(75, 126, 211, 0.46);
+  color: #ffffff;
+  font-weight: 800;
 }
 
 .hc-badge {
@@ -2773,6 +2848,30 @@ button.ghost {
   margin-left: 0.35rem;
 }
 
+.formation-owned-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 10px;
+  border: 1px solid rgba(247, 229, 143, 0.78);
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(200, 162, 49, 0.4), rgba(122, 95, 18, 0.34));
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.28);
+  font-size: 0;
+}
+
+.formation-owned-toggle .owned-book-icon {
+  display: inline-block;
+  width: 12px;
+  height: 10px;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  margin-right: 6px;
+  vertical-align: -1px;
+  box-shadow: inset -2px 0 0 rgba(255, 255, 255, 0.16);
+}
+
 .myteam-coach-wrap {
   margin-top: 0.8rem;
 }
@@ -2780,4 +2879,12 @@ button.ghost {
 .myteam-coach-slot .lineup-empty-thumb {
   width: 78px;
   height: 78px;
+}
+
+.lineup-coach-lead-wrap {
+  margin-top: 0.45rem;
+}
+
+.myteam-coach-slot .coach-lead-table {
+  font-size: 0.69rem;
 }

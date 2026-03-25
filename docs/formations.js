@@ -3,7 +3,7 @@ const SUPABASE_TABLE = "lineup_states";
 const LINEUP_SIZE = 11;
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-25 23:59 JST";
+const APP_UPDATED_AT_JST = "2026-03-25 20:36 JST";
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織",
@@ -313,7 +313,7 @@ function normalizeMeta(raw) {
   return {
     formationId: Number.isInteger(fid) && fid > 0 ? fid : null,
     ownedFormationIds: [...new Set(owned)],
-    coach: Number.isInteger(coachId) && coachId > 0 ? { coachId, season: season || "1期" } : null,
+    coach: Number.isInteger(coachId) && coachId > 0 ? { coachId, season: season || "1期目" } : null,
   };
 }
 
@@ -535,7 +535,7 @@ function formationCardHtml(f) {
         <div class="formation-name-wrap">
           <strong>${f.name}</strong>
           ${yearText ? `<span class="formation-year">${yearText}</span>` : ""}
-          ${owned ? `<span class="formation-owned-mark" title="Owned">📖</span>` : ""}
+          ${owned ? `<span class="formation-owned-mark" title="Owned"></span>` : ""}
         </div>
         <span class="formation-system">${f.system || "-"}</span>
       </div>
@@ -607,7 +607,7 @@ function renderFormationPitch(positions, formationId) {
 
 function renderCoachesList(list) {
   if (!Array.isArray(list) || !list.length) return "-";
-  return list.map((c) => `<button type="button" class="inline-pill coach-link-pill" data-coach-id="${Number(c?.id || c?.coachId || 0)}">${c.name}</button>`).join(" ");
+  return list.map((c) => `<span class="inline-pill">${c.name}</span>`).join(" ");
 }
 
 function renderKeyPositions(keyPositions) {
@@ -687,7 +687,7 @@ function renderCoachRanking(coachStats) {
         .map((c, idx) => {
           const imgSrc = `./images/chara/headcoaches/static/${c.coachId}@2x.gif`;
           return `
-            <div class="slot-top-row coach-top-row">
+            <button type="button" class="slot-top-row coach-top-row" data-coach-id="${Number(c.coachId)}">
               <span class="slot-top-slotno">#${idx + 1}</span>
               <div class="slot-top-thumb">
                 <img loading="lazy" src="${imgSrc}" alt="${c.coachName}" />
@@ -696,7 +696,7 @@ function renderCoachRanking(coachStats) {
                 <strong class="slot-top-name">${c.coachName}</strong>
                 <span>Usage ${pct(c.usageRate)} / Avg ${avg(c.avgPts)}</span>
               </div>
-            </div>
+            </button>
           `;
         })
         .join("")}
@@ -1095,6 +1095,31 @@ function getCoachById(coachId) {
   return coaches.find((c) => Number(c?.id) === id) || null;
 }
 
+function coachTypeLabel(value) {
+  const n = Number(value);
+  if (n === 1) return "超攻撃型";
+  if (n === 2) return "攻撃型";
+  if (n === 3) return "バランス型";
+  if (n === 4) return "守備型";
+  if (n === 5) return "超守備型";
+  return String(value || "-");
+}
+
+function coachLeadershipTableHtml(leadership) {
+  const rows = Array.isArray(leadership) ? leadership : [];
+  if (!rows.length) return "-";
+  const th = rows.map((_, i) => `<th>${i + 1}期目</th>`).join("");
+  const td = rows.map((v) => `<td>${Number(v)}</td>`).join("");
+  return `
+    <div class="coach-table-wrap">
+      <table class="coach-lead-table">
+        <thead><tr>${th}</tr></thead>
+        <tbody><tr>${td}</tr></tbody>
+      </table>
+    </div>
+  `;
+}
+
 function getFormationName(fid) {
   const f = formations.find((x) => Number(x?.id) === Number(fid));
   if (!f) return `Formation ${fid}`;
@@ -1112,7 +1137,7 @@ function renderCoachDetail(coachId) {
   }
   const ext = coachesMeta.find((c) => Number(c?.id) === Number(coach.id)) || null;
   const leadership = Array.isArray(ext?.leadershipBySeason) ? ext.leadershipBySeason : [];
-  const leadChips = leadership.map((v, i) => `<span class="inline-pill">${i + 1}期:${v}</span>`).join(" ");
+  const leadTable = coachLeadershipTableHtml(leadership);
   const obtainable = Array.isArray(ext?.obtainable) ? ext.obtainable : [];
   const depth4 = Array.isArray(ext?.depth4FormationIds) ? ext.depth4FormationIds : (coach.formationDepth4 || []);
   const obtainHtml = obtainable.map((row) => {
@@ -1125,23 +1150,45 @@ function renderCoachDetail(coachId) {
     return `<button type="button" class="inline-pill coach-formation-pill ${owned}" data-formation-id="${fid}">${getFormationName(fid)}</button>`;
   }).join(" ");
 
-  els.coachTitle.textContent = `${coach.name} / ${coach.fullName || "-"}`;
+  const staticImg = `./images/chara/headcoaches/static/${coach.id}@2x.gif`;
+  const actionImg = `./images/chara/headcoaches/action/${coach.id}@2x.gif`;
+  els.coachTitle.textContent = `${coach.name}`;
   els.coachDetail.innerHTML = `
+    <article class="coach-card">
+      <div class="coach-card-top">
+        <h3 class="card-name"><span class="badge pos-badge hc-badge">HC</span><span>${coach.name}</span></h3>
+      </div>
+      <div class="coach-card-body">
+        <div class="thumbs coach-thumbs">
+          <img loading="lazy" src="${staticImg}" alt="${coach.name}" />
+          <img loading="lazy" src="${actionImg}" alt="${coach.name}" onerror="this.src='${staticImg}'" />
+        </div>
+        <div class="coach-meta-grid">
+          <div><span class="k">国籍</span><span class="v">${coach.nationality || "-"}</span></div>
+          <div><span class="k">年齢</span><span class="v">${coach.age || "-"}</span></div>
+          <div><span class="k">タイプ</span><span class="v">${coachTypeLabel(coach.type)}</span></div>
+        </div>
+      </div>
+      <div class="formation-block">
+        <h3>Leadership</h3>
+        <div>${leadTable || "-"}</div>
+      </div>
+      <div class="formation-block">
+        <h3>Obtainable Formations</h3>
+        <div class="coach-formation-list">${obtainHtml || "-"}</div>
+      </div>
+      <div class="formation-block">
+        <h3>Understood Formations</h3>
+        <div class="coach-formation-list">${depth4Html || "-"}</div>
+      </div>
+      <div class="formation-block">
+        <h3>Full Name</h3>
+        <p>${coach.fullName || "-"}</p>
+      </div>
+    </article>
     <div class="formation-block">
-      <h3>Type / Age</h3>
-      <p>${coach.type || "-"} / ${coach.age || "-"}</p>
-    </div>
-    <div class="formation-block">
-      <h3>Leadership</h3>
-      <div>${leadChips || "-"}</div>
-    </div>
-    <div class="formation-block">
-      <h3>Obtainable Formations</h3>
-      <div class="coach-formation-list">${obtainHtml || "-"}</div>
-    </div>
-    <div class="formation-block">
-      <h3>Depth 4 Formations</h3>
-      <div class="coach-formation-list">${depth4Html || "-"}</div>
+      <h3>Understood (Reference)</h3>
+      <div class="dim">この監督の理解度4フォーメーションを表示しています。</div>
     </div>
   `;
 }
@@ -1167,7 +1214,7 @@ function openFormationModal(formation) {
   els.formationDetail.innerHTML = `
     <div class="formation-detail-toolbar">
       <button type="button" class="formation-owned-toggle ${owned ? "is-on" : ""}" data-toggle-owned="${formation.id}" title="Owned">
-        📖 ${owned ? "Owned" : "Mark Owned"}
+        <span class="owned-book-icon" aria-hidden="true"></span>${owned ? "Owned" : "Mark Owned"}
       </button>
     </div>
     <div class="formation-detail-grid">
@@ -1188,7 +1235,7 @@ function openFormationModal(formation) {
           ${renderFormationParamGrid(formation.params)}
         </div>
         <div class="formation-block">
-          <h3>Depth 4 Coaches</h3>
+          <h3>Understood Coaches</h3>
           <div>${renderCoachesList(formation.coaches?.depth4)}</div>
         </div>
     </div>
