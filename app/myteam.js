@@ -3,7 +3,7 @@ const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-25 22:34 JST";
+const APP_UPDATED_AT_JST = "2026-03-25 22:35 JST";
 const LINEUP_SIZE = 11;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
@@ -183,10 +183,17 @@ function coachSeasonLabel(seasonText) {
 function coachLeadershipTableHtml(leadership, currentSeason = null, maxCols = null) {
   const rows = Array.isArray(leadership) ? leadership : [];
   if (!rows.length) return `<p class="dim">-</p>`;
-  const view = Number.isInteger(maxCols) && maxCols > 0 ? rows.slice(0, maxCols) : rows;
-  const headers = view.map((_, i) => `<th>${i + 1}期</th>`).join("");
+  const cols = Number.isInteger(maxCols) && maxCols > 0 ? maxCols : rows.length;
+  const season = Number(currentSeason);
+  const start = Number.isInteger(season) && season > 0 && cols > 0 ? Math.max(0, season - 1) : 0;
+  const view = Array.from({ length: cols }, (_, i) => rows[start + i] ?? null);
+  const headers = view.map((_, i) => `<th>${start + i + 1}期</th>`).join("");
   const cells = view
-    .map((v, i) => `<td class="${Number(currentSeason) === i + 1 ? "is-current" : ""}">${Number(v)}</td>`)
+    .map((v, i) => {
+      const seasonNo = start + i + 1;
+      const cls = seasonNo === season ? "is-current" : "";
+      return `<td class="${cls}">${v == null ? "-" : Number(v)}</td>`;
+    })
     .join("");
   return `
     <div class="coach-table-wrap">

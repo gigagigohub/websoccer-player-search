@@ -2961,9 +2961,19 @@ button.ghost {
 }
 
 .lineup-coach-lead-wrap {
-  margin-top: 0.45rem;
+  margin-top: 0.28rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 8px;
 }
 
 .myteam-coach-slot .coach-lead-table {
-  font-size: 0.69rem;
+  font-size: 0.62rem;
+}
+
+.myteam-coach-slot .coach-lead-table th,
+.myteam-coach-slot .coach-lead-table td {
+  padding: 0.12rem 0.2rem;
+  min-width: 32px;
 }
