@@ -3,7 +3,7 @@ const SUPABASE_TABLE = "lineup_states";
 const LINEUP_SIZE = 11;
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-25 21:15 JST";
+const APP_UPDATED_AT_JST = "2026-03-25 21:26 JST";
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織",
@@ -377,6 +377,23 @@ function metricLabel(metric) {
 
 function detailMetricLabel(metric) {
   return DETAIL_METRIC_LABELS[metric] || metric;
+}
+
+function syncProfileSideWidthFromPlayers(rows) {
+  const list = Array.isArray(rows) ? rows : [];
+  if (!list.length) return;
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  const base = parseFloat(getComputedStyle(document.documentElement).fontSize || "16");
+  const fontPx = Math.max(10, base * 0.68);
+  ctx.font = `400 ${fontPx}px -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif`;
+  const maxValueWidth = list.reduce((m, p) => {
+    const v = String(p?.playType || "-");
+    return Math.max(m, ctx.measureText(v).width);
+  }, 0);
+  const sideWidth = Math.max(148, Math.ceil(maxValueWidth + 14));
+  document.documentElement.style.setProperty("--profile-side-width", `${sideWidth}px`);
 }
 
 function normalizeCategory(value) {
@@ -1175,17 +1192,17 @@ function renderCoachDetail(coachId) {
           <img loading="lazy" src="${staticImg}" alt="${coach.name}" />
           <img loading="lazy" src="${actionImg}" alt="${coach.name}" onerror="this.src='${staticImg}'" />
         </div>
-        <div class="coach-meta-grid coach-meta-box-grid">
-          <div class="coach-meta-box"><span class="k">国籍</span><span class="v">${nationText}</span></div>
-          <div class="coach-meta-box"><span class="k">年齢</span><span class="v">${coach.age || "-"}</span></div>
-          <div class="coach-meta-box"><span class="k">タイプ</span><span class="v">${coachTypeLabel(coach.type)}</span></div>
+        <div class="profile-side coach-profile-side">
+          <div class="profile-item"><span class="k">国籍</span><span class="v">${nationText}</span></div>
+          <div class="profile-item"><span class="k">年齢</span><span class="v">${coach.age || "-"}</span></div>
+          <div class="profile-item"><span class="k">タイプ</span><span class="v">${coachTypeLabel(coach.type)}</span></div>
         </div>
       </div>
       ${tabPanelHtml}
-      <div class="coach-tab-row">
-        <button type="button" class="coach-tab-btn ${tab === "lead" ? "is-on" : ""}" data-coach-tab="lead" data-coach-id="${coach.id}">LEAD</button>
-        <button type="button" class="coach-tab-btn ${tab === "obtain" ? "is-on" : ""}" data-coach-tab="obtain" data-coach-id="${coach.id}">OBT</button>
-        <button type="button" class="coach-tab-btn ${tab === "understood" ? "is-on" : ""}" data-coach-tab="understood" data-coach-id="${coach.id}">UND</button>
+      <div class="card-tabs">
+        <button type="button" class="card-tab ${tab === "lead" ? "is-active" : ""}" data-coach-tab="lead" data-coach-id="${coach.id}">LEAD</button>
+        <button type="button" class="card-tab ${tab === "obtain" ? "is-active" : ""}" data-coach-tab="obtain" data-coach-id="${coach.id}">OBT</button>
+        <button type="button" class="card-tab ${tab === "understood" ? "is-active" : ""}" data-coach-tab="understood" data-coach-id="${coach.id}">UND</button>
       </div>
     </article>
   `;
@@ -1588,6 +1605,7 @@ async function init() {
     try {
       const playersData = await playersRes.json();
       const rows = Array.isArray(playersData?.players) ? playersData.players : [];
+      syncProfileSideWidthFromPlayers(rows);
       playerCategoryById = new Map(
         rows
           .map((p) => [Number(p?.id), normalizeCategory(p?.category)])

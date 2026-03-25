@@ -3,7 +3,7 @@ const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-25 21:15 JST";
+const APP_UPDATED_AT_JST = "2026-03-25 21:26 JST";
 const LINEUP_SIZE = 11;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
@@ -144,6 +144,23 @@ function metricLabel(metric) {
 
 function detailMetricLabel(metric) {
   return DETAIL_METRIC_LABELS[metric] || metric;
+}
+
+function syncProfileSideWidthFromPlayers(rows) {
+  const list = Array.isArray(rows) ? rows : [];
+  if (!list.length) return;
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  const base = parseFloat(getComputedStyle(document.documentElement).fontSize || "16");
+  const fontPx = Math.max(10, base * 0.68);
+  ctx.font = `400 ${fontPx}px -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif`;
+  const maxValueWidth = list.reduce((m, p) => {
+    const v = String(p?.playType || "-");
+    return Math.max(m, ctx.measureText(v).width);
+  }, 0);
+  const sideWidth = Math.max(148, Math.ceil(maxValueWidth + 14));
+  document.documentElement.style.setProperty("--profile-side-width", `${sideWidth}px`);
 }
 
 function pct(v) {
@@ -1830,6 +1847,7 @@ async function init() {
   ]);
   const data = await dataRes.json();
   players = data.players || [];
+  syncProfileSideWidthFromPlayers(players);
   if (formationsRes && formationsRes.ok) {
     const formationsData = await formationsRes.json();
     formations = Array.isArray(formationsData?.formations) ? formationsData.formations : [];
