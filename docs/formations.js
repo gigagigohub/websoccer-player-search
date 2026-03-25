@@ -3,7 +3,7 @@ const SUPABASE_TABLE = "lineup_states";
 const LINEUP_SIZE = 11;
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-25 22:43 JST";
+const APP_UPDATED_AT_JST = "2026-03-25 22:52 JST";
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織",
@@ -119,6 +119,60 @@ const coachTabModeById = new Map();
 const cardViewModeById = new Map();
 let modalScrollLockY = 0;
 let modalScrollLocked = false;
+
+function rebuildFormationAvailableCoachesFromMeta() {
+  if (!Array.isArray(formations) || !formations.length) return;
+  if (!Array.isArray(coachesMeta) || !coachesMeta.length) return;
+  const coachNameById = new Map();
+  (Array.isArray(coaches) ? coaches : []).forEach((c) => {
+    const id = Number(c?.id);
+    if (Number.isInteger(id) && id > 0) {
+      const name = String(c?.name || "").trim();
+      if (name) coachNameById.set(id, name);
+    }
+  });
+  coachesMeta.forEach((c) => {
+    const id = Number(c?.id);
+    if (!Number.isInteger(id) || id <= 0) return;
+    const name = String(c?.name || coachNameById.get(id) || "").trim();
+    if (name) coachNameById.set(id, name);
+  });
+
+  const formationToCoachMap = new Map();
+  coachesMeta.forEach((coach) => {
+    const cid = Number(coach?.id);
+    if (!Number.isInteger(cid) || cid <= 0) return;
+    const cname = coachNameById.get(cid) || `Coach ${cid}`;
+    const rows = Array.isArray(coach?.obtainable) ? coach.obtainable : [];
+    rows.forEach((row) => {
+      const fid = Number(row?.formationId);
+      if (!Number.isInteger(fid) || fid <= 0) return;
+      const fromSeasonRaw = Number(row?.fromSeason);
+      const fromSeason = Number.isFinite(fromSeasonRaw) && fromSeasonRaw > 0 ? fromSeasonRaw : 1;
+      if (!formationToCoachMap.has(fid)) formationToCoachMap.set(fid, new Map());
+      const map = formationToCoachMap.get(fid);
+      const prev = map.get(cid);
+      if (!prev || fromSeason < prev.fromSeason) {
+        map.set(cid, { id: cid, name: cname, fromSeason });
+      }
+    });
+  });
+
+  formations.forEach((formation) => {
+    const fid = Number(formation?.id);
+    if (!Number.isInteger(fid) || fid <= 0) return;
+    const map = formationToCoachMap.get(fid);
+    const rows = map
+      ? Array.from(map.values()).sort((a, b) =>
+          a.fromSeason - b.fromSeason
+          || a.name.localeCompare(b.name, "ja")
+          || a.id - b.id
+        )
+      : [];
+    if (!formation.coaches || typeof formation.coaches !== "object") formation.coaches = {};
+    formation.coaches.obtainable = rows.map((r) => ({ id: r.id, name: r.name, fromSeason: r.fromSeason }));
+  });
+}
 
 function setModalScrollLocked(locked) {
   const root = document.documentElement;
@@ -1472,7 +1526,6 @@ function bindEvents() {
   }
 
   if (els.sortKey) els.sortKey.addEventListener("change", renderList);
-  if (els.sortDir) els.sortDir.addEventListener("change", renderList);
   if (els.formationNameQuery) {
     els.formationNameQuery.addEventListener("input", renderList);
   }
@@ -1628,6 +1681,7 @@ async function init() {
       console.warn(e);
     }
   }
+  rebuildFormationAvailableCoachesFromMeta();
   if (playersRes && playersRes.ok) {
     try {
       const playersData = await playersRes.json();
