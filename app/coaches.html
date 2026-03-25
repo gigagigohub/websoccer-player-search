@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>WebSoccer Ordinary - Formations</title>
+  <title>WebSoccer Ordinary - Coaches</title>
   <meta property="og:title" content="WebSoccer Ordinary" />
   <meta property="og:site_name" content="WebSoccer Ordinary" />
   <meta name="twitter:title" content="WebSoccer Ordinary" />
@@ -20,8 +20,8 @@
       <button id="menuButton" type="button" class="menu-button" aria-label="メニュー">☰</button>
       <div id="menuPanel" class="menu-panel">
         <button id="playersButton" type="button" class="menu-item">Players</button>
-        <button id="coachesButton" type="button" class="menu-item">Coaches</button>
-        <button id="formationsButton" type="button" class="menu-item is-current" aria-current="page">Formations</button>
+        <button id="coachesButton" type="button" class="menu-item is-current" aria-current="page">Coaches</button>
+        <button id="formationsButton" type="button" class="menu-item">Formations</button>
         <button id="myTeamButton" type="button" class="menu-item">My Team</button>
         <button id="loginButton" type="button" class="menu-item">Login</button>
         <button id="logoutButton" type="button" class="menu-item logout" hidden>Logout</button>
@@ -33,38 +33,32 @@
     <section class="panel formation-filter-panel">
       <div class="formation-filter-grid">
         <div>
-          <label class="label" for="sortKey">Sort Key</label>
-          <select id="sortKey"></select>
+          <label class="label" for="coachNameQuery">Name</label>
+          <input id="coachNameQuery" type="text" placeholder="Name" />
         </div>
         <div>
-          <label class="label" for="sortDir">Order</label>
-          <select id="sortDir">
-            <option value="desc">DESC</option>
-            <option value="asc">ASC</option>
+          <label class="label" for="coachTypeFilter">Type</label>
+          <select id="coachTypeFilter">
+            <option value="">ALL</option>
+            <option value="1">超攻撃型</option>
+            <option value="2">攻撃型</option>
+            <option value="3">バランス型</option>
+            <option value="4">守備型</option>
+            <option value="5">超守備型</option>
           </select>
         </div>
       </div>
-
-      <div class="formation-filter-grid">
-        <div>
-          <label class="label" for="formationNameQuery">Formation Name</label>
-          <input id="formationNameQuery" type="text" placeholder="Name" />
-        </div>
-        <div>
-          <label class="label" for="coachFilter">Coach Filter</label>
-          <select id="coachFilter">
-            <option value="">ALL</option>
-          </select>
-        </div>
+      <div class="apply-row">
+        <button id="coachSearchButton" type="button" class="search-btn">Search</button>
       </div>
     </section>
 
     <section class="panel">
       <div class="result-head">
-        <h2>Formations</h2>
-        <span id="formationCount">0 results</span>
+        <h2>Coaches</h2>
+        <span id="coachCount">0 results</span>
       </div>
-      <div id="formationList" class="formation-list"></div>
+      <div id="coachList" class="coach-list"></div>
     </section>
   </main>
 
@@ -101,6 +95,34 @@
     </div>
   </div>
 
+  <div id="seasonModal" class="season-modal" hidden>
+    <div id="seasonBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog" role="dialog" aria-modal="true" aria-labelledby="seasonTitle">
+      <div class="season-head">
+        <h2 id="seasonTitle">登録期の選択</h2>
+        <button id="seasonClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <p id="seasonTarget" class="season-target"></p>
+      <label class="label" for="seasonSelect">期</label>
+      <select id="seasonSelect"></select>
+      <div class="season-actions">
+        <button id="seasonCancel" type="button" class="ghost">Cancel</button>
+        <button id="seasonApply" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="coachModal" class="season-modal" hidden>
+    <div id="coachBackdrop" class="season-backdrop"></div>
+    <div class="formation-dialog" role="dialog" aria-modal="true" aria-labelledby="coachTitle">
+      <div class="season-head">
+        <h2 id="coachTitle">Coach Detail</h2>
+        <button id="coachClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <div id="coachDetail" class="formation-detail"></div>
+    </div>
+  </div>
+
   <div id="formationModal" class="season-modal" hidden>
     <div id="formationBackdrop" class="season-backdrop"></div>
     <div class="formation-dialog" role="dialog" aria-modal="true" aria-labelledby="formationTitle">
@@ -112,39 +134,6 @@
     </div>
   </div>
 
-  <div id="slotModal" class="season-modal" hidden>
-    <div id="slotBackdrop" class="season-backdrop"></div>
-    <div class="season-dialog" role="dialog" aria-modal="true" aria-labelledby="slotTitle">
-      <div class="season-head">
-        <h2 id="slotTitle">Slot Detail</h2>
-        <button id="slotClose" type="button" class="season-close" aria-label="閉じる">×</button>
-      </div>
-      <div id="slotDetail" class="slot-detail"></div>
-    </div>
-  </div>
-
-  <div id="coachModal" class="season-modal" hidden>
-    <div id="coachBackdrop" class="season-backdrop"></div>
-    <div class="season-dialog" role="dialog" aria-modal="true" aria-labelledby="coachTitle">
-      <div class="season-head">
-        <h2 id="coachTitle">Coach</h2>
-        <button id="coachClose" type="button" class="season-close" aria-label="閉じる">×</button>
-      </div>
-      <div id="coachDetail"></div>
-    </div>
-  </div>
-
-  <div id="playerCardModal" class="season-modal" hidden>
-    <div id="playerCardBackdrop" class="season-backdrop"></div>
-    <div class="season-dialog player-card-wrap" role="dialog" aria-modal="true" aria-labelledby="playerCardTitle">
-      <div class="season-head">
-        <h2 id="playerCardTitle">Player</h2>
-        <button id="playerCardClose" type="button" class="season-close" aria-label="閉じる">×</button>
-      </div>
-      <div id="playerCardHost"></div>
-    </div>
-  </div>
-
-  <script src="./formations.js"></script>
+  <script src="./coaches.js"></script>
 </body>
 </html>

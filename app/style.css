@@ -2672,3 +2672,112 @@ button.ghost {
     grid-template-columns: 176px minmax(0, 1fr);
   }
 }
+
+/* Coaches page + shared coach UI */
+.coach-card {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(27, 40, 62, 0.92), rgba(16, 25, 42, 0.94));
+  padding: 0.65rem;
+  margin-top: 0.65rem;
+}
+
+.coach-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.coach-card-body {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.7rem;
+  margin-top: 0.55rem;
+}
+
+.coach-images-btn {
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.coach-thumbs {
+  min-width: 114px;
+}
+
+.coach-meta-grid {
+  display: grid;
+  gap: 0.33rem;
+  align-content: start;
+  font-size: 0.82rem;
+}
+
+.coach-meta-grid .k {
+  color: #9fb2d2;
+  margin-right: 0.45rem;
+}
+
+.coach-meta-grid .v {
+  color: #f4f8ff;
+}
+
+.coach-lead-line {
+  font-size: 0.75rem;
+}
+
+.hc-badge {
+  background: linear-gradient(180deg, #836342, #65492f);
+  color: #fff;
+}
+
+.coach-formation-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.coach-formation-pill {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.07);
+  color: #d6e2f5;
+}
+
+.coach-formation-pill.is-owned,
+.formation-owned-mark {
+  color: #fbe38e;
+}
+
+.formation-detail-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
+}
+
+.formation-owned-toggle {
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.08);
+  color: #d4dded;
+  border-radius: 7px;
+  padding: 0.28rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+.formation-owned-toggle.is-on {
+  border-color: rgba(245, 214, 122, 0.7);
+  color: #f7e58f;
+  background: rgba(143, 118, 35, 0.34);
+}
+
+.formation-name-wrap .formation-owned-mark {
+  margin-left: 0.35rem;
+}
+
+.myteam-coach-wrap {
+  margin-top: 0.8rem;
+}
+
+.myteam-coach-slot .lineup-empty-thumb {
+  width: 78px;
+  height: 78px;
+}

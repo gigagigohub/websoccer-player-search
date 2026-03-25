@@ -3,7 +3,7 @@ const SUPABASE_TABLE = "lineup_states";
 const LINEUP_SIZE = 11;
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-24 01:36 JST";
+const APP_UPDATED_AT_JST = "2026-03-25 23:59 JST";
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織",
@@ -59,10 +59,12 @@ const els = {
   menuButton: document.querySelector("#menuButton"),
   menuPanel: document.querySelector("#menuPanel"),
   playersButton: document.querySelector("#playersButton"),
+  coachesButton: document.querySelector("#coachesButton"),
   formationsButton: document.querySelector("#formationsButton"),
   loginButton: document.querySelector("#loginButton"),
   myTeamButton: document.querySelector("#myTeamButton"),
   logoutButton: document.querySelector("#logoutButton"),
+  formationNameQuery: document.querySelector("#formationNameQuery"),
   sortKey: document.querySelector("#sortKey"),
   sortDir: document.querySelector("#sortDir"),
   coachFilter: document.querySelector("#coachFilter"),
@@ -90,6 +92,11 @@ const els = {
   slotClose: document.querySelector("#slotClose"),
   slotTitle: document.querySelector("#slotTitle"),
   slotDetail: document.querySelector("#slotDetail"),
+  coachModal: document.querySelector("#coachModal"),
+  coachBackdrop: document.querySelector("#coachBackdrop"),
+  coachClose: document.querySelector("#coachClose"),
+  coachTitle: document.querySelector("#coachTitle"),
+  coachDetail: document.querySelector("#coachDetail"),
   playerCardModal: document.querySelector("#playerCardModal"),
   playerCardBackdrop: document.querySelector("#playerCardBackdrop"),
   playerCardClose: document.querySelector("#playerCardClose"),
@@ -99,9 +106,11 @@ const els = {
 let cloudConfig = { url: "", anonKey: "", lineupKey: "" };
 let formations = [];
 let coaches = [];
+let coachesMeta = [];
 let playerCategoryById = new Map();
 let playerRateById = new Map();
 let playersById = new Map();
+let cloudMeta = { formationId: null, ownedFormationIds: [], coach: null };
 let filteredAndSorted = [];
 let currentFormation = null;
 let slotTopSortMode = "usage";
@@ -289,6 +298,61 @@ async function cloudCreateLineup(lineupId) {
   });
 }
 
+function formationMetaId(lineupId = cloudConfig?.lineupKey) {
+  const id = String(lineupId || "").trim();
+  return id ? `${id}__meta` : "";
+}
+
+function normalizeMeta(raw) {
+  const fid = Number(raw?.formationId);
+  const owned = Array.isArray(raw?.ownedFormationIds)
+    ? raw.ownedFormationIds.map((x) => Number(x)).filter((x) => Number.isInteger(x) && x > 0)
+    : [];
+  const coachId = Number(raw?.coach?.coachId);
+  const season = raw?.coach?.season == null ? null : String(raw?.coach?.season);
+  return {
+    formationId: Number.isInteger(fid) && fid > 0 ? fid : null,
+    ownedFormationIds: [...new Set(owned)],
+    coach: Number.isInteger(coachId) && coachId > 0 ? { coachId, season: season || "1期" } : null,
+  };
+}
+
+async function loadCloudMeta() {
+  const id = formationMetaId();
+  if (!id) return false;
+  const params = new URLSearchParams({
+    select: "lineup_json",
+    lineup_id: `eq.${id}`,
+    limit: "1",
+  });
+  const rows = await supabaseRequest(`${SUPABASE_TABLE}?${params.toString()}`, { method: "GET" });
+  if (!Array.isArray(rows) || !rows.length) {
+    cloudMeta = { formationId: null, ownedFormationIds: [], coach: null };
+    return false;
+  }
+  cloudMeta = normalizeMeta(rows[0]?.lineup_json || {});
+  return true;
+}
+
+async function saveCloudMeta() {
+  const id = formationMetaId();
+  if (!id) return;
+  const payload = {
+    lineup_id: id,
+    lineup_json: {
+      formationId: Number.isInteger(cloudMeta.formationId) ? cloudMeta.formationId : null,
+      ownedFormationIds: Array.isArray(cloudMeta.ownedFormationIds) ? cloudMeta.ownedFormationIds : [],
+      coach: cloudMeta.coach || null,
+    },
+    updated_at: new Date().toISOString(),
+  };
+  await supabaseRequest(`${SUPABASE_TABLE}?on_conflict=lineup_id`, {
+    method: "POST",
+    headers: { Prefer: "resolution=merge-duplicates,return=representation" },
+    body: JSON.stringify(payload),
+  });
+}
+
 function logout() {
   saveCloudConfig("");
   updateMenuState();
@@ -430,8 +494,12 @@ function applyFilterAndSort() {
   const sortKey = els.sortKey?.value || "cc.usageRate";
   const sortDir = els.sortDir?.value === "asc" ? 1 : -1;
   const coachId = Number(els.coachFilter?.value || 0);
+  const nameQuery = String(els.formationNameQuery?.value || "").trim();
 
   let rows = formations.slice();
+  if (nameQuery) {
+    rows = rows.filter((f) => String(f?.name || "").includes(nameQuery));
+  }
   if (coachId > 0) {
     rows = rows.filter((f) => {
       const list = f.coaches?.depth4 || [];
@@ -460,12 +528,14 @@ function applyFilterAndSort() {
 
 function formationCardHtml(f) {
   const yearText = formatFormationYearLabel(f.year, f.stride);
+  const owned = cloudMeta.ownedFormationIds?.includes(Number(f.id));
   return `
     <button type="button" class="formation-item" data-formation-id="${f.id}">
       <div class="formation-item-head">
         <div class="formation-name-wrap">
           <strong>${f.name}</strong>
           ${yearText ? `<span class="formation-year">${yearText}</span>` : ""}
+          ${owned ? `<span class="formation-owned-mark" title="Owned">📖</span>` : ""}
         </div>
         <span class="formation-system">${f.system || "-"}</span>
       </div>
@@ -537,7 +607,7 @@ function renderFormationPitch(positions, formationId) {
 
 function renderCoachesList(list) {
   if (!Array.isArray(list) || !list.length) return "-";
-  return list.map((c) => `<span class="inline-pill">${c.name}</span>`).join(" ");
+  return list.map((c) => `<button type="button" class="inline-pill coach-link-pill" data-coach-id="${Number(c?.id || c?.coachId || 0)}">${c.name}</button>`).join(" ");
 }
 
 function renderKeyPositions(keyPositions) {
@@ -1019,13 +1089,87 @@ function renderFormationParamGrid(params) {
   `;
 }
 
+function getCoachById(coachId) {
+  const id = Number(coachId);
+  if (!Number.isInteger(id)) return null;
+  return coaches.find((c) => Number(c?.id) === id) || null;
+}
+
+function getFormationName(fid) {
+  const f = formations.find((x) => Number(x?.id) === Number(fid));
+  if (!f) return `Formation ${fid}`;
+  const y = formatFormationYearLabel(f.year, f.stride);
+  return `${f.name}${y ? ` ${y}` : ""}`;
+}
+
+function renderCoachDetail(coachId) {
+  if (!els.coachDetail || !els.coachTitle) return;
+  const coach = getCoachById(coachId);
+  if (!coach) {
+    els.coachTitle.textContent = "Coach";
+    els.coachDetail.innerHTML = `<p class="dim">No data.</p>`;
+    return;
+  }
+  const ext = coachesMeta.find((c) => Number(c?.id) === Number(coach.id)) || null;
+  const leadership = Array.isArray(ext?.leadershipBySeason) ? ext.leadershipBySeason : [];
+  const leadChips = leadership.map((v, i) => `<span class="inline-pill">${i + 1}期:${v}</span>`).join(" ");
+  const obtainable = Array.isArray(ext?.obtainable) ? ext.obtainable : [];
+  const depth4 = Array.isArray(ext?.depth4FormationIds) ? ext.depth4FormationIds : (coach.formationDepth4 || []);
+  const obtainHtml = obtainable.map((row) => {
+    const suffix = Number(row.fromSeason) > 1 ? ` (${row.fromSeason}期目〜)` : "";
+    const owned = cloudMeta.ownedFormationIds?.includes(Number(row.formationId)) ? "is-owned" : "";
+    return `<button type="button" class="inline-pill coach-formation-pill ${owned}" data-formation-id="${row.formationId}">${getFormationName(row.formationId)}${suffix}</button>`;
+  }).join(" ");
+  const depth4Html = depth4.map((fid) => {
+    const owned = cloudMeta.ownedFormationIds?.includes(Number(fid)) ? "is-owned" : "";
+    return `<button type="button" class="inline-pill coach-formation-pill ${owned}" data-formation-id="${fid}">${getFormationName(fid)}</button>`;
+  }).join(" ");
+
+  els.coachTitle.textContent = `${coach.name} / ${coach.fullName || "-"}`;
+  els.coachDetail.innerHTML = `
+    <div class="formation-block">
+      <h3>Type / Age</h3>
+      <p>${coach.type || "-"} / ${coach.age || "-"}</p>
+    </div>
+    <div class="formation-block">
+      <h3>Leadership</h3>
+      <div>${leadChips || "-"}</div>
+    </div>
+    <div class="formation-block">
+      <h3>Obtainable Formations</h3>
+      <div class="coach-formation-list">${obtainHtml || "-"}</div>
+    </div>
+    <div class="formation-block">
+      <h3>Depth 4 Formations</h3>
+      <div class="coach-formation-list">${depth4Html || "-"}</div>
+    </div>
+  `;
+}
+
+function openCoachModal(coachId) {
+  if (!els.coachModal) return;
+  renderCoachDetail(coachId);
+  els.coachModal.hidden = false;
+}
+
+function closeCoachModal() {
+  if (!els.coachModal) return;
+  els.coachModal.hidden = true;
+}
+
 function openFormationModal(formation) {
   currentFormation = formation;
   if (!els.formationModal || !els.formationTitle || !els.formationDetail) return;
 
   const yearLabel = formatFormationYearLabel(formation.year, formation.stride);
+  const owned = cloudMeta.ownedFormationIds?.includes(Number(formation.id));
   els.formationTitle.textContent = `${formation.name}${yearLabel ? ` ${yearLabel}` : ""} (${formation.system || "-"})`;
   els.formationDetail.innerHTML = `
+    <div class="formation-detail-toolbar">
+      <button type="button" class="formation-owned-toggle ${owned ? "is-on" : ""}" data-toggle-owned="${formation.id}" title="Owned">
+        📖 ${owned ? "Owned" : "Mark Owned"}
+      </button>
+    </div>
     <div class="formation-detail-grid">
       <div class="formation-field-col">
         ${renderFormationPitch(formation.positions || [], formation.id)}
@@ -1143,6 +1287,12 @@ function bindEvents() {
       window.location.href = "./index.html";
     });
   }
+  if (els.coachesButton) {
+    els.coachesButton.addEventListener("click", () => {
+      closeMenuPanel();
+      window.location.href = "./coaches.html";
+    });
+  }
   if (els.formationsButton) {
     els.formationsButton.addEventListener("click", () => {
       closeMenuPanel();
@@ -1195,7 +1345,9 @@ function bindEvents() {
         return;
       }
       updateMenuState();
+      await loadCloudMeta().catch(() => {});
       closeLoginModal();
+      renderList();
     });
   }
   if (els.signupBackdrop) els.signupBackdrop.addEventListener("click", closeSignupModal);
@@ -1223,13 +1375,18 @@ function bindEvents() {
         return;
       }
       updateMenuState();
+      await loadCloudMeta().catch(() => {});
       closeSignupModal();
       closeLoginModal();
+      renderList();
     });
   }
 
   if (els.sortKey) els.sortKey.addEventListener("change", renderList);
   if (els.sortDir) els.sortDir.addEventListener("change", renderList);
+  if (els.formationNameQuery) {
+    els.formationNameQuery.addEventListener("input", renderList);
+  }
   if (els.coachFilter) {
     els.coachFilter.addEventListener("change", renderList);
     els.coachFilter.addEventListener("input", renderList);
@@ -1249,6 +1406,31 @@ function bindEvents() {
 
   if (els.formationDetail) {
     els.formationDetail.addEventListener("click", (e) => {
+      const ownedBtn = e.target.closest("[data-toggle-owned]");
+      if (ownedBtn) {
+        const fid = Number(ownedBtn.dataset.toggleOwned);
+        if (!isLoggedIn()) {
+          window.alert("先にLoginしてください。");
+          return;
+        }
+        if (Number.isInteger(fid)) {
+          const set = new Set(cloudMeta.ownedFormationIds || []);
+          if (set.has(fid)) set.delete(fid);
+          else set.add(fid);
+          cloudMeta.ownedFormationIds = [...set].sort((a, b) => a - b);
+          saveCloudMeta().then(() => {
+            if (currentFormation) openFormationModal(currentFormation);
+            renderList();
+          }).catch(() => window.alert("保有フォーメーション保存に失敗しました。"));
+        }
+        return;
+      }
+      const coachBtn = e.target.closest("[data-coach-id]");
+      if (coachBtn) {
+        const cid = Number(coachBtn.dataset.coachId);
+        if (Number.isInteger(cid)) openCoachModal(cid);
+        return;
+      }
       const sortBtn = e.target.closest("[data-slot-top-sort]");
       if (sortBtn) {
         const mode = String(sortBtn.dataset.slotTopSort || "");
@@ -1270,6 +1452,8 @@ function bindEvents() {
   if (els.formationClose) els.formationClose.addEventListener("click", closeFormationModal);
   if (els.slotBackdrop) els.slotBackdrop.addEventListener("click", closeSlotModal);
   if (els.slotClose) els.slotClose.addEventListener("click", closeSlotModal);
+  if (els.coachBackdrop) els.coachBackdrop.addEventListener("click", closeCoachModal);
+  if (els.coachClose) els.coachClose.addEventListener("click", closeCoachModal);
   if (els.playerCardBackdrop) els.playerCardBackdrop.addEventListener("click", closePlayerCardModal);
   if (els.playerCardClose) els.playerCardClose.addEventListener("click", closePlayerCardModal);
 
@@ -1294,6 +1478,16 @@ function bindEvents() {
       renderPlayerCardModal();
     });
   }
+  if (els.coachDetail) {
+    els.coachDetail.addEventListener("click", (e) => {
+      const fbtn = e.target.closest("[data-formation-id]");
+      if (!fbtn) return;
+      const fid = Number(fbtn.dataset.formationId);
+      if (!Number.isInteger(fid)) return;
+      const f = formations.find((x) => Number(x?.id) === fid);
+      if (f) openFormationModal(f);
+    });
+  }
 
   document.addEventListener("click", (e) => {
     if (!els.menuPanel || !els.menuButton || !els.menuPanel.classList.contains("is-open")) return;
@@ -1307,6 +1501,7 @@ function bindEvents() {
     closeLoginModal();
     closeSignupModal();
     closeFormationModal();
+    closeCoachModal();
     closeSlotModal();
     closePlayerCardModal();
   });
@@ -1318,13 +1513,22 @@ async function init() {
   buildSortOptions();
   bindEvents();
 
-  const [formationsRes, playersRes] = await Promise.all([
+  const [formationsRes, playersRes, coachesMetaRes] = await Promise.all([
     fetch("./formations_data.json"),
     fetch("./data.json").catch(() => null),
+    fetch("./coaches_data.json").catch(() => null),
   ]);
   const formationData = await formationsRes.json();
   formations = Array.isArray(formationData.formations) ? formationData.formations : [];
   coaches = Array.isArray(formationData.coaches) ? formationData.coaches : [];
+  if (coachesMetaRes && coachesMetaRes.ok) {
+    try {
+      const raw = await coachesMetaRes.json();
+      coachesMeta = Array.isArray(raw?.coaches) ? raw.coaches : [];
+    } catch (e) {
+      console.warn(e);
+    }
+  }
   if (playersRes && playersRes.ok) {
     try {
       const playersData = await playersRes.json();
@@ -1349,6 +1553,9 @@ async function init() {
     }
   }
   buildCoachFilter();
+  if (isLoggedIn()) {
+    await loadCloudMeta().catch(() => {});
+  }
   updateMenuState();
   renderList();
   tryOpenFormationFromQuery();

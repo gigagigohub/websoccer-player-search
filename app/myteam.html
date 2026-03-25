@@ -17,6 +17,7 @@
       <button id="myteamMenuButton" type="button" class="menu-button" aria-label="メニュー">☰</button>
       <div id="myteamMenuPanel" class="menu-panel">
         <button id="myteamDatabaseButton" type="button" class="menu-item">Players</button>
+        <button id="myteamCoachesButton" type="button" class="menu-item">Coaches</button>
         <button id="myteamFormationsButton" type="button" class="menu-item">Formations</button>
         <button id="myteamCurrentButton" type="button" class="menu-item is-current" aria-current="page">My Team</button>
         <button id="myteamLoginButton" type="button" class="menu-item" hidden>Login</button>
@@ -44,6 +45,7 @@
     <section class="panel">
       <p id="myTeamTarget" class="lineup-target"></p>
       <div id="myTeamSlots" class="lineup-slots"></div>
+      <div id="myTeamCoachWrap" class="myteam-coach-wrap"></div>
     </section>
   </main>
 
@@ -121,6 +123,20 @@
       <div id="playerCardHost"></div>
       <div class="player-card-actions">
         <button id="playerDeleteBtn" type="button" class="player-delete-btn">Delete from Team</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="coachCardModal" class="season-modal" hidden>
+    <div id="coachCardBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog player-card-wrap" role="dialog" aria-modal="true" aria-labelledby="coachCardTitle">
+      <div class="season-head">
+        <h2 id="coachCardTitle">Coach</h2>
+        <button id="coachCardClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <div id="coachCardHost"></div>
+      <div class="player-card-actions">
+        <button id="coachDeleteBtn" type="button" class="player-delete-btn">Remove Coach</button>
       </div>
     </div>
   </div>

@@ -3,7 +3,7 @@ const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-24 01:36 JST";
+const APP_UPDATED_AT_JST = "2026-03-25 23:59 JST";
 const LINEUP_SIZE = 11;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
@@ -35,6 +35,7 @@ const els = {
   myteamMenuButton: document.querySelector("#myteamMenuButton"),
   myteamMenuPanel: document.querySelector("#myteamMenuPanel"),
   myteamDatabaseButton: document.querySelector("#myteamDatabaseButton"),
+  myteamCoachesButton: document.querySelector("#myteamCoachesButton"),
   myteamFormationsButton: document.querySelector("#myteamFormationsButton"),
   myteamLoginButton: document.querySelector("#myteamLoginButton"),
   myteamLogoutButton: document.querySelector("#myteamLogoutButton"),
@@ -53,6 +54,7 @@ const els = {
   myTeamMeta: document.querySelector("#myTeamMeta"),
   myTeamTarget: document.querySelector("#myTeamTarget"),
   myTeamSlots: document.querySelector("#myTeamSlots"),
+  myTeamCoachWrap: document.querySelector("#myTeamCoachWrap"),
   lifecycleToggle: document.querySelector("#lifecycleToggle"),
   advanceSeasonButton: document.querySelector("#advanceSeasonButton"),
   rewindSeasonButton: document.querySelector("#rewindSeasonButton"),
@@ -72,6 +74,11 @@ const els = {
   playerCardClose: document.querySelector("#playerCardClose"),
   playerCardHost: document.querySelector("#playerCardHost"),
   playerDeleteBtn: document.querySelector("#playerDeleteBtn"),
+  coachCardModal: document.querySelector("#coachCardModal"),
+  coachCardBackdrop: document.querySelector("#coachCardBackdrop"),
+  coachCardClose: document.querySelector("#coachCardClose"),
+  coachCardHost: document.querySelector("#coachCardHost"),
+  coachDeleteBtn: document.querySelector("#coachDeleteBtn"),
   myteamSettingModal: document.querySelector("#myteamSettingModal"),
   myteamSettingBackdrop: document.querySelector("#myteamSettingBackdrop"),
   myteamSettingClose: document.querySelector("#myteamSettingClose"),
@@ -89,7 +96,9 @@ let selectedPlayerMode = "starter";
 let lifecycleModeEnabled = false;
 const cardViewModeById = new Map();
 let formations = [];
+let coaches = [];
 let selectedFormationId = null;
+let selectedCoach = null;
 let isFormationEditorOpen = false;
 let modalScrollLockY = 0;
 let modalScrollLocked = false;
@@ -164,6 +173,13 @@ function formationMetaId(lineupId = cloudConfig?.lineupKey) {
 function normalizeFormationId(v) {
   const n = Number(v);
   return Number.isInteger(n) && n > 0 ? n : null;
+}
+
+function normalizeCoach(raw) {
+  const id = Number(raw?.coachId);
+  if (!Number.isInteger(id) || id <= 0) return null;
+  const season = raw?.season == null ? "1期" : String(raw?.season);
+  return { coachId: id, season };
 }
 
 function loadSelectedFormationId() {
@@ -535,7 +551,10 @@ async function loadCloudLineup() {
   const rows = await supabaseRequest(`${SUPABASE_TABLE}?${params.toString()}`, {
     method: "GET",
   });
-  if (!Array.isArray(rows) || !rows.length) return false;
+  if (!Array.isArray(rows) || !rows.length) {
+    selectedCoach = null;
+    return false;
+  }
   const remote = rows[0]?.lineup_json;
   if (!Array.isArray(remote)) return false;
   lineup = normalizeLineupArray(remote);
@@ -557,6 +576,7 @@ async function loadCloudFormationId() {
   if (!Array.isArray(rows) || !rows.length) return false;
   const remote = rows[0]?.lineup_json;
   selectedFormationId = normalizeFormationId(remote?.formationId);
+  selectedCoach = normalizeCoach(remote?.coach);
   saveSelectedFormationId();
   return selectedFormationId != null;
 }
@@ -597,6 +617,7 @@ async function saveCloudFormationId() {
     lineup_id: metaId,
     lineup_json: {
       formationId: normalizeFormationId(selectedFormationId),
+      coach: selectedCoach,
     },
     updated_at: new Date().toISOString(),
   };
@@ -950,11 +971,23 @@ async function shiftAllLineupSeasons(delta) {
     return { ...entry, season: nextSeason, successor: nextSuccessor };
   });
 
+  if (selectedCoach && Number.isInteger(Number(selectedCoach.coachId))) {
+    const coach = (Array.isArray(coaches) ? coaches : []).find((c) => Number(c?.id) === Number(selectedCoach.coachId));
+    const max = Math.max(1, Array.isArray(coach?.leadershipBySeason) ? coach.leadershipBySeason.length : 1);
+    const cur = Number(String(selectedCoach.season || "1").replace(/[^0-9]/g, "")) || 1;
+    const next = Math.max(1, Math.min(max, cur + delta));
+    if (next !== cur) {
+      selectedCoach = { ...selectedCoach, season: `${next}期` };
+      changed = true;
+    }
+  }
+
   if (!changed) return false;
   saveLineupLocal();
   if (hasCloudConfig()) {
     try {
       await saveCloudLineup();
+      await saveCloudFormationId();
     } catch (e) {
       console.warn(e);
     }
@@ -1052,6 +1085,51 @@ function renderLineup() {
     `;
   }).join("");
   els.myTeamSlots.innerHTML = html;
+  renderCoachSection();
+}
+
+function renderCoachSection() {
+  if (!els.myTeamCoachWrap) return;
+  if (!selectedCoach || !Number.isInteger(Number(selectedCoach.coachId))) {
+    els.myTeamCoachWrap.innerHTML = `
+      <button type="button" class="lineup-slot myteam-slot myteam-coach-slot is-empty" id="myTeamCoachSlot">
+        <span class="slot-no">HC</span>
+        <div class="lineup-slot-main">
+          <div class="lineup-empty-thumb"></div>
+          <div class="lineup-player-meta">
+            <div class="lineup-badges">
+              <span class="badge pos-badge hc-badge">HC</span>
+            </div>
+            <span class="slot-name">未登録</span>
+          </div>
+        </div>
+      </button>
+    `;
+    return;
+  }
+  const coachId = Number(selectedCoach.coachId);
+  const coach = (Array.isArray(coaches) ? coaches : []).find((c) => Number(c?.id) === coachId);
+  const name = coach?.name || `Coach ${coachId}`;
+  const type = Number(coach?.type || 0);
+  const typeLabel = type === 1 ? "超攻撃型" : type === 2 ? "攻撃型" : type === 3 ? "バランス型" : type === 4 ? "守備型" : type === 5 ? "超守備型" : "-";
+  const season = selectedCoach?.season || "1期";
+  const img = `./images/chara/headcoaches/static/${coachId}@2x.gif`;
+  els.myTeamCoachWrap.innerHTML = `
+    <button type="button" class="lineup-slot myteam-slot myteam-coach-slot has-player" id="myTeamCoachSlot">
+      <span class="slot-no">HC</span>
+      <div class="lineup-slot-main">
+        <div class="lineup-thumb-wrap"><img loading="lazy" src="${img}" alt="${name}" /></div>
+        <div class="lineup-player-meta">
+          <div class="lineup-badges">
+            <span class="badge pos-badge hc-badge">HC</span>
+            <span class="badge lineup-season">${season}</span>
+          </div>
+          <span class="slot-name">${name}</span>
+          <span class="lineup-cc-stat">${typeLabel}</span>
+        </div>
+      </div>
+    </button>
+  `;
 }
 
 function openEmptySlotModal() {
@@ -1403,6 +1481,61 @@ async function removeSelectedPlayerFromTeam() {
   closePlayerCardModal();
 }
 
+function renderCoachCardModal() {
+  if (!els.coachCardHost) return;
+  if (!selectedCoach || !Number.isInteger(Number(selectedCoach.coachId))) {
+    els.coachCardHost.innerHTML = `<p class="dim">Coach not registered.</p>`;
+    return;
+  }
+  const coachId = Number(selectedCoach.coachId);
+  const coach = (Array.isArray(coaches) ? coaches : []).find((c) => Number(c?.id) === coachId);
+  const staticImg = `./images/chara/headcoaches/static/${coachId}@2x.gif`;
+  const actionImg = `./images/chara/headcoaches/action/${coachId}@2x.gif`;
+  const type = Number(coach?.type || 0);
+  const typeLabel = type === 1 ? "超攻撃型" : type === 2 ? "攻撃型" : type === 3 ? "バランス型" : type === 4 ? "守備型" : type === 5 ? "超守備型" : "-";
+  els.coachCardHost.innerHTML = `
+    <article class="coach-card">
+      <div class="coach-card-top">
+        <h3 class="card-name"><span class="badge pos-badge hc-badge">HC</span><span>${coach?.name || `Coach ${coachId}`}</span></h3>
+      </div>
+      <div class="coach-card-body">
+        <div class="thumbs coach-thumbs">
+          <img loading="lazy" src="${staticImg}" alt="${coach?.name || `Coach ${coachId}`}" />
+          <img loading="lazy" src="${actionImg}" alt="${coach?.name || `Coach ${coachId}`}" onerror="this.src='${staticImg}'" />
+        </div>
+        <div class="coach-meta-grid">
+          <div><span class="k">期</span><span class="v">${selectedCoach.season || "1期"}</span></div>
+          <div><span class="k">タイプ</span><span class="v">${typeLabel}</span></div>
+          <div><span class="k">年齢</span><span class="v">${coach?.age || "-"}</span></div>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function openCoachCardModal() {
+  renderCoachCardModal();
+  if (els.coachCardModal) els.coachCardModal.hidden = false;
+}
+
+function closeCoachCardModal() {
+  if (els.coachCardModal) els.coachCardModal.hidden = true;
+}
+
+async function removeCoachFromTeam() {
+  selectedCoach = null;
+  if (hasCloudConfig()) {
+    try {
+      await saveCloudFormationId();
+    } catch (e) {
+      window.alert("監督情報のクラウド保存に失敗しました。");
+      return;
+    }
+  }
+  renderCoachSection();
+  closeCoachCardModal();
+}
+
 async function init() {
   setupModalScrollLock();
   loadCloudConfig();
@@ -1418,6 +1551,11 @@ async function init() {
   if (els.myteamDatabaseButton) {
     els.myteamDatabaseButton.addEventListener("click", () => {
       window.location.href = "./index.html";
+    });
+  }
+  if (els.myteamCoachesButton) {
+    els.myteamCoachesButton.addEventListener("click", () => {
+      window.location.href = "./coaches.html";
     });
   }
   if (els.myteamFormationsButton) {
@@ -1507,6 +1645,7 @@ async function init() {
       closeFormationEditor();
       closeEmptySlotModal();
       closePlayerCardModal();
+      closeCoachCardModal();
       closeMyteamSettingModal();
     }
   });
@@ -1541,6 +1680,15 @@ async function init() {
       if (!Number.isInteger(mode) || mode < 0 || mode > 2) return;
       cardViewModeById.set(id, mode);
       renderPlayerCardModal();
+    });
+  }
+  if (els.coachCardBackdrop) els.coachCardBackdrop.addEventListener("click", closeCoachCardModal);
+  if (els.coachCardClose) els.coachCardClose.addEventListener("click", closeCoachCardModal);
+  if (els.coachDeleteBtn) {
+    els.coachDeleteBtn.addEventListener("click", async () => {
+      const ok = window.confirm("この監督をチームから外します。よろしいですか？");
+      if (!ok) return;
+      await removeCoachFromTeam();
     });
   }
 
@@ -1644,8 +1792,10 @@ async function init() {
   if (formationsRes && formationsRes.ok) {
     const formationsData = await formationsRes.json();
     formations = Array.isArray(formationsData?.formations) ? formationsData.formations : [];
+    coaches = Array.isArray(formationsData?.coaches) ? formationsData.coaches : [];
   } else {
     formations = [];
+    coaches = [];
   }
   buildFormationOptions();
   closeFormationEditor();
@@ -1691,6 +1841,16 @@ async function init() {
         return;
       }
       openPlayerCardModal(idx);
+    });
+  }
+  if (els.myTeamCoachWrap) {
+    els.myTeamCoachWrap.addEventListener("click", () => {
+      if (!selectedCoach || !Number.isInteger(Number(selectedCoach.coachId))) {
+        window.alert("CoachesからAddボタンで監督を登録してください。");
+        window.location.href = "./coaches.html";
+        return;
+      }
+      openCoachCardModal();
     });
   }
 }

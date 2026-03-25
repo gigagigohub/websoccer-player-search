@@ -1,0 +1,691 @@
+const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
+const SUPABASE_TABLE = "lineup_states";
+const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
+const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
+const APP_UPDATED_AT_JST = "2026-03-25 23:59 JST";
+
+const TYPE_LABELS = {
+  1: "超攻撃型",
+  2: "攻撃型",
+  3: "バランス型",
+  4: "守備型",
+  5: "超守備型",
+};
+
+const els = {
+  metaText: document.querySelector("#metaText"),
+  menuButton: document.querySelector("#menuButton"),
+  menuPanel: document.querySelector("#menuPanel"),
+  playersButton: document.querySelector("#playersButton"),
+  coachesButton: document.querySelector("#coachesButton"),
+  formationsButton: document.querySelector("#formationsButton"),
+  myTeamButton: document.querySelector("#myTeamButton"),
+  loginButton: document.querySelector("#loginButton"),
+  logoutButton: document.querySelector("#logoutButton"),
+  coachNameQuery: document.querySelector("#coachNameQuery"),
+  coachTypeFilter: document.querySelector("#coachTypeFilter"),
+  coachSearchButton: document.querySelector("#coachSearchButton"),
+  coachCount: document.querySelector("#coachCount"),
+  coachList: document.querySelector("#coachList"),
+
+  loginModal: document.querySelector("#loginModal"),
+  loginBackdrop: document.querySelector("#loginBackdrop"),
+  loginClose: document.querySelector("#loginClose"),
+  loginLineupKey: document.querySelector("#loginLineupKey"),
+  loginApply: document.querySelector("#loginApply"),
+  signupOpen: document.querySelector("#signupOpen"),
+
+  signupModal: document.querySelector("#signupModal"),
+  signupBackdrop: document.querySelector("#signupBackdrop"),
+  signupClose: document.querySelector("#signupClose"),
+  signupLineupKey: document.querySelector("#signupLineupKey"),
+  signupCancel: document.querySelector("#signupCancel"),
+  signupApply: document.querySelector("#signupApply"),
+
+  seasonModal: document.querySelector("#seasonModal"),
+  seasonBackdrop: document.querySelector("#seasonBackdrop"),
+  seasonClose: document.querySelector("#seasonClose"),
+  seasonTarget: document.querySelector("#seasonTarget"),
+  seasonSelect: document.querySelector("#seasonSelect"),
+  seasonCancel: document.querySelector("#seasonCancel"),
+  seasonApply: document.querySelector("#seasonApply"),
+
+  coachModal: document.querySelector("#coachModal"),
+  coachBackdrop: document.querySelector("#coachBackdrop"),
+  coachClose: document.querySelector("#coachClose"),
+  coachTitle: document.querySelector("#coachTitle"),
+  coachDetail: document.querySelector("#coachDetail"),
+
+  formationModal: document.querySelector("#formationModal"),
+  formationBackdrop: document.querySelector("#formationBackdrop"),
+  formationClose: document.querySelector("#formationClose"),
+  formationTitle: document.querySelector("#formationTitle"),
+  formationDetail: document.querySelector("#formationDetail"),
+};
+
+let cloudConfig = { url: "", anonKey: "", lineupKey: "" };
+let cloudMeta = { formationId: null, ownedFormationIds: [], coach: null };
+let coaches = [];
+let formations = [];
+let nationNameById = new Map();
+let filteredCoaches = [];
+let selectedCoachIdForAdd = null;
+let selectedCoachIdForDetail = null;
+let modalScrollLockY = 0;
+let modalScrollLocked = false;
+
+function normalizeSeasonInput(input) {
+  const raw = String(input || "").trim();
+  if (!raw) return "";
+  const n = raw.replace(/[^0-9]/g, "");
+  if (n.length > 0) return `${Number(n)}期`;
+  if (raw.endsWith("期")) return raw;
+  return raw;
+}
+
+function setModalScrollLocked(locked) {
+  const root = document.documentElement;
+  const body = document.body;
+  if (!root || !body) return;
+  if (locked) {
+    if (modalScrollLocked) return;
+    modalScrollLockY = window.scrollY || window.pageYOffset || 0;
+    body.style.top = `-${modalScrollLockY}px`;
+    root.classList.add("modal-scroll-lock");
+    body.classList.add("modal-scroll-lock");
+    modalScrollLocked = true;
+    return;
+  }
+  if (!modalScrollLocked) return;
+  root.classList.remove("modal-scroll-lock");
+  body.classList.remove("modal-scroll-lock");
+  body.style.top = "";
+  window.scrollTo(0, modalScrollLockY);
+  modalScrollLocked = false;
+}
+
+function refreshModalScrollLock() {
+  const hasOpenModal = !!document.querySelector('[id$="Modal"]:not([hidden]), .season-modal:not([hidden]), .lineup-modal:not([hidden])');
+  setModalScrollLocked(hasOpenModal);
+}
+
+function setupModalScrollLock() {
+  const modals = [...document.querySelectorAll('[id$="Modal"], .season-modal, .lineup-modal')];
+  const observer = new MutationObserver(() => refreshModalScrollLock());
+  modals.forEach((m) => observer.observe(m, { attributes: true, attributeFilter: ["hidden"] }));
+  refreshModalScrollLock();
+}
+
+function normalizedSupabaseUrl(url) {
+  return String(url || "").trim().replace(/\/+$/, "");
+}
+
+function saveCloudConfig(lineupKeyInput) {
+  const lineupKey = String(lineupKeyInput ?? cloudConfig.lineupKey ?? "").trim();
+  cloudConfig = {
+    url: normalizedSupabaseUrl(FIXED_SUPABASE_URL || cloudConfig.url),
+    anonKey: String(FIXED_SUPABASE_ANON_KEY || cloudConfig.anonKey).trim(),
+    lineupKey,
+  };
+  localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
+}
+
+function loadCloudConfig() {
+  try {
+    const raw = localStorage.getItem(CLOUD_CONFIG_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      cloudConfig = {
+        url: normalizedSupabaseUrl(parsed?.url || ""),
+        anonKey: String(parsed?.anonKey || "").trim(),
+        lineupKey: String(parsed?.lineupKey || "").trim(),
+      };
+    }
+  } catch (e) {
+    console.warn(e);
+  }
+  if (FIXED_SUPABASE_URL) cloudConfig.url = normalizedSupabaseUrl(FIXED_SUPABASE_URL);
+  if (FIXED_SUPABASE_ANON_KEY) cloudConfig.anonKey = String(FIXED_SUPABASE_ANON_KEY).trim();
+}
+
+function isLoggedIn() {
+  return !!String(cloudConfig.lineupKey || "").trim();
+}
+
+function renderMeta() {
+  if (!els.metaText) return;
+  const login = isLoggedIn() ? ` / <span class="meta-login-badge">Login：${cloudConfig.lineupKey}</span>` : "";
+  els.metaText.innerHTML = `Updated: ${APP_UPDATED_AT_JST}${login}`;
+}
+
+function closeMenuPanel() {
+  if (!els.menuPanel) return;
+  els.menuPanel.classList.remove("is-open");
+}
+
+function updateMenuState() {
+  const loggedIn = isLoggedIn();
+  if (els.loginButton) els.loginButton.hidden = loggedIn;
+  if (els.logoutButton) els.logoutButton.hidden = !loggedIn;
+  renderMeta();
+}
+
+function openLoginModal() {
+  if (!els.loginModal) return;
+  if (els.loginLineupKey) {
+    els.loginLineupKey.value = cloudConfig.lineupKey || "";
+    els.loginLineupKey.focus();
+  }
+  els.loginModal.hidden = false;
+}
+
+function closeLoginModal() {
+  if (!els.loginModal) return;
+  els.loginModal.hidden = true;
+}
+
+function openSignupModal() {
+  if (!els.signupModal) return;
+  if (els.signupLineupKey) {
+    els.signupLineupKey.value = "";
+    els.signupLineupKey.focus();
+  }
+  els.signupModal.hidden = false;
+}
+
+function closeSignupModal() {
+  if (!els.signupModal) return;
+  els.signupModal.hidden = true;
+}
+
+function openSeasonModal(coachId) {
+  selectedCoachIdForAdd = Number(coachId);
+  if (!Number.isInteger(selectedCoachIdForAdd) || !els.seasonModal || !els.seasonSelect) return;
+  const coach = coaches.find((c) => Number(c?.id) === selectedCoachIdForAdd);
+  const seasons = Array.isArray(coach?.leadershipBySeason) ? coach.leadershipBySeason : [];
+  const max = Math.max(1, seasons.length || 1);
+  if (els.seasonTarget) {
+    els.seasonTarget.textContent = coach ? `${coach.name}を監督登録します` : "監督登録";
+  }
+  els.seasonSelect.innerHTML = Array.from({ length: max }, (_, i) => `<option value="${i + 1}">${i + 1}期</option>`).join("");
+  els.seasonSelect.value = "1";
+  els.seasonModal.hidden = false;
+}
+
+function closeSeasonModal() {
+  selectedCoachIdForAdd = null;
+  if (els.seasonModal) els.seasonModal.hidden = true;
+}
+
+function normalizeMeta(raw) {
+  const fid = Number(raw?.formationId);
+  const owned = Array.isArray(raw?.ownedFormationIds)
+    ? raw.ownedFormationIds.map((x) => Number(x)).filter((x) => Number.isInteger(x) && x > 0)
+    : [];
+  const coachId = Number(raw?.coach?.coachId);
+  const coachSeason = raw?.coach?.season == null ? null : normalizeSeasonInput(raw?.coach?.season);
+  return {
+    formationId: Number.isInteger(fid) && fid > 0 ? fid : null,
+    ownedFormationIds: [...new Set(owned)],
+    coach: Number.isInteger(coachId) && coachId > 0 ? { coachId, season: coachSeason || "1期" } : null,
+  };
+}
+
+function formationMetaId(lineupId = cloudConfig?.lineupKey) {
+  const id = String(lineupId || "").trim();
+  return id ? `${id}__meta` : "";
+}
+
+async function supabaseRequest(pathWithQuery, options = {}) {
+  const res = await fetch(`${cloudConfig.url}/rest/v1/${pathWithQuery}`, {
+    ...options,
+    headers: {
+      apikey: cloudConfig.anonKey,
+      Authorization: `Bearer ${cloudConfig.anonKey}`,
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
+  });
+  if (!res.ok) throw new Error(`supabase ${res.status}`);
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+async function cloudLineupExists(lineupId) {
+  const id = String(lineupId || "").trim();
+  if (!id) return false;
+  const params = new URLSearchParams({ select: "lineup_id", lineup_id: `eq.${id}`, limit: "1" });
+  const rows = await supabaseRequest(`${SUPABASE_TABLE}?${params.toString()}`, { method: "GET" });
+  return Array.isArray(rows) && rows.length > 0;
+}
+
+async function cloudCreateLineup(lineupId) {
+  const id = String(lineupId || "").trim();
+  if (!id) return;
+  const payload = {
+    lineup_id: id,
+    lineup_json: Array.from({ length: 11 }, () => null),
+    updated_at: new Date().toISOString(),
+  };
+  await supabaseRequest(`${SUPABASE_TABLE}?on_conflict=lineup_id`, {
+    method: "POST",
+    headers: { Prefer: "resolution=merge-duplicates,return=representation" },
+    body: JSON.stringify(payload),
+  });
+}
+
+async function loadCloudMeta() {
+  const id = formationMetaId();
+  if (!id) return false;
+  const params = new URLSearchParams({ select: "lineup_json", lineup_id: `eq.${id}`, limit: "1" });
+  const rows = await supabaseRequest(`${SUPABASE_TABLE}?${params.toString()}`, { method: "GET" });
+  if (!Array.isArray(rows) || !rows.length) {
+    cloudMeta = { formationId: null, ownedFormationIds: [], coach: null };
+    return false;
+  }
+  cloudMeta = normalizeMeta(rows[0]?.lineup_json || {});
+  return true;
+}
+
+async function saveCloudMeta() {
+  const id = formationMetaId();
+  if (!id) return;
+  const payload = {
+    lineup_id: id,
+    lineup_json: {
+      formationId: Number.isInteger(cloudMeta.formationId) ? cloudMeta.formationId : null,
+      ownedFormationIds: Array.isArray(cloudMeta.ownedFormationIds) ? cloudMeta.ownedFormationIds : [],
+      coach: cloudMeta.coach || null,
+    },
+    updated_at: new Date().toISOString(),
+  };
+  await supabaseRequest(`${SUPABASE_TABLE}?on_conflict=lineup_id`, {
+    method: "POST",
+    headers: { Prefer: "resolution=merge-duplicates,return=representation" },
+    body: JSON.stringify(payload),
+  });
+}
+
+function getNationName(nationId) {
+  const id = Number(nationId);
+  if (!Number.isInteger(id)) return "-";
+  return nationNameById.get(id) || `国籍ID:${id}`;
+}
+
+function typeLabel(typeNum) {
+  return TYPE_LABELS[Number(typeNum)] || "-";
+}
+
+function formatFormationYearLabel(year, stride) {
+  const y = Number(year);
+  const s = Number(stride);
+  if (!Number.isFinite(y) || y <= 0) return "";
+  if (s === 1) {
+    const next = String((y + 1) % 100).padStart(2, "0");
+    return `${y}-${next}`;
+  }
+  return String(y);
+}
+
+function getFormationName(fid) {
+  const f = formations.find((x) => Number(x?.id) === Number(fid));
+  if (!f) return `Formation ${fid}`;
+  const y = formatFormationYearLabel(f.year, f.stride);
+  return `${f.name}${y ? ` ${y}` : ""}`;
+}
+
+function coachCardHtml(coach) {
+  const staticImg = `./images/chara/headcoaches/static/${coach.id}@2x.gif`;
+  const actionImg = `./images/chara/headcoaches/action/${coach.id}@2x.gif`;
+  const nation = getNationName(coach.nationId);
+  const leadership = Array.isArray(coach.leadershipBySeason) ? coach.leadershipBySeason : [];
+  const leadText = leadership.length
+    ? leadership.map((v, i) => `${i + 1}期:${v}`).join(" / ")
+    : "-";
+  return `
+    <article class="coach-card" data-coach-id="${coach.id}">
+      <div class="coach-card-top">
+        <h3 class="card-name">
+          <span class="badge pos-badge hc-badge">HC</span>
+          <span>${coach.name}</span>
+        </h3>
+        <button type="button" class="lineup-toggle coach-add-btn" data-coach-id="${coach.id}" aria-label="監督登録">Add</button>
+      </div>
+      <div class="coach-card-body">
+        <button type="button" class="coach-images-btn" data-coach-detail-id="${coach.id}">
+          <div class="thumbs coach-thumbs">
+            <img loading="lazy" src="${staticImg}" alt="${coach.name}" />
+            <img loading="lazy" src="${actionImg}" alt="${coach.name}" onerror="this.src='${staticImg}'" />
+          </div>
+        </button>
+        <div class="coach-meta-grid">
+          <div><span class="k">国籍</span><span class="v">${nation}</span></div>
+          <div><span class="k">年齢</span><span class="v">${coach.age || "-"}</span></div>
+          <div><span class="k">タイプ</span><span class="v">${typeLabel(coach.type)}</span></div>
+          <div><span class="k">統率力推移</span><span class="v coach-lead-line">${leadText}</span></div>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function filterCoaches() {
+  const q = String(els.coachNameQuery?.value || "").trim();
+  const typeVal = Number(els.coachTypeFilter?.value || 0);
+  filteredCoaches = coaches.filter((c) => {
+    if (typeVal > 0 && Number(c?.type) !== typeVal) return false;
+    if (!q) return true;
+    return String(c?.name || "").includes(q) || String(c?.fullName || "").includes(q);
+  });
+}
+
+function renderCoaches() {
+  if (!els.coachList) return;
+  filterCoaches();
+  els.coachList.innerHTML = filteredCoaches.map(coachCardHtml).join("");
+  if (els.coachCount) els.coachCount.textContent = `${filteredCoaches.length} results`;
+}
+
+function renderCoachDetail(coachId) {
+  if (!els.coachDetail || !els.coachTitle) return;
+  const coach = coaches.find((c) => Number(c?.id) === Number(coachId));
+  if (!coach) {
+    els.coachTitle.textContent = "Coach";
+    els.coachDetail.innerHTML = `<p class=\"dim\">No data.</p>`;
+    return;
+  }
+  els.coachTitle.textContent = coach.name;
+  const leadership = Array.isArray(coach.leadershipBySeason) ? coach.leadershipBySeason : [];
+  const leadChips = leadership.map((v, i) => `<span class="inline-pill">${i + 1}期:${v}</span>`).join(" ");
+  const depth4 = (coach.depth4FormationIds || []).map((fid) => `
+    <button type="button" class="inline-pill coach-formation-pill ${cloudMeta.ownedFormationIds?.includes(fid) ? "is-owned" : ""}" data-formation-id="${fid}">${getFormationName(fid)}</button>
+  `).join(" ");
+  const obtain = (coach.obtainable || []).map((row) => {
+    const suffix = Number(row.fromSeason) > 1 ? ` (${row.fromSeason}期目〜)` : "";
+    const owned = cloudMeta.ownedFormationIds?.includes(Number(row.formationId)) ? "is-owned" : "";
+    return `<button type="button" class="inline-pill coach-formation-pill ${owned}" data-formation-id="${row.formationId}">${getFormationName(row.formationId)}${suffix}</button>`;
+  }).join(" ");
+
+  els.coachDetail.innerHTML = `
+    <div class="formation-block">
+      <h3>Leadership</h3>
+      <div>${leadChips || "-"}</div>
+    </div>
+    <div class="formation-block">
+      <h3>Obtainable Formations</h3>
+      <div class="coach-formation-list">${obtain || "-"}</div>
+    </div>
+    <div class="formation-block">
+      <h3>Depth 4 Formations</h3>
+      <div class="coach-formation-list">${depth4 || "-"}</div>
+    </div>
+  `;
+}
+
+function openCoachModal(coachId) {
+  selectedCoachIdForDetail = Number(coachId);
+  renderCoachDetail(selectedCoachIdForDetail);
+  if (els.coachModal) els.coachModal.hidden = false;
+}
+
+function closeCoachModal() {
+  selectedCoachIdForDetail = null;
+  if (els.coachModal) els.coachModal.hidden = true;
+}
+
+function openFormationModal(formationId) {
+  if (!els.formationModal || !els.formationTitle || !els.formationDetail) return;
+  const f = formations.find((x) => Number(x?.id) === Number(formationId));
+  if (!f) return;
+  const y = formatFormationYearLabel(f.year, f.stride);
+  els.formationTitle.textContent = `${f.name}${y ? ` ${y}` : ""}`;
+  els.formationDetail.innerHTML = `
+    <div class="formation-block">
+      <h3>System</h3>
+      <p>${f.system || "-"}</p>
+      <p>Usage: ${(Number(f.cc?.usageRate || 0) * 100).toFixed(2)}%</p>
+      <p>Win: ${(Number(f.cc?.winRate || 0) * 100).toFixed(2)}%</p>
+    </div>
+    <div class="formation-block">
+      <h3>Key Positions</h3>
+      <div>${(f.keyPositions || []).map((k) => `<span class=\"inline-pill\">Slot ${k.slot}</span>`).join(" ") || "-"}</div>
+    </div>
+  `;
+  els.formationModal.hidden = false;
+}
+
+function closeFormationModal() {
+  if (els.formationModal) els.formationModal.hidden = true;
+}
+
+async function registerCoachFromSeason() {
+  const coachId = Number(selectedCoachIdForAdd);
+  if (!Number.isInteger(coachId)) return;
+  const season = normalizeSeasonInput(els.seasonSelect?.value || "1");
+  cloudMeta.coach = { coachId, season: season || "1期" };
+  if (isLoggedIn()) {
+    try {
+      await saveCloudMeta();
+    } catch (e) {
+      window.alert("監督登録のクラウド保存に失敗しました。");
+      return;
+    }
+  }
+  closeSeasonModal();
+  window.alert("監督の登録が完了しました。");
+}
+
+async function ensureLoginAndOpenSeason(coachId) {
+  if (!isLoggedIn()) {
+    selectedCoachIdForAdd = Number(coachId);
+    openLoginModal();
+    return;
+  }
+  await loadCloudMeta().catch(() => {});
+  openSeasonModal(coachId);
+}
+
+function bindEvents() {
+  if (els.menuButton) {
+    els.menuButton.addEventListener("click", () => {
+      if (!els.menuPanel) return;
+      els.menuPanel.classList.toggle("is-open");
+    });
+  }
+  if (els.playersButton) els.playersButton.addEventListener("click", () => { closeMenuPanel(); window.location.href = "./index.html"; });
+  if (els.formationsButton) els.formationsButton.addEventListener("click", () => { closeMenuPanel(); window.location.href = "./formations.html"; });
+  if (els.myTeamButton) els.myTeamButton.addEventListener("click", () => { closeMenuPanel(); window.location.href = "./myteam.html"; });
+  if (els.coachesButton) els.coachesButton.addEventListener("click", closeMenuPanel);
+
+  if (els.loginButton) els.loginButton.addEventListener("click", () => { closeMenuPanel(); openLoginModal(); });
+  if (els.logoutButton) els.logoutButton.addEventListener("click", () => { closeMenuPanel(); saveCloudConfig(""); cloudMeta = { formationId: null, ownedFormationIds: [], coach: null }; updateMenuState(); renderCoaches(); });
+
+  if (els.coachSearchButton) els.coachSearchButton.addEventListener("click", renderCoaches);
+  if (els.coachNameQuery) {
+    els.coachNameQuery.addEventListener("keydown", (e) => { if (e.key === "Enter") renderCoaches(); });
+  }
+  if (els.coachTypeFilter) els.coachTypeFilter.addEventListener("change", renderCoaches);
+
+  if (els.coachList) {
+    els.coachList.addEventListener("click", async (e) => {
+      const addBtn = e.target.closest(".coach-add-btn");
+      if (addBtn) {
+        const coachId = Number(addBtn.dataset.coachId);
+        if (Number.isInteger(coachId)) await ensureLoginAndOpenSeason(coachId);
+        return;
+      }
+      const detailBtn = e.target.closest("[data-coach-detail-id]");
+      if (detailBtn) {
+        const coachId = Number(detailBtn.dataset.coachDetailId);
+        if (Number.isInteger(coachId)) openCoachModal(coachId);
+      }
+    });
+  }
+
+  if (els.coachDetail) {
+    els.coachDetail.addEventListener("click", (e) => {
+      const fbtn = e.target.closest("[data-formation-id]");
+      if (!fbtn) return;
+      const fid = Number(fbtn.dataset.formationId);
+      if (Number.isInteger(fid)) openFormationModal(fid);
+    });
+  }
+
+  if (els.loginBackdrop) els.loginBackdrop.addEventListener("click", closeLoginModal);
+  if (els.loginClose) els.loginClose.addEventListener("click", closeLoginModal);
+  if (els.signupOpen) els.signupOpen.addEventListener("click", () => { closeLoginModal(); openSignupModal(); });
+
+  if (els.loginApply) {
+    els.loginApply.addEventListener("click", async () => {
+      const key = String(els.loginLineupKey?.value || "").trim();
+      const prev = String(cloudConfig.lineupKey || "").trim();
+      if (!key) return;
+      saveCloudConfig(key);
+      try {
+        const exists = await cloudLineupExists(key);
+        if (!exists) {
+          saveCloudConfig(prev);
+          updateMenuState();
+          window.alert("入力されたIDの登録はありません。Create New IDを使用してください。");
+          return;
+        }
+        await loadCloudMeta().catch(() => {});
+      } catch (_) {
+        saveCloudConfig(prev);
+        updateMenuState();
+        window.alert("Loginに失敗しました。");
+        return;
+      }
+      updateMenuState();
+      closeLoginModal();
+      if (Number.isInteger(selectedCoachIdForAdd)) {
+        openSeasonModal(selectedCoachIdForAdd);
+      }
+      renderCoaches();
+    });
+  }
+
+  if (els.signupBackdrop) els.signupBackdrop.addEventListener("click", closeSignupModal);
+  if (els.signupClose) els.signupClose.addEventListener("click", closeSignupModal);
+  if (els.signupCancel) els.signupCancel.addEventListener("click", closeSignupModal);
+  if (els.signupApply) {
+    els.signupApply.addEventListener("click", async () => {
+      const key = String(els.signupLineupKey?.value || "").trim();
+      const prev = String(cloudConfig.lineupKey || "").trim();
+      if (!key) return;
+      saveCloudConfig(key);
+      try {
+        const exists = await cloudLineupExists(key);
+        if (exists) {
+          saveCloudConfig(prev);
+          updateMenuState();
+          window.alert("そのIDは既に使われています。別のIDを入力してください。");
+          return;
+        }
+        await cloudCreateLineup(key);
+        cloudMeta = { formationId: null, ownedFormationIds: [], coach: null };
+        await saveCloudMeta();
+      } catch (_) {
+        saveCloudConfig(prev);
+        updateMenuState();
+        window.alert("Create New IDに失敗しました。");
+        return;
+      }
+      updateMenuState();
+      closeSignupModal();
+      closeLoginModal();
+      if (Number.isInteger(selectedCoachIdForAdd)) {
+        openSeasonModal(selectedCoachIdForAdd);
+      }
+      renderCoaches();
+    });
+  }
+
+  if (els.seasonBackdrop) els.seasonBackdrop.addEventListener("click", closeSeasonModal);
+  if (els.seasonClose) els.seasonClose.addEventListener("click", closeSeasonModal);
+  if (els.seasonCancel) els.seasonCancel.addEventListener("click", closeSeasonModal);
+  if (els.seasonApply) els.seasonApply.addEventListener("click", registerCoachFromSeason);
+
+  if (els.coachBackdrop) els.coachBackdrop.addEventListener("click", closeCoachModal);
+  if (els.coachClose) els.coachClose.addEventListener("click", closeCoachModal);
+  if (els.formationBackdrop) els.formationBackdrop.addEventListener("click", closeFormationModal);
+  if (els.formationClose) els.formationClose.addEventListener("click", closeFormationModal);
+
+  document.addEventListener("click", (e) => {
+    if (!els.menuPanel || !els.menuButton || !els.menuPanel.classList.contains("is-open")) return;
+    if (e.target.closest("#menuButton") || e.target.closest("#menuPanel")) return;
+    closeMenuPanel();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    closeMenuPanel();
+    closeLoginModal();
+    closeSignupModal();
+    closeSeasonModal();
+    closeCoachModal();
+    closeFormationModal();
+  });
+}
+
+async function init() {
+  setupModalScrollLock();
+  loadCloudConfig();
+  bindEvents();
+
+  const [formationsRes, coachesRes, playersRes] = await Promise.all([
+    fetch("./formations_data.json"),
+    fetch("./coaches_data.json").catch(() => null),
+    fetch("./data.json").catch(() => null),
+  ]);
+
+  const fData = await formationsRes.json();
+  formations = Array.isArray(fData?.formations) ? fData.formations : [];
+
+  let enriched = null;
+  if (coachesRes && coachesRes.ok) {
+    try {
+      const cData = await coachesRes.json();
+      enriched = Array.isArray(cData?.coaches) ? cData.coaches : null;
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+  const baseCoaches = Array.isArray(fData?.coaches) ? fData.coaches : [];
+  const byId = new Map((enriched || []).map((c) => [Number(c?.id), c]));
+  coaches = baseCoaches.map((c) => {
+    const ext = byId.get(Number(c?.id));
+    return {
+      ...c,
+      leadershipBySeason: Array.isArray(ext?.leadershipBySeason) ? ext.leadershipBySeason : [],
+      obtainable: Array.isArray(ext?.obtainable) ? ext.obtainable : [],
+      depth4FormationIds: Array.isArray(ext?.depth4FormationIds) ? ext.depth4FormationIds : (Array.isArray(c?.formationDepth4) ? c.formationDepth4 : []),
+    };
+  });
+
+  if (playersRes && playersRes.ok) {
+    try {
+      const pData = await playersRes.json();
+      const rows = Array.isArray(pData?.players) ? pData.players : [];
+      rows.forEach((p) => {
+        const id = Number(p?.nationId);
+        if (!Number.isInteger(id) || nationNameById.has(id)) return;
+        const n = String(p?.nationality || "").trim();
+        if (n) nationNameById.set(id, n);
+      });
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+
+  if (isLoggedIn()) {
+    await loadCloudMeta().catch(() => {});
+  }
+  updateMenuState();
+  renderCoaches();
+}
+
+init().catch((e) => {
+  if (els.metaText) els.metaText.textContent = "Failed to load coaches.";
+  console.error(e);
+});
