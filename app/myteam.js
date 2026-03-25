@@ -3,7 +3,7 @@ const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-25 23:01 JST";
+const APP_UPDATED_AT_JST = "2026-03-25 23:12 JST";
 const LINEUP_SIZE = 11;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
@@ -212,6 +212,40 @@ function coachLeadershipTableHtml(leadership, currentSeason = null, maxCols = nu
         <thead><tr>${headers}</tr></thead>
         <tbody><tr>${cells}</tr></tbody>
       </table>
+    </div>
+  `;
+}
+
+function coachLeadershipBlocksHtml(leadership, currentSeason = null) {
+  const rows = Array.isArray(leadership) ? leadership : [];
+  if (!rows.length) return `<p class="dim">-</p>`;
+  const season = Number(currentSeason);
+  const chunks = [];
+  for (let i = 0; i < rows.length; i += 8) {
+    chunks.push(rows.slice(i, i + 8));
+  }
+  const blocks = chunks.map((chunk, idx) => {
+    const start = idx * 8;
+    const headers = chunk.map((_, i) => `<th>${start + i + 1}期</th>`).join("");
+    const cells = chunk
+      .map((v, i) => {
+        const seasonNo = start + i + 1;
+        const cls = seasonNo === season ? "is-current" : "";
+        return `<td class="${cls}">${v == null ? "-" : Number(v)}</td>`;
+      })
+      .join("");
+    return `
+      <div class="coach-lead-block">
+        <table class="coach-lead-table">
+          <thead><tr>${headers}</tr></thead>
+          <tbody><tr>${cells}</tr></tbody>
+        </table>
+      </div>
+    `;
+  }).join("");
+  return `
+    <div class="coach-table-wrap">
+      <div class="coach-lead-blocks">${blocks}</div>
     </div>
   `;
 }
@@ -1611,9 +1645,9 @@ function renderCoachCardModal() {
       ? `<div class="coach-tab-panel coach-tab-scroll"><div class="profile-description-title">Available Formation</div><div class="coach-formation-list">${coachFormationPills(obtainable, true)}</div></div>`
       : tab === "understood"
         ? `<div class="coach-tab-panel coach-tab-scroll"><div class="profile-description-title">Understood Formation</div><div class="coach-formation-list">${coachFormationPills(depth4, false)}</div></div>`
-        : `<div class="coach-tab-panel coach-tab-scroll coach-tab-panel-lead"><div class="profile-description-title">Leadership</div>${coachLeadershipTableHtml(leadership, seasonNum)}</div>`;
+        : `<div class="coach-tab-panel coach-tab-scroll coach-tab-panel-lead"><div class="profile-description-title">Leadership</div>${coachLeadershipBlocksHtml(leadership, seasonNum)}</div>`;
   els.coachCardHost.innerHTML = `
-    <article class="coach-card coach-card-fixed" data-coach-id="${coachId}">
+    <article class="coach-card coach-card-fixed coach-card-myteam-modal" data-coach-id="${coachId}">
       <div class="coach-card-top">
         <h3 class="card-name"><span class="badge pos-badge hc-badge">HC</span><span>${coach?.name || `Coach ${coachId}`}</span></h3>
       </div>

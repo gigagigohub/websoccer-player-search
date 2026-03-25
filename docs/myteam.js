@@ -216,6 +216,40 @@ function coachLeadershipTableHtml(leadership, currentSeason = null, maxCols = nu
   `;
 }
 
+function coachLeadershipBlocksHtml(leadership, currentSeason = null) {
+  const rows = Array.isArray(leadership) ? leadership : [];
+  if (!rows.length) return `<p class="dim">-</p>`;
+  const season = Number(currentSeason);
+  const chunks = [];
+  for (let i = 0; i < rows.length; i += 8) {
+    chunks.push(rows.slice(i, i + 8));
+  }
+  const blocks = chunks.map((chunk, idx) => {
+    const start = idx * 8;
+    const headers = chunk.map((_, i) => `<th>${start + i + 1}期</th>`).join("");
+    const cells = chunk
+      .map((v, i) => {
+        const seasonNo = start + i + 1;
+        const cls = seasonNo === season ? "is-current" : "";
+        return `<td class="${cls}">${v == null ? "-" : Number(v)}</td>`;
+      })
+      .join("");
+    return `
+      <div class="coach-lead-block">
+        <table class="coach-lead-table">
+          <thead><tr>${headers}</tr></thead>
+          <tbody><tr>${cells}</tr></tbody>
+        </table>
+      </div>
+    `;
+  }).join("");
+  return `
+    <div class="coach-table-wrap">
+      <div class="coach-lead-blocks">${blocks}</div>
+    </div>
+  `;
+}
+
 function formatFormationYearLabel(year, stride) {
   const y = Number(year);
   const s = Number(stride);
@@ -1611,9 +1645,9 @@ function renderCoachCardModal() {
       ? `<div class="coach-tab-panel coach-tab-scroll"><div class="profile-description-title">Available Formation</div><div class="coach-formation-list">${coachFormationPills(obtainable, true)}</div></div>`
       : tab === "understood"
         ? `<div class="coach-tab-panel coach-tab-scroll"><div class="profile-description-title">Understood Formation</div><div class="coach-formation-list">${coachFormationPills(depth4, false)}</div></div>`
-        : `<div class="coach-tab-panel coach-tab-scroll coach-tab-panel-lead"><div class="profile-description-title">Leadership</div>${coachLeadershipTableHtml(leadership, seasonNum)}</div>`;
+        : `<div class="coach-tab-panel coach-tab-scroll coach-tab-panel-lead"><div class="profile-description-title">Leadership</div>${coachLeadershipBlocksHtml(leadership, seasonNum)}</div>`;
   els.coachCardHost.innerHTML = `
-    <article class="coach-card coach-card-fixed" data-coach-id="${coachId}">
+    <article class="coach-card coach-card-fixed coach-card-myteam-modal" data-coach-id="${coachId}">
       <div class="coach-card-top">
         <h3 class="card-name"><span class="badge pos-badge hc-badge">HC</span><span>${coach?.name || `Coach ${coachId}`}</span></h3>
       </div>

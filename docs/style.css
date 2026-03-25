@@ -2773,6 +2773,14 @@ button.ghost {
   overflow: hidden;
 }
 
+.coach-card-myteam-modal {
+  height: 346px;
+}
+
+.coach-card-myteam-modal .coach-tab-panel-lead {
+  max-height: 146px;
+}
+
 .coach-tab-panel-lead .coach-lead-table {
   font-size: 0.6rem;
 }
