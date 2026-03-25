@@ -3,7 +3,7 @@ const SUPABASE_TABLE = "lineup_states";
 const LINEUP_SIZE = 11;
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-25 21:03 JST";
+const APP_UPDATED_AT_JST = "2026-03-25 21:15 JST";
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織",
@@ -1156,6 +1156,8 @@ function renderCoachDetail(coachId) {
 
   const staticImg = `./images/chara/headcoaches/static/${coach.id}@2x.gif`;
   const actionImg = `./images/chara/headcoaches/action/${coach.id}@2x.gif`;
+  const nationText = String(coach?.nationality || "").trim()
+    || (Number.isInteger(Number(coach?.nationId)) ? `国籍ID:${coach.nationId}` : "-");
   const tabPanelHtml =
     tab === "obtain"
       ? `<div class="coach-tab-panel coach-tab-scroll"><div class="coach-formation-list">${obtainHtml || "-"}</div></div>`
@@ -1174,7 +1176,7 @@ function renderCoachDetail(coachId) {
           <img loading="lazy" src="${actionImg}" alt="${coach.name}" onerror="this.src='${staticImg}'" />
         </div>
         <div class="coach-meta-grid coach-meta-box-grid">
-          <div class="coach-meta-box"><span class="k">国籍</span><span class="v">${coach.nationality || "-"}</span></div>
+          <div class="coach-meta-box"><span class="k">国籍</span><span class="v">${nationText}</span></div>
           <div class="coach-meta-box"><span class="k">年齢</span><span class="v">${coach.age || "-"}</span></div>
           <div class="coach-meta-box"><span class="k">タイプ</span><span class="v">${coachTypeLabel(coach.type)}</span></div>
         </div>
@@ -1232,7 +1234,7 @@ function openFormationModal(formation) {
         </div>
         <div class="formation-block">
           <h3>Understood Coaches</h3>
-          <div>${renderCoachesList(formation.coaches?.depth4)}</div>
+          <div class="coach-formation-list">${renderCoachesList(formation.coaches?.depth4)}</div>
         </div>
     </div>
     <div class="formation-block">

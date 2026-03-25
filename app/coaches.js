@@ -2,7 +2,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-25 21:03 JST";
+const APP_UPDATED_AT_JST = "2026-03-25 21:15 JST";
 
 const TYPE_LABELS = {
   1: "超攻撃型",
@@ -449,25 +449,50 @@ function renderCoachDetail(coachId) {
     els.coachDetail.innerHTML = `<p class=\"dim\">No data.</p>`;
     return;
   }
-  els.coachTitle.textContent = coach.name;
+  els.coachTitle.textContent = "Coach";
   const leadership = Array.isArray(coach.leadershipBySeason) ? coach.leadershipBySeason : [];
-  const leadTable = leadershipTableHtml(leadership, null);
-  const depth4 = coachFormationPills(coach.depth4FormationIds || [], false);
-  const obtain = coachFormationPills(coach.obtainable || [], true);
+  const currentSeason = cloudMeta?.coach && Number(cloudMeta?.coach?.coachId) === Number(coach.id)
+    ? seasonNumber(cloudMeta?.coach?.season)
+    : null;
+  const staticImg = `./images/chara/headcoaches/static/${coach.id}@2x.gif`;
+  const actionImg = `./images/chara/headcoaches/action/${coach.id}@2x.gif`;
+  const nation = getNationName(coach.nationId);
+  const tab = coachTabModeById.get(Number(coach.id)) || "lead";
+  const tabPanelHtml =
+    tab === "obtain"
+      ? `<div class="coach-tab-panel coach-tab-scroll"><div class="coach-formation-list">${coachFormationPills(coach.obtainable || [], true)}</div></div>`
+      : tab === "understood"
+        ? `<div class="coach-tab-panel coach-tab-scroll"><div class="coach-formation-list">${coachFormationPills(coach.depth4FormationIds || [], false)}</div></div>`
+        : `<div class="coach-tab-panel coach-tab-scroll">${leadershipTableHtml(leadership, currentSeason)}</div>`;
 
   els.coachDetail.innerHTML = `
-    <div class="formation-block">
-      <h3>Leadership</h3>
-      <div>${leadTable || "-"}</div>
-    </div>
-    <div class="formation-block">
-      <h3>Obtainable Formations</h3>
-      <div class="coach-formation-list">${obtain || "-"}</div>
-    </div>
-    <div class="formation-block">
-      <h3>Understood Formations</h3>
-      <div class="coach-formation-list">${depth4 || "-"}</div>
-    </div>
+    <article class="coach-card coach-card-fixed">
+      <div class="coach-card-top">
+        <h3 class="card-name">
+          <span class="badge pos-badge hc-badge">HC</span>
+          <span>${coach.name}</span>
+        </h3>
+      </div>
+      <div class="coach-card-body">
+        <div class="coach-images-btn">
+          <div class="thumbs coach-thumbs">
+            <img loading="lazy" src="${staticImg}" alt="${coach.name}" />
+            <img loading="lazy" src="${actionImg}" alt="${coach.name}" onerror="this.src='${staticImg}'" />
+          </div>
+        </div>
+        <div class="coach-meta-grid coach-meta-box-grid">
+          <div class="coach-meta-box"><span class="k">国籍</span><span class="v">${nation}</span></div>
+          <div class="coach-meta-box"><span class="k">年齢</span><span class="v">${coach.age || "-"}</span></div>
+          <div class="coach-meta-box"><span class="k">タイプ</span><span class="v">${typeLabel(coach.type)}</span></div>
+        </div>
+      </div>
+      ${tabPanelHtml}
+      <div class="coach-tab-row">
+        <button type="button" class="coach-tab-btn ${tab === "lead" ? "is-on" : ""}" data-coach-tab="lead" data-coach-id="${coach.id}">LEAD</button>
+        <button type="button" class="coach-tab-btn ${tab === "obtain" ? "is-on" : ""}" data-coach-tab="obtain" data-coach-id="${coach.id}">OBT</button>
+        <button type="button" class="coach-tab-btn ${tab === "understood" ? "is-on" : ""}" data-coach-tab="understood" data-coach-id="${coach.id}">UND</button>
+      </div>
+    </article>
   `;
 }
 
@@ -578,6 +603,25 @@ function bindEvents() {
         const fid = Number(fbtn.dataset.formationId);
         if (Number.isInteger(fid)) openFormationModal(fid);
       }
+    });
+  }
+
+  if (els.coachDetail) {
+    els.coachDetail.addEventListener("click", (e) => {
+      const tabBtn = e.target.closest("[data-coach-tab][data-coach-id]");
+      if (tabBtn) {
+        const coachId = Number(tabBtn.dataset.coachId);
+        const tab = String(tabBtn.dataset.coachTab || "");
+        if (Number.isInteger(coachId) && (tab === "lead" || tab === "obtain" || tab === "understood")) {
+          coachTabModeById.set(coachId, tab);
+          renderCoachDetail(coachId);
+        }
+        return;
+      }
+      const fbtn = e.target.closest("[data-formation-id]");
+      if (!fbtn) return;
+      const fid = Number(fbtn.dataset.formationId);
+      if (Number.isInteger(fid)) openFormationModal(fid);
     });
   }
 

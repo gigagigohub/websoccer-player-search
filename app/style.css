@@ -2730,7 +2730,7 @@ button.ghost {
   display: grid;
   gap: 0.33rem;
   align-content: start;
-  font-size: 0.82rem;
+  font-size: 0.68rem;
 }
 
 .coach-meta-grid .k {
@@ -2760,7 +2760,7 @@ button.ghost {
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.08);
   color: #dce6f7;
-  font-size: 0.72rem;
+  font-size: 0.62rem;
   font-weight: 700;
   height: 24px;
   padding: 0 10px;
@@ -2787,16 +2787,28 @@ button.ghost {
 .coach-lead-table {
   width: max-content;
   min-width: 100%;
-  border-collapse: collapse;
-  font-size: 0.74rem;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.68rem;
 }
 
 .coach-lead-table th,
 .coach-lead-table td {
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-right: 1px solid rgba(255, 255, 255, 0.18);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
   text-align: center;
-  padding: 0.22rem 0.15rem;
+  padding: 0.22rem 0.28rem;
   white-space: nowrap;
+  min-width: 40px;
+}
+
+.coach-lead-table th:first-child,
+.coach-lead-table td:first-child {
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.coach-lead-table thead th {
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .coach-lead-table th {
@@ -2834,6 +2846,9 @@ button.ghost {
   width: auto;
   text-align: left;
   white-space: nowrap;
+  max-width: 47%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .coach-meta-box-grid {
