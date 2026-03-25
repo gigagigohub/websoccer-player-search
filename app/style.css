@@ -2758,18 +2758,18 @@ button.ghost {
 }
 
 .coach-tab-panel-lead {
-  max-height: 96px;
-  margin-bottom: 36px;
+  max-height: 86px;
+  margin-bottom: 38px;
   overflow: hidden;
 }
 
 .coach-tab-panel-lead .coach-lead-table {
-  font-size: 0.62rem;
+  font-size: 0.56rem;
 }
 
 .coach-tab-panel-lead .coach-lead-table th,
 .coach-tab-panel-lead .coach-lead-table td {
-  padding: 0.12rem 0.2rem;
+  padding: 0.06rem 0.14rem;
 }
 
 .coach-table-wrap {
@@ -2925,39 +2925,23 @@ button.ghost {
   align-items: center;
   justify-content: center;
   position: relative;
-  width: 22px;
-  height: 14px;
-  border: 0;
-  background: transparent;
+  width: 18px;
+  height: 12px;
+  border: 1px solid rgba(247, 229, 143, 0.94);
+  border-radius: 2px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 12'%3E%3Cpath d='M1 1h7v10H1z' fill='%23d7b25a'/%3E%3Cpath d='M10 1h7v10h-7z' fill='%23d7b25a'/%3E%3Cpath d='M9 1v10' stroke='%23f8e7a5' stroke-width='1'/%3E%3Cpath d='M1 2h7M10 2h7' stroke='%23ffeebe' stroke-width='0.8' opacity='0.7'/%3E%3C/svg%3E");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
   font-size: 0;
 }
 
 .formation-owned-mark::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 1px;
-  width: 10px;
-  height: 12px;
-  border: 1px solid rgba(247, 229, 143, 0.92);
-  border-right: 0;
-  border-radius: 2px 0 0 2px;
-  background: linear-gradient(180deg, rgba(245, 218, 132, 0.82), rgba(156, 118, 31, 0.56));
-  box-shadow: inset -1px 0 0 rgba(255, 248, 220, 0.24);
+  content: none;
 }
 
 .formation-owned-mark::after {
-  content: "";
-  position: absolute;
-  right: 1px;
-  top: 1px;
-  width: 10px;
-  height: 12px;
-  border: 1px solid rgba(247, 229, 143, 0.92);
-  border-left: 0;
-  border-radius: 0 2px 2px 0;
-  background: linear-gradient(180deg, rgba(245, 218, 132, 0.82), rgba(156, 118, 31, 0.56));
-  box-shadow: inset 1px 0 0 rgba(255, 248, 220, 0.24);
+  content: none;
 }
 
 .formation-owned-toggle .owned-book-icon {

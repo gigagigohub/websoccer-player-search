@@ -3,7 +3,7 @@ const SUPABASE_TABLE = "lineup_states";
 const LINEUP_SIZE = 11;
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-25 22:22 JST";
+const APP_UPDATED_AT_JST = "2026-03-25 22:26 JST";
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織",
@@ -1195,8 +1195,8 @@ function renderCoachDetail(coachId) {
     return `<button type="button" class="inline-pill coach-formation-pill ${owned}" data-formation-id="${fid}">${getFormationName(fid)}</button>`;
   }).join(" ");
 
-  const staticImg = `./images/chara/headcoaches/still/${coach.id}@2x.png`;
-  const actionImg = `./images/chara/headcoaches/static/${coach.id}@2x.gif`;
+  const staticImg = `./images/chara/headcoaches/static/${coach.id}@2x.gif`;
+  const actionImg = `./images/chara/headcoaches/action/${coach.id}@2x.gif`;
   const nationText = String(coach?.nationality || "").trim() || nationNameFromId(coach?.nationId);
   const tabPanelHtml =
     tab === "obtain"
