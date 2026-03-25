@@ -530,7 +530,48 @@
         0,
         0
       ],
-      "obtainable": [],
+      "obtainable": [
+        {
+          "formationId": 5,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 6,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 7,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 24,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 26,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 43,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 103,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 105,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 115,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 117,
+          "fromSeason": 1
+        }
+      ],
       "depth4FormationIds": [
         3,
         5,
@@ -602,7 +643,52 @@
         30,
         0
       ],
-      "obtainable": [],
+      "obtainable": [
+        {
+          "formationId": 7,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 10,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 41,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 45,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 47,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 58,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 95,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 110,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 111,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 114,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 115,
+          "fromSeason": 1
+        }
+      ],
       "depth4FormationIds": [
         1,
         2,
@@ -699,7 +785,32 @@
         33,
         0
       ],
-      "obtainable": [],
+      "obtainable": [
+        {
+          "formationId": 4,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 6,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 12,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 53,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 63,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 102,
+          "fromSeason": 1
+        }
+      ],
       "depth4FormationIds": [
         4,
         5,
@@ -836,7 +947,64 @@
         0,
         0
       ],
-      "obtainable": [],
+      "obtainable": [
+        {
+          "formationId": 3,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 4,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 27,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 28,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 34,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 39,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 49,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 61,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 84,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 100,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 101,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 104,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 109,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 112,
+          "fromSeason": 1
+        }
+      ],
       "depth4FormationIds": [
         1,
         3,
@@ -915,7 +1083,40 @@
         45,
         0
       ],
-      "obtainable": [],
+      "obtainable": [
+        {
+          "formationId": 8,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 14,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 20,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 26,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 49,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 51,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 106,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 113,
+          "fromSeason": 1
+        }
+      ],
       "depth4FormationIds": [
         2,
         5,
@@ -997,7 +1198,40 @@
         45,
         0
       ],
-      "obtainable": [],
+      "obtainable": [
+        {
+          "formationId": 2,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 15,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 31,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 32,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 44,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 47,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 108,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 116,
+          "fromSeason": 1
+        }
+      ],
       "depth4FormationIds": [
         2,
         20,
@@ -1796,7 +2030,48 @@
         0,
         0
       ],
-      "obtainable": [],
+      "obtainable": [
+        {
+          "formationId": 7,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 9,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 10,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 38,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 41,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 48,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 95,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 97,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 102,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 113,
+          "fromSeason": 1
+        }
+      ],
       "depth4FormationIds": [
         1,
         2,
@@ -2431,7 +2706,52 @@
         55,
         0
       ],
-      "obtainable": [],
+      "obtainable": [
+        {
+          "formationId": 22,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 34,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 40,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 45,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 47,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 52,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 62,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 86,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 95,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 111,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 115,
+          "fromSeason": 1
+        }
+      ],
       "depth4FormationIds": [
         3,
         5,
@@ -2928,7 +3248,48 @@
         0,
         0
       ],
-      "obtainable": [],
+      "obtainable": [
+        {
+          "formationId": 2,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 12,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 22,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 25,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 49,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 62,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 76,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 104,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 105,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 114,
+          "fromSeason": 1
+        }
+      ],
       "depth4FormationIds": [
         1,
         14,
@@ -3079,7 +3440,48 @@
         45,
         0
       ],
-      "obtainable": [],
+      "obtainable": [
+        {
+          "formationId": 1,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 5,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 17,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 27,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 36,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 38,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 49,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 108,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 112,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 113,
+          "fromSeason": 1
+        }
+      ],
       "depth4FormationIds": [
         3,
         8,
@@ -3171,7 +3573,36 @@
         66,
         0
       ],
-      "obtainable": [],
+      "obtainable": [
+        {
+          "formationId": 6,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 34,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 42,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 51,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 102,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 111,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 117,
+          "fromSeason": 1
+        }
+      ],
       "depth4FormationIds": [
         2,
         5,
@@ -3448,7 +3879,44 @@
         0,
         0
       ],
-      "obtainable": [],
+      "obtainable": [
+        {
+          "formationId": 13,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 14,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 22,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 27,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 31,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 35,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 37,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 54,
+          "fromSeason": 1
+        },
+        {
+          "formationId": 109,
+          "fromSeason": 1
+        }
+      ],
       "depth4FormationIds": [
         10,
         12,
