@@ -2,7 +2,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-25 21:35 JST";
+const APP_UPDATED_AT_JST = "2026-03-25 21:43 JST";
 
 const TYPE_LABELS = {
   1: "超攻撃型",
@@ -406,8 +406,8 @@ function coachFormationPills(list, withSeason = false) {
 }
 
 function coachCardHtml(coach) {
-  const staticImg = `./images/chara/headcoaches/static/${coach.id}@2x.gif`;
-  const actionImg = `./images/chara/headcoaches/action/${coach.id}@2x.gif`;
+  const staticImg = `./images/chara/headcoaches/still/${coach.id}@2x.png`;
+  const actionImg = `./images/chara/headcoaches/static/${coach.id}@2x.gif`;
   const nation = getNationName(coach.nationId);
   const leadership = Array.isArray(coach.leadershipBySeason) ? coach.leadershipBySeason : [];
   const currentSeason = cloudMeta?.coach && Number(cloudMeta?.coach?.coachId) === Number(coach.id)
@@ -416,9 +416,9 @@ function coachCardHtml(coach) {
   const tab = coachTabModeById.get(Number(coach.id)) || "lead";
   const tabPanelHtml =
     tab === "obtain"
-      ? `<div class="coach-tab-panel coach-tab-scroll"><div class="coach-formation-list">${coachFormationPills(coach.obtainable, true)}</div></div>`
+      ? `<div class="coach-tab-panel coach-tab-scroll"><div class="profile-description-title">Available Formation</div><div class="coach-formation-list">${coachFormationPills(coach.obtainable, true)}</div></div>`
       : tab === "understood"
-        ? `<div class="coach-tab-panel coach-tab-scroll"><div class="coach-formation-list">${coachFormationPills(coach.depth4FormationIds || [], false)}</div></div>`
+        ? `<div class="coach-tab-panel coach-tab-scroll"><div class="profile-description-title">Understood Formation</div><div class="coach-formation-list">${coachFormationPills(coach.depth4FormationIds || [], false)}</div></div>`
         : `<div class="coach-tab-panel coach-tab-scroll">${leadershipTableHtml(leadership, currentSeason)}</div>`;
 
   return `
@@ -433,8 +433,8 @@ function coachCardHtml(coach) {
       <div class="coach-card-body">
         <div class="coach-images-btn">
           <div class="thumbs coach-thumbs">
-            <img loading="lazy" src="${staticImg}" alt="${coach.name}" />
-            <img loading="lazy" src="${actionImg}" alt="${coach.name}" onerror="this.src='${staticImg}'" />
+            <img loading="lazy" src="${staticImg}" alt="${coach.name}" onerror="this.src='${actionImg}'" />
+            <img loading="lazy" src="${actionImg}" alt="${coach.name}" />
           </div>
         </div>
         <div class="profile-side coach-profile-side">
@@ -483,15 +483,15 @@ function renderCoachDetail(coachId) {
   const currentSeason = cloudMeta?.coach && Number(cloudMeta?.coach?.coachId) === Number(coach.id)
     ? seasonNumber(cloudMeta?.coach?.season)
     : null;
-  const staticImg = `./images/chara/headcoaches/static/${coach.id}@2x.gif`;
-  const actionImg = `./images/chara/headcoaches/action/${coach.id}@2x.gif`;
+  const staticImg = `./images/chara/headcoaches/still/${coach.id}@2x.png`;
+  const actionImg = `./images/chara/headcoaches/static/${coach.id}@2x.gif`;
   const nation = getNationName(coach.nationId);
   const tab = coachTabModeById.get(Number(coach.id)) || "lead";
   const tabPanelHtml =
     tab === "obtain"
-      ? `<div class="coach-tab-panel coach-tab-scroll"><div class="coach-formation-list">${coachFormationPills(coach.obtainable || [], true)}</div></div>`
+      ? `<div class="coach-tab-panel coach-tab-scroll"><div class="profile-description-title">Available Formation</div><div class="coach-formation-list">${coachFormationPills(coach.obtainable || [], true)}</div></div>`
       : tab === "understood"
-        ? `<div class="coach-tab-panel coach-tab-scroll"><div class="coach-formation-list">${coachFormationPills(coach.depth4FormationIds || [], false)}</div></div>`
+        ? `<div class="coach-tab-panel coach-tab-scroll"><div class="profile-description-title">Understood Formation</div><div class="coach-formation-list">${coachFormationPills(coach.depth4FormationIds || [], false)}</div></div>`
         : `<div class="coach-tab-panel coach-tab-scroll">${leadershipTableHtml(leadership, currentSeason)}</div>`;
 
   els.coachDetail.innerHTML = `
@@ -505,8 +505,8 @@ function renderCoachDetail(coachId) {
       <div class="coach-card-body">
         <div class="coach-images-btn">
           <div class="thumbs coach-thumbs">
-            <img loading="lazy" src="${staticImg}" alt="${coach.name}" />
-            <img loading="lazy" src="${actionImg}" alt="${coach.name}" onerror="this.src='${staticImg}'" />
+            <img loading="lazy" src="${staticImg}" alt="${coach.name}" onerror="this.src='${actionImg}'" />
+            <img loading="lazy" src="${actionImg}" alt="${coach.name}" />
           </div>
         </div>
         <div class="profile-side coach-profile-side">
@@ -630,7 +630,7 @@ function bindEvents() {
       const fbtn = e.target.closest("[data-formation-id]");
       if (fbtn) {
         const fid = Number(fbtn.dataset.formationId);
-        if (Number.isInteger(fid)) openFormationModal(fid);
+        if (Number.isInteger(fid)) window.location.href = `./formations.html?openFormationId=${fid}`;
       }
     });
   }
@@ -650,7 +650,7 @@ function bindEvents() {
       const fbtn = e.target.closest("[data-formation-id]");
       if (!fbtn) return;
       const fid = Number(fbtn.dataset.formationId);
-      if (Number.isInteger(fid)) openFormationModal(fid);
+      if (Number.isInteger(fid)) window.location.href = `./formations.html?openFormationId=${fid}`;
     });
   }
 
