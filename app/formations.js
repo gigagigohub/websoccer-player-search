@@ -3,7 +3,7 @@ const SUPABASE_TABLE = "lineup_states";
 const LINEUP_SIZE = 11;
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-25 20:54 JST";
+const APP_UPDATED_AT_JST = "2026-03-25 21:03 JST";
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織",
@@ -115,6 +115,7 @@ let filteredAndSorted = [];
 let currentFormation = null;
 let slotTopSortMode = "usage";
 let selectedPlayerId = null;
+const coachTabModeById = new Map();
 const cardViewModeById = new Map();
 let modalScrollLockY = 0;
 let modalScrollLocked = false;
@@ -1110,7 +1111,7 @@ function coachTypeLabel(value) {
 function coachLeadershipTableHtml(leadership) {
   const rows = Array.isArray(leadership) ? leadership : [];
   if (!rows.length) return "-";
-  const th = rows.map((_, i) => `<th>${i + 1}期目</th>`).join("");
+  const th = rows.map((_, i) => `<th>${i + 1}期</th>`).join("");
   const td = rows.map((v) => `<td>${Number(v)}</td>`).join("");
   return `
     <div class="coach-table-wrap">
@@ -1142,6 +1143,7 @@ function renderCoachDetail(coachId) {
   const leadTable = coachLeadershipTableHtml(leadership);
   const obtainable = Array.isArray(ext?.obtainable) ? ext.obtainable : [];
   const depth4 = Array.isArray(ext?.depth4FormationIds) ? ext.depth4FormationIds : (coach.formationDepth4 || []);
+  const tab = coachTabModeById.get(Number(coach.id)) || "lead";
   const obtainHtml = obtainable.map((row) => {
     const suffix = Number(row.fromSeason) > 1 ? ` (${row.fromSeason}期目〜)` : "";
     const owned = cloudMeta.ownedFormationIds?.includes(Number(row.formationId)) ? "is-owned" : "";
@@ -1154,9 +1156,15 @@ function renderCoachDetail(coachId) {
 
   const staticImg = `./images/chara/headcoaches/static/${coach.id}@2x.gif`;
   const actionImg = `./images/chara/headcoaches/action/${coach.id}@2x.gif`;
-  els.coachTitle.textContent = `${coach.name}`;
+  const tabPanelHtml =
+    tab === "obtain"
+      ? `<div class="coach-tab-panel coach-tab-scroll"><div class="coach-formation-list">${obtainHtml || "-"}</div></div>`
+      : tab === "understood"
+        ? `<div class="coach-tab-panel coach-tab-scroll"><div class="coach-formation-list">${depth4Html || "-"}</div></div>`
+        : `<div class="coach-tab-panel coach-tab-scroll">${leadTable || "-"}</div>`;
+  els.coachTitle.textContent = "Coach";
   els.coachDetail.innerHTML = `
-    <article class="coach-card">
+    <article class="coach-card coach-card-fixed">
       <div class="coach-card-top">
         <h3 class="card-name"><span class="badge pos-badge hc-badge">HC</span><span>${coach.name}</span></h3>
       </div>
@@ -1171,17 +1179,11 @@ function renderCoachDetail(coachId) {
           <div class="coach-meta-box"><span class="k">タイプ</span><span class="v">${coachTypeLabel(coach.type)}</span></div>
         </div>
       </div>
-      <div class="coach-tab-panel coach-tab-scroll">
-        <h3>Leadership</h3>
-        ${leadTable || "-"}
-      </div>
-      <div class="coach-tab-panel coach-tab-scroll">
-        <h3>Obtainable Formations</h3>
-        <div class="coach-formation-list">${obtainHtml || "-"}</div>
-      </div>
-      <div class="coach-tab-panel coach-tab-scroll">
-        <h3>Understood Formations</h3>
-        <div class="coach-formation-list">${depth4Html || "-"}</div>
+      ${tabPanelHtml}
+      <div class="coach-tab-row">
+        <button type="button" class="coach-tab-btn ${tab === "lead" ? "is-on" : ""}" data-coach-tab="lead" data-coach-id="${coach.id}">LEAD</button>
+        <button type="button" class="coach-tab-btn ${tab === "obtain" ? "is-on" : ""}" data-coach-tab="obtain" data-coach-id="${coach.id}">OBT</button>
+        <button type="button" class="coach-tab-btn ${tab === "understood" ? "is-on" : ""}" data-coach-tab="understood" data-coach-id="${coach.id}">UND</button>
       </div>
     </article>
   `;
@@ -1521,6 +1523,16 @@ function bindEvents() {
   }
   if (els.coachDetail) {
     els.coachDetail.addEventListener("click", (e) => {
+      const tabBtn = e.target.closest("[data-coach-tab][data-coach-id]");
+      if (tabBtn) {
+        const coachId = Number(tabBtn.dataset.coachId);
+        const tab = String(tabBtn.dataset.coachTab || "");
+        if (Number.isInteger(coachId) && (tab === "lead" || tab === "obtain" || tab === "understood")) {
+          coachTabModeById.set(coachId, tab);
+          renderCoachDetail(coachId);
+        }
+        return;
+      }
       const fbtn = e.target.closest("[data-formation-id]");
       if (!fbtn) return;
       const fid = Number(fbtn.dataset.formationId);

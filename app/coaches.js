@@ -2,7 +2,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-25 20:54 JST";
+const APP_UPDATED_AT_JST = "2026-03-25 21:03 JST";
 
 const TYPE_LABELS = {
   1: "超攻撃型",
@@ -348,7 +348,7 @@ function getFormationName(fid) {
 function leadershipTableHtml(leadership, currentSeason = null) {
   const rows = Array.isArray(leadership) ? leadership : [];
   if (!rows.length) return `<p class="dim">-</p>`;
-  const headers = rows.map((_, i) => `<th>${i + 1}期目</th>`).join("");
+  const headers = rows.map((_, i) => `<th>${i + 1}期</th>`).join("");
   const cells = rows
     .map((v, i) => `<td class="${Number(currentSeason) === i + 1 ? "is-current" : ""}">${Number(v)}</td>`)
     .join("");
@@ -393,7 +393,7 @@ function coachCardHtml(coach) {
         : `<div class="coach-tab-panel coach-tab-scroll">${leadershipTableHtml(leadership, currentSeason)}</div>`;
 
   return `
-    <article class="coach-card" data-coach-id="${coach.id}">
+    <article class="coach-card coach-card-fixed" data-coach-id="${coach.id}">
       <div class="coach-card-top">
         <h3 class="card-name">
           <span class="badge pos-badge hc-badge">HC</span>
