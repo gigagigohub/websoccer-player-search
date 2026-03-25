@@ -2758,8 +2758,18 @@ button.ghost {
 }
 
 .coach-tab-panel-lead {
-  max-height: 104px;
-  margin-bottom: 34px;
+  max-height: 96px;
+  margin-bottom: 36px;
+  overflow: hidden;
+}
+
+.coach-tab-panel-lead .coach-lead-table {
+  font-size: 0.62rem;
+}
+
+.coach-tab-panel-lead .coach-lead-table th,
+.coach-tab-panel-lead .coach-lead-table td {
+  padding: 0.12rem 0.2rem;
 }
 
 .coach-table-wrap {
@@ -2915,8 +2925,8 @@ button.ghost {
   align-items: center;
   justify-content: center;
   position: relative;
-  width: 17px;
-  height: 12px;
+  width: 22px;
+  height: 14px;
   border: 0;
   background: transparent;
   font-size: 0;
@@ -2927,8 +2937,8 @@ button.ghost {
   position: absolute;
   left: 0;
   top: 1px;
-  width: 8px;
-  height: 10px;
+  width: 10px;
+  height: 12px;
   border: 1px solid rgba(247, 229, 143, 0.92);
   border-right: 0;
   border-radius: 2px 0 0 2px;
@@ -2939,26 +2949,15 @@ button.ghost {
 .formation-owned-mark::after {
   content: "";
   position: absolute;
-  right: 0;
+  right: 1px;
   top: 1px;
-  width: 8px;
-  height: 10px;
+  width: 10px;
+  height: 12px;
   border: 1px solid rgba(247, 229, 143, 0.92);
   border-left: 0;
   border-radius: 0 2px 2px 0;
   background: linear-gradient(180deg, rgba(245, 218, 132, 0.82), rgba(156, 118, 31, 0.56));
   box-shadow: inset 1px 0 0 rgba(255, 248, 220, 0.24);
-}
-
-.coach-motion {
-  animation: coachMotion 1.4s ease-in-out infinite;
-  transform-origin: 50% 100%;
-}
-
-@keyframes coachMotion {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-2px); }
-  100% { transform: translateY(0); }
 }
 
 .formation-owned-toggle .owned-book-icon {
