@@ -565,7 +565,7 @@ function formationCardHtml(f) {
         <div class="formation-name-wrap">
           <strong>${f.name}</strong>
           ${yearText ? `<span class="formation-year">${yearText}</span>` : ""}
-          ${owned ? `<span class="formation-owned-mark" title="Owned"></span>` : ""}
+          ${owned ? `<span class="formation-owned-mark" title="Owned">📖</span>` : ""}
         </div>
         <span class="formation-system">${f.system || "-"}</span>
       </div>
@@ -1252,7 +1252,7 @@ function openFormationModal(formation) {
   els.formationDetail.innerHTML = `
     <div class="formation-detail-toolbar">
       <button type="button" class="formation-owned-toggle ${owned ? "is-on" : ""}" data-toggle-owned="${formation.id}" title="Owned">
-        <span class="owned-book-icon" aria-hidden="true"></span>${owned ? "Owned" : "Mark Owned"}
+        <span class="owned-book-icon" aria-hidden="true">📖</span>${owned ? "Owned" : "Mark Owned"}
       </button>
     </div>
     <div class="formation-detail-grid">
@@ -1271,6 +1271,10 @@ function openFormationModal(formation) {
         <div class="formation-block">
           <h3>Formation Data</h3>
           ${renderFormationParamGrid(formation.params)}
+        </div>
+        <div class="formation-block">
+          <h3>Available Coaches</h3>
+          <div class="coach-formation-list">${renderCoachesList(formation.coaches?.obtainable)}</div>
         </div>
         <div class="formation-block">
           <h3>Understood Coaches</h3>

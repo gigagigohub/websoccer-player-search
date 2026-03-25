@@ -2758,18 +2758,18 @@ button.ghost {
 }
 
 .coach-tab-panel-lead {
-  max-height: 86px;
-  margin-bottom: 38px;
+  max-height: 92px;
+  margin-bottom: 36px;
   overflow: hidden;
 }
 
 .coach-tab-panel-lead .coach-lead-table {
-  font-size: 0.56rem;
+  font-size: 0.6rem;
 }
 
 .coach-tab-panel-lead .coach-lead-table th,
 .coach-tab-panel-lead .coach-lead-table td {
-  padding: 0.06rem 0.14rem;
+  padding: 0.1rem 0.18rem;
 }
 
 .coach-table-wrap {
@@ -2921,38 +2921,24 @@ button.ghost {
 }
 
 .formation-owned-mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  width: 18px;
-  height: 12px;
-  border: 1px solid rgba(247, 229, 143, 0.94);
-  border-radius: 2px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 12'%3E%3Cpath d='M1 1h7v10H1z' fill='%23d7b25a'/%3E%3Cpath d='M10 1h7v10h-7z' fill='%23d7b25a'/%3E%3Cpath d='M9 1v10' stroke='%23f8e7a5' stroke-width='1'/%3E%3Cpath d='M1 2h7M10 2h7' stroke='%23ffeebe' stroke-width='0.8' opacity='0.7'/%3E%3C/svg%3E");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  background-position: center;
-  font-size: 0;
-}
-
-.formation-owned-mark::before {
-  content: none;
-}
-
-.formation-owned-mark::after {
-  content: none;
+  display: inline-block;
+  font-size: 0.9rem;
+  line-height: 1;
+  width: auto;
+  height: auto;
+  border: 0;
+  background: none;
+  vertical-align: -1px;
 }
 
 .formation-owned-toggle .owned-book-icon {
   display: inline-block;
-  width: 12px;
-  height: 10px;
-  border: 1px solid currentColor;
-  border-radius: 2px;
+  width: auto;
+  height: auto;
+  border: 0;
   margin-right: 6px;
-  vertical-align: -1px;
-  box-shadow: inset -2px 0 0 rgba(255, 255, 255, 0.16);
+  vertical-align: -2px;
+  line-height: 1;
 }
 
 .myteam-coach-wrap {
