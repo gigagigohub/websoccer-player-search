@@ -2702,12 +2702,12 @@ button.ghost {
   padding: 0.65rem;
   margin-top: 0.65rem;
   position: relative;
-  min-height: 260px;
+  min-height: 268px;
   padding-bottom: 2.15rem;
 }
 
 .coach-card-fixed {
-  height: 300px;
+  height: 310px;
   overflow: hidden;
 }
 
@@ -2768,7 +2768,7 @@ button.ghost {
 }
 
 .coach-tab-panel-lead {
-  max-height: 92px;
+  max-height: 106px;
   margin-bottom: 36px;
   overflow: hidden;
 }
@@ -2779,7 +2779,7 @@ button.ghost {
 
 .coach-tab-panel-lead .coach-lead-table th,
 .coach-tab-panel-lead .coach-lead-table td {
-  padding: 0.1rem 0.18rem;
+  padding: 0.14rem 0.18rem;
 }
 
 .coach-table-wrap {
@@ -2859,10 +2859,10 @@ button.ghost {
   width: auto !important;
   flex: 0 0 auto;
   text-align: left;
-  white-space: nowrap;
-  max-width: 47%;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  max-width: none;
+  overflow: visible;
+  text-overflow: clip;
 }
 .coach-link-pill {
   width: auto !important;
@@ -2965,7 +2965,8 @@ button.ghost {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding-left: 8px;
+  padding-left: 0;
+  margin-left: -6px;
 }
 
 .myteam-coach-slot .coach-lead-table {
