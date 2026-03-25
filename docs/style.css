@@ -2810,7 +2810,7 @@ button.ghost {
   border-right: 1px solid rgba(255, 255, 255, 0.18);
   border-bottom: 1px solid rgba(255, 255, 255, 0.18);
   text-align: center;
-  padding: 0.22rem 0.28rem;
+  padding: 0.11rem 0.28rem;
   white-space: nowrap;
   min-width: 40px;
 }
