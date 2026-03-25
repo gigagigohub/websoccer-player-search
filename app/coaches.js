@@ -2,7 +2,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-25 20:41 JST";
+const APP_UPDATED_AT_JST = "2026-03-25 20:54 JST";
 
 const TYPE_LABELS = {
   1: "超攻撃型",
@@ -373,7 +373,7 @@ function coachFormationPills(list, withSeason = false) {
       const owned = cloudMeta.ownedFormationIds?.includes(fid) ? "is-owned" : "";
       return `<button type="button" class="inline-pill coach-formation-pill ${owned}" data-formation-id="${fid}">${getFormationName(fid)}${suffix}</button>`;
     })
-    .join(" ");
+    .join("");
 }
 
 function coachCardHtml(coach) {
@@ -387,10 +387,10 @@ function coachCardHtml(coach) {
   const tab = coachTabModeById.get(Number(coach.id)) || "lead";
   const tabPanelHtml =
     tab === "obtain"
-      ? `<div class="coach-tab-panel">${coachFormationPills(coach.obtainable, true)}</div>`
+      ? `<div class="coach-tab-panel coach-tab-scroll"><div class="coach-formation-list">${coachFormationPills(coach.obtainable, true)}</div></div>`
       : tab === "understood"
-        ? `<div class="coach-tab-panel">${coachFormationPills(coach.depth4FormationIds || [], false)}</div>`
-        : `<div class="coach-tab-panel">${leadershipTableHtml(leadership, currentSeason)}</div>`;
+        ? `<div class="coach-tab-panel coach-tab-scroll"><div class="coach-formation-list">${coachFormationPills(coach.depth4FormationIds || [], false)}</div></div>`
+        : `<div class="coach-tab-panel coach-tab-scroll">${leadershipTableHtml(leadership, currentSeason)}</div>`;
 
   return `
     <article class="coach-card" data-coach-id="${coach.id}">
@@ -408,18 +408,18 @@ function coachCardHtml(coach) {
             <img loading="lazy" src="${actionImg}" alt="${coach.name}" onerror="this.src='${staticImg}'" />
           </div>
         </div>
-        <div class="coach-meta-grid">
-          <div><span class="k">国籍</span><span class="v">${nation}</span></div>
-          <div><span class="k">年齢</span><span class="v">${coach.age || "-"}</span></div>
-          <div><span class="k">タイプ</span><span class="v">${typeLabel(coach.type)}</span></div>
+        <div class="coach-meta-grid coach-meta-box-grid">
+          <div class="coach-meta-box"><span class="k">国籍</span><span class="v">${nation}</span></div>
+          <div class="coach-meta-box"><span class="k">年齢</span><span class="v">${coach.age || "-"}</span></div>
+          <div class="coach-meta-box"><span class="k">タイプ</span><span class="v">${typeLabel(coach.type)}</span></div>
         </div>
       </div>
+      ${tabPanelHtml}
       <div class="coach-tab-row">
         <button type="button" class="coach-tab-btn ${tab === "lead" ? "is-on" : ""}" data-coach-tab="lead" data-coach-id="${coach.id}">LEAD</button>
         <button type="button" class="coach-tab-btn ${tab === "obtain" ? "is-on" : ""}" data-coach-tab="obtain" data-coach-id="${coach.id}">OBT</button>
         <button type="button" class="coach-tab-btn ${tab === "understood" ? "is-on" : ""}" data-coach-tab="understood" data-coach-id="${coach.id}">UND</button>
       </div>
-      ${tabPanelHtml}
     </article>
   `;
 }

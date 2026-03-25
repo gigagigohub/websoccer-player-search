@@ -3,7 +3,7 @@ const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-25 20:41 JST";
+const APP_UPDATED_AT_JST = "2026-03-25 20:54 JST";
 const LINEUP_SIZE = 11;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
@@ -163,11 +163,12 @@ function coachSeasonLabel(seasonText) {
   return `${coachSeasonNumber(seasonText)}期目`;
 }
 
-function coachLeadershipTableHtml(leadership, currentSeason = null) {
+function coachLeadershipTableHtml(leadership, currentSeason = null, maxCols = null) {
   const rows = Array.isArray(leadership) ? leadership : [];
   if (!rows.length) return `<p class="dim">-</p>`;
-  const headers = rows.map((_, i) => `<th>${i + 1}期目</th>`).join("");
-  const cells = rows
+  const view = Number.isInteger(maxCols) && maxCols > 0 ? rows.slice(0, maxCols) : rows;
+  const headers = view.map((_, i) => `<th>${i + 1}期目</th>`).join("");
+  const cells = view
     .map((v, i) => `<td class="${Number(currentSeason) === i + 1 ? "is-current" : ""}">${Number(v)}</td>`)
     .join("");
   return `
@@ -1159,7 +1160,7 @@ function renderCoachSection() {
         </div>
       </div>
       <div class="lineup-coach-lead-wrap">
-        ${coachLeadershipTableHtml(leadership, seasonNum)}
+        ${coachLeadershipTableHtml(leadership, seasonNum, 3)}
       </div>
     </button>
   `;
@@ -1822,16 +1823,34 @@ async function init() {
     });
   }
 
-  const [dataRes, formationsRes] = await Promise.all([
+  const [dataRes, formationsRes, coachesMetaRes] = await Promise.all([
     fetch("./data.json"),
     fetch("./formations_data.json").catch(() => null),
+    fetch("./coaches_data.json").catch(() => null),
   ]);
   const data = await dataRes.json();
   players = data.players || [];
   if (formationsRes && formationsRes.ok) {
     const formationsData = await formationsRes.json();
     formations = Array.isArray(formationsData?.formations) ? formationsData.formations : [];
-    coaches = Array.isArray(formationsData?.coaches) ? formationsData.coaches : [];
+    const baseCoaches = Array.isArray(formationsData?.coaches) ? formationsData.coaches : [];
+    let enriched = [];
+    if (coachesMetaRes && coachesMetaRes.ok) {
+      try {
+        const raw = await coachesMetaRes.json();
+        enriched = Array.isArray(raw?.coaches) ? raw.coaches : [];
+      } catch (_) {
+        enriched = [];
+      }
+    }
+    const byId = new Map(enriched.map((c) => [Number(c?.id), c]));
+    coaches = baseCoaches.map((c) => {
+      const ext = byId.get(Number(c?.id));
+      return {
+        ...c,
+        leadershipBySeason: Array.isArray(ext?.leadershipBySeason) ? ext.leadershipBySeason : [],
+      };
+    });
   } else {
     formations = [];
     coaches = [];

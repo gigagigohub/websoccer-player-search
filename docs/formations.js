@@ -3,7 +3,7 @@ const SUPABASE_TABLE = "lineup_states";
 const LINEUP_SIZE = 11;
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-25 20:41 JST";
+const APP_UPDATED_AT_JST = "2026-03-25 20:54 JST";
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織",
@@ -1165,33 +1165,25 @@ function renderCoachDetail(coachId) {
           <img loading="lazy" src="${staticImg}" alt="${coach.name}" />
           <img loading="lazy" src="${actionImg}" alt="${coach.name}" onerror="this.src='${staticImg}'" />
         </div>
-        <div class="coach-meta-grid">
-          <div><span class="k">国籍</span><span class="v">${coach.nationality || "-"}</span></div>
-          <div><span class="k">年齢</span><span class="v">${coach.age || "-"}</span></div>
-          <div><span class="k">タイプ</span><span class="v">${coachTypeLabel(coach.type)}</span></div>
+        <div class="coach-meta-grid coach-meta-box-grid">
+          <div class="coach-meta-box"><span class="k">国籍</span><span class="v">${coach.nationality || "-"}</span></div>
+          <div class="coach-meta-box"><span class="k">年齢</span><span class="v">${coach.age || "-"}</span></div>
+          <div class="coach-meta-box"><span class="k">タイプ</span><span class="v">${coachTypeLabel(coach.type)}</span></div>
         </div>
       </div>
-      <div class="formation-block">
+      <div class="coach-tab-panel coach-tab-scroll">
         <h3>Leadership</h3>
-        <div>${leadTable || "-"}</div>
+        ${leadTable || "-"}
       </div>
-      <div class="formation-block">
+      <div class="coach-tab-panel coach-tab-scroll">
         <h3>Obtainable Formations</h3>
         <div class="coach-formation-list">${obtainHtml || "-"}</div>
       </div>
-      <div class="formation-block">
+      <div class="coach-tab-panel coach-tab-scroll">
         <h3>Understood Formations</h3>
         <div class="coach-formation-list">${depth4Html || "-"}</div>
       </div>
-      <div class="formation-block">
-        <h3>Full Name</h3>
-        <p>${coach.fullName || "-"}</p>
-      </div>
     </article>
-    <div class="formation-block">
-      <h3>Understood (Reference)</h3>
-      <div class="dim">この監督の理解度4フォーメーションを表示しています。</div>
-    </div>
   `;
 }
 
