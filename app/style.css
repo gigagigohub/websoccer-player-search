@@ -2960,14 +2960,7 @@ button.ghost {
 }
 
 .myteam-coach-wrap {
-  margin-top: 0.8rem;
-}
-
-.myteam-coach-panel {
-  border: 1px solid rgba(52, 72, 104, 0.7);
-  border-radius: 10px;
-  background: linear-gradient(180deg, rgba(18, 28, 46, 0.9), rgba(13, 21, 36, 0.92));
-  padding: 6px;
+  margin-top: 1.15rem;
 }
 
 .myteam-coach-slot .lineup-empty-thumb {

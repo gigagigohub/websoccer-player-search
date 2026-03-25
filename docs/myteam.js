@@ -3,7 +3,7 @@ const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-25 23:01 JST";
+const APP_UPDATED_AT_JST = "2026-03-25 23:26 JST";
 const LINEUP_SIZE = 11;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
@@ -1221,20 +1221,18 @@ function renderCoachSection() {
   if (!els.myTeamCoachWrap) return;
   if (!selectedCoach || !Number.isInteger(Number(selectedCoach.coachId))) {
     els.myTeamCoachWrap.innerHTML = `
-      <div class="myteam-coach-panel">
-        <button type="button" class="lineup-slot myteam-slot myteam-coach-slot is-empty" id="myTeamCoachSlot">
-          <span class="slot-no">HC</span>
-          <div class="lineup-slot-main">
-            <div class="lineup-empty-thumb"></div>
-            <div class="lineup-player-meta">
-              <div class="lineup-badges">
-                <span class="badge pos-badge hc-badge">HC</span>
-              </div>
-              <span class="slot-name">未登録</span>
+      <button type="button" class="lineup-slot myteam-slot myteam-coach-slot is-empty" id="myTeamCoachSlot">
+        <span class="slot-no">HC</span>
+        <div class="lineup-slot-main">
+          <div class="lineup-empty-thumb"></div>
+          <div class="lineup-player-meta">
+            <div class="lineup-badges">
+              <span class="badge pos-badge hc-badge">HC</span>
             </div>
+            <span class="slot-name">未登録</span>
           </div>
-        </button>
-      </div>
+        </div>
+      </button>
     `;
     return;
   }
@@ -1247,25 +1245,23 @@ function renderCoachSection() {
   const leadership = Array.isArray(coach?.leadershipBySeason) ? coach.leadershipBySeason : [];
   const img = `./images/chara/headcoaches/static/${coachId}@2x.gif`;
   els.myTeamCoachWrap.innerHTML = `
-    <div class="myteam-coach-panel">
-      <button type="button" class="lineup-slot myteam-slot myteam-coach-slot has-player" id="myTeamCoachSlot">
-        <span class="slot-no">HC</span>
-        <div class="lineup-slot-main">
-          <div class="lineup-thumb-wrap"><img loading="lazy" src="${img}" alt="${name}" /></div>
-          <div class="lineup-player-meta">
-            <div class="lineup-badges">
-              <span class="badge pos-badge hc-badge">HC</span>
-              <span class="badge lineup-season coach-season-badge">${season}</span>
-            </div>
-            <span class="slot-name">${name}</span>
-            <span class="lineup-cc-stat">${typeLabel}</span>
+    <button type="button" class="lineup-slot myteam-slot myteam-coach-slot has-player" id="myTeamCoachSlot">
+      <span class="slot-no">HC</span>
+      <div class="lineup-slot-main">
+        <div class="lineup-thumb-wrap"><img loading="lazy" src="${img}" alt="${name}" /></div>
+        <div class="lineup-player-meta">
+          <div class="lineup-badges">
+            <span class="badge pos-badge hc-badge">HC</span>
+            <span class="badge lineup-season coach-season-badge">${season}</span>
           </div>
+          <span class="slot-name">${name}</span>
+          <span class="lineup-cc-stat">${typeLabel}</span>
         </div>
-        <div class="lineup-coach-lead-wrap">
-          ${coachLeadershipTableHtml(leadership, seasonNum, 5)}
-        </div>
-      </button>
-    </div>
+      </div>
+      <div class="lineup-coach-lead-wrap">
+        ${coachLeadershipTableHtml(leadership, seasonNum, 5)}
+      </div>
+    </button>
   `;
 }
 
