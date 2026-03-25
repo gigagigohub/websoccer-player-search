@@ -2910,34 +2910,39 @@ button.ghost {
   align-items: center;
   justify-content: center;
   position: relative;
-  width: 13px;
+  width: 14px;
   height: 10px;
   border: 1px solid rgba(247, 229, 143, 0.82);
-  border-radius: 2px 3px 3px 2px;
-  background: linear-gradient(180deg, rgba(216, 178, 59, 0.52), rgba(132, 98, 20, 0.38));
-  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.25), inset 1px 0 0 rgba(255, 255, 255, 0.14);
+  border-radius: 2px;
+  background:
+    linear-gradient(90deg, rgba(124, 92, 22, 0.9) 0 3px, transparent 3px 100%),
+    linear-gradient(180deg, rgba(243, 215, 127, 0.72), rgba(147, 109, 25, 0.5));
+  box-shadow:
+    inset 0 -1px 0 rgba(0, 0, 0, 0.25),
+    inset 1px 0 0 rgba(255, 255, 255, 0.18),
+    inset -1px 0 0 rgba(255, 255, 255, 0.08);
   font-size: 0;
 }
 
 .formation-owned-mark::before {
   content: "";
   position: absolute;
-  left: 5px;
-  top: 0;
-  bottom: 0;
+  left: 4px;
+  top: 1px;
+  bottom: 1px;
   width: 1px;
-  background: rgba(247, 229, 143, 0.78);
+  background: rgba(250, 236, 176, 0.95);
 }
 
 .formation-owned-mark::after {
   content: "";
   position: absolute;
+  left: 5px;
   right: 1px;
-  top: 1px;
-  width: 3px;
-  height: 7px;
-  border-radius: 1px;
-  background: rgba(255, 248, 220, 0.22);
+  top: 2px;
+  bottom: 2px;
+  border-radius: 1px 1px 2px 1px;
+  background: rgba(255, 248, 220, 0.28);
 }
 
 .formation-owned-toggle .owned-book-icon {
