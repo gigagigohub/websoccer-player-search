@@ -3,7 +3,7 @@ const SUPABASE_TABLE = "lineup_states";
 const LINEUP_SIZE = 11;
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-25 21:26 JST";
+const APP_UPDATED_AT_JST = "2026-03-25 21:35 JST";
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織",
@@ -392,7 +392,7 @@ function syncProfileSideWidthFromPlayers(rows) {
     const v = String(p?.playType || "-");
     return Math.max(m, ctx.measureText(v).width);
   }, 0);
-  const sideWidth = Math.max(148, Math.ceil(maxValueWidth + 14));
+  const sideWidth = Math.min(144, Math.max(124, Math.ceil(maxValueWidth + 14)));
   document.documentElement.style.setProperty("--profile-side-width", `${sideWidth}px`);
 }
 
@@ -1128,14 +1128,26 @@ function coachTypeLabel(value) {
 function coachLeadershipTableHtml(leadership) {
   const rows = Array.isArray(leadership) ? leadership : [];
   if (!rows.length) return "-";
-  const th = rows.map((_, i) => `<th>${i + 1}期</th>`).join("");
-  const td = rows.map((v) => `<td>${Number(v)}</td>`).join("");
+  const chunks = [];
+  for (let i = 0; i < rows.length; i += 8) {
+    chunks.push(rows.slice(i, i + 8));
+  }
+  const blocks = chunks.map((chunk, idx) => {
+    const start = idx * 8;
+    const th = chunk.map((_, i) => `<th>${start + i + 1}期</th>`).join("");
+    const td = chunk.map((v) => `<td>${Number(v)}</td>`).join("");
+    return `
+      <div class="coach-lead-block">
+        <table class="coach-lead-table">
+          <thead><tr>${th}</tr></thead>
+          <tbody><tr>${td}</tr></tbody>
+        </table>
+      </div>
+    `;
+  }).join("");
   return `
     <div class="coach-table-wrap">
-      <table class="coach-lead-table">
-        <thead><tr>${th}</tr></thead>
-        <tbody><tr>${td}</tr></tbody>
-      </table>
+      <div class="coach-lead-blocks">${blocks}</div>
     </div>
   `;
 }
@@ -1201,7 +1213,7 @@ function renderCoachDetail(coachId) {
       ${tabPanelHtml}
       <div class="card-tabs">
         <button type="button" class="card-tab ${tab === "lead" ? "is-active" : ""}" data-coach-tab="lead" data-coach-id="${coach.id}">LEAD</button>
-        <button type="button" class="card-tab ${tab === "obtain" ? "is-active" : ""}" data-coach-tab="obtain" data-coach-id="${coach.id}">OBT</button>
+        <button type="button" class="card-tab ${tab === "obtain" ? "is-active" : ""}" data-coach-tab="obtain" data-coach-id="${coach.id}">AVL</button>
         <button type="button" class="card-tab ${tab === "understood" ? "is-active" : ""}" data-coach-tab="understood" data-coach-id="${coach.id}">UND</button>
       </div>
     </article>

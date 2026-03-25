@@ -884,7 +884,7 @@ button.ghost {
 .profile-view .media-row {
   width: 100%;
   min-width: 0;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 8px;
 }
 
@@ -893,7 +893,7 @@ button.ghost {
 }
 
 .profile-view .profile-side {
-  margin-left: 0;
+  margin-left: auto;
   width: var(--profile-side-width, 168px);
   min-width: var(--profile-side-width, 168px);
   max-width: var(--profile-side-width, 168px);
@@ -2760,6 +2760,16 @@ button.ghost {
 .coach-table-wrap {
   overflow-x: auto;
   overflow-y: hidden;
+}
+
+.coach-lead-blocks {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.coach-lead-block {
+  min-width: 0;
 }
 
 .coach-lead-table {
