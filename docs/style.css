@@ -1808,8 +1808,8 @@ button.ghost {
 }
 
 .myteam-formation-slot .lineup-thumb-wrap {
-  width: 132px;
-  height: 138px;
+  width: 66px;
+  height: 69px;
   border: 0;
   background: transparent;
   align-items: flex-start;
@@ -1818,8 +1818,8 @@ button.ghost {
 }
 
 .myteam-formation-scale-wrap {
-  width: 132px;
-  height: 138px;
+  width: 66px;
+  height: 69px;
   overflow: hidden;
   position: relative;
 }
@@ -1828,7 +1828,7 @@ button.ghost {
   width: 160px;
   aspect-ratio: 0.95;
   margin: 0;
-  transform: scale(0.825);
+  transform: scale(0.4125);
   transform-origin: left top;
 }
 
