@@ -254,6 +254,11 @@ body.myteam-page::before {
 }
 
 .name-suggest {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 40;
   margin-top: 4px;
   border: 1px solid #314767;
   border-radius: 0;
@@ -282,6 +287,10 @@ body.myteam-page::before {
 
 .name-suggest button:active {
   background: #1a2a45;
+}
+
+.suggest-wrap {
+  position: relative;
 }
 
 .panel {
@@ -2707,7 +2716,7 @@ button.ghost {
 }
 
 .coach-card-fixed {
-  height: 310px;
+  height: 330px;
   overflow: hidden;
 }
 
@@ -2768,8 +2777,8 @@ button.ghost {
 }
 
 .coach-tab-panel-lead {
-  max-height: 130px;
-  margin-bottom: 24px;
+  max-height: 154px;
+  margin-bottom: 20px;
   overflow: hidden;
 }
 
