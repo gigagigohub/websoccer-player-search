@@ -1839,7 +1839,7 @@ button.ghost {
 .myteam-formation-slot .formation-slot-point {
   width: 22px;
   height: 24px;
-  transform: translate(-50%, -50%) translateY(-16px);
+  transform: translate(-50%, -50%) translateY(-23px);
 }
 
 .myteam-formation-slot {
