@@ -3,7 +3,7 @@ const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-26 19:39 JST";
+const APP_UPDATED_AT_JST = "2026-03-26 19:46 JST";
 const LINEUP_SIZE = 11;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
@@ -32,8 +32,10 @@ const DETAIL_METRIC_LABELS = {
 };
 
 const els = {
+  hero: document.querySelector(".hero"),
   myteamMenuButton: document.querySelector("#myteamMenuButton"),
   myteamMenuPanel: document.querySelector("#myteamMenuPanel"),
+  myteamMenuLoginId: document.querySelector("#myteamMenuLoginId"),
   myteamDatabaseButton: document.querySelector("#myteamDatabaseButton"),
   myteamCoachesButton: document.querySelector("#myteamCoachesButton"),
   myteamFormationsButton: document.querySelector("#myteamFormationsButton"),
@@ -447,6 +449,14 @@ function closeMenuPanel() {
   els.myteamMenuPanel.classList.remove("is-open");
 }
 
+function syncMenuButtonSize() {
+  if (!els.myteamMenuButton) return;
+  const heroEl = els.hero || els.myteamMenuButton.closest(".hero");
+  const heroHeight = heroEl ? Math.round(heroEl.getBoundingClientRect().height) : 40;
+  const size = Math.max(36, heroHeight);
+  document.documentElement.style.setProperty("--menu-button-size", `${size}px`);
+}
+
 function openMyteamSettingModal() {
   if (!els.myteamSettingModal) return;
   if (els.myteamRenameLineupKey) {
@@ -642,12 +652,14 @@ async function applySignupFromModal() {
 
 function renderMyTeamMeta() {
   if (!els.myTeamMeta) return;
-  const login = hasCloudConfig()
-    ? ` / <span class="meta-login-badge">ID：${cloudConfig.lineupKey}</span>`
-    : "";
-  els.myTeamMeta.innerHTML = `Updated: ${APP_UPDATED_AT_JST}${login}`;
-  if (els.myteamLoginButton) els.myteamLoginButton.hidden = hasCloudConfig();
-  if (els.myteamLogoutButton) els.myteamLogoutButton.hidden = !hasCloudConfig();
+  const loggedIn = hasCloudConfig();
+  els.myTeamMeta.innerHTML = `Updated: ${APP_UPDATED_AT_JST}`;
+  if (els.myteamLoginButton) els.myteamLoginButton.hidden = loggedIn;
+  if (els.myteamLogoutButton) els.myteamLogoutButton.hidden = !loggedIn;
+  if (els.myteamMenuLoginId) {
+    els.myteamMenuLoginId.hidden = !loggedIn;
+    els.myteamMenuLoginId.textContent = loggedIn ? `ID：${cloudConfig.lineupKey}` : "";
+  }
 }
 
 function hasCloudConfig() {
@@ -1695,6 +1707,8 @@ async function removeCoachFromTeam() {
 async function init() {
   setupModalScrollLock();
   loadCloudConfig();
+  syncMenuButtonSize();
+  window.addEventListener("resize", syncMenuButtonSize);
   loadLifecycleMode();
   loadSelectedFormationId();
   renderLifecycleControls();

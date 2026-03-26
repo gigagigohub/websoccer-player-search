@@ -30,8 +30,8 @@ const RENDER_CARDS_PER_FRAME = 24;
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_ISO = "2026-03-25T23:26:00+09:00";
-const APP_UPDATED_AT_JST = "2026-03-26 19:39 JST";
+const APP_UPDATED_AT_ISO = "2026-03-26T19:46:00+09:00";
+const APP_UPDATED_AT_JST = "2026-03-26 19:46 JST";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function metricLabel(metric) {
@@ -60,9 +60,11 @@ function syncProfileSideWidthFromPlayers(rows) {
 }
 
 const els = {
+  hero: document.querySelector(".hero"),
   metaText: document.querySelector("#metaText"),
   menuButton: document.querySelector("#menuButton"),
   menuPanel: document.querySelector("#menuPanel"),
+  menuLoginId: document.querySelector("#menuLoginId"),
   playersButton: document.querySelector("#playersButton"),
   coachesButton: document.querySelector("#coachesButton"),
   loginButton: document.querySelector("#loginButton"),
@@ -263,10 +265,15 @@ function isLoggedIn() {
 
 function renderHeaderMeta() {
   if (!els.metaText) return;
-  const loginBadge = isLoggedIn()
-    ? `<span class="meta-login-badge">ID：${cloudConfig.lineupKey}</span>`
-    : "";
-  els.metaText.innerHTML = `Updated: ${appUpdatedAtJst}${loginBadge ? ` / ${loginBadge}` : ""}`;
+  els.metaText.innerHTML = `Updated: ${appUpdatedAtJst}`;
+}
+
+function syncMenuButtonSize() {
+  if (!els.menuButton) return;
+  const heroEl = els.hero || els.menuButton.closest(".hero");
+  const heroHeight = heroEl ? Math.round(heroEl.getBoundingClientRect().height) : 40;
+  const size = Math.max(36, heroHeight);
+  document.documentElement.style.setProperty("--menu-button-size", `${size}px`);
 }
 
 function syncAptitudeAreaLabel() {
@@ -279,6 +286,10 @@ function updateMenuState() {
   const loggedIn = isLoggedIn();
   if (els.loginButton) els.loginButton.hidden = loggedIn;
   if (els.logoutButton) els.logoutButton.hidden = !loggedIn;
+  if (els.menuLoginId) {
+    els.menuLoginId.hidden = !loggedIn;
+    els.menuLoginId.textContent = loggedIn ? `ID：${cloudConfig.lineupKey}` : "";
+  }
   renderHeaderMeta();
 }
 
@@ -1809,6 +1820,8 @@ async function init() {
   loadCloudConfig();
   setCloudStatus(hasCloudConfig() ? "Cloud: ready" : "Cloud: not configured");
   updateMenuState();
+  syncMenuButtonSize();
+  window.addEventListener("resize", syncMenuButtonSize);
 
   els.addCondition.addEventListener("click", () => {
     addConditionRow({ metric: "スピ", op: "gte", value1: "" });

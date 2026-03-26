@@ -76,8 +76,8 @@ body.myteam-page::before {
   position: fixed;
   right: 14px;
   top: 14px;
-  width: 40px;
-  height: 36px;
+  width: var(--menu-button-size, 40px);
+  height: var(--menu-button-size, 40px);
   border-radius: 8px;
   border: 1px solid #3a4e74;
   background: #16253f;
@@ -90,7 +90,7 @@ body.myteam-page::before {
 .menu-panel {
   position: fixed;
   right: 14px;
-  top: 54px;
+  top: calc(14px + var(--menu-button-size, 40px) + 4px);
   width: min(220px, calc(100% - 20px));
   border: 1px solid #314767;
   border-radius: 10px;
@@ -102,6 +102,18 @@ body.myteam-page::before {
   transform: translateY(-10px);
   pointer-events: none;
   transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.menu-login-id {
+  border: 1px solid #2f4361;
+  border-radius: 8px;
+  background: #0f1a2d;
+  color: #dbe8ff;
+  padding: 7px 8px;
+  font-size: 0.82rem;
+  line-height: 1.2;
+  margin-bottom: 6px;
+  word-break: break-all;
 }
 
 .menu-panel.is-open {

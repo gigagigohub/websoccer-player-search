@@ -3,7 +3,7 @@ const SUPABASE_TABLE = "lineup_states";
 const LINEUP_SIZE = 11;
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-26 19:39 JST";
+const APP_UPDATED_AT_JST = "2026-03-26 19:46 JST";
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織",
@@ -55,9 +55,11 @@ const SORT_OPTIONS = [
 ];
 
 const els = {
+  hero: document.querySelector(".hero"),
   metaText: document.querySelector("#metaText"),
   menuButton: document.querySelector("#menuButton"),
   menuPanel: document.querySelector("#menuPanel"),
+  menuLoginId: document.querySelector("#menuLoginId"),
   playersButton: document.querySelector("#playersButton"),
   coachesButton: document.querySelector("#coachesButton"),
   formationsButton: document.querySelector("#formationsButton"),
@@ -269,14 +271,25 @@ function isLoggedIn() {
 
 function renderMeta() {
   if (!els.metaText) return;
-  const login = isLoggedIn() ? ` / <span class="meta-login-badge">ID：${cloudConfig.lineupKey}</span>` : "";
-  els.metaText.innerHTML = `Updated: ${APP_UPDATED_AT_JST}${login}`;
+  els.metaText.innerHTML = `Updated: ${APP_UPDATED_AT_JST}`;
+}
+
+function syncMenuButtonSize() {
+  if (!els.menuButton) return;
+  const heroEl = els.hero || els.menuButton.closest(".hero");
+  const heroHeight = heroEl ? Math.round(heroEl.getBoundingClientRect().height) : 40;
+  const size = Math.max(36, heroHeight);
+  document.documentElement.style.setProperty("--menu-button-size", `${size}px`);
 }
 
 function updateMenuState() {
   const loggedIn = isLoggedIn();
   if (els.loginButton) els.loginButton.hidden = loggedIn;
   if (els.logoutButton) els.logoutButton.hidden = !loggedIn;
+  if (els.menuLoginId) {
+    els.menuLoginId.hidden = !loggedIn;
+    els.menuLoginId.textContent = loggedIn ? `ID：${cloudConfig.lineupKey}` : "";
+  }
   renderMeta();
 }
 
@@ -1745,6 +1758,8 @@ function bindEvents() {
 async function init() {
   setupModalScrollLock();
   loadCloudConfig();
+  syncMenuButtonSize();
+  window.addEventListener("resize", syncMenuButtonSize);
   buildSortOptions();
   bindEvents();
 
