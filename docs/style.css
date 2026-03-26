@@ -2716,7 +2716,7 @@ button.ghost {
 }
 
 .coach-card-fixed {
-  height: 330px;
+  height: 310px;
   overflow: hidden;
 }
 
@@ -2777,8 +2777,8 @@ button.ghost {
 }
 
 .coach-tab-panel-lead {
-  max-height: 154px;
-  margin-bottom: 20px;
+  max-height: 130px;
+  margin-bottom: 24px;
   overflow: hidden;
 }
 
@@ -2791,12 +2791,12 @@ button.ghost {
 }
 
 .coach-tab-panel-lead .coach-lead-table {
-  font-size: 0.6rem;
+  font-size: 0.64rem;
 }
 
 .coach-tab-panel-lead .coach-lead-table th,
 .coach-tab-panel-lead .coach-lead-table td {
-  padding: 0.14rem 0.18rem;
+  padding: 0.2rem 0.22rem;
 }
 
 .coach-table-wrap {
