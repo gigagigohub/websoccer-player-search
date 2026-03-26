@@ -3,7 +3,7 @@ const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-26 20:13 JST";
+const APP_UPDATED_AT_JST = "2026-03-26 20:18 JST";
 const LINEUP_SIZE = 11;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
@@ -361,26 +361,26 @@ function renderMyTeamFormationPitch(formation) {
   const maxX = 321;
   const minY = 2;
   const maxY = 337;
-  const padLeft = 9;
-  const padRight = 9;
-  const padTop = 5;
-  const padBottom = 22;
+  const padLeft = 10;
+  const padRight = 10;
+  const padTop = 14;
+  const padBottom = 8;
   const markerSrc = `./images/formation/${formationId}@2x.png`;
   return `
-    <div class="formation-pitch myteam-formation-pitch">
+    <div class="myteam-formation-scale-wrap">
+      <div class="formation-pitch myteam-formation-pitch">
       ${positions.map((p) => {
         const nx = (Number(p?.x || 0) - minX) / (maxX - minX);
         const ny = (Number(p?.y || 0) - minY) / (maxY - minY);
         const left = padLeft + nx * (100 - padLeft - padRight);
         const top = padTop + ny * (100 - padTop - padBottom);
-        const slot = Number(p?.slot || 0);
         return `
           <span class="formation-slot-point" style="left:${left.toFixed(2)}%;top:${top.toFixed(2)}%">
             <img class="formation-slot-icon" src="${markerSrc}" alt="" />
-            <span class="formation-slot-label">${Number.isInteger(slot) && slot > 0 ? slot : "-"}</span>
           </span>
         `;
       }).join("")}
+      </div>
     </div>
   `;
 }
@@ -394,7 +394,6 @@ function renderFormationCurrent() {
         <div class="lineup-slot-main">
           <div class="lineup-thumb-wrap">${renderMyTeamFormationPitch(null)}</div>
           <div class="lineup-player-meta">
-            <div class="lineup-badges"><span class="badge pos-badge fm-badge">FM</span></div>
             <span class="slot-name">Not selected</span>
           </div>
           <button type="button" class="formation-change-btn myteam-formation-change-btn" data-formation-change>Change</button>
@@ -418,7 +417,6 @@ function renderFormationCurrent() {
       <div class="lineup-slot-main">
         <div class="lineup-thumb-wrap">${renderMyTeamFormationPitch(f)}</div>
         <div class="lineup-player-meta">
-          <div class="lineup-badges"><span class="badge pos-badge fm-badge">FM</span></div>
           <span class="slot-name">${name}</span>
           <span class="lineup-cc-stat">${f?.system || "-"}</span>
         </div>
@@ -1318,6 +1316,12 @@ function renderCoachSection() {
   const seasonNum = coachSeasonNumber(season);
   const leadership = Array.isArray(coach?.leadershipBySeason) ? coach.leadershipBySeason : [];
   const img = `./images/chara/headcoaches/static/${coachId}@2x.gif`;
+  const formation = Number.isInteger(selectedFormationId)
+    ? formations.find((x) => Number(x?.id) === Number(selectedFormationId))
+    : null;
+  const coachStats = Array.isArray(formation?.coachStats) ? formation.coachStats : [];
+  const coachStat = coachStats.find((r) => Number(r?.coachId) === coachId) || null;
+  const coachInfoText = `${typeLabel} / ${coachStat ? pct(coachStat.usageRate) : "-"} / ${coachStat ? avg(coachStat.avgPts) : "-"}`;
   els.myTeamCoachWrap.innerHTML = `
     <button type="button" class="lineup-slot myteam-slot myteam-coach-slot has-player" id="myTeamCoachSlot">
       <span class="slot-no">HC</span>
@@ -1329,7 +1333,7 @@ function renderCoachSection() {
             <span class="badge lineup-season coach-season-badge">${season}</span>
           </div>
           <span class="slot-name">${name}</span>
-          <span class="lineup-cc-stat">${typeLabel}</span>
+          <span class="lineup-cc-stat">${coachInfoText}</span>
         </div>
       </div>
       <div class="lineup-coach-lead-wrap">

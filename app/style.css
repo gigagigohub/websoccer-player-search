@@ -1809,32 +1809,41 @@ button.ghost {
 
 .myteam-formation-slot .lineup-thumb-wrap {
   width: 44px;
-  height: 52px;
+  height: 46px;
   border: 0;
   background: transparent;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-start;
   overflow: hidden;
 }
 
-.myteam-formation-pitch {
+.myteam-formation-scale-wrap {
   width: 44px;
+  height: 46px;
+  overflow: hidden;
+  position: relative;
+}
+
+.myteam-formation-pitch {
+  width: 160px;
   aspect-ratio: 0.95;
   margin: 0;
+  transform: scale(0.275);
+  transform-origin: left top;
 }
 
 .myteam-formation-slot .formation-slot-point {
   pointer-events: none;
   cursor: default;
-  width: 10px;
-  height: 10px;
+  width: 30px;
+  height: 36px;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .myteam-formation-slot .formation-slot-icon {
-  width: 8px;
-  height: 8px;
+  width: 22px;
+  height: 22px;
 }
 
 .myteam-formation-slot .formation-slot-label {
