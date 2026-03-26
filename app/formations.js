@@ -3,7 +3,7 @@ const SUPABASE_TABLE = "lineup_states";
 const LINEUP_SIZE = 11;
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-26 00:30 JST";
+const APP_UPDATED_AT_JST = "2026-03-26 18:43 JST";
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織",
@@ -67,7 +67,8 @@ const els = {
   formationNameQuery: document.querySelector("#formationNameQuery"),
   sortKey: document.querySelector("#sortKey"),
   sortDir: document.querySelector("#sortDir"),
-  coachFilter: document.querySelector("#coachFilter"),
+  undCoachFilter: document.querySelector("#undCoachFilter"),
+  avlCoachFilter: document.querySelector("#avlCoachFilter"),
   formationCount: document.querySelector("#formationCount"),
   formationList: document.querySelector("#formationList"),
   loginModal: document.querySelector("#loginModal"),
@@ -546,6 +547,17 @@ function formatFormationYearLabel(year, stride) {
   return String(y);
 }
 
+function toSearchNormalized(value) {
+  const base = String(value || "").toLowerCase().normalize("NFKC");
+  const hira = base.replace(/[\u30a1-\u30f6]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0x60));
+  return hira.replace(/[・･\.\-‐‑‒–—―ー\s]/g, "");
+}
+
+function includesSearch(haystack, needle) {
+  if (!needle) return true;
+  return toSearchNormalized(haystack).includes(needle);
+}
+
 function nationNameFromId(nationId) {
   const id = Number(nationId);
   if (!Number.isInteger(id)) return "-";
@@ -564,30 +576,43 @@ function buildSortOptions() {
   els.sortKey.value = "cc.usageRate";
 }
 
-function buildCoachFilter() {
-  if (!els.coachFilter) return;
+function buildCoachFilters() {
+  if (!els.undCoachFilter || !els.avlCoachFilter) return;
   const options = coaches
     .slice()
     .sort((a, b) => a.name.localeCompare(b.name, "ja"))
     .map((c) => `<option value="${c.id}">${c.name}</option>`)
     .join("");
-  els.coachFilter.innerHTML = `<option value="">ALL</option>${options}`;
+  const html = `<option value="">-</option>${options}`;
+  els.undCoachFilter.innerHTML = html;
+  els.avlCoachFilter.innerHTML = html;
 }
 
 function applyFilterAndSort() {
   const sortKey = els.sortKey?.value || "cc.usageRate";
   const sortDir = els.sortDir?.value === "asc" ? 1 : -1;
-  const coachId = Number(els.coachFilter?.value || 0);
-  const nameQuery = String(els.formationNameQuery?.value || "").trim();
+  const undCoachId = Number(els.undCoachFilter?.value || 0);
+  const avlCoachId = Number(els.avlCoachFilter?.value || 0);
+  const nameQuery = toSearchNormalized(els.formationNameQuery?.value || "");
 
   let rows = formations.slice();
   if (nameQuery) {
-    rows = rows.filter((f) => String(f?.name || "").includes(nameQuery));
+    rows = rows.filter((f) => {
+      const yearLabel = formatFormationYearLabel(f?.year, f?.stride);
+      const label = `${String(f?.name || "")}${yearLabel ? ` ${yearLabel}` : ""}`;
+      return includesSearch(label, nameQuery);
+    });
   }
-  if (coachId > 0) {
+  if (undCoachId > 0) {
     rows = rows.filter((f) => {
       const list = f.coaches?.depth4 || [];
-      return list.some((c) => Number(c?.id) === coachId || Number(c?.coachId) === coachId);
+      return list.some((c) => Number(c?.id) === undCoachId || Number(c?.coachId) === undCoachId);
+    });
+  }
+  if (avlCoachId > 0) {
+    rows = rows.filter((f) => {
+      const list = f.coaches?.obtainable || [];
+      return list.some((c) => Number(c?.id) === avlCoachId || Number(c?.coachId) === avlCoachId);
     });
   }
 
@@ -1529,9 +1554,11 @@ function bindEvents() {
   if (els.formationNameQuery) {
     els.formationNameQuery.addEventListener("input", renderList);
   }
-  if (els.coachFilter) {
-    els.coachFilter.addEventListener("change", renderList);
-    els.coachFilter.addEventListener("input", renderList);
+  if (els.undCoachFilter) {
+    els.undCoachFilter.addEventListener("change", renderList);
+  }
+  if (els.avlCoachFilter) {
+    els.avlCoachFilter.addEventListener("change", renderList);
   }
 
   if (els.formationList) {
@@ -1706,7 +1733,7 @@ async function init() {
       console.warn(e);
     }
   }
-  buildCoachFilter();
+  buildCoachFilters();
   if (isLoggedIn()) {
     await loadCloudMeta().catch(() => {});
   }

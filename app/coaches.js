@@ -2,7 +2,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-26 00:30 JST";
+const APP_UPDATED_AT_JST = "2026-03-26 18:43 JST";
 
 const TYPE_LABELS = {
   1: "超攻撃型",
@@ -24,6 +24,8 @@ const els = {
   logoutButton: document.querySelector("#logoutButton"),
   coachNameQuery: document.querySelector("#coachNameQuery"),
   coachTypeFilter: document.querySelector("#coachTypeFilter"),
+  coachAvailableFormationFilter: document.querySelector("#coachAvailableFormationFilter"),
+  coachUnderstoodFormationFilter: document.querySelector("#coachUnderstoodFormationFilter"),
   coachSearchButton: document.querySelector("#coachSearchButton"),
   coachCount: document.querySelector("#coachCount"),
   coachList: document.querySelector("#coachList"),
@@ -355,11 +357,39 @@ function formatFormationYearLabel(year, stride) {
   return String(y);
 }
 
+function toSearchNormalized(value) {
+  const base = String(value || "").toLowerCase().normalize("NFKC");
+  const hira = base.replace(/[\u30a1-\u30f6]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0x60));
+  return hira.replace(/[・･\.\-‐‑‒–—―ー\s]/g, "");
+}
+
+function includesSearch(haystack, needle) {
+  if (!needle) return true;
+  return toSearchNormalized(haystack).includes(needle);
+}
+
 function getFormationName(fid) {
   const f = formations.find((x) => Number(x?.id) === Number(fid));
   if (!f) return `Formation ${fid}`;
   const y = formatFormationYearLabel(f.year, f.stride);
   return `${f.name}${y ? ` ${y}` : ""}`;
+}
+
+function buildCoachFormationFilters() {
+  const targets = [els.coachAvailableFormationFilter, els.coachUnderstoodFormationFilter].filter(Boolean);
+  if (!targets.length) return;
+  const options = formations
+    .slice()
+    .sort((a, b) => {
+      const na = getFormationName(a?.id);
+      const nb = getFormationName(b?.id);
+      return na.localeCompare(nb, "ja");
+    })
+    .map((f) => `<option value="${f.id}">${getFormationName(f.id)}</option>`)
+    .join("");
+  targets.forEach((sel) => {
+    sel.innerHTML = `<option value="">-</option>${options}`;
+  });
 }
 
 function leadershipTableHtml(leadership, currentSeason = null) {
@@ -454,12 +484,22 @@ function coachCardHtml(coach) {
 }
 
 function filterCoaches() {
-  const q = String(els.coachNameQuery?.value || "").trim();
+  const q = toSearchNormalized(els.coachNameQuery?.value || "");
   const typeVal = Number(els.coachTypeFilter?.value || 0);
+  const avlFormationId = Number(els.coachAvailableFormationFilter?.value || 0);
+  const undFormationId = Number(els.coachUnderstoodFormationFilter?.value || 0);
   filteredCoaches = coaches.filter((c) => {
     if (typeVal > 0 && Number(c?.type) !== typeVal) return false;
+    if (avlFormationId > 0) {
+      const available = Array.isArray(c?.obtainable) ? c.obtainable : [];
+      if (!available.some((row) => Number(row?.formationId) === avlFormationId)) return false;
+    }
+    if (undFormationId > 0) {
+      const understood = Array.isArray(c?.depth4FormationIds) ? c.depth4FormationIds : [];
+      if (!understood.some((fid) => Number(fid) === undFormationId)) return false;
+    }
     if (!q) return true;
-    return String(c?.name || "").includes(q) || String(c?.fullName || "").includes(q);
+    return includesSearch(c?.name || "", q) || includesSearch(c?.fullName || "", q);
   });
 }
 
@@ -608,6 +648,8 @@ function bindEvents() {
     els.coachNameQuery.addEventListener("keydown", (e) => { if (e.key === "Enter") renderCoaches(); });
   }
   if (els.coachTypeFilter) els.coachTypeFilter.addEventListener("change", renderCoaches);
+  if (els.coachAvailableFormationFilter) els.coachAvailableFormationFilter.addEventListener("change", renderCoaches);
+  if (els.coachUnderstoodFormationFilter) els.coachUnderstoodFormationFilter.addEventListener("change", renderCoaches);
 
   if (els.coachList) {
     els.coachList.addEventListener("click", async (e) => {
@@ -764,6 +806,7 @@ async function init() {
 
   const fData = await formationsRes.json();
   formations = Array.isArray(fData?.formations) ? fData.formations : [];
+  buildCoachFormationFilters();
 
   let enriched = null;
   if (coachesRes && coachesRes.ok) {
