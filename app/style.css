@@ -1736,6 +1736,7 @@ button.ghost {
 
 .lineup-slot {
   min-height: 58px;
+  width: 100%;
   border-radius: 8px;
   border: 1px solid #36507c;
   background: #132038;
@@ -1808,13 +1809,13 @@ button.ghost {
 }
 
 .myteam-formation-slot .lineup-thumb-wrap {
-  width: 44px;
-  height: 42px;
+  width: 84px;
+  height: 43px;
   border: 0;
   background: transparent;
   align-items: center;
   justify-content: center;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .myteam-formation-scale-wrap {
