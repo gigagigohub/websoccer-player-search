@@ -33,8 +33,9 @@
     <section class="panel formation-filter-panel">
       <div class="formation-filter-grid">
         <div>
-          <label class="label" for="formationNameQuery">Formation Name</label>
-          <input id="formationNameQuery" type="text" placeholder="Name" />
+          <label class="label" for="formationNameQuery">フォーメーション名</label>
+          <input id="formationNameQuery" type="text" placeholder="フォーメーション名" autocomplete="off" />
+          <div id="formationNameSuggest" class="name-suggest" hidden></div>
         </div>
         <div>
           <label class="label" for="sortKey">Sort Key</label>

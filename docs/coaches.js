@@ -2,7 +2,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-26 19:17 JST";
+const APP_UPDATED_AT_JST = "2026-03-26 19:19 JST";
 
 const TYPE_LABELS = {
   1: "超攻撃型",
@@ -23,6 +23,7 @@ const els = {
   loginButton: document.querySelector("#loginButton"),
   logoutButton: document.querySelector("#logoutButton"),
   coachNameQuery: document.querySelector("#coachNameQuery"),
+  coachNameSuggest: document.querySelector("#coachNameSuggest"),
   coachTypeFilter: document.querySelector("#coachTypeFilter"),
   coachAvailableFormationFilter: document.querySelector("#coachAvailableFormationFilter"),
   coachUnderstoodFormationFilter: document.querySelector("#coachUnderstoodFormationFilter"),
@@ -368,6 +369,40 @@ function includesSearch(haystack, needle) {
   return toSearchNormalized(haystack).includes(needle);
 }
 
+function findCoachNameSuggestions(rawQuery, limit = 3) {
+  const q = toSearchNormalized(rawQuery);
+  if (!q) return [];
+  const seen = new Set();
+  const scored = [];
+  coaches.forEach((c) => {
+    const name = String(c?.name || "").trim();
+    if (!name || seen.has(name)) return;
+    seen.add(name);
+    const norm = toSearchNormalized(name);
+    const idx = norm.indexOf(q);
+    if (idx < 0) return;
+    scored.push({ name, idx, len: norm.length });
+  });
+  return scored
+    .sort((a, b) => a.idx - b.idx || a.len - b.len || a.name.localeCompare(b.name, "ja"))
+    .slice(0, limit)
+    .map((x) => x.name);
+}
+
+function renderCoachNameSuggest() {
+  if (!els.coachNameSuggest || !els.coachNameQuery) return;
+  const list = findCoachNameSuggestions(els.coachNameQuery.value);
+  if (!list.length) {
+    els.coachNameSuggest.hidden = true;
+    els.coachNameSuggest.innerHTML = "";
+    return;
+  }
+  els.coachNameSuggest.hidden = false;
+  els.coachNameSuggest.innerHTML = list
+    .map((name) => `<button type="button" class="name-suggest-item" data-name="${name}">${name}</button>`)
+    .join("");
+}
+
 function getFormationName(fid) {
   const f = formations.find((x) => Number(x?.id) === Number(fid));
   if (!f) return `Formation ${fid}`;
@@ -508,6 +543,7 @@ function renderCoaches() {
   filterCoaches();
   els.coachList.innerHTML = filteredCoaches.map(coachCardHtml).join("");
   if (els.coachCount) els.coachCount.textContent = `${filteredCoaches.length} results`;
+  renderCoachNameSuggest();
 }
 
 function renderCoachDetail(coachId) {
@@ -646,6 +682,13 @@ function bindEvents() {
   if (els.coachSearchButton) els.coachSearchButton.addEventListener("click", renderCoaches);
   if (els.coachNameQuery) {
     els.coachNameQuery.addEventListener("keydown", (e) => { if (e.key === "Enter") renderCoaches(); });
+    els.coachNameQuery.addEventListener("input", renderCoaches);
+    els.coachNameQuery.addEventListener("blur", () => {
+      setTimeout(() => {
+        if (!els.coachNameSuggest) return;
+        els.coachNameSuggest.hidden = true;
+      }, 120);
+    });
   }
   if (els.coachTypeFilter) els.coachTypeFilter.addEventListener("change", renderCoaches);
   if (els.coachAvailableFormationFilter) els.coachAvailableFormationFilter.addEventListener("change", renderCoaches);
@@ -674,6 +717,16 @@ function bindEvents() {
         const fid = Number(fbtn.dataset.formationId);
         if (Number.isInteger(fid)) window.location.href = `./formations.html?openFormationId=${fid}`;
       }
+    });
+  }
+
+  if (els.coachNameSuggest) {
+    els.coachNameSuggest.addEventListener("click", (e) => {
+      const btn = e.target.closest(".name-suggest-item");
+      if (!btn || !els.coachNameQuery) return;
+      els.coachNameQuery.value = btn.dataset.name || "";
+      els.coachNameSuggest.hidden = true;
+      renderCoaches();
     });
   }
 

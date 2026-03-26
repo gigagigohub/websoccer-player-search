@@ -3,7 +3,7 @@ const SUPABASE_TABLE = "lineup_states";
 const LINEUP_SIZE = 11;
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-26 19:17 JST";
+const APP_UPDATED_AT_JST = "2026-03-26 19:19 JST";
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織",
@@ -65,6 +65,7 @@ const els = {
   myTeamButton: document.querySelector("#myTeamButton"),
   logoutButton: document.querySelector("#logoutButton"),
   formationNameQuery: document.querySelector("#formationNameQuery"),
+  formationNameSuggest: document.querySelector("#formationNameSuggest"),
   sortKey: document.querySelector("#sortKey"),
   sortDir: document.querySelector("#sortDir"),
   undCoachFilter: document.querySelector("#undCoachFilter"),
@@ -558,6 +559,45 @@ function includesSearch(haystack, needle) {
   return toSearchNormalized(haystack).includes(needle);
 }
 
+function formationFullName(f) {
+  const yearLabel = formatFormationYearLabel(f?.year, f?.stride);
+  return `${String(f?.name || "")}${yearLabel ? ` ${yearLabel}` : ""}`.trim();
+}
+
+function findFormationNameSuggestions(rawQuery, limit = 3) {
+  const q = toSearchNormalized(rawQuery);
+  if (!q) return [];
+  const seen = new Set();
+  const scored = [];
+  formations.forEach((f) => {
+    const label = formationFullName(f);
+    if (!label || seen.has(label)) return;
+    seen.add(label);
+    const norm = toSearchNormalized(label);
+    const idx = norm.indexOf(q);
+    if (idx < 0) return;
+    scored.push({ label, idx, len: norm.length });
+  });
+  return scored
+    .sort((a, b) => a.idx - b.idx || a.len - b.len || a.label.localeCompare(b.label, "ja"))
+    .slice(0, limit)
+    .map((x) => x.label);
+}
+
+function renderFormationNameSuggest() {
+  if (!els.formationNameSuggest || !els.formationNameQuery) return;
+  const list = findFormationNameSuggestions(els.formationNameQuery.value);
+  if (!list.length) {
+    els.formationNameSuggest.hidden = true;
+    els.formationNameSuggest.innerHTML = "";
+    return;
+  }
+  els.formationNameSuggest.hidden = false;
+  els.formationNameSuggest.innerHTML = list
+    .map((label) => `<button type="button" class="name-suggest-item" data-name="${label}">${label}</button>`)
+    .join("");
+}
+
 function nationNameFromId(nationId) {
   const id = Number(nationId);
   if (!Number.isInteger(id)) return "-";
@@ -598,8 +638,7 @@ function applyFilterAndSort() {
   let rows = formations.slice();
   if (nameQuery) {
     rows = rows.filter((f) => {
-      const yearLabel = formatFormationYearLabel(f?.year, f?.stride);
-      const label = `${String(f?.name || "")}${yearLabel ? ` ${yearLabel}` : ""}`;
+      const label = formationFullName(f);
       return includesSearch(label, nameQuery);
     });
   }
@@ -676,6 +715,7 @@ function renderList() {
   if (els.formationCount) {
     els.formationCount.textContent = `${filteredAndSorted.length} results`;
   }
+  renderFormationNameSuggest();
 }
 
 function renderFormationPitch(positions, formationId) {
@@ -1553,6 +1593,12 @@ function bindEvents() {
   if (els.sortKey) els.sortKey.addEventListener("change", renderList);
   if (els.formationNameQuery) {
     els.formationNameQuery.addEventListener("input", renderList);
+    els.formationNameQuery.addEventListener("blur", () => {
+      setTimeout(() => {
+        if (!els.formationNameSuggest) return;
+        els.formationNameSuggest.hidden = true;
+      }, 120);
+    });
   }
   if (els.undCoachFilter) {
     els.undCoachFilter.addEventListener("change", renderList);
@@ -1570,6 +1616,16 @@ function bindEvents() {
       const f = formations.find((x) => Number(x.id) === id);
       if (!f) return;
       openFormationModal(f);
+    });
+  }
+
+  if (els.formationNameSuggest) {
+    els.formationNameSuggest.addEventListener("click", (e) => {
+      const btn = e.target.closest(".name-suggest-item");
+      if (!btn || !els.formationNameQuery) return;
+      els.formationNameQuery.value = btn.dataset.name || "";
+      els.formationNameSuggest.hidden = true;
+      renderList();
     });
   }
 
