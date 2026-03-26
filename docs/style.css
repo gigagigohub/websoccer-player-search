@@ -1808,13 +1808,13 @@ button.ghost {
 }
 
 .myteam-formation-slot .lineup-thumb-wrap {
-  width: 84px;
-  height: 43px;
+  width: 44px;
+  height: 42px;
   border: 0;
   background: transparent;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .myteam-formation-scale-wrap {
@@ -1847,7 +1847,7 @@ button.ghost {
 }
 
 .myteam-formation-slot .lineup-player-meta {
-  margin-left: -14px;
+  margin-left: -30px;
   padding-top: 4px;
 }
 
