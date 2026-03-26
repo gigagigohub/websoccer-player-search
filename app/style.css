@@ -1808,8 +1808,8 @@ button.ghost {
 }
 
 .myteam-formation-slot .lineup-thumb-wrap {
-  width: 99px;
-  height: 58px;
+  width: 89px;
+  height: 48px;
   border: 0;
   background: transparent;
   align-items: center;
@@ -1818,8 +1818,8 @@ button.ghost {
 }
 
 .myteam-formation-scale-wrap {
-  width: 99px;
-  height: 58px;
+  width: 89px;
+  height: 48px;
   overflow: hidden;
   position: relative;
 }
@@ -1828,7 +1828,7 @@ button.ghost {
   width: 160px;
   aspect-ratio: 0.95;
   margin: 0;
-  transform: scale(0.6);
+  transform: scale(0.5375);
   transform-origin: left top;
 }
 
@@ -1844,6 +1844,15 @@ button.ghost {
 
 .myteam-formation-slot {
   padding: 4px 6px 2px;
+}
+
+.myteam-formation-slot .lineup-player-meta {
+  margin-left: -4px;
+  padding-top: 4px;
+}
+
+.myteam-formation-slot .slot-name {
+  margin-top: 6px;
 }
 
 .myteam-formation-slot .formation-slot-icon {
