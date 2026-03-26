@@ -3,7 +3,7 @@ const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-26 20:57 JST";
+const APP_UPDATED_AT_JST = "2026-03-26 20:59 JST";
 const LINEUP_SIZE = 11;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
@@ -411,12 +411,7 @@ function renderFormationCurrent() {
   }
   const year = formatFormationYearLabel(f?.year, f?.stride);
   const name = `${f?.name || `Formation ${selectedFormationId}`}${year ? ` ${year}` : ""}`;
-  const formationCoachStats = Array.isArray(f?.coachStats) ? f.coachStats : [];
-  const topCoachRow = formationCoachStats.slice().sort((a, b) => (
-    Number(b?.usageRate || 0) - Number(a?.usageRate || 0)
-    || Number(b?.avgPts || 0) - Number(a?.avgPts || 0)
-  ))[0] || null;
-  const formationInfoText = `${f?.system || "-"} / ${pct(f?.cc?.winRate)} / ${topCoachRow ? avg(topCoachRow.avgPts) : "-"}`;
+  const formationInfoText = `Usage ${pct(f?.cc?.usageRate)} / WinRate ${pct(f?.cc?.winRate)}`;
   els.myTeamFormationWrap.innerHTML = `
     <div class="lineup-slot myteam-slot myteam-formation-slot has-player" id="myTeamFormationSlot" data-formation-open>
       <span class="slot-no">FM</span>
