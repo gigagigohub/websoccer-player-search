@@ -3,7 +3,7 @@ const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-26 19:53 JST";
+const APP_UPDATED_AT_JST = "2026-03-26 20:01 JST";
 const LINEUP_SIZE = 11;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
@@ -514,7 +514,7 @@ function syncMenuButtonSize() {
   if (!els.myteamMenuButton) return;
   const heroEl = els.hero || els.myteamMenuButton.closest(".hero");
   const heroHeight = heroEl ? Math.round(heroEl.getBoundingClientRect().height) : 40;
-  const size = Math.max(36, heroHeight);
+  const size = Math.max(30, Math.round(heroHeight * 0.72));
   document.documentElement.style.setProperty("--menu-button-size", `${size}px`);
 }
 
@@ -719,7 +719,7 @@ function renderMyTeamMeta() {
   if (els.myteamLogoutButton) els.myteamLogoutButton.hidden = !loggedIn;
   if (els.myteamMenuLoginId) {
     els.myteamMenuLoginId.hidden = !loggedIn;
-    els.myteamMenuLoginId.textContent = loggedIn ? `ID：${cloudConfig.lineupKey}` : "";
+    els.myteamMenuLoginId.textContent = loggedIn ? `Team ID：${cloudConfig.lineupKey}` : "";
   }
 }
 

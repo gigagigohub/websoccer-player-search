@@ -64,7 +64,7 @@ body.myteam-page::before {
 .hero {
   position: relative;
   overflow: visible;
-  margin-right: 52px;
+  margin-right: 0;
   padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: 14px;
@@ -75,23 +75,23 @@ body.myteam-page::before {
 
 .menu-button {
   position: absolute;
-  right: -52px;
-  top: 0;
+  right: 8px;
+  top: 8px;
   width: var(--menu-button-size, 40px);
   height: var(--menu-button-size, 40px);
   border-radius: 8px;
   border: 1px solid #3a4e74;
   background: #16253f;
   color: #e7f1ff;
-  font-size: 1.12rem;
+  font-size: 1.36rem;
   line-height: 1;
   padding: 0;
 }
 
 .menu-panel {
   position: absolute;
-  right: -52px;
-  top: calc(var(--menu-button-size, 40px) + 4px);
+  right: 8px;
+  top: calc(8px + var(--menu-button-size, 40px) + 4px);
   width: min(220px, calc(100% - 20px));
   border: 1px solid #314767;
   border-radius: 10px;
@@ -106,14 +106,14 @@ body.myteam-page::before {
 }
 
 .menu-login-id {
-  border: 1px solid #2f4361;
-  border-radius: 8px;
-  background: #0f1a2d;
-  color: #dbe8ff;
-  padding: 7px 8px;
-  font-size: 0.82rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #b7c9ed;
+  padding: 2px 2px 6px;
+  font-size: 0.78rem;
   line-height: 1.2;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   word-break: break-all;
 }
 
@@ -324,12 +324,13 @@ body.myteam-page::before {
 .myteam-section-band {
   margin-top: 8px;
   margin-bottom: 6px;
-  padding: 5px 8px;
-  border: 1px solid #304869;
-  border-radius: 8px;
-  background: linear-gradient(180deg, #182743 0%, #121d31 100%);
-  color: #d9e6ff;
-  font-size: 0.76rem;
+  padding: 4px 6px 3px;
+  border: 0;
+  border-bottom: 1px solid #36537f;
+  border-radius: 0;
+  background: transparent;
+  color: #bfd2f6;
+  font-size: 0.74rem;
   font-weight: 700;
   letter-spacing: 0.03em;
 }
@@ -1813,20 +1814,27 @@ button.ghost {
 .myteam-formation-slot .formation-slot-point {
   pointer-events: none;
   cursor: default;
+  width: 16px;
+  height: 16px;
+  justify-content: center;
+  align-items: center;
 }
 
 .myteam-formation-slot .formation-slot-icon {
-  width: 18px;
-  height: 18px;
+  width: 12px;
+  height: 12px;
 }
 
 .myteam-formation-slot .formation-slot-label {
-  font-size: 0.54rem;
+  display: none;
 }
 
 .myteam-formation-change-btn {
   width: auto;
-  min-width: 88px;
+  min-width: 62px;
+  height: 24px;
+  padding: 2px 8px;
+  font-size: 0.72rem;
   margin-left: auto;
 }
 
