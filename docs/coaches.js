@@ -2,7 +2,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-26 19:26 JST";
+const APP_UPDATED_AT_JST = "2026-03-26 19:28 JST";
 
 const TYPE_LABELS = {
   1: "超攻撃型",
@@ -27,7 +27,6 @@ const els = {
   coachTypeFilter: document.querySelector("#coachTypeFilter"),
   coachAvailableFormationFilter: document.querySelector("#coachAvailableFormationFilter"),
   coachUnderstoodFormationFilter: document.querySelector("#coachUnderstoodFormationFilter"),
-  coachSearchButton: document.querySelector("#coachSearchButton"),
   coachCount: document.querySelector("#coachCount"),
   coachList: document.querySelector("#coachList"),
 
@@ -679,9 +678,7 @@ function bindEvents() {
   if (els.loginButton) els.loginButton.addEventListener("click", () => { closeMenuPanel(); openLoginModal(); });
   if (els.logoutButton) els.logoutButton.addEventListener("click", () => { closeMenuPanel(); saveCloudConfig(""); cloudMeta = { formationId: null, ownedFormationIds: [], coach: null }; updateMenuState(); renderCoaches(); });
 
-  if (els.coachSearchButton) els.coachSearchButton.addEventListener("click", renderCoaches);
   if (els.coachNameQuery) {
-    els.coachNameQuery.addEventListener("keydown", (e) => { if (e.key === "Enter") renderCoaches(); });
     els.coachNameQuery.addEventListener("input", renderCoaches);
     els.coachNameQuery.addEventListener("blur", () => {
       setTimeout(() => {
