@@ -55,6 +55,7 @@ body.myteam-page::before {
 }
 
 .container {
+  position: relative;
   width: min(980px, 100%);
   margin: 0 auto;
   padding: 14px;
@@ -62,6 +63,7 @@ body.myteam-page::before {
 
 .hero {
   position: relative;
+  margin-right: 52px;
   padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: 14px;
@@ -71,9 +73,9 @@ body.myteam-page::before {
 }
 
 .menu-button {
-  position: absolute;
-  right: 8px;
-  top: 6px;
+  position: fixed;
+  right: 14px;
+  top: 14px;
   width: 40px;
   height: 36px;
   border-radius: 8px;
@@ -86,9 +88,9 @@ body.myteam-page::before {
 }
 
 .menu-panel {
-  position: absolute;
-  right: 10px;
-  top: calc(100% + 6px);
+  position: fixed;
+  right: 14px;
+  top: 54px;
   width: min(220px, calc(100% - 20px));
   border: 1px solid #314767;
   border-radius: 10px;
