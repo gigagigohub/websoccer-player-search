@@ -1809,7 +1809,7 @@ button.ghost {
 
 .myteam-formation-slot .lineup-thumb-wrap {
   width: 99px;
-  height: 96px;
+  height: 90px;
   border: 0;
   background: transparent;
   align-items: center;
@@ -1819,7 +1819,7 @@ button.ghost {
 
 .myteam-formation-scale-wrap {
   width: 99px;
-  height: 96px;
+  height: 90px;
   overflow: hidden;
   position: relative;
 }
@@ -1839,7 +1839,11 @@ button.ghost {
 .myteam-formation-slot .formation-slot-point {
   width: 22px;
   height: 24px;
-  transform: translate(-50%, -50%) translateY(-6px);
+  transform: translate(-50%, -50%) translateY(-16px);
+}
+
+.myteam-formation-slot {
+  padding: 4px 6px 2px;
 }
 
 .myteam-formation-slot .formation-slot-icon {
