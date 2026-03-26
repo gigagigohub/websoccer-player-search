@@ -1717,6 +1717,11 @@ button.ghost {
   color: #cfdcf8;
 }
 
+.lineup-target:empty {
+  display: none;
+  margin: 0;
+}
+
 .lineup-slots {
   display: grid;
   grid-template-columns: 1fr;
@@ -1804,14 +1809,18 @@ button.ghost {
 
 .myteam-formation-slot .lineup-thumb-wrap {
   width: 44px;
-  height: 37px;
+  height: 46px;
   border: 0;
   background: transparent;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .myteam-formation-pitch {
   width: 44px;
   aspect-ratio: 0.95;
+  margin: 0;
 }
 
 .myteam-formation-slot .formation-slot-point {
