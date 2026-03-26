@@ -1812,8 +1812,8 @@ button.ghost {
   height: 104px;
   border: 0;
   background: transparent;
-  align-items: flex-start;
-  justify-content: flex-start;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
 }
 
@@ -1830,20 +1830,6 @@ button.ghost {
   margin: 0;
   transform: scale(0.61875);
   transform-origin: left top;
-}
-
-.myteam-formation-slot .formation-slot-point {
-  pointer-events: none;
-  cursor: default;
-  width: 30px;
-  height: 36px;
-  justify-content: center;
-  align-items: flex-start;
-}
-
-.myteam-formation-slot .formation-slot-icon {
-  width: 22px;
-  height: 22px;
 }
 
 .myteam-formation-slot .formation-slot-label {
