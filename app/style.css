@@ -1836,6 +1836,16 @@ button.ghost {
   display: none;
 }
 
+.myteam-formation-slot .formation-slot-point {
+  width: 22px;
+  height: 24px;
+}
+
+.myteam-formation-slot .formation-slot-icon {
+  width: 14px;
+  height: 14px;
+}
+
 .myteam-formation-change-btn {
   width: auto;
   min-width: 52px;
