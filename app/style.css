@@ -1578,7 +1578,11 @@ button.ghost {
   font-style: italic;
   line-height: 1.05;
   color: #ecf2ff;
-  min-width: 1.5em;
+  width: 2ch;
+  min-width: 2ch;
+  max-width: 2ch;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
   text-align: right;
 }
 
@@ -2173,7 +2177,11 @@ button.ghost {
   color: #eaf1ff;
   font-weight: 700;
   font-style: italic;
-  min-width: 0.8em;
+  width: 2ch;
+  min-width: 2ch;
+  max-width: 2ch;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
   text-align: right;
 }
 
