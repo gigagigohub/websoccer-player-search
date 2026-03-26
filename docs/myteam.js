@@ -3,7 +3,7 @@ const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-26 19:46 JST";
+const APP_UPDATED_AT_JST = "2026-03-26 19:53 JST";
 const LINEUP_SIZE = 11;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
@@ -57,11 +57,10 @@ const els = {
   myTeamTarget: document.querySelector("#myTeamTarget"),
   myTeamSlots: document.querySelector("#myTeamSlots"),
   myTeamCoachWrap: document.querySelector("#myTeamCoachWrap"),
+  myTeamFormationWrap: document.querySelector("#myTeamFormationWrap"),
   lifecycleToggle: document.querySelector("#lifecycleToggle"),
   advanceSeasonButton: document.querySelector("#advanceSeasonButton"),
   rewindSeasonButton: document.querySelector("#rewindSeasonButton"),
-  myTeamFormationCurrent: document.querySelector("#myTeamFormationCurrent"),
-  myTeamFormationChangeButton: document.querySelector("#myTeamFormationChangeButton"),
   myTeamFormationEditor: document.querySelector("#myTeamFormationEditor"),
   myTeamFormationBackdrop: document.querySelector("#myTeamFormationBackdrop"),
   myTeamFormationSelect: document.querySelector("#myTeamFormationSelect"),
@@ -352,19 +351,81 @@ function buildFormationOptions() {
   renderFormationCurrent();
 }
 
+function renderMyTeamFormationPitch(formation) {
+  const positions = Array.isArray(formation?.positions) ? formation.positions : [];
+  const formationId = Number(formation?.id || 0);
+  if (!positions.length || !Number.isInteger(formationId) || formationId <= 0) {
+    return `<div class="lineup-empty-thumb"></div>`;
+  }
+  const minX = 1;
+  const maxX = 321;
+  const minY = 2;
+  const maxY = 337;
+  const padLeft = 10;
+  const padRight = 10;
+  const padTop = 14;
+  const padBottom = 8;
+  const markerSrc = `./images/formation/${formationId}@2x.png`;
+  return `
+    <div class="formation-pitch myteam-formation-pitch">
+      ${positions.map((p) => {
+        const nx = (Number(p?.x || 0) - minX) / (maxX - minX);
+        const ny = (Number(p?.y || 0) - minY) / (maxY - minY);
+        const left = padLeft + nx * (100 - padLeft - padRight);
+        const top = padTop + ny * (100 - padTop - padBottom);
+        const slot = Number(p?.slot || 0);
+        return `
+          <span class="formation-slot-point" style="left:${left.toFixed(2)}%;top:${top.toFixed(2)}%">
+            <img class="formation-slot-icon" src="${markerSrc}" alt="" />
+            <span class="formation-slot-label">${Number.isInteger(slot) && slot > 0 ? slot : "-"}</span>
+          </span>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
 function renderFormationCurrent() {
-  if (!els.myTeamFormationCurrent) return;
+  if (!els.myTeamFormationWrap) return;
   if (!Number.isInteger(selectedFormationId) || selectedFormationId <= 0) {
-    els.myTeamFormationCurrent.textContent = "Not selected";
+    els.myTeamFormationWrap.innerHTML = `
+      <div class="lineup-slot myteam-slot myteam-formation-slot is-empty" id="myTeamFormationSlot">
+        <span class="slot-no">FM</span>
+        <div class="lineup-slot-main">
+          <div class="lineup-thumb-wrap">${renderMyTeamFormationPitch(null)}</div>
+          <div class="lineup-player-meta">
+            <div class="lineup-badges"><span class="badge pos-badge fm-badge">FM</span></div>
+            <span class="slot-name">Not selected</span>
+          </div>
+          <button type="button" class="formation-change-btn myteam-formation-change-btn" data-formation-change>Change</button>
+        </div>
+      </div>
+    `;
     return;
   }
   const f = formations.find((x) => Number(x?.id) === selectedFormationId);
   if (!f) {
-    els.myTeamFormationCurrent.textContent = "Not selected";
+    selectedFormationId = null;
+    saveSelectedFormationId();
+    renderFormationCurrent();
     return;
   }
   const year = formatFormationYearLabel(f?.year, f?.stride);
-  els.myTeamFormationCurrent.textContent = `${f?.name || `Formation ${selectedFormationId}`}${year ? ` ${year}` : ""}`;
+  const name = `${f?.name || `Formation ${selectedFormationId}`}${year ? ` ${year}` : ""}`;
+  els.myTeamFormationWrap.innerHTML = `
+    <div class="lineup-slot myteam-slot myteam-formation-slot has-player" id="myTeamFormationSlot" data-formation-open>
+      <span class="slot-no">FM</span>
+      <div class="lineup-slot-main">
+        <div class="lineup-thumb-wrap">${renderMyTeamFormationPitch(f)}</div>
+        <div class="lineup-player-meta">
+          <div class="lineup-badges"><span class="badge pos-badge fm-badge">FM</span></div>
+          <span class="slot-name">${name}</span>
+          <span class="lineup-cc-stat">${f?.system || "-"}</span>
+        </div>
+        <button type="button" class="formation-change-btn myteam-formation-change-btn" data-formation-change>Change</button>
+      </div>
+    </div>
+  `;
 }
 
 function openFormationEditor() {
@@ -1227,6 +1288,7 @@ function renderLineup() {
   }).join("");
   els.myTeamSlots.innerHTML = html;
   renderCoachSection();
+  renderFormationCurrent();
 }
 
 function renderCoachSection() {
@@ -1776,11 +1838,6 @@ async function init() {
       renderFormationCurrent();
     });
   }
-  if (els.myTeamFormationChangeButton) {
-    els.myTeamFormationChangeButton.addEventListener("click", () => {
-      openFormationEditor();
-    });
-  }
   if (els.myTeamFormationApply) {
     els.myTeamFormationApply.addEventListener("click", async () => {
       await applyFormationFromSelect();
@@ -1796,9 +1853,15 @@ async function init() {
       closeFormationEditor();
     });
   }
-  if (els.myTeamFormationCurrent) {
-    els.myTeamFormationCurrent.addEventListener("click", () => {
-      openSelectedFormationDetail();
+  if (els.myTeamFormationWrap) {
+    els.myTeamFormationWrap.addEventListener("click", (e) => {
+      if (e.target.closest("[data-formation-change]")) {
+        openFormationEditor();
+        return;
+      }
+      if (e.target.closest("[data-formation-open]")) {
+        openSelectedFormationDetail();
+      }
     });
   }
   document.addEventListener("click", (e) => {

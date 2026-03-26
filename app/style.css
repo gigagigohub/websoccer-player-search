@@ -63,6 +63,7 @@ body.myteam-page::before {
 
 .hero {
   position: relative;
+  overflow: visible;
   margin-right: 52px;
   padding: 10px 12px;
   border: 1px solid var(--line);
@@ -73,9 +74,9 @@ body.myteam-page::before {
 }
 
 .menu-button {
-  position: fixed;
-  right: 14px;
-  top: 14px;
+  position: absolute;
+  right: -52px;
+  top: 0;
   width: var(--menu-button-size, 40px);
   height: var(--menu-button-size, 40px);
   border-radius: 8px;
@@ -88,9 +89,9 @@ body.myteam-page::before {
 }
 
 .menu-panel {
-  position: fixed;
-  right: 14px;
-  top: calc(14px + var(--menu-button-size, 40px) + 4px);
+  position: absolute;
+  right: -52px;
+  top: calc(var(--menu-button-size, 40px) + 4px);
   width: min(220px, calc(100% - 20px));
   border: 1px solid #314767;
   border-radius: 10px;
@@ -318,6 +319,19 @@ body.myteam-page::before {
 
 .lifecycle-panel {
   padding: 10px;
+}
+
+.myteam-section-band {
+  margin-top: 8px;
+  margin-bottom: 6px;
+  padding: 5px 8px;
+  border: 1px solid #304869;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #182743 0%, #121d31 100%);
+  color: #d9e6ff;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
 }
 
 .lifecycle-controls {
@@ -1705,6 +1719,12 @@ button.ghost {
   gap: 6px;
 }
 
+.myteam-formation-wrap {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
 .lineup-slot {
   min-height: 58px;
   border-radius: 8px;
@@ -1776,6 +1796,44 @@ button.ghost {
   object-fit: contain;
   object-position: center bottom;
   transform: translateY(39px);
+}
+
+.myteam-formation-slot .lineup-thumb-wrap {
+  width: 88px;
+  height: 74px;
+  border: 0;
+  background: transparent;
+}
+
+.myteam-formation-pitch {
+  width: 88px;
+  aspect-ratio: 0.95;
+}
+
+.myteam-formation-slot .formation-slot-point {
+  pointer-events: none;
+  cursor: default;
+}
+
+.myteam-formation-slot .formation-slot-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.myteam-formation-slot .formation-slot-label {
+  font-size: 0.54rem;
+}
+
+.myteam-formation-change-btn {
+  width: auto;
+  min-width: 88px;
+  margin-left: auto;
+}
+
+.fm-badge {
+  border-color: #476291;
+  background: linear-gradient(180deg, #2f456e 0%, #20324f 100%);
+  color: #eef4ff;
 }
 
 .lineup-empty-thumb {
@@ -2983,7 +3041,7 @@ button.ghost {
 }
 
 .myteam-coach-wrap {
-  margin-top: 1.15rem;
+  margin-top: 0;
 }
 
 .myteam-coach-slot .lineup-empty-thumb {
