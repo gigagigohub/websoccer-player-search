@@ -355,6 +355,13 @@ body.myteam-page::before {
   font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
   letter-spacing: 0.01em;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid #31476f;
+  background: linear-gradient(180deg, rgba(31, 48, 77, 0.86) 0%, rgba(20, 31, 52, 0.86) 100%);
 }
 
 .reserve-total-value {
