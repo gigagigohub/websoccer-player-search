@@ -62,6 +62,7 @@ const els = {
   myTeamTarget: document.querySelector("#myTeamTarget"),
   myTeamSlots: document.querySelector("#myTeamSlots"),
   myTeamReserveSlots: document.querySelector("#myTeamReserveSlots"),
+  myTeamReserveTotals: document.querySelector("#myTeamReserveTotals"),
   myTeamCoachWrap: document.querySelector("#myTeamCoachWrap"),
   myTeamFormationWrap: document.querySelector("#myTeamFormationWrap"),
   lifecycleToggle: document.querySelector("#lifecycleToggle"),
@@ -1273,6 +1274,26 @@ function myTeamSlotLabelByIndex(idx) {
   return `R${idx - STARTING_LINEUP_SIZE + 1}`;
 }
 
+function renderReserveTotals() {
+  if (!els.myTeamReserveTotals) return;
+  let individualityTotal = 0;
+  let popularityTotal = 0;
+  lineup.forEach((entry) => {
+    const playerId = Number(entry?.playerId);
+    if (!Number.isInteger(playerId)) return;
+    const player = players.find((x) => x.id === playerId);
+    if (!player) return;
+    const selectedPeriod = findPeriodBySeason(player, entry?.season || null);
+    const metrics = selectedPeriod?.metrics || getPeakMetrics(player);
+    individualityTotal += Number(metrics?.["個性"] || 0);
+    popularityTotal += Number(metrics?.["人気"] || 0);
+  });
+  els.myTeamReserveTotals.innerHTML = `
+    <span class="reserve-total-item">個性合計 ${individualityTotal}</span>
+    <span class="reserve-total-item">人気合計 ${popularityTotal}</span>
+  `;
+}
+
 function renderLineup() {
   if (!els.myTeamSlots || !els.myTeamReserveSlots) return;
   const keySlots = getSelectedFormationKeySlots();
@@ -1342,6 +1363,7 @@ function renderLineup() {
   }).join("");
   els.myTeamSlots.innerHTML = renderSlotRange(0, STARTING_LINEUP_SIZE);
   els.myTeamReserveSlots.innerHTML = renderSlotRange(STARTING_LINEUP_SIZE, LINEUP_SIZE);
+  renderReserveTotals();
   renderCoachSection();
   renderFormationCurrent();
 }
