@@ -360,7 +360,8 @@ body.myteam-page::before {
 .reserve-total-value {
   color: #ff9e3d;
   font-size: 1.28rem;
-  font-weight: 900;
+  font-weight: 500;
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
   line-height: 1;
 }
 
