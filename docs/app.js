@@ -1377,15 +1377,27 @@ function filterPlayers(conditions = getConditions()) {
     }
 
     if (scoutEventFilter > 0) {
-      const scoutHistory = Array.isArray(player.scoutHistory) ? player.scoutHistory : [];
-      if (!scoutHistory.some((x) => Number(x?.eventId || 0) === scoutEventFilter)) {
-        return false;
+      const scout = scoutsByEventId.get(scoutEventFilter);
+      const scoutIds = Array.isArray(scout?.playerIds) ? scout.playerIds : [];
+      if (scoutIds.length > 0) {
+        if (!scoutIds.includes(player.id)) return false;
+      } else {
+        const scoutHistory = Array.isArray(player.scoutHistory) ? player.scoutHistory : [];
+        if (!scoutHistory.some((x) => Number(x?.eventId || 0) === scoutEventFilter)) {
+          return false;
+        }
       }
     }
     if (cmEventFilter > 0) {
-      const cmHistory = Array.isArray(player.cmHistory) ? player.cmHistory : [];
-      if (!cmHistory.some((x) => Number(x?.eventId || 0) === cmEventFilter)) {
-        return false;
+      const cm = cmEventsByEventId.get(cmEventFilter);
+      const cmIds = Array.isArray(cm?.playerIds) ? cm.playerIds : [];
+      if (cmIds.length > 0) {
+        if (!cmIds.includes(player.id)) return false;
+      } else {
+        const cmHistory = Array.isArray(player.cmHistory) ? player.cmHistory : [];
+        if (!cmHistory.some((x) => Number(x?.eventId || 0) === cmEventFilter)) {
+          return false;
+        }
       }
     }
 
