@@ -22,7 +22,9 @@ const DETAIL_METRIC_LABELS = {
   "CK": "ＣＫ",
   "CP": "ＣＰ",
 };
-const LINEUP_SIZE = 11;
+const STARTING_LINEUP_SIZE = 11;
+const RESERVE_LINEUP_SIZE = 5;
+const LINEUP_SIZE = STARTING_LINEUP_SIZE + RESERVE_LINEUP_SIZE;
 const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const RENDER_BATCH_SIZE = 200;
@@ -697,6 +699,11 @@ function allowedSlotIndexesForPendingName() {
   return new Set(sameNameIndexes);
 }
 
+function lineupSlotLabel(idx) {
+  if (idx < STARTING_LINEUP_SIZE) return String(idx + 1);
+  return `R${idx - STARTING_LINEUP_SIZE + 1}`;
+}
+
 function renderLineupSlots() {
   if (!els.lineupSlots) return;
   const allowedIndexes = allowedSlotIndexesForPendingName();
@@ -722,6 +729,7 @@ function renderLineupSlots() {
 
   const html = startingLineup.map((entry, idx) => {
     const slot = idx + 1;
+    const slotLabel = lineupSlotLabel(idx);
     const playerId = Number(entry?.playerId);
     const player = lineupPlayerFromEntry(entry);
     const name = player ? player.name : "未登録";
@@ -759,7 +767,7 @@ function renderLineupSlots() {
     const disabled = disabledByNameRule || disabledByLock || disabledByModeRule;
     return `
       <button type="button" class="lineup-slot${hasPlayer ? " has-player" : ""}${disabled ? " is-disabled" : ""}" data-slot-index="${idx}" ${disabled ? "disabled" : ""}>
-        <span class="slot-no">${slot}</span>
+        <span class="slot-no">${slotLabel}</span>
         <div class="lineup-slot-main">
           <div class="lineup-thumb-wrap">${imageHtml}</div>
           <div class="lineup-player-meta">
@@ -796,7 +804,7 @@ function openLineupModal(playerId) {
   const allowedIndexes = allowedSlotIndexesForPendingName();
   if (els.lineupTarget) {
     const targetLabel = lineupRegisterMode === "successor" ? "後継選手として" : "";
-    const slotLabel = lineupRegisterMode === "successor" ? "どのスタメン枠に登録しますか？" : "どのスタメン枠に登録しますか？";
+    const slotLabel = "どの登録枠に登録しますか？";
     const base = player
       ? `${player.name} を${targetLabel}${slotLabel}`
       : `ID:${playerId} を${targetLabel}${slotLabel}`;

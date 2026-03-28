@@ -5,7 +5,9 @@ const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
 const APP_UPDATED_AT_JST = "2026-03-28 18:26 JST";
 const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-player-search/commits/main";
-const LINEUP_SIZE = 11;
+const STARTING_LINEUP_SIZE = 11;
+const RESERVE_LINEUP_SIZE = 5;
+const LINEUP_SIZE = STARTING_LINEUP_SIZE + RESERVE_LINEUP_SIZE;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
 const CORE_METRICS = ["スピ", "テク", "パワ"];
@@ -59,6 +61,7 @@ const els = {
   myTeamMeta: document.querySelector("#myTeamMeta"),
   myTeamTarget: document.querySelector("#myTeamTarget"),
   myTeamSlots: document.querySelector("#myTeamSlots"),
+  myTeamReserveSlots: document.querySelector("#myTeamReserveSlots"),
   myTeamCoachWrap: document.querySelector("#myTeamCoachWrap"),
   myTeamFormationWrap: document.querySelector("#myTeamFormationWrap"),
   lifecycleToggle: document.querySelector("#lifecycleToggle"),
@@ -502,7 +505,7 @@ function getSelectedFormationKeySlots() {
   const set = new Set();
   rows.forEach((r) => {
     const slot = Number(r?.slot);
-    if (Number.isInteger(slot) && slot >= 1 && slot <= LINEUP_SIZE) set.add(slot);
+    if (Number.isInteger(slot) && slot >= 1 && slot <= STARTING_LINEUP_SIZE) set.add(slot);
   });
   return set;
 }
@@ -1265,11 +1268,18 @@ function miniCoreMetric(metric, value) {
   `;
 }
 
+function myTeamSlotLabelByIndex(idx) {
+  if (idx < STARTING_LINEUP_SIZE) return String(idx + 1);
+  return `R${idx - STARTING_LINEUP_SIZE + 1}`;
+}
+
 function renderLineup() {
-  if (!els.myTeamSlots) return;
+  if (!els.myTeamSlots || !els.myTeamReserveSlots) return;
   const keySlots = getSelectedFormationKeySlots();
-  const html = lineup.map((entry, idx) => {
+  const renderSlotRange = (start, end) => lineup.slice(start, end).map((entry, localIdx) => {
+    const idx = start + localIdx;
     const slot = idx + 1;
+    const slotLabel = myTeamSlotLabelByIndex(idx);
     const playerId = Number(entry?.playerId);
     const player = Number.isInteger(playerId) ? players.find((x) => x.id === playerId) : null;
     const name = player ? player.name : "未登録";
@@ -1313,7 +1323,7 @@ function renderLineup() {
       : "";
     return `
       <button type="button" class="lineup-slot${player ? " has-player" : ""} myteam-slot" data-slot-index="${idx}">
-        <span class="slot-no">${slot}${keyStar}</span>
+        <span class="slot-no">${slotLabel}${keyStar}</span>
         <div class="lineup-slot-main">
           <div class="lineup-thumb-wrap">${imageHtml}</div>
           <div class="lineup-player-meta">
@@ -1330,9 +1340,34 @@ function renderLineup() {
       </button>
     `;
   }).join("");
-  els.myTeamSlots.innerHTML = html;
+  els.myTeamSlots.innerHTML = renderSlotRange(0, STARTING_LINEUP_SIZE);
+  els.myTeamReserveSlots.innerHTML = renderSlotRange(STARTING_LINEUP_SIZE, LINEUP_SIZE);
   renderCoachSection();
   renderFormationCurrent();
+}
+
+function handleMyTeamSlotClick(e) {
+  const slot = e.target.closest(".myteam-slot");
+  if (!slot) return;
+  const idx = Number(slot.dataset.slotIndex);
+  if (!Number.isInteger(idx)) return;
+  const entry = lineup[idx];
+  const clickedSuccessor = lifecycleModeEnabled && !!e.target.closest(".lineup-successor");
+  if (clickedSuccessor) {
+    const successorId = Number(entry?.successor?.playerId);
+    if (!Number.isInteger(successorId)) {
+      openEmptySlotModal();
+      return;
+    }
+    openPlayerCardModal(idx, "successor");
+    return;
+  }
+  const playerId = Number(entry?.playerId);
+  if (!Number.isInteger(playerId)) {
+    openEmptySlotModal();
+    return;
+  }
+  openPlayerCardModal(idx);
 }
 
 function renderCoachSection() {
@@ -2148,29 +2183,10 @@ async function init() {
   renderLineup();
 
   if (els.myTeamSlots) {
-    els.myTeamSlots.addEventListener("click", (e) => {
-      const slot = e.target.closest(".myteam-slot");
-      if (!slot) return;
-      const idx = Number(slot.dataset.slotIndex);
-      if (!Number.isInteger(idx)) return;
-      const entry = lineup[idx];
-      const clickedSuccessor = lifecycleModeEnabled && !!e.target.closest(".lineup-successor");
-      if (clickedSuccessor) {
-        const successorId = Number(entry?.successor?.playerId);
-        if (!Number.isInteger(successorId)) {
-          openEmptySlotModal();
-          return;
-        }
-        openPlayerCardModal(idx, "successor");
-        return;
-      }
-      const playerId = Number(entry?.playerId);
-      if (!Number.isInteger(playerId)) {
-        openEmptySlotModal();
-        return;
-      }
-      openPlayerCardModal(idx);
-    });
+    els.myTeamSlots.addEventListener("click", handleMyTeamSlotClick);
+  }
+  if (els.myTeamReserveSlots) {
+    els.myTeamReserveSlots.addEventListener("click", handleMyTeamSlotClick);
   }
   if (els.myTeamCoachWrap) {
     els.myTeamCoachWrap.addEventListener("click", () => {
