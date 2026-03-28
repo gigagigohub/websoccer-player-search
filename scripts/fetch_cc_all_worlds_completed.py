@@ -16,6 +16,7 @@ import glob
 import json
 import ssl
 import time
+import zipfile
 from datetime import datetime
 import urllib.error
 import urllib.request
@@ -102,7 +103,7 @@ def parse_worlds(raw: str) -> List[int]:
 
 def session_files(match_root: Path) -> List[Path]:
     files = sorted(
-        [*match_root.rglob("*.chlsx"), *match_root.rglob("*.chlsj")],
+        [*match_root.rglob("*.chlsx"), *match_root.rglob("*.chlsj"), *match_root.rglob("*.chlz")],
         key=lambda p: p.stat().st_mtime,
         reverse=True,
     )
@@ -110,7 +111,7 @@ def session_files(match_root: Path) -> List[Path]:
         return files
     desktop = Path.home() / "Desktop"
     return sorted(
-        [*desktop.rglob("*.chlsx"), *desktop.rglob("*.chlsj")],
+        [*desktop.rglob("*.chlsx"), *desktop.rglob("*.chlsj"), *desktop.rglob("*.chlz")],
         key=lambda p: p.stat().st_mtime,
         reverse=True,
     )
@@ -162,6 +163,31 @@ def _iter_tx_from_session(fp: Path):
                         hdrs[n] = v
             yield host, path, ms, hdrs
         return
+    if suffix == ".chlz":
+        try:
+            zf = zipfile.ZipFile(fp)
+        except Exception:
+            return
+        meta_names = sorted([n for n in zf.namelist() if n.endswith("-meta.json")])
+        for name in meta_names:
+            try:
+                tx = json.loads(zf.read(name))
+            except Exception:
+                continue
+            if not isinstance(tx, dict):
+                continue
+            host = str(tx.get("host") or "")
+            path = str(tx.get("path") or "")
+            ms = _parse_start_ms_from_chlsj(tx)
+            hdrs: Dict[str, str] = {}
+            for h in (((tx.get("request") or {}).get("header") or {}).get("headers") or []):
+                if not isinstance(h, dict):
+                    continue
+                n = str(h.get("name") or "").strip().lower()
+                v = str(h.get("value") or "").strip()
+                if n:
+                    hdrs[n] = v
+            yield host, path, ms, hdrs
     if suffix == ".chlsj":
         try:
             arr = json.loads(fp.read_text(encoding="utf-8"))
