@@ -356,6 +356,12 @@ body.myteam-page::before {
   white-space: nowrap;
 }
 
+.reserve-total-value {
+  color: #ff9e3d;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
 .lifecycle-controls {
   display: grid;
   grid-template-columns: 1fr 0.86fr auto;

@@ -1297,8 +1297,8 @@ function renderReserveTotals() {
     if (Number.isFinite(Number(leadValue))) coachLeadershipNow = Number(leadValue);
   }
   els.myTeamReserveTotals.innerHTML = `
-    <span class="reserve-total-item">個性 ${individualityTotal}/${coachLeadershipNow}</span>
-    <span class="reserve-total-item">人気 ${popularityTotal}</span>
+    <span class="reserve-total-item">個性 <span class="reserve-total-value">${individualityTotal}</span>/${coachLeadershipNow}</span>
+    <span class="reserve-total-item">人気 <span class="reserve-total-value">${popularityTotal}</span></span>
   `;
 }
 
