@@ -2,6 +2,7 @@
 import argparse
 import csv
 import json
+import sqlite3
 from collections import defaultdict
 from pathlib import Path
 
@@ -49,6 +50,62 @@ def load_sources(base_csv_dir, cc_dir):
         "team_level": read_csv(cc_dir / "normalized" / "team_level.csv"),
         "player_level": read_csv(cc_dir / "normalized" / "player_level.csv"),
     }
+
+
+def load_cc_from_db(cc_db_path):
+    conn = sqlite3.connect(str(cc_db_path))
+    conn.row_factory = sqlite3.Row
+    try:
+        team_rows = [
+            dict(r)
+            for r in conn.execute(
+                """
+                SELECT
+                  season,
+                  world_id,
+                  match_id,
+                  side,
+                  team_id,
+                  team_name,
+                  formation_id,
+                  formation_name,
+                  headcoach_id,
+                  headcoach_name,
+                  headcoach_pts,
+                  goals_for,
+                  goals_against,
+                  result
+                FROM teams
+                """
+            ).fetchall()
+        ]
+        player_rows = [
+            dict(r)
+            for r in conn.execute(
+                """
+                SELECT
+                  season,
+                  world_id,
+                  match_id,
+                  side,
+                  team_id,
+                  team_name,
+                  formation_id,
+                  formation_name,
+                  member_order,
+                  is_starting11,
+                  player_id,
+                  player_fullname,
+                  player_name,
+                  pos_code_1_4,
+                  pts
+                FROM players
+                """
+            ).fetchall()
+        ]
+        return {"team_level": team_rows, "player_level": player_rows}
+    finally:
+        conn.close()
 
 
 def build_data(src):
@@ -318,10 +375,21 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--base-csv-dir", default="/Users/k.nishimura/Desktop/csv data")
     parser.add_argument("--cc-dir", default="/Users/k.nishimura/Desktop/CC_match_result_csv")
+    parser.add_argument(
+        "--cc-db",
+        default=str(Path.home() / "Desktop" / "CC_match_result_db" / "cc_match_result.sqlite3"),
+        help="SQLite DB path for CC match data (if exists, this is used instead of --cc-dir CSV)",
+    )
     parser.add_argument("--out", default="/Users/k.nishimura/work/coding/websoccer-player-search/app/formations_data.json")
     args = parser.parse_args()
 
     src = load_sources(Path(args.base_csv_dir), Path(args.cc_dir))
+    cc_db_path = Path(args.cc_db).expanduser().resolve()
+    if cc_db_path.exists():
+        src.update(load_cc_from_db(cc_db_path))
+        print(f"using cc db: {cc_db_path}")
+    else:
+        print(f"cc db not found, fallback csv: {Path(args.cc_dir).expanduser().resolve()}")
     out = build_data(src)
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)

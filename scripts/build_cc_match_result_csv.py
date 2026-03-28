@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import argparse
 import csv
-import glob
 import json
+import os
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -37,8 +37,13 @@ def parse_args() -> argparse.Namespace:
 
 
 def load_latest_match_payloads(json_root: Path) -> Dict[Tuple[int, int, int], MatchBundle]:
-    pattern = str(json_root / API_HOST / "match" / "summary" / "cc" / "*" / "*" / "*.json")
-    files = [Path(p) for p in glob.glob(pattern)]
+    base = json_root / API_HOST / "match" / "summary" / "cc"
+    files: List[Path] = []
+    if base.exists():
+        for dirpath, _, filenames in os.walk(base):
+            for name in filenames:
+                if name.endswith(".json"):
+                    files.append(Path(dirpath) / name)
     latest: Dict[Tuple[int, int, int], MatchBundle] = {}
     for fp in files:
         try:
