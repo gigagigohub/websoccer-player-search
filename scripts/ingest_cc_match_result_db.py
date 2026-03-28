@@ -214,28 +214,22 @@ def ingest_one(conn: sqlite3.Connection, file_path: Path, m: dict) -> Tuple[int,
     if len(teams) < 2:
         raise ValueError("invalid team list")
 
-    team_member_side: Dict[str, str] = {}
-    for idx, t in enumerate(teams[:2]):
-        side = "home" if idx == 0 else "away"
-        members = t.get("members") if isinstance(t.get("members"), list) else []
-        for mem in members:
-            pid = to_int(mem.get("id"), 0)
-            if pid > 0:
-                team_member_side[str(pid)] = side
-
     goals_raw = m.get("goal") if isinstance(m.get("goal"), list) else []
     goals_flat: List[Tuple[str, int, int]] = []  # (side, minute, scorer_id)
     home_score = 0
     away_score = 0
-    for ge in goals_raw:
+    for ge_idx, ge in enumerate(goals_raw):
         if not isinstance(ge, dict):
             continue
+        # API payload order is [home_goals_dict, away_goals_dict].
+        # Do not infer side from player_id because the same id can appear in both squads.
+        payload_side = "home" if ge_idx == 0 else ("away" if ge_idx == 1 else "unknown")
         for minute_raw, scorer_raw in ge.items():
             scorer_id = to_int(scorer_raw, 0)
             if scorer_id <= 0:
                 continue
             minute = to_int(minute_raw, 0)
-            side = team_member_side.get(str(scorer_id), "unknown")
+            side = payload_side
             if side == "home":
                 home_score += 1
             elif side == "away":
