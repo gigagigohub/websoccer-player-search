@@ -4,6 +4,8 @@ const LINEUP_SIZE = 11;
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
 const APP_UPDATED_AT_JST = "2026-03-28 18:26 JST";
+const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-player-search/commits/main";
+let appUpdatedAtJst = APP_UPDATED_AT_JST;
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織",
@@ -271,7 +273,41 @@ function isLoggedIn() {
 
 function renderMeta() {
   if (!els.metaText) return;
-  els.metaText.innerHTML = `Updated: ${APP_UPDATED_AT_JST}`;
+  els.metaText.innerHTML = `Updated: ${appUpdatedAtJst}`;
+}
+
+function formatJstFromIso(iso) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const f = new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  const parts = Object.fromEntries(f.formatToParts(d).map((x) => [x.type, x.value]));
+  return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute} JST`;
+}
+
+async function refreshUpdatedAtFromGitHub() {
+  try {
+    const res = await fetch(REPO_COMMITS_API, { cache: "no-store" });
+    if (!res.ok) return;
+    const obj = await res.json();
+    const iso =
+      obj?.commit?.committer?.date ||
+      obj?.commit?.author?.date ||
+      "";
+    const label = formatJstFromIso(iso);
+    if (!label) return;
+    appUpdatedAtJst = label;
+    renderMeta();
+  } catch (e) {
+    // fallback static label
+  }
 }
 
 function syncMenuButtonSize() {
@@ -1814,6 +1850,7 @@ async function init() {
   }
   updateMenuState();
   renderList();
+  refreshUpdatedAtFromGitHub();
   tryOpenFormationFromQuery();
 }
 

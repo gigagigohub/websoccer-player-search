@@ -32,6 +32,7 @@ const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
 const APP_UPDATED_AT_ISO = "2026-03-26T21:53:00+09:00";
 const APP_UPDATED_AT_JST = "2026-03-28 18:26 JST";
+const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-player-search/commits/main";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
 function metricLabel(metric) {
@@ -252,6 +253,40 @@ function normalizeLineupArray(parsed) {
 
 function setCloudStatus(message, isError = false) {
   renderHeaderMeta();
+}
+
+function formatJstFromIso(iso) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const f = new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  const parts = Object.fromEntries(f.formatToParts(d).map((x) => [x.type, x.value]));
+  return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute} JST`;
+}
+
+async function refreshUpdatedAtFromGitHub() {
+  try {
+    const res = await fetch(REPO_COMMITS_API, { cache: "no-store" });
+    if (!res.ok) return;
+    const obj = await res.json();
+    const iso =
+      obj?.commit?.committer?.date ||
+      obj?.commit?.author?.date ||
+      "";
+    const label = formatJstFromIso(iso);
+    if (!label) return;
+    appUpdatedAtJst = label;
+    renderHeaderMeta();
+  } catch (e) {
+    // Keep fallback static label when API is unreachable / rate-limited.
+  }
 }
 
 function closeMenuPanel() {
@@ -1035,12 +1070,28 @@ function openScoutListModal(playerId) {
   if (!els.scoutListModal || !els.scoutListItems) return;
   const player = players.find((p) => p.id === playerId);
   if (!player) return;
-  const scoutHistory = Array.isArray(player.scoutHistory)
-    ? player.scoutHistory.map((h) => ({ ...h, source: "scout" }))
-    : [];
-  const cmHistory = Array.isArray(player.cmHistory)
-    ? player.cmHistory.map((h) => ({ ...h, source: "cm" }))
-    : [];
+  const scoutHistory = scouts
+    .filter((s) => Array.isArray(s?.playerIds) && s.playerIds.includes(player.id))
+    .map((s) => ({
+      eventId: Number(s?.eventId || 0),
+      name: String(s?.name || ""),
+      start: String(s?.start || ""),
+      end: String(s?.end || ""),
+      type: Number(s?.type || 0),
+      version: Number(s?.version || 0),
+      source: "scout",
+    }));
+  const cmHistory = cmEvents
+    .filter((s) => Array.isArray(s?.playerIds) && s.playerIds.includes(player.id))
+    .map((s) => ({
+      eventId: Number(s?.eventId || 0),
+      name: String(s?.name || ""),
+      start: String(s?.start || ""),
+      end: String(s?.end || ""),
+      type: Number(s?.mode || 0),
+      version: Number(s?.version || 0),
+      source: "cm",
+    }));
   const history = [...scoutHistory, ...cmHistory];
   history.sort((a, b) => {
     const as = String(a?.start || "");
@@ -2365,6 +2416,7 @@ async function init() {
   updateScoutFilterVisibility();
   updateCMFilterVisibility();
   renderHeaderMeta();
+  refreshUpdatedAtFromGitHub();
   els.resultCount.textContent = "0 results";
   els.results.innerHTML = "";
   if (els.loadMoreResults) els.loadMoreResults.hidden = true;

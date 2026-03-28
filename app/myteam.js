@@ -4,6 +4,7 @@ const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
 const APP_UPDATED_AT_JST = "2026-03-28 18:26 JST";
+const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-player-search/commits/main";
 const LINEUP_SIZE = 11;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
@@ -30,6 +31,8 @@ const DETAIL_METRIC_LABELS = {
   "CK": "ＣＫ",
   "CP": "ＣＰ",
 };
+let appUpdatedAtJst = APP_UPDATED_AT_JST;
+let updatedAtFetchStarted = false;
 
 const els = {
   hero: document.querySelector(".hero"),
@@ -713,12 +716,54 @@ async function applySignupFromModal() {
 function renderMyTeamMeta() {
   if (!els.myTeamMeta) return;
   const loggedIn = hasCloudConfig();
-  els.myTeamMeta.innerHTML = `Updated: ${APP_UPDATED_AT_JST}`;
+  els.myTeamMeta.innerHTML = `Updated: ${appUpdatedAtJst}`;
   if (els.myteamLoginButton) els.myteamLoginButton.hidden = loggedIn;
   if (els.myteamLogoutButton) els.myteamLogoutButton.hidden = !loggedIn;
   if (els.myteamMenuLoginId) {
     els.myteamMenuLoginId.hidden = !loggedIn;
     els.myteamMenuLoginId.textContent = loggedIn ? `Team ID：${cloudConfig.lineupKey}` : "";
+  }
+  refreshUpdatedAtFromGitHub();
+}
+
+function formatJstFromIso(iso) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const f = new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  const parts = Object.fromEntries(f.formatToParts(d).map((x) => [x.type, x.value]));
+  return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute} JST`;
+}
+
+async function refreshUpdatedAtFromGitHub() {
+  if (updatedAtFetchStarted) return;
+  updatedAtFetchStarted = true;
+  try {
+    const res = await fetch(REPO_COMMITS_API, { cache: "no-store" });
+    if (!res.ok) return;
+    const obj = await res.json();
+    const iso =
+      obj?.commit?.committer?.date ||
+      obj?.commit?.author?.date ||
+      "";
+    const label = formatJstFromIso(iso);
+    if (!label) return;
+    appUpdatedAtJst = label;
+    if (els.myTeamMeta) {
+      const loggedIn = hasCloudConfig();
+      els.myTeamMeta.innerHTML = `Updated: ${appUpdatedAtJst}`;
+      if (els.myteamLoginButton) els.myteamLoginButton.hidden = loggedIn;
+      if (els.myteamLogoutButton) els.myteamLogoutButton.hidden = !loggedIn;
+    }
+  } catch (e) {
+    // fallback static label
   }
 }
 
