@@ -1070,8 +1070,13 @@ function openScoutListModal(playerId) {
   if (!els.scoutListModal || !els.scoutListItems) return;
   const player = players.find((p) => p.id === playerId);
   if (!player) return;
+  const hasPlayerInEvent = (event, pid) => {
+    const ids = Array.isArray(event?.playerIds) ? event.playerIds : [];
+    const target = Number(pid);
+    return ids.some((x) => Number(x) === target);
+  };
   const scoutHistory = scouts
-    .filter((s) => Array.isArray(s?.playerIds) && s.playerIds.includes(player.id))
+    .filter((s) => hasPlayerInEvent(s, player.id))
     .map((s) => ({
       eventId: Number(s?.eventId || 0),
       name: String(s?.name || ""),
@@ -1082,7 +1087,7 @@ function openScoutListModal(playerId) {
       source: "scout",
     }));
   const cmHistory = cmEvents
-    .filter((s) => Array.isArray(s?.playerIds) && s.playerIds.includes(player.id))
+    .filter((s) => hasPlayerInEvent(s, player.id))
     .map((s) => ({
       eventId: Number(s?.eventId || 0),
       name: String(s?.name || ""),
@@ -1431,7 +1436,7 @@ function filterPlayers(conditions = getConditions()) {
       const scout = scoutsByEventId.get(scoutEventFilter);
       const scoutIds = Array.isArray(scout?.playerIds) ? scout.playerIds : [];
       if (scoutIds.length > 0) {
-        if (!scoutIds.includes(player.id)) return false;
+        if (!scoutIds.some((x) => Number(x) === Number(player.id))) return false;
       } else {
         const scoutHistory = Array.isArray(player.scoutHistory) ? player.scoutHistory : [];
         if (!scoutHistory.some((x) => Number(x?.eventId || 0) === scoutEventFilter)) {
@@ -1443,7 +1448,7 @@ function filterPlayers(conditions = getConditions()) {
       const cm = cmEventsByEventId.get(cmEventFilter);
       const cmIds = Array.isArray(cm?.playerIds) ? cm.playerIds : [];
       if (cmIds.length > 0) {
-        if (!cmIds.includes(player.id)) return false;
+        if (!cmIds.some((x) => Number(x) === Number(player.id))) return false;
       } else {
         const cmHistory = Array.isArray(player.cmHistory) ? player.cmHistory : [];
         if (!cmHistory.some((x) => Number(x?.eventId || 0) === cmEventFilter)) {
@@ -1663,10 +1668,14 @@ function cardHtml(player) {
   const group2 = ["PK", "FK", "CK", "CP"];
   const typeLabel = getCategory(player);
   const typeBadges = categoryBadgesHtmlByPlayer(player);
-  const hasScoutHistory = Array.isArray(player.scoutHistory) && player.scoutHistory.length > 0;
-  const hasCMHistory = Array.isArray(player.cmHistory) && player.cmHistory.length > 0;
+  const hasScoutHistory = scouts.some((s) =>
+    (Array.isArray(s?.playerIds) ? s.playerIds : []).some((x) => Number(x) === Number(player.id))
+  );
+  const hasCMHistory = cmEvents.some((s) =>
+    (Array.isArray(s?.playerIds) ? s.playerIds : []).some((x) => Number(x) === Number(player.id))
+  );
   const hasAnyListHistory = hasScoutHistory || hasCMHistory;
-  const showScoutButton = typeLabel === "SS" || typeLabel === "CM" || typeLabel === "CM/SS";
+  const showScoutButton = hasAnyListHistory || typeLabel === "SS" || typeLabel === "CM" || typeLabel === "CM/SS";
   const pos = (player.position || "-").toUpperCase();
   const posClass = positionClass(pos);
   const peakBlock = `<div class="peak-periods peak-in-body">${peakHtml}</div>`;
