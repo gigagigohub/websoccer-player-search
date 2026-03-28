@@ -1217,15 +1217,21 @@ button.ghost {
   letter-spacing: 0.01em;
   line-height: 1.2;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 4px;
   align-items: center;
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
 }
 
 .peak-chip {
   font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
   font-size: 0.72rem;
   padding: 0 2px;
+  flex: 0 0 auto;
 }
 
 .peak-chip.peak-main {
