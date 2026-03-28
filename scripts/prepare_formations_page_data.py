@@ -52,6 +52,155 @@ def load_sources(base_csv_dir, cc_dir):
     }
 
 
+def load_sources_from_master_db(master_db_path):
+    conn = sqlite3.connect(str(master_db_path))
+    conn.row_factory = sqlite3.Row
+    try:
+        src = {
+            "formation": [
+                dict(r)
+                for r in conn.execute(
+                    """
+                    SELECT
+                      ZFORMATION_ID,
+                      ZNAME,
+                      ZSYSTEM,
+                      ZSTRIDE,
+                      ZYEAR
+                    FROM ao__ZMOFORMATION
+                    """
+                ).fetchall()
+            ],
+            "formation_info": [
+                dict(r)
+                for r in conn.execute(
+                    """
+                    SELECT
+                      ZFORMATION_ID,
+                      ZSPD,
+                      ZTEC,
+                      ZPWR,
+                      ZOFF,
+                      ZDEF,
+                      ZMID,
+                      ZTTL,
+                      ZSTM,
+                      ZDIF,
+                      ZDESCRIPTION_TEXT,
+                      ZSUBTITLE
+                    FROM ao__ZMOFORMATIONSINFO
+                    """
+                ).fetchall()
+            ],
+            "formation_key": [
+                dict(r)
+                for r in conn.execute(
+                    """
+                    SELECT
+                      ZFORMATION_ID,
+                      ZKEYPOS,
+                      ZPOS,
+                      ZSUBTITLE,
+                      ZDESCRIPTION_TEXT
+                    FROM ao__ZMOFORMATIONSKEYPOSITION
+                    """
+                ).fetchall()
+            ],
+            "formation_pos": [
+                dict(r)
+                for r in conn.execute(
+                    """
+                    SELECT
+                      ZFORMATION_ID,
+                      ZPOS,
+                      ZX,
+                      ZY
+                    FROM ao__ZMOFORMATIONSPOSITION
+                    """
+                ).fetchall()
+            ],
+            "coach": [
+                dict(r)
+                for r in conn.execute(
+                    """
+                    SELECT
+                      ZHEADCOACH_ID,
+                      ZNAME,
+                      ZFULLNAME,
+                      ZHEADCOACH_TYPE,
+                      ZNATION_ID,
+                      ZAGE,
+                      ZACT_SZN,
+                      ZRARITY
+                    FROM ao__ZMOHEADCOACH
+                    """
+                ).fetchall()
+            ],
+            "coach_understanding": [
+                dict(r)
+                for r in conn.execute(
+                    """
+                    SELECT
+                      ZHEADCOACH_ID,
+                      ZFORMATION_ID,
+                      ZDEPTH
+                    FROM ao__ZMOHEADCOACHESUNDERSTANDING
+                    """
+                ).fetchall()
+            ],
+            "team_level": [
+                dict(r)
+                for r in conn.execute(
+                    """
+                    SELECT
+                      season,
+                      world_id,
+                      match_id,
+                      side,
+                      team_id,
+                      team_name,
+                      formation_id,
+                      formation_name,
+                      headcoach_id,
+                      headcoach_name,
+                      headcoach_pts,
+                      goals_for,
+                      goals_against,
+                      result
+                    FROM cc_teams
+                    """
+                ).fetchall()
+            ],
+            "player_level": [
+                dict(r)
+                for r in conn.execute(
+                    """
+                    SELECT
+                      season,
+                      world_id,
+                      match_id,
+                      side,
+                      team_id,
+                      team_name,
+                      formation_id,
+                      formation_name,
+                      member_order,
+                      is_starting11,
+                      player_id,
+                      player_fullname,
+                      player_name,
+                      pos_code_1_4,
+                      pts
+                    FROM cc_players
+                    """
+                ).fetchall()
+            ],
+        }
+        return src
+    finally:
+        conn.close()
+
+
 def load_cc_from_db(cc_db_path):
     conn = sqlite3.connect(str(cc_db_path))
     conn.row_factory = sqlite3.Row
@@ -380,16 +529,26 @@ def main():
         default=str(Path.home() / "Desktop" / "CC_match_result_db" / "cc_match_result.sqlite3"),
         help="SQLite DB path for CC match data (if exists, this is used instead of --cc-dir CSV)",
     )
+    parser.add_argument(
+        "--master-db",
+        default="",
+        help="Unified master SQLite DB path (if set and exists, this is used as full source)",
+    )
     parser.add_argument("--out", default="/Users/k.nishimura/work/coding/websoccer-player-search/app/formations_data.json")
     args = parser.parse_args()
 
-    src = load_sources(Path(args.base_csv_dir), Path(args.cc_dir))
-    cc_db_path = Path(args.cc_db).expanduser().resolve()
-    if cc_db_path.exists():
-        src.update(load_cc_from_db(cc_db_path))
-        print(f"using cc db: {cc_db_path}")
+    master_db_path = Path(args.master_db).expanduser().resolve() if args.master_db else None
+    if master_db_path and master_db_path.exists():
+        src = load_sources_from_master_db(master_db_path)
+        print(f"using master db: {master_db_path}")
     else:
-        print(f"cc db not found, fallback csv: {Path(args.cc_dir).expanduser().resolve()}")
+        src = load_sources(Path(args.base_csv_dir), Path(args.cc_dir))
+        cc_db_path = Path(args.cc_db).expanduser().resolve()
+        if cc_db_path.exists():
+            src.update(load_cc_from_db(cc_db_path))
+            print(f"using cc db: {cc_db_path}")
+        else:
+            print(f"cc db not found, fallback csv: {Path(args.cc_dir).expanduser().resolve()}")
     out = build_data(src)
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
