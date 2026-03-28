@@ -306,6 +306,7 @@ body.myteam-page::before {
 
 .suggest-wrap {
   position: relative;
+  width: 100%;
 }
 
 .panel {
@@ -3118,4 +3119,11 @@ button.ghost {
 .myteam-coach-slot .coach-lead-table td {
   padding: 0.12rem 0.2rem;
   min-width: 32px;
+}
+
+/* Keep SCR right-side profile block inside card bounds on My Team modal. */
+.myteam-page #playerCardHost .profile-view .profile-side {
+  width: min(var(--profile-side-width, 168px), calc(100% - 116px));
+  min-width: 0;
+  max-width: calc(100% - 116px);
 }
