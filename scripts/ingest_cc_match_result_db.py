@@ -32,6 +32,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Print per-file progress every 500 files.",
     )
+    ap.add_argument(
+        "--force-reingest",
+        action="store_true",
+        help="Ignore source_files cache and re-ingest all JSON files.",
+    )
     return ap.parse_args()
 
 
@@ -72,7 +77,9 @@ def init_schema(conn: sqlite3.Connection) -> None:
           datetime TEXT,
           title TEXT,
           referee TEXT,
+          stadium_id INTEGER,
           stadium_name TEXT,
+          stadium_capacity INTEGER,
           audience INTEGER,
           home_score INTEGER NOT NULL DEFAULT 0,
           away_score INTEGER NOT NULL DEFAULT 0,
@@ -88,6 +95,7 @@ def init_schema(conn: sqlite3.Connection) -> None:
           side TEXT NOT NULL, -- home | away
           team_id INTEGER,
           team_name TEXT,
+          uniform_id INTEGER,
           formation_id INTEGER,
           formation_name TEXT,
           headcoach_id INTEGER,
@@ -137,6 +145,16 @@ def init_schema(conn: sqlite3.Connection) -> None:
         CREATE INDEX IF NOT EXISTS idx_matches_season ON matches(season);
         """
     )
+    ensure_column(conn, "matches", "stadium_id", "INTEGER")
+    ensure_column(conn, "matches", "stadium_capacity", "INTEGER")
+    ensure_column(conn, "teams", "uniform_id", "INTEGER")
+
+
+def ensure_column(conn: sqlite3.Connection, table_name: str, column_name: str, col_type: str) -> None:
+    cur = conn.execute(f"PRAGMA table_info({table_name})")
+    cols = {str(r[1]) for r in cur.fetchall()}  # r[1] = column name
+    if column_name not in cols:
+        conn.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {col_type}")
 
 
 def read_source_file_row(conn: sqlite3.Connection, path: str) -> Optional[sqlite3.Row]:
@@ -227,12 +245,13 @@ def ingest_one(conn: sqlite3.Connection, file_path: Path, m: dict) -> Tuple[int,
     # Replace full match payload atomically
     remove_match(conn, season, world_id, match_id)
 
+    stadium = m.get("stadium") if isinstance(m.get("stadium"), dict) else {}
     conn.execute(
         """
         INSERT INTO matches (
-          season, world_id, match_id, datetime, title, referee, stadium_name, audience,
+          season, world_id, match_id, datetime, title, referee, stadium_id, stadium_name, stadium_capacity, audience,
           home_score, away_score, access_datetime, file_path
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             season,
@@ -241,7 +260,9 @@ def ingest_one(conn: sqlite3.Connection, file_path: Path, m: dict) -> Tuple[int,
             str(m.get("datetime") or ""),
             str(m.get("title") or ""),
             str(m.get("referee") or ""),
-            str((m.get("stadium") or {}).get("name") or ""),
+            to_int(stadium.get("id"), 0),
+            str(stadium.get("name") or ""),
+            to_int(stadium.get("capacity"), 0),
             to_int(m.get("audience"), 0),
             home_score,
             away_score,
@@ -254,6 +275,7 @@ def ingest_one(conn: sqlite3.Connection, file_path: Path, m: dict) -> Tuple[int,
         side = "home" if idx == 0 else "away"
         team_id = to_int(t.get("id"), 0)
         team_name = str(t.get("name") or "")
+        uniform_id = to_int(t.get("uniform"), 0)
         formation_id = to_int(t.get("formation"), 0)
         formation_name = str(t.get("formation_name") or "")
         hc = t.get("headcoach") if isinstance(t.get("headcoach"), dict) else {}
@@ -271,11 +293,11 @@ def ingest_one(conn: sqlite3.Connection, file_path: Path, m: dict) -> Tuple[int,
 
         conn.execute(
             """
-            INSERT INTO teams (
-              season, world_id, match_id, side, team_id, team_name,
+                INSERT INTO teams (
+              season, world_id, match_id, side, team_id, team_name, uniform_id,
               formation_id, formation_name, headcoach_id, headcoach_name, headcoach_pts,
               goals_for, goals_against, result
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 season,
@@ -284,6 +306,7 @@ def ingest_one(conn: sqlite3.Connection, file_path: Path, m: dict) -> Tuple[int,
                 side,
                 team_id,
                 team_name,
+                uniform_id,
                 formation_id,
                 formation_name,
                 headcoach_id,
@@ -410,7 +433,7 @@ def main() -> int:
                 scanned += 1
                 st = fp.stat()
                 path_s = str(fp)
-                prev = read_source_file_row(conn, path_s)
+                prev = None if args.force_reingest else read_source_file_row(conn, path_s)
                 if prev and float(prev["mtime"]) == float(st.st_mtime) and int(prev["size"]) == int(st.st_size):
                     skipped += 1
                     if args.verbose and scanned % 500 == 0:
@@ -466,4 +489,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
