@@ -349,17 +349,18 @@ body.myteam-page::before {
 }
 
 .reserve-total-item {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #d9e8ff;
+  font-size: 0.64rem;
+  font-weight: 600;
+  color: #8fa3c5;
   letter-spacing: 0.01em;
   white-space: nowrap;
 }
 
 .reserve-total-value {
   color: #ff9e3d;
-  font-size: 0.82rem;
-  font-weight: 800;
+  font-size: 1.02rem;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .lifecycle-controls {
