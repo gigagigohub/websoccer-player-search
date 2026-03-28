@@ -1288,9 +1288,17 @@ function renderReserveTotals() {
     individualityTotal += Number(metrics?.["個性"] || 0);
     popularityTotal += Number(metrics?.["人気"] || 0);
   });
+  let coachLeadershipNow = "-";
+  if (selectedCoach && Number.isInteger(Number(selectedCoach.coachId))) {
+    const coach = (Array.isArray(coaches) ? coaches : []).find((c) => Number(c?.id) === Number(selectedCoach.coachId));
+    const leadership = Array.isArray(coach?.leadershipBySeason) ? coach.leadershipBySeason : [];
+    const seasonNum = coachSeasonNumber(selectedCoach?.season || "1期目");
+    const leadValue = leadership[seasonNum - 1];
+    if (Number.isFinite(Number(leadValue))) coachLeadershipNow = Number(leadValue);
+  }
   els.myTeamReserveTotals.innerHTML = `
-    <span class="reserve-total-item">個性合計 ${individualityTotal}</span>
-    <span class="reserve-total-item">人気合計 ${popularityTotal}</span>
+    <span class="reserve-total-item">個性 ${individualityTotal}/${coachLeadershipNow}</span>
+    <span class="reserve-total-item">人気 ${popularityTotal}</span>
   `;
 }
 
