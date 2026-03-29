@@ -44,7 +44,12 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument(
         "--out-db",
-        default=str(Path.home() / "Desktop" / "websoccer_master_db" / "websoccer_master.sqlite3"),
+        default=str(
+            Path.home()
+            / "Desktop"
+            / "websoccer_master_db"
+            / f"wsm_{datetime.now(JST).strftime('%y%m%d%H%M')}.sqlite3"
+        ),
     )
     p.add_argument(
         "--cc-db",
