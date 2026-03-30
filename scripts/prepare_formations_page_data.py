@@ -471,9 +471,11 @@ def build_data(src):
         if rb == "W":
             matchup_raw[fb][fa]["wins"] += 1
 
-    min_matchups = 12
-    min_abs_delta = 0.06
-    min_abs_z = 1.96  # approx 95% two-sided z-threshold
+    # Relaxed thresholds so matchup lists are populated more often while
+    # keeping a minimum sample size and effect-size guardrail.
+    min_matchups = 8
+    min_abs_delta = 0.04
+    min_abs_z = 1.28  # approx 80% two-sided z-threshold
     matchup_stats = defaultdict(lambda: {"strongAgainst": [], "weakAgainst": []})
 
     for fid, opp_map in matchup_raw.items():

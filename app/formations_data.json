@@ -902,9 +902,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -1993,9 +1993,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -3229,9 +3229,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -3676,9 +3676,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -4642,9 +4642,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -5350,9 +5350,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -6443,9 +6443,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -7371,9 +7371,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -7863,9 +7863,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -8975,9 +8975,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -9492,9 +9492,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -10092,9 +10092,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -10696,9 +10696,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -11659,9 +11659,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -12301,9 +12301,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -13623,9 +13623,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -14367,9 +14367,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -16634,9 +16634,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -17171,9 +17171,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -18812,9 +18812,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -19259,9 +19259,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -20842,9 +20842,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -21399,9 +21399,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -23100,12 +23100,41 @@
         }
       ],
       "matchups": {
-        "strongAgainst": [],
-        "weakAgainst": [],
+        "strongAgainst": [
+          {
+            "formationId": 54,
+            "matches": 11,
+            "wins": 6,
+            "winRate": 0.545455,
+            "overallWinRate": 0.352332,
+            "delta": 0.193123,
+            "zScore": 1.3408
+          }
+        ],
+        "weakAgainst": [
+          {
+            "formationId": 33,
+            "matches": 12,
+            "wins": 1,
+            "winRate": 0.083333,
+            "overallWinRate": 0.352332,
+            "delta": -0.268998,
+            "zScore": -1.9507
+          },
+          {
+            "formationId": 36,
+            "matches": 8,
+            "wins": 1,
+            "winRate": 0.125,
+            "overallWinRate": 0.352332,
+            "delta": -0.227332,
+            "zScore": -1.346
+          }
+        ],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -24700,7 +24729,17 @@
         }
       ],
       "matchups": {
-        "strongAgainst": [],
+        "strongAgainst": [
+          {
+            "formationId": 64,
+            "matches": 12,
+            "wins": 9,
+            "winRate": 0.75,
+            "overallWinRate": 0.541667,
+            "delta": 0.208333,
+            "zScore": 1.4484
+          }
+        ],
         "weakAgainst": [
           {
             "formationId": 36,
@@ -24710,12 +24749,30 @@
             "overallWinRate": 0.541667,
             "delta": -0.310897,
             "zScore": -2.2497
+          },
+          {
+            "formationId": 117,
+            "matches": 8,
+            "wins": 2,
+            "winRate": 0.25,
+            "overallWinRate": 0.541667,
+            "delta": -0.291667,
+            "zScore": -1.6557
+          },
+          {
+            "formationId": 56,
+            "matches": 13,
+            "wins": 4,
+            "winRate": 0.307692,
+            "overallWinRate": 0.541667,
+            "delta": -0.233974,
+            "zScore": -1.6931
           }
         ],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -26045,9 +26102,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -27000,9 +27057,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -28877,11 +28934,21 @@
       ],
       "matchups": {
         "strongAgainst": [],
-        "weakAgainst": [],
+        "weakAgainst": [
+          {
+            "formationId": 90,
+            "matches": 12,
+            "wins": 3,
+            "winRate": 0.25,
+            "overallWinRate": 0.438746,
+            "delta": -0.188746,
+            "zScore": -1.3176
+          }
+        ],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -29476,9 +29543,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -31736,12 +31803,50 @@
         }
       ],
       "matchups": {
-        "strongAgainst": [],
-        "weakAgainst": [],
+        "strongAgainst": [
+          {
+            "formationId": 28,
+            "matches": 14,
+            "wins": 9,
+            "winRate": 0.642857,
+            "overallWinRate": 0.459519,
+            "delta": 0.183339,
+            "zScore": 1.3765
+          }
+        ],
+        "weakAgainst": [
+          {
+            "formationId": 61,
+            "matches": 16,
+            "wins": 4,
+            "winRate": 0.25,
+            "overallWinRate": 0.459519,
+            "delta": -0.209519,
+            "zScore": -1.6817
+          },
+          {
+            "formationId": 36,
+            "matches": 18,
+            "wins": 5,
+            "winRate": 0.277778,
+            "overallWinRate": 0.459519,
+            "delta": -0.181741,
+            "zScore": -1.5472
+          },
+          {
+            "formationId": 39,
+            "matches": 28,
+            "wins": 9,
+            "winRate": 0.321429,
+            "overallWinRate": 0.459519,
+            "delta": -0.13809,
+            "zScore": -1.4662
+          }
+        ],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -33451,11 +33556,39 @@
       ],
       "matchups": {
         "strongAgainst": [],
-        "weakAgainst": [],
+        "weakAgainst": [
+          {
+            "formationId": 52,
+            "matches": 9,
+            "wins": 2,
+            "winRate": 0.222222,
+            "overallWinRate": 0.53,
+            "delta": -0.307778,
+            "zScore": -1.85
+          },
+          {
+            "formationId": 107,
+            "matches": 8,
+            "wins": 2,
+            "winRate": 0.25,
+            "overallWinRate": 0.53,
+            "delta": -0.28,
+            "zScore": -1.5868
+          },
+          {
+            "formationId": 56,
+            "matches": 15,
+            "wins": 5,
+            "winRate": 0.333333,
+            "overallWinRate": 0.53,
+            "delta": -0.196667,
+            "zScore": -1.5261
+          }
+        ],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -34237,9 +34370,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -34788,9 +34921,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -35295,9 +35428,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -36663,9 +36796,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -37111,9 +37244,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -38891,9 +39024,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -39526,9 +39659,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -40963,9 +41096,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -42209,11 +42342,21 @@
       ],
       "matchups": {
         "strongAgainst": [],
-        "weakAgainst": [],
+        "weakAgainst": [
+          {
+            "formationId": 33,
+            "matches": 10,
+            "wins": 1,
+            "winRate": 0.1,
+            "overallWinRate": 0.460432,
+            "delta": -0.360432,
+            "zScore": -2.2867
+          }
+        ],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -42791,9 +42934,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -44087,9 +44230,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -46323,9 +46466,9 @@
           }
         ],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -48068,11 +48211,21 @@
       ],
       "matchups": {
         "strongAgainst": [],
-        "weakAgainst": [],
+        "weakAgainst": [
+          {
+            "formationId": 54,
+            "matches": 11,
+            "wins": 2,
+            "winRate": 0.181818,
+            "overallWinRate": 0.378049,
+            "delta": -0.196231,
+            "zScore": -1.3422
+          }
+        ],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -49059,9 +49212,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -50719,7 +50872,17 @@
         }
       ],
       "matchups": {
-        "strongAgainst": [],
+        "strongAgainst": [
+          {
+            "formationId": 78,
+            "matches": 9,
+            "wins": 7,
+            "winRate": 0.777778,
+            "overallWinRate": 0.45,
+            "delta": 0.327778,
+            "zScore": 1.9766
+          }
+        ],
         "weakAgainst": [
           {
             "formationId": 38,
@@ -50729,12 +50892,30 @@
             "overallWinRate": 0.45,
             "delta": -0.222727,
             "zScore": -2.0999
+          },
+          {
+            "formationId": 39,
+            "matches": 21,
+            "wins": 5,
+            "winRate": 0.238095,
+            "overallWinRate": 0.45,
+            "delta": -0.211905,
+            "zScore": -1.9519
+          },
+          {
+            "formationId": 56,
+            "matches": 19,
+            "wins": 5,
+            "winRate": 0.263158,
+            "overallWinRate": 0.45,
+            "delta": -0.186842,
+            "zScore": -1.6371
           }
         ],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -51360,9 +51541,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -52865,12 +53046,39 @@
             "overallWinRate": 0.574751,
             "delta": -0.343982,
             "zScore": -2.5087
+          },
+          {
+            "formationId": 38,
+            "matches": 13,
+            "wins": 4,
+            "winRate": 0.307692,
+            "overallWinRate": 0.574751,
+            "delta": -0.267059,
+            "zScore": -1.9477
+          },
+          {
+            "formationId": 36,
+            "matches": 13,
+            "wins": 5,
+            "winRate": 0.384615,
+            "overallWinRate": 0.574751,
+            "delta": -0.190135,
+            "zScore": -1.3867
+          },
+          {
+            "formationId": 39,
+            "matches": 15,
+            "wins": 6,
+            "winRate": 0.4,
+            "overallWinRate": 0.574751,
+            "delta": -0.174751,
+            "zScore": -1.369
           }
         ],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -53390,9 +53598,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -54121,9 +54329,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -54818,9 +55026,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -55492,9 +55700,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -57532,12 +57740,50 @@
         }
       ],
       "matchups": {
-        "strongAgainst": [],
-        "weakAgainst": [],
+        "strongAgainst": [
+          {
+            "formationId": 38,
+            "matches": 16,
+            "wins": 11,
+            "winRate": 0.6875,
+            "overallWinRate": 0.474576,
+            "delta": 0.212924,
+            "zScore": 1.7056
+          }
+        ],
+        "weakAgainst": [
+          {
+            "formationId": 56,
+            "matches": 9,
+            "wins": 1,
+            "winRate": 0.111111,
+            "overallWinRate": 0.474576,
+            "delta": -0.363465,
+            "zScore": -2.1836
+          },
+          {
+            "formationId": 51,
+            "matches": 15,
+            "wins": 4,
+            "winRate": 0.266667,
+            "overallWinRate": 0.474576,
+            "delta": -0.20791,
+            "zScore": -1.6125
+          },
+          {
+            "formationId": 39,
+            "matches": 17,
+            "wins": 5,
+            "winRate": 0.294118,
+            "overallWinRate": 0.474576,
+            "delta": -0.180459,
+            "zScore": -1.49
+          }
+        ],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -58621,9 +58867,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -59135,9 +59381,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -61570,11 +61816,21 @@
       ],
       "matchups": {
         "strongAgainst": [],
-        "weakAgainst": [],
+        "weakAgainst": [
+          {
+            "formationId": 33,
+            "matches": 12,
+            "wins": 1,
+            "winRate": 0.083333,
+            "overallWinRate": 0.27234,
+            "delta": -0.189007,
+            "zScore": -1.4708
+          }
+        ],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -62591,9 +62847,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -64086,9 +64342,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -65012,9 +65268,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -65780,9 +66036,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -67395,9 +67651,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -68797,9 +69053,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -69279,9 +69535,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -70648,9 +70904,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -71318,9 +71574,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -71977,9 +72233,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -73245,11 +73501,21 @@
       ],
       "matchups": {
         "strongAgainst": [],
-        "weakAgainst": [],
+        "weakAgainst": [
+          {
+            "formationId": 38,
+            "matches": 9,
+            "wins": 2,
+            "winRate": 0.222222,
+            "overallWinRate": 0.474227,
+            "delta": -0.252005,
+            "zScore": -1.514
+          }
+        ],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -73735,9 +74001,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -76067,11 +76333,30 @@
       ],
       "matchups": {
         "strongAgainst": [],
-        "weakAgainst": [],
+        "weakAgainst": [
+          {
+            "formationId": 33,
+            "matches": 8,
+            "wins": 0,
+            "winRate": 0.0,
+            "overallWinRate": 0.284884,
+            "delta": -0.284884,
+            "zScore": -1.7852
+          },
+          {
+            "formationId": 56,
+            "matches": 11,
+            "wins": 1,
+            "winRate": 0.090909,
+            "overallWinRate": 0.284884,
+            "delta": -0.193975,
+            "zScore": -1.4253
+          }
+        ],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -77517,9 +77802,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -78426,9 +78711,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -79532,9 +79817,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -80417,9 +80702,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -82004,9 +82289,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -83507,9 +83792,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -84497,9 +84782,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -85488,9 +85773,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -87572,12 +87857,32 @@
         }
       ],
       "matchups": {
-        "strongAgainst": [],
-        "weakAgainst": [],
+        "strongAgainst": [
+          {
+            "formationId": 36,
+            "matches": 12,
+            "wins": 7,
+            "winRate": 0.583333,
+            "overallWinRate": 0.353909,
+            "delta": 0.229424,
+            "zScore": 1.662
+          }
+        ],
+        "weakAgainst": [
+          {
+            "formationId": 56,
+            "matches": 10,
+            "wins": 0,
+            "winRate": 0.0,
+            "overallWinRate": 0.353909,
+            "delta": -0.353909,
+            "zScore": -2.3405
+          }
+        ],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -89271,9 +89576,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -90227,9 +90532,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -91829,9 +92134,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -92764,9 +93069,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -93554,9 +93859,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -94078,9 +94383,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -95633,9 +95938,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -96557,9 +96862,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -98275,12 +98580,32 @@
         }
       ],
       "matchups": {
-        "strongAgainst": [],
-        "weakAgainst": [],
+        "strongAgainst": [
+          {
+            "formationId": 54,
+            "matches": 8,
+            "wins": 5,
+            "winRate": 0.625,
+            "overallWinRate": 0.348993,
+            "delta": 0.276007,
+            "zScore": 1.6378
+          }
+        ],
+        "weakAgainst": [
+          {
+            "formationId": 36,
+            "matches": 8,
+            "wins": 1,
+            "winRate": 0.125,
+            "overallWinRate": 0.348993,
+            "delta": -0.223993,
+            "zScore": -1.3292
+          }
+        ],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -99689,12 +100014,22 @@
         }
       ],
       "matchups": {
-        "strongAgainst": [],
+        "strongAgainst": [
+          {
+            "formationId": 64,
+            "matches": 9,
+            "wins": 7,
+            "winRate": 0.777778,
+            "overallWinRate": 0.451327,
+            "delta": 0.32645,
+            "zScore": 1.968
+          }
+        ],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -100779,9 +101114,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -101608,9 +101943,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -102963,9 +103298,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -104654,12 +104989,22 @@
         }
       ],
       "matchups": {
-        "strongAgainst": [],
+        "strongAgainst": [
+          {
+            "formationId": 39,
+            "matches": 8,
+            "wins": 4,
+            "winRate": 0.5,
+            "overallWinRate": 0.287356,
+            "delta": 0.212644,
+            "zScore": 1.3291
+          }
+        ],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -105637,9 +105982,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -107072,9 +107417,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -107533,9 +107878,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -108728,9 +109073,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -109922,11 +110267,21 @@
       ],
       "matchups": {
         "strongAgainst": [],
-        "weakAgainst": [],
+        "weakAgainst": [
+          {
+            "formationId": 39,
+            "matches": 8,
+            "wins": 1,
+            "winRate": 0.125,
+            "overallWinRate": 0.372549,
+            "delta": -0.247549,
+            "zScore": -1.4482
+          }
+        ],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -110933,9 +111288,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -111565,9 +111920,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -113025,9 +113380,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -113910,9 +114265,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     },
@@ -115056,9 +115411,9 @@
         "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
-          "minMatches": 12,
-          "minAbsDelta": 0.06,
-          "minAbsZScore": 1.96
+          "minMatches": 8,
+          "minAbsDelta": 0.04,
+          "minAbsZScore": 1.28
         }
       }
     }
