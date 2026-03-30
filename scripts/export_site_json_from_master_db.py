@@ -4,7 +4,9 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
+import re
 import sqlite3
+import unicodedata
 from collections import OrderedDict, defaultdict
 from pathlib import Path
 
@@ -62,6 +64,11 @@ def parse_args() -> argparse.Namespace:
         "--out-docs-dir",
         default=str(Path.cwd() / "docs"),
     )
+    p.add_argument(
+        "--rohm-cache-json",
+        default=str(Path.cwd() / "app" / "prepared" / "rohm_player_pages_cache.json"),
+        help="Rohm player page cache. Used for name-based model mapping on mixed personId rows.",
+    )
     return p.parse_args()
 
 
@@ -91,6 +98,58 @@ def parse_json_list(text):
     except Exception:
         return []
     return value if isinstance(value, list) else []
+
+
+def normalize_name(text: str) -> str:
+    s = str(text or "").strip().lower()
+    s = s.replace("・", "").replace("･", "").replace("·", "")
+    s = s.replace(" ", "")
+    s = re.sub(r"[\u30a1-\u30f6]", lambda m: chr(ord(m.group(0)) - 0x60), s)
+    s = unicodedata.normalize("NFKC", s)
+    return s
+
+
+def normalize_model_name(text: str) -> str:
+    s = str(text or "").replace("･", "・").replace("·", "・")
+    s = re.sub(r"\s+", " ", s).strip()
+    s = re.sub(r"https?://\S+", "", s)
+    s = re.sub(r"%[0-9A-Fa-f]{2}", "", s)
+    s = re.sub(r"\s+\([^)]*\)$", "", s)
+    s = re.sub(r"\s+（[^）]*）$", "", s)
+    s = re.sub(r"\s+", " ", s).strip(" -_")
+    return s
+
+
+def load_rohm_name_model_map(cache_path: Path) -> dict[str, dict]:
+    """
+    Return normalized-name -> model info only for unique mappings.
+    """
+    if not cache_path.exists():
+        return {}
+    try:
+        payload = json.loads(cache_path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    grouped = defaultdict(list)
+    for rec in payload.get("records", []):
+        name = normalize_name(rec.get("name") or "")
+        model = normalize_model_name(rec.get("modelName") or "")
+        if not name or not model:
+            continue
+        grouped[name].append(
+            {
+                "model": model,
+                "url": str(rec.get("url") or "").strip(),
+            }
+        )
+    out = {}
+    for name, rows in grouped.items():
+        unique_models = sorted({r["model"] for r in rows if r["model"]})
+        if len(unique_models) != 1:
+            continue
+        first = next((r for r in rows if r["model"] == unique_models[0]), rows[0])
+        out[name] = {"model": unique_models[0], "url": first.get("url") or ""}
+    return out
 
 
 def to_grid(param: dict, is_gk: bool):
@@ -203,7 +262,11 @@ def load_fallback_coaches(path: Path) -> dict[int, dict]:
     return result
 
 
-def build_players(conn: sqlite3.Connection, fallback_players: dict[int, dict]) -> list[dict]:
+def build_players(
+    conn: sqlite3.Connection,
+    fallback_players: dict[int, dict],
+    rohm_name_model_map: dict[str, dict],
+) -> list[dict]:
     conn.row_factory = sqlite3.Row
     nations = {
         to_int(r["ZNATION_ID"]): (r["ZNAME"] or "")
@@ -218,6 +281,19 @@ def build_players(conn: sqlite3.Connection, fallback_players: dict[int, dict]) -
     players = {
         to_int(r["ZPLAYER_ID"]): dict(r)
         for r in conn.execute("SELECT * FROM ao__ZMOPLAYER").fetchall()
+    }
+    mixed_person_ids = {
+        to_int(r["pid"])
+        for r in conn.execute(
+            """
+            SELECT ZPERSON_ID AS pid
+            FROM ao__ZMOPLAYER
+            WHERE ZPERSON_ID > 0
+            GROUP BY ZPERSON_ID
+            HAVING COUNT(DISTINCT ZNAME) > 1
+            """
+        ).fetchall()
+        if to_int(r["pid"], 0) > 0
     }
 
     model_map = {}
@@ -274,6 +350,18 @@ def build_players(conn: sqlite3.Connection, fallback_players: dict[int, dict]) -
             info = infos.get(to_int(core.get("ZINFO", 0)), {"playType": "", "description": ""})
             person_id = to_int(core.get("ZPERSON_ID", 0))
             model_info = model_map.get(person_id, {})
+
+            # For personId groups with mixed player names, prefer strict name-based
+            # mapping from rohm cache when available and unique.
+            player_name_norm = normalize_name(core.get("ZNAME") or core.get("ZFULLNAME") or "")
+            name_based = rohm_name_model_map.get(player_name_norm)
+            if person_id in mixed_person_ids and name_based and name_based.get("model"):
+                model_info = {
+                    "name": name_based.get("model") or "",
+                    "sourceMethod": "name_exact_on_mixed_person",
+                    "isManual": True,
+                    "notes": "mixed_personid_name_based_from_rohm_cache",
+                }
 
             if manual:
                 category = manual["category"]
@@ -478,11 +566,13 @@ def main() -> int:
     fallback_data = load_fallback_players(Path(args.fallback_data_json).expanduser().resolve())
     fallback_coaches = load_fallback_coaches(Path(args.fallback_coaches_json).expanduser().resolve())
 
+    rohm_name_model_map = load_rohm_name_model_map(Path(args.rohm_cache_json).expanduser().resolve())
+
     conn = sqlite3.connect(str(master_db))
     conn.row_factory = sqlite3.Row
     try:
         generated_at = now_jst_iso()
-        players = build_players(conn, fallback_data)
+        players = build_players(conn, fallback_data, rohm_name_model_map)
         scouts = build_scouts(conn)
         cm_events = build_cm_events(conn)
         coaches = build_coaches(conn, fallback_coaches)
