@@ -120,6 +120,24 @@ def normalize_model_name(text: str) -> str:
     return s
 
 
+JP_CHAR_CLASS = r"\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\u3005\u30fc"
+
+
+def normalize_japanese_name_spacing(text: str) -> str:
+    """
+    Unify surname/given-name separator for Japanese names:
+    half-width space between Japanese characters -> full-width space.
+    """
+    s = str(text or "")
+    s = s.replace("\r", " ").replace("\n", " ").replace("\t", " ")
+    # Temporarily convert full-width spaces to ASCII to normalize mixed spacing,
+    # then convert JP-JP boundaries back to full-width separator.
+    s = s.replace("\u3000", " ")
+    s = re.sub(r"[ ]{2,}", " ", s).strip()
+    s = re.sub(rf"([{JP_CHAR_CLASS}]) +([{JP_CHAR_CLASS}])", r"\1　\2", s)
+    return s
+
+
 def compact_model_token(text: str) -> str:
     s = normalize_name(text or "")
     s = unicodedata.normalize("NFKC", s)
@@ -429,10 +447,14 @@ def build_players(
                 "SS": "SS" in category_membership,
             }
 
+            display_name = normalize_japanese_name_spacing(core.get("ZNAME") or core.get("ZFULLNAME") or f"ID{pid}")
+            display_full_name = normalize_japanese_name_spacing(core.get("ZFULLNAME") or core.get("ZNAME") or "")
+            display_model = normalize_japanese_name_spacing(dedupe_model_name(model_info.get("name", "")))
+
             out.append(
                 {
                     "id": pid,
-                    "name": core.get("ZNAME") or core.get("ZFULLNAME") or f"ID{pid}",
+                    "name": display_name,
                     "url": f"https://caselli.websoccer.info/players/{pid}",
                     "periods": periods,
                     "metricValues": metric_values,
@@ -446,7 +468,7 @@ def build_players(
                     "rate": to_int(core.get("ZRARITY", 0)),
                     "positionHeatmaps": segments,
                     "positionHeatmapBySeason": by_season,
-                    "fullName": core.get("ZFULLNAME") or core.get("ZNAME") or "",
+                    "fullName": display_full_name,
                     "nationality": nation_name,
                     "nationId": nation_id,
                     "playType": info.get("playType") or "",
@@ -455,7 +477,7 @@ def build_players(
                     "description": info.get("description") or "",
                     "nameRuby": core.get("ZNAMERUBY") or "",
                     "personId": person_id,
-                    "modelPlayer": dedupe_model_name(model_info.get("name", "")),
+                    "modelPlayer": display_model,
                     "modelPlayerManual": bool(model_info.get("isManual", False)),
                     "modelPlayerSourceMethod": model_info.get("sourceMethod", ""),
                     "modelPlayerSourceNote": model_info.get("notes", ""),
@@ -468,6 +490,9 @@ def build_players(
             if manual:
                 fb["category"] = manual["category"]
                 fb["categoryMembership"] = manual["membership"]
+            fb["name"] = normalize_japanese_name_spacing(fb.get("name", ""))
+            fb["fullName"] = normalize_japanese_name_spacing(fb.get("fullName", ""))
+            fb["modelPlayer"] = normalize_japanese_name_spacing(dedupe_model_name(fb.get("modelPlayer", "")))
             membership = fb.get("categoryMembership") or [fb.get("category", "NR")]
             fb["flags"] = {"CM": "CM" in membership, "SS": "SS" in membership}
             fb.setdefault("nameRuby", "")
