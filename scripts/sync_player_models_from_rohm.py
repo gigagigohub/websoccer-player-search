@@ -38,6 +38,11 @@ def parse_args() -> argparse.Namespace:
         "--unresolved-out",
         default=str(Path.cwd() / "app" / "prepared" / "player_model_unresolved_candidates.json"),
     )
+    p.add_argument(
+        "--reset-table",
+        action="store_true",
+        help="Delete existing manual_player_model rows before writing freshly resolved mappings.",
+    )
     p.add_argument("--dry-run", action="store_true")
     return p.parse_args()
 
@@ -241,21 +246,12 @@ def main() -> int:
         if p["personId"] > 0:
             person_players[p["personId"]].append(p)
 
-    # Direct mapping from matching player_id.
+    # NOTE:
+    # Do NOT map by player_id. Site player ID and app internal player_id are not guaranteed to be aligned.
+    # Use strict name-based mapping only.
     person_model_candidates = defaultdict(set)  # person -> {(model, method, url)}
-    for pid, rec in rohm_records.items():
-        model = (rec.get("modelName") or "").strip()
-        if not model:
-            continue
-        master = players_by_id.get(pid)
-        if not master:
-            continue
-        person = master["personId"]
-        if person <= 0:
-            continue
-        person_model_candidates[person].add((model, "id_exact", rec["url"]))
 
-    # Name fallback for players not found by ID in rohm normal list.
+    # Name mapping.
     rohm_models_by_name = defaultdict(set)
     rohm_urls_by_name = defaultdict(set)
     for rec in rohm_records.values():
@@ -385,7 +381,65 @@ def main() -> int:
             }
         )
 
+    # Enforce: one model_name must map to exactly one person_id.
+    # Keep the strongest person candidate for each model:
+    #  1) more variants/rows in master player table
+    #  2) larger max player_id
+    #  3) larger person_id
+    person_strength: Dict[int, Tuple[int, int, int]] = {}
+    for person, plist in person_players.items():
+        player_ids = [int(p["playerId"]) for p in plist if int(p.get("playerId") or 0) > 0]
+        person_strength[int(person)] = (
+            len(player_ids),
+            max(player_ids) if player_ids else 0,
+            int(person),
+        )
+
+    grouped_by_model: Dict[str, List[Tuple[int, str, str, str, int, str, str]]] = defaultdict(list)
+    for row in resolved_rows:
+        grouped_by_model[row[1]].append(row)
+
+    deduped_rows: List[Tuple[int, str, str, str, int, str, str]] = []
+    for model_name, rows in grouped_by_model.items():
+        if len(rows) == 1:
+            deduped_rows.extend(rows)
+            continue
+        rows_sorted = sorted(
+            rows,
+            key=lambda r: person_strength.get(int(r[0]), (0, 0, int(r[0]))),
+            reverse=True,
+        )
+        keep = rows_sorted[0]
+        deduped_rows.append(keep)
+        for dropped in rows_sorted[1:]:
+            unresolved.append(
+                {
+                    "personId": int(dropped[0]),
+                    "players": [
+                        {
+                            "playerId": p["playerId"],
+                            "name": p["name"],
+                            "nation": p["nation"],
+                            "playType": p["playType"],
+                        }
+                        for p in sorted(person_players.get(int(dropped[0]), []), key=lambda x: x["playerId"])
+                    ],
+                    "reason": "duplicate_model_name_across_multiple_persons_dropped",
+                    "candidates": [
+                        {
+                            "modelName": model_name,
+                            "keptPersonId": int(keep[0]),
+                            "droppedPersonId": int(dropped[0]),
+                        }
+                    ],
+                }
+            )
+
+    resolved_rows = deduped_rows
+
     if not args.dry_run:
+        if args.reset_table:
+            conn.execute("DELETE FROM manual_player_model")
         upsert_manual_model_rows(conn, resolved_rows)
         conn.commit()
 
