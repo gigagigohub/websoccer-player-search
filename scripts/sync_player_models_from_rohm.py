@@ -437,6 +437,38 @@ def main() -> int:
 
     resolved_rows = deduped_rows
 
+    # Exclude unresolved rows that are considered "no model exists" by site rule:
+    # - modelPlayer is blank for the person in current site data
+    # - and that player name has no same-name variants
+    name_counts = defaultdict(int)
+    for p in players:
+        nm = str(p.get("name") or "").strip()
+        if nm:
+            name_counts[nm] += 1
+    person_site_rows = defaultdict(list)
+    for p in players:
+        person_site_rows[int(p.get("personId") or 0)].append(p)
+
+    filtered_unresolved = []
+    excluded_by_no_model_rule = []
+    for item in unresolved:
+        person = int(item.get("personId") or 0)
+        site_rows = person_site_rows.get(person, [])
+        if not site_rows:
+            filtered_unresolved.append(item)
+            continue
+        all_blank_model = all(not str(r.get("modelPlayer") or "").strip() for r in site_rows)
+        unique_name = all(
+            name_counts.get(str(r.get("name") or "").strip(), 0) == 1
+            for r in site_rows
+            if str(r.get("name") or "").strip()
+        )
+        if all_blank_model and unique_name:
+            excluded_by_no_model_rule.append(person)
+            continue
+        filtered_unresolved.append(item)
+    unresolved = filtered_unresolved
+
     if not args.dry_run:
         if args.reset_table:
             conn.execute("DELETE FROM manual_player_model")
@@ -453,6 +485,8 @@ def main() -> int:
                 "masterDb": str(db_path),
                 "resolvedCount": len(resolved_rows),
                 "unresolvedCount": len(unresolved),
+                "excludedNoModelByRuleCount": len(excluded_by_no_model_rule),
+                "excludedNoModelByRulePersonIds": sorted(set(excluded_by_no_model_rule)),
                 "unresolved": unresolved,
             },
             ensure_ascii=False,
