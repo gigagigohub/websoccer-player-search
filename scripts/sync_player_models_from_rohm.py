@@ -476,6 +476,20 @@ def main() -> int:
         filtered_unresolved.append(item)
     unresolved = filtered_unresolved
 
+    # Candidates for unresolved should not include model names already assigned to any person.
+    assigned_models = {str(r[1]).strip() for r in resolved_rows if str(r[1]).strip()}
+    for item in unresolved:
+        cands = item.get("candidates") or []
+        filtered = []
+        for c in cands:
+            m = str(c.get("modelName") or "").strip()
+            if not m:
+                continue
+            if m in assigned_models:
+                continue
+            filtered.append(c)
+        item["candidates"] = filtered
+
     if not args.dry_run:
         if args.reset_table:
             conn.execute("DELETE FROM manual_player_model")

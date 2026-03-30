@@ -1,0 +1,183 @@
+personId,names,ids,categories,rates,candidateRank,candidateModel,candidateName,existsInSiteModel,existsInDbModel,sourceUrl
+1986,J・アルフォンス,1986|2586,SS,7|7,,,,False,False,
+1743,べレ・ワリ|バーニー,1743|1858|2089|2705,NR|SS,4|7|7|7,,,,False,False,
+1373,アニシナ,1373|2370,SS,7|7,,,,False,False,
+618,アバティーノ,618|2165,NR|SS,5|7,,,,False,False,
+2267,アラン・トレオラ,2267|2555,SS,7|7,,,,False,False,
+616,アルシェ,616|894|1614,CM|NR,4|4|5,,,,False,False,
+702,アルベルダ,702,CM,4,,,,False,False,
+1337,アルベルダ,1337,SS,7,,,,False,False,
+1748,イヨバ|ドグレル,1748|1847,NR|SS,4|7,1,アレックス・イウォビ,イヨバ,False,False,https://sp.rohm.websoccer.info/player/2575
+1748,イヨバ|ドグレル,1748|1847,NR|SS,4|7,2,ハンス＝イェルク・ブット,バッハ,False,False,https://sp.rohm.websoccer.info/player/148
+797,イヨバ|ミレー,797|1846,SS,7|7,1,ミケル・ジョン・オビ,ミレー,False,False,https://sp.rohm.websoccer.info/player/919
+797,イヨバ|ミレー,797|1846,SS,7|7,2,アラン・シアラー,ミラー,False,False,https://sp.rohm.websoccer.info/player/666
+949,ウィリー,949|1406,SS,7|7,,,,False,False,
+737,エスクエダ,737|953|1043|1932,NR|SS,7|7|6|7,,,,False,False,
+682,エスピノーサ|ドミンゲス,682|748|1526|1870|2512,NR|SS,6|7|7|7|7,1,ファン・クアドラード,エスピノーサ,False,False,https://sp.rohm.websoccer.info/player/1276
+1750,エスピノーサ|バリントン・サントス,1750|1869|2300|3097,NR|SS,4|7|7|7,1,ダビンソン・サンチェス,バリントン・サントス,False,False,https://sp.rohm.websoccer.info/player/2574
+1750,エスピノーサ|バリントン・サントス,1750|1869|2300|3097,NR|SS,4|7|7|7,2,ハメス・ロドリゲス,ドミンゲス,False,False,https://sp.rohm.websoccer.info/player/1029
+1623,エルバス,1623|2377,CM|SS,4|7,,,,False,False,
+696,カクタ|ジルベール,696|758|1345|1362|1436|1852|2149|2426|2670,CM|NR|SS,6|7|5|7|7|7|7|7|7,1,エデン・アザール,ジルベール,False,False,https://sp.rohm.websoccer.info/player/796
+696,カクタ|ジルベール,696|758|1345|1362|1436|1852|2149|2426|2670,CM|NR|SS,6|7|5|7|7|7|7|7|7,2,ヤン・フェルトンゲン,シルヴェストル,False,False,https://sp.rohm.websoccer.info/player/1953
+697,カクタ|リーキー,697|757|1694|1853|2162|2427|2671|2842|3090|3142,CM|NR|SS,4|7|7|7|7|7|7|7|7|5,1,ロメル・ルカク,カクタ,False,False,https://sp.rohm.websoccer.info/player/4048
+697,カクタ|リーキー,697|757|1694|1853|2162|2427|2671|2842|3090|3142,CM|NR|SS,4|7|7|7|7|7|7|7|7|5,2,ヴァンサン・コンパニ,カンパリ,False,False,https://sp.rohm.websoccer.info/player/21
+691,カルレロ|ドミンゲス,691|747|937|969|1871,CM|NR|SS,5|7|7|5|7,1,ハメス・ロドリゲス,ドミンゲス,False,False,https://sp.rohm.websoccer.info/player/1029
+691,カルレロ|ドミンゲス,691|747|937|969|1871,CM|NR|SS,5|7|7|5|7,2,ダビンソン・サンチェス,バリントン・サントス,False,False,https://sp.rohm.websoccer.info/player/2574
+624,カルレロ|吉田　友樹,624|1503|1872|2150,NR|SS,5|7|7|7,1,ラダメル・ファルカオ・ガルシア,カルレロ,False,False,https://sp.rohm.websoccer.info/player/356
+726,カルロス・グスマン,726|1319,SS,7|7,,,,False,False,
+1983,カレル,1983|2469,SS,7|7,,,,False,False,
+639,カンパリ|シルヴェストル,639|762|1574|1849|2732|2885,NR|SS,6|7|7|7|7|7,1,ヴァンサン・コンパニ,カンパリ,False,False,https://sp.rohm.websoccer.info/player/21
+639,カンパリ|シルヴェストル,639|762|1574|1849|2732|2885,NR|SS,6|7|7|7|7|7,2,ロメル・ルカク,カクタ,False,False,https://sp.rohm.websoccer.info/player/4048
+764,カンパリ|ドグレル,764|1019|1369|1848|2148|2667,NR|SS,7|6|7|7|7|7,1,ティボー・クルトワ,ドグレル,False,False,https://sp.rohm.websoccer.info/player/2339
+764,カンパリ|ドグレル,764|1019|1369|1848|2148|2667,NR|SS,7|6|7|7|7|7,2,ケヴィン・デ・ブライネ,ドフレイエ,False,False,https://sp.rohm.websoccer.info/player/1958
+777,カート|カートン,777|1053|1367|1567,NR|SS,7|5|7|7,1,ジョー・ハート,カート,False,False,https://sp.rohm.websoccer.info/player/1715
+777,カート|カートン,777|1053|1367|1567,NR|SS,7|5|7|7,2,ハリー・ケイン,キーン,False,False,https://sp.rohm.websoccer.info/player/2485
+1592,カートン|サンダーソン,1592|1685|1855|2133,NR|SS,5|7|7|7,1,ジョー・ハート,カート,False,False,https://sp.rohm.websoccer.info/player/1715
+1592,カートン|サンダーソン,1592|1685|1855|2133,NR|SS,5|7|7|7,2,ハリー・ケイン,キーン,False,False,https://sp.rohm.websoccer.info/player/2485
+1491,ガトリン,1491|2079,SS,7|7,,,,False,False,
+3094,ガルドシュ,3094|3121,SS,7|7,,,,False,False,
+1343,キコ,1343|1446|2359|2413,CM|SS,5|7|7|7,,,,False,False,
+1348,キーン|バーニー,1348|1429|1439|1859|2141,CM|NR|SS,4|5|7|7|7,1,ジェイミー・ヴァーディ,バーニー,False,False,https://sp.rohm.websoccer.info/player/2006
+1270,キーン|マッシュフィード,1270|1678|1860|2088|2436|2706|2780|2818|3091,NR|RT|SS,5|5|7|7|7|7|7|7|7,1,ハリー・ケイン,キーン,False,False,https://sp.rohm.websoccer.info/player/2485
+2972,ギョクチェ,2972|3041,SS,7|7,,,,False,False,
+1820,クラコヴィアク|シェフスキ,1820|1863|2198|2722,NR|SS,5|7|7|7,1,ヴォイチェフ・シュチェスニー,シェフスキ,False,False,https://sp.rohm.websoccer.info/player/2659
+1754,クラコヴィアク|ランドフスキ,1754|1864,NR|SS,4|7,1,グジェゴシュ・クリホビアク,クラコヴィアク,False,False,https://sp.rohm.websoccer.info/player/2581
+2004,クリーク,2004|2583,SS,7|7,1,グジェゴシュ・クリホビアク,クラコヴィアク,False,False,https://sp.rohm.websoccer.info/player/2581
+1131,クルチェト,1131|1222|2072|2214,NR|SS,7|7|7|7,,,,False,False,
+1753,クレペル|マレ,1753|1866|2003|2634|2695|3106,NR|SS,5|7|7|7|7|7,1,カリドゥ・クリバリ,クレペル,False,False,https://sp.rohm.websoccer.info/player/2582
+1753,クレペル|マレ,1753|1866|2003|2634|2695|3106,NR|SS,5|7|7|7|7|7,2,ティボー・クルトワ,ドグレル,False,False,https://sp.rohm.websoccer.info/player/2339
+698,クレペル|ランドフスキ,698|1322|1455|1768|1865|2000|2028|2341|2345|2440|2643|2723|2828|2848,NR|SS,6|7|7|7|7|7|7|7|7|7|7|7|7|7,1,ヴォイチェフ・シュチェスニー,シェフスキ,False,False,https://sp.rohm.websoccer.info/player/2659
+529,クーフェルマンス,529|851|1281,CM|NR|SS,6|6|7,,,,False,False,
+1631,ケイロン,1631|2357,CM|SS,4|7,,,,False,False,
+680,ケンブリッジ,680|770|2099,NR|SS,5|7|7,1,ハリー・ケイン,キーン,False,False,https://sp.rohm.websoccer.info/player/2485
+680,ケンブリッジ,680|770|2099,NR|SS,5|7|7,2,スチュアート・ピアース,ブルース,False,False,https://sp.rohm.websoccer.info/player/1024
+1058,ゲッロッタ,1058|1291,NR|SS,7|7,,,,False,False,
+1309,サンガーロ,1309|1703,NR|SS,7|7,,,,False,False,
+1025,シェフスキ|ブラウニング,1025|1744|1862|2708,CM|SS,4|7|7|7,1,アラン・シアラー,ミラー,False,False,https://sp.rohm.websoccer.info/player/666
+1025,シェフスキ|ブラウニング,1025|1744|1862|2708,CM|SS,4|7|7|7,2,ハリー・ケイン,キーン,False,False,https://sp.rohm.websoccer.info/player/2485
+1822,シグムンドソン|ルカリッチ,1822|1842,NR|SS,4|7,1,ブライアン・ムベウモ,ムボンド,False,False,https://sp.rohm.websoccer.info/player/4065
+2935,シシュカ,2935,SS,7,,,,False,False,
+583,シモーネ,583|1135|2749,NR|SS,7|7|7,,,,False,False,
+1180,シュルツ,1180|1816,SS,7|7,1,ヴォイチェフ・シュチェスニー,シェフスキ,False,False,https://sp.rohm.websoccer.info/player/2659
+2397,シルビーニョ・ドット,2397|2715,SS,7|7,1,ロナウジーニョ,マルセリーニョ,False,False,https://sp.rohm.websoccer.info/player/42
+1224,シルヴェストル|ドフレイエ,1224|1850|2087|2668|2945,NR|SS,4|7|7|7|7,1,ヤン・フェルトンゲン,シルヴェストル,False,False,https://sp.rohm.websoccer.info/player/1953
+1224,シルヴェストル|ドフレイエ,1224|1850|2087|2668|2945,NR|SS,4|7|7|7|7,2,エデン・アザール,ジルベール,False,False,https://sp.rohm.websoccer.info/player/796
+1117,ジウゴ,1117|1806,SS,7|7,1,フアン・アランゴ,ジャンゴ,False,False,https://sp.rohm.websoccer.info/player/867
+1165,ジェズアルド|フェラーリ,1165|2130,SS,7|7,1,チロ・フェラーラ,フェラーリ,False,False,https://sp.rohm.websoccer.info/player/1122
+657,ジェンキンズ,657|795|2302,CM|SS,5|7|7,,,,False,False,
+694,ジギッチ,694|846|1249,CM|NR|SS,6|5|7,,,,False,False,
+1626,ジャコメッティ,1626|2878,CM|SS,4|7,,,,False,False,
+2771,ジャミ・ソーンズ,2771|2967,SS,7|7,,,,False,False,
+967,ジョコビッチ|マンダノビッチ,967|1007|1652|1844|2733,NR|SS,7|5|7|7|7,1,イバン・ラキティッチ,ジョコビッチ,False,False,https://sp.rohm.websoccer.info/player/1570
+967,ジョコビッチ|マンダノビッチ,967|1007|1652|1844|2733,NR|SS,7|5|7|7|7,2,マリオ・マンジュキッチ,マンダノビッチ,False,False,https://sp.rohm.websoccer.info/player/1063
+607,ジョコビッチ|ルカリッチ,607|734|929|1434|1843|2006|2434|2688|3132,NR|SS,5|7|7|7|7|7|7|7|7,1,ルカ・モドリッチ,ルカリッチ,False,False,https://sp.rohm.websoccer.info/player/805
+1586,ジルニク,1586|1765|1920|2065,SS,7|7|7|7,,,,False,False,
+1223,ジルベール|ドフレイエ,1223|1346|1580|1851|2334|2425|2669|2850,CM|NR|SS,5|5|7|7|7|7|7|7,1,ケヴィン・デ・ブライネ,ドフレイエ,False,False,https://sp.rohm.websoccer.info/player/1958
+1223,ジルベール|ドフレイエ,1223|1346|1580|1851|2334|2425|2669|2850,CM|NR|SS,5|5|7|7|7|7|7|7,2,ティボー・クルトワ,ドグレル,False,False,https://sp.rohm.websoccer.info/player/2339
+1297,セルジーニョ,1297|1308,NR|SS,7|7,1,ロナウジーニョ,マルセリーニョ,False,False,https://sp.rohm.websoccer.info/player/42
+2266,ソフォーグル,2266|3154,SS,7|7,,,,False,False,
+745,ソーサ,745|1609,SS,7|7,,,,False,False,
+1097,ダニ,1097,SS,7,,,,False,False,
+1289,ダニ,1289,SS,7,,,,False,False,
+1051,ダニエル・ボラ,1051|2020,NR|SS,7|7,,,,False,False,
+2281,ダニー・アリンガム,2281|2782,SS,7|7,1,ハリー・ケイン,キーン,False,False,https://sp.rohm.websoccer.info/player/2485
+2281,ダニー・アリンガム,2281|2782,SS,7|7,2,ジェイミー・ヴァーディ,バーニー,False,False,https://sp.rohm.websoccer.info/player/2006
+1255,ディミトロフ,1255|2081,SS,7|7,1,キリヤコス・パパドプーロス,ミトロプーロス,False,False,https://sp.rohm.websoccer.info/player/1065
+627,デュカス,627|1355,NR|SS,5|7,,,,False,False,
+2528,デランス,2528|2783,SS,7|7,,,,False,False,
+2241,デングリ,2241|2581,SS,7|7,,,,False,False,
+861,デ・ワールト,861|2119,CM|SS,4|7,,,,False,False,
+1312,トーニ,1312|1616,CM|SS,7|5,1,ロナウジーニョ,マルセリーニョ,False,False,https://sp.rohm.websoccer.info/player/42
+134,ノテウス,134|647|1202|1469,CC|NR|SS,6|7|7|7,,,,False,False,
+1159,ハグベリ,1159|1269|1486,NR|SS,7|7|7,,,,False,False,
+1073,ハドルストーン,1073,SS,7,1,ハリー・ケイン,キーン,False,False,https://sp.rohm.websoccer.info/player/2485
+1073,ハドルストーン,1073,SS,7,2,スチュアート・ピアース,ブルース,False,False,https://sp.rohm.websoccer.info/player/1024
+1252,ハドルストーン,1252,SS,7,1,ハリー・ケイン,キーン,False,False,https://sp.rohm.websoccer.info/player/2485
+1252,ハドルストーン,1252,SS,7,2,スチュアート・ピアース,ブルース,False,False,https://sp.rohm.websoccer.info/player/1024
+2655,ハビ,2655|2807,SS,7|7,,,,False,False,
+531,バウベル,531|1070,NR|SS,6|7,,,,False,False,
+146,バティス,146|1130|1394|1795,NR|SS,7|7|7|7,,,,False,False,
+644,バトン,644|1577,NR|SS,5|7,,,,False,False,
+622,バレンティン,622|800|1257,NR|SS,4|7|7,,,,False,False,
+1570,バンデラス,1570|1603,SS,7|7,,,,False,False,
+746,パウレタ,746|1029|1566|1601,CM|SS,7|5|7|7,1,セイドゥ・ケイタ,ユウタ,False,False,https://sp.rohm.websoccer.info/player/339
+142,パサレラ,142|1132|1794,NR|SS,5|7|7,,,,False,False,
+1176,パラミッチ,2129,SS,7,,,,False,False,
+1192,パンチェフ,1192|2075|2433,SS,7|7|7,,,,False,False,
+1074,ヒンデンブルク,1074|1300,CM|SS,7|5,,,,False,False,
+2363,ビンス・ファリー,2363,SS,7,,,,False,False,
+2036,ピウスツキ,2036|2826,SS,7|7,1,ヴォイチェフ・シュチェスニー,シェフスキ,False,False,https://sp.rohm.websoccer.info/player/2659
+160,ピレリ,160|1209,NR|SS,7|7,,,,False,False,
+515,ファンデン・ベルゲ,515|1286,NR|SS,5|7,,,,False,False,
+973,ファンフリート,973|1479|1728|2895,SS,7|7|7|7,,,,False,False,
+972,ファン・ボルトン,972|2896,SS,7|7,,,,False,False,
+617,フィッシャー,617|775|1389,NR|SS,5|7|7,,,,False,False,
+891,フィルレロ,891|1358,CM|SS,5|7,1,ラダメル・ファルカオ・ガルシア,カルレロ,False,False,https://sp.rohm.websoccer.info/player/356
+567,フェロー,567|1371,NR|SS,5|7,1,チロ・フェラーラ,フェラーリ,False,False,https://sp.rohm.websoccer.info/player/1122
+1108,フレーベル,1108,SS,7,,,,False,False,
+595,フンボルド,595|1099|1518,NR|SS,7|7|7,,,,False,False,
+584,ブライ,584|1078|1299,CM|NR|SS,5|7|5,,,,False,False,
+579,ブーマー,579|1267|1478,NR|SS,7|7|7,,,,False,False,
+1104,プラッソン,1104|1786,SS,7|7,,,,False,False,
+1109,ヘラー,1109|1726|2734,CC|SS,7|7|7,,,,False,False,
+676,ヘルシンボリ,676|1376,CM|SS,5|7,1,ヴァンサン・コンパニ,カンパリ,False,False,https://sp.rohm.websoccer.info/player/21
+1555,ベレッツァ,1555|2074,SS,7|7,,,,False,False,
+982,ホフマン,982|1470,SS,7|7,,,,False,False,
+2835,ホルステッド,2835|2938,SS,7|7,,,,False,False,
+628,ボアス　玲偉,628|2650,NR|SS,7|7,1,城 彰二,秦田　丈,False,False,https://sp.rohm.websoccer.info/player/217
+628,ボアス　玲偉,628|2650,NR|SS,7|7,2,塩谷司,富山　奨,False,False,https://sp.rohm.websoccer.info/player/1752
+646,ボルト,646|1216|1729,CC|SS,7|7|7,,,,False,False,
+2231,ポンチョ,2231|2477,SS,7|7,1,ハリー・ケイン,キーン,False,False,https://sp.rohm.websoccer.info/player/2485
+643,マイヤー,643|2390,NR|SS,4|7,,,,False,False,
+189,マクブライト,189|1970,CM|SS,4|7,,,,False,False,
+736,マスカラス,736|1056|1933,CM|SS,7|4|7,,,,False,False,
+1000,マチス,1000|2604,SS,7|7,,,,False,False,
+717,マンダノビッチ|ミレー,717|733|1044|1081|1435|1845|2192,CM|NR|SS,5|7|5|7|7|7|7,1,マリオ・マンジュキッチ,マンダノビッチ,False,False,https://sp.rohm.websoccer.info/player/1063
+717,マンダノビッチ|ミレー,717|733|1044|1081|1435|1845|2192,CM|NR|SS,5|7|5|7|7|7|7,2,イバン・ラキティッチ,ジョコビッチ,False,False,https://sp.rohm.websoccer.info/player/1570
+985,マンフレディーニ,985|1219|1991,CM|SS,7|5|7,,,,False,False,
+2930,マーティン,2930|2995,SS,7|7,,,,False,False,
+2526,ミュシャーラ,2526|2660|2928,SS,7|7|7,,,,False,False,
+243,ミラ|ミラー,243|956|1456|1492,NR|SS,7|7|7|7,1,アラン・シアラー,ミラー,False,False,https://sp.rohm.websoccer.info/player/666
+243,ミラ|ミラー,243|956|1456|1492,NR|SS,7|7|7|7,2,ミケル・ジョン・オビ,ミレー,False,False,https://sp.rohm.websoccer.info/player/919
+1796,ミレダーニャ,1796|2329|2338,NR|SS,7|7|7,1,ミケル・ジョン・オビ,ミレー,False,False,https://sp.rohm.websoccer.info/player/919
+598,モラ,598|859|870|1589|1639|2404,CM|SS,5|5|5|7|7|7,1,フアン・マヌエル・マタ,ホセ・モラ,False,False,https://sp.rohm.websoccer.info/player/164
+1525,モラエス,1525|2591,CM|SS,4|7,1,フェルナンド・コウト,トーレス,False,False,https://sp.rohm.websoccer.info/player/1104
+445,モンテッラ,445|1164,NR|SS,7|7,,,,False,False,
+526,ヤンコビッチ,526|1200|1643|1808|2070,NR|SS,5|7|7|7|7,,,,False,False,
+632,ヤン・フェルメール,632|858|2120,CM|NR|SS,5|5|7,,,,False,False,
+467,ヨハネス,467|1278|1480|1712|2364,CC|SS,7|7|7|7|7,,,,False,False,
+2135,ライガード,2135,SS,7,1,アラン・シアラー,ミラー,False,False,https://sp.rohm.websoccer.info/player/666
+863,ライコネン,863|1505,CM|SS,6|7,,,,False,False,
+1704,ラバーゼ,1704|2533,NR|SS,5|7,1,アラン・シアラー,ミラー,False,False,https://sp.rohm.websoccer.info/player/666
+1484,ラファラン,1484|1533,SS,7|7,,,,False,False,
+3058,ランガー,3058,SS,7,1,アラン・シアラー,ミラー,False,False,https://sp.rohm.websoccer.info/player/666
+815,リヴェラーニ,815|1561|1664|1937|2215,SS,7|7|7|7|7,1,チロ・フェラーラ,フェラーリ,False,False,https://sp.rohm.websoccer.info/player/1122
+974,リートフェルト,974|1477|1508|2897,SS,7|7|7|7,,,,False,False,
+633,ルイス,633|1256|2217,NR|SS,4|7|7,1,スチュアート・ピアース,ブルース,False,False,https://sp.rohm.websoccer.info/player/1024
+2466,ルカネッリ,2466|2511,SS,7|7,,,,False,False,
+688,ルシアーノ・パレイラ,688|1311,NR|SS,7|7,1,ジュニーニョ・パウリスタ,ルシアーノ・バチスタ,False,False,https://sp.rohm.websoccer.info/player/846
+2563,ルーカス・デラス,2563,SS,7,1,スチュアート・ピアース,ブルース,False,False,https://sp.rohm.websoccer.info/player/1024
+501,レナリーニョ,501|1153|1314|1661|2053,CM|NR|SS,5|5|7|7|7,1,ロナウジーニョ,マルセリーニョ,False,False,https://sp.rohm.websoccer.info/player/42
+2956,ロコ・ヘンリーズ,2956|2985|3073,SS,7|7|7,,,,False,False,
+1775,ロドリゴ・フロリアノ,1775|1915,SS,7|7,,,,False,False,
+719,ロビー・ディーン,719|2082,CM|SS,5|7,1,ジョン・オシェイ,オコナー,False,False,https://sp.rohm.websoccer.info/player/794
+247,ロマリーニョ,247|947|1710|1804|2535,NR|SS,6|7|7|7|7,1,ロナウジーニョ,マルセリーニョ,False,False,https://sp.rohm.websoccer.info/player/42
+514,ヴァイツゼッカー,514|658|833|2391,CM|NR|SS,5|5|7|7,,,,False,False,
+459,ヴィルヘルム,459|1809|2337|2365,CC|SS,7|7|7|7,,,,False,False,
+1393,ヴェロッキオ,1393|1476,SS,7|7,,,,False,False,
+2323,佐藤 進|佐藤　進,2323|2763|2830,NR|SS,4|7|7,1,中山 雅史,権藤　隆史,False,False,https://sp.rohm.websoccer.info/player/576
+487,吉田　友樹|小林　孝俊,487|1215|1873|2580|2661,NR|SS,5|7|7|7|7,1,長友 佑都,吉田　友樹,False,False,https://sp.rohm.websoccer.info/player/77
+487,吉田　友樹|小林　孝俊,487|1215|1873|2580|2661,NR|SS,5|7|7|7|7,2,城 彰二,秦田　丈,False,False,https://sp.rohm.websoccer.info/player/217
+1622,堀口　祐樹,1622|2257,CM|SS,4|7,1,長友 佑都,吉田　友樹,False,False,https://sp.rohm.websoccer.info/player/77
+1622,堀口　祐樹,1622|2257,CM|SS,4|7,2,本田 圭佑,本間　祐輔,False,False,https://sp.rohm.websoccer.info/player/1617
+1147,大里　恵理,1147|1722,CM|SS,4|7,1,城 彰二,秦田　丈,False,False,https://sp.rohm.websoccer.info/player/217
+2270,天田 海二|天田　海二,2270|2760|2843,NR|SS,4|7|7,1,城 彰二,秦田　丈,False,False,https://sp.rohm.websoccer.info/player/217
+2270,天田 海二|天田　海二,2270|2760|2843,NR|SS,4|7|7,2,長友 佑都,吉田　友樹,False,False,https://sp.rohm.websoccer.info/player/77
+630,小林　孝俊|長曽根　勇,630|1874|2143|2276|2662|2758,CM|SS,4|7|7|7|7|7,1,吉田 麻也,小林　孝俊,False,False,https://sp.rohm.websoccer.info/player/180
+494,本間　祐輔|長曽根　勇,494|902|1875|2256|2385|2731|3031,CM|NR|RT|SS,4|4|7|7|5|7|7,1,長谷部誠,長曽根　勇,False,False,https://sp.rohm.websoccer.info/player/3249
+494,本間　祐輔|長曽根　勇,494|902|1875|2256|2385|2731|3031,CM|NR|RT|SS,4|4|7|7|5|7|7,2,城 彰二,秦田　丈,False,False,https://sp.rohm.websoccer.info/player/217
+472,本間　祐輔|高松　信一,472|903|1001|1876|2729,CM|NR|SS,5|5|7|7|7,1,本田 圭佑,本間　祐輔,False,False,https://sp.rohm.websoccer.info/player/1617
+472,本間　祐輔|高松　信一,472|903|1001|1876|2729,CM|NR|SS,5|5|7|7|7,2,城 彰二,秦田　丈,False,False,https://sp.rohm.websoccer.info/player/217
+2530,花江 音央,2530|3095,NR|SS,4|7,1,長友 佑都,吉田　友樹,False,False,https://sp.rohm.websoccer.info/player/77
+3004,鈴井　獅音,3004,NR,4,1,城 彰二,秦田　丈,False,False,https://sp.rohm.websoccer.info/player/217
+493,高松　信一|鮫島　純也,493|1647|1877|2154|2381|2730,NR|SS,5|7|7|7|7|7,1,香川 真司,高松　信一,False,False,https://sp.rohm.websoccer.info/player/113
