@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-03-31T06:09:52+09:00",
+  "generatedAt": "2026-03-31T06:14:12+09:00",
   "sourceUrl": "https://sp.rohm.websoccer.info/player/list/normal",
   "masterDb": "/Users/k.nishimura/Desktop/websoccer_master_db/wsm_2603292024.sqlite3",
-  "resolvedCount": 1407,
-  "unresolvedCount": 24,
+  "resolvedCount": 1408,
+  "unresolvedCount": 23,
   "excludedNoModelByRuleCount": 0,
   "excludedNoModelByRulePersonIds": [],
   "unresolved": [
@@ -314,30 +314,6 @@
           "position": "FW",
           "modelName": "ピーター・ジェームス・クラウチ",
           "sourceUrl": "https://sp.rohm.websoccer.info/player/1161"
-        }
-      ]
-    },
-    {
-      "personId": 2328,
-      "players": [
-        {
-          "playerId": 2328,
-          "name": "マルトール",
-          "nation": "ブラジル",
-          "playType": "セントラルＭＦ",
-          "description": "ボールキープ能力と高い成功率を誇るパス精度が魅力のゲームメーカー。優れた戦術眼で相手守備陣をかわし、スペースを見つけて決定的なパスを前線へ供給する。母国ブラジルのクラブでの活躍が認められてスペインの強豪へ移籍。クラブのレジェンドの跡を継ぐ選手として期待されている。"
-        }
-      ],
-      "reason": "no_direct_or_unique_name_match",
-      "candidates": [
-        {
-          "score": 1.0,
-          "rohmPlayerId": 3028,
-          "name": "マルトール",
-          "nation": "ブラジル",
-          "position": "MF",
-          "modelName": "アルトゥール アルトゥール・エンヒキ・ハモス・ジ・オリヴェイラ・メロ",
-          "sourceUrl": "https://sp.rohm.websoccer.info/player/3028"
         }
       ]
     },
