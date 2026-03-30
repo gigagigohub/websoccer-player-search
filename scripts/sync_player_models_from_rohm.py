@@ -20,6 +20,27 @@ JST = dt.timezone(dt.timedelta(hours=9))
 BASE_URL = "https://sp.rohm.websoccer.info"
 LIST_URL = f"{BASE_URL}/player/list/normal"
 
+# Manual canonicalization for known display-variant names.
+# Rule owner: user-confirmed canonical labels.
+MODEL_NAME_CANONICAL_MAP = {
+    "ナイジェル・デヨング": "ナイジェル・デ・ヨング",
+    "ナイジェル・デ・ヨング": "ナイジェル・デ・ヨング",
+    "堂安律": "堂安 律",
+    "堂安 律": "堂安 律",
+    "長友佑都": "長友 佑都",
+    "長友 佑都": "長友 佑都",
+    "南野拓実": "南野 拓実",
+    "南野 拓実": "南野 拓実",
+    "内田篤人": "内田 篤人",
+    "内田 篤人": "内田 篤人",
+    "本田圭佑": "本田 圭佑",
+    "本田 圭佑": "本田 圭佑",
+    "柴崎岳": "柴崎 岳",
+    "柴崎 岳": "柴崎 岳",
+    "香川真司": "香川 真司",
+    "香川 真司": "香川 真司",
+}
+
 
 def now_jst_iso() -> str:
     return dt.datetime.now(JST).isoformat(timespec="seconds")
@@ -120,8 +141,8 @@ def normalize_model_name(raw: str) -> str:
     # Some pages provide duplicated model text:
     # "ダヴィド・ルイス ダヴィド・ルイス"
     if n >= 2 and n % 2 == 0 and parts[: n // 2] == parts[n // 2 :]:
-        return " ".join(parts[: n // 2]).strip()
-    return s
+        s = " ".join(parts[: n // 2]).strip()
+    return MODEL_NAME_CANONICAL_MAP.get(s, s)
 
 
 def parse_player_page_record(html: str, url: str, player_id: int, fallback_name: str = "") -> Dict[str, str]:
