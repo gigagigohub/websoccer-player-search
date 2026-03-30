@@ -7,6 +7,7 @@ import json
 import re
 import sqlite3
 import time
+import unicodedata
 from collections import defaultdict
 from difflib import SequenceMatcher
 from pathlib import Path
@@ -149,6 +150,39 @@ def normalize_model_name(raw: str) -> str:
     if n >= 2 and n % 2 == 0 and parts[: n // 2] == parts[n // 2 :]:
         s = " ".join(parts[: n // 2]).strip()
     return MODEL_NAME_CANONICAL_MAP.get(s, s)
+
+
+def model_compact_key(s: str) -> str:
+    t = unicodedata.normalize("NFKC", normalize_model_name(s))
+    t = t.replace("・", "").replace("･", "").replace("·", "")
+    t = re.sub(r"\s+", "", t)
+    return t.lower()
+
+
+def prefer_fullname_models(models: set[str]) -> set[str]:
+    """
+    Prefer full-name label when variants are containment-equivalent.
+    Example: バティストゥータ vs ガブリエル・バティストゥータ -> latter.
+    """
+    cleaned = sorted({normalize_model_name(m) for m in models if normalize_model_name(m)}, key=len, reverse=True)
+    kept: list[str] = []
+    kept_keys: list[str] = []
+    for m in cleaned:
+        mk = model_compact_key(m)
+        if not mk:
+            continue
+        merged = False
+        for i, kk in enumerate(kept_keys):
+            if mk in kk or kk in mk:
+                if len(m) > len(kept[i]):
+                    kept[i] = m
+                    kept_keys[i] = mk
+                merged = True
+                break
+        if not merged:
+            kept.append(m)
+            kept_keys.append(mk)
+    return set(kept)
 
 
 def parse_player_page_record(html: str, url: str, player_id: int, fallback_name: str = "") -> Dict[str, str]:
@@ -485,6 +519,7 @@ def main() -> int:
         for nk in name_keys:
             models.update(rohm_models_by_name.get(nk, set()))
             urls.update(rohm_urls_by_name.get(nk, set()))
+        models = prefer_fullname_models(models)
         if len(models) == 1:
             person_model_candidates[person].add((next(iter(models)), "name_exact", sorted(urls)[0] if urls else args.list_url))
 
