@@ -136,6 +136,12 @@ def normalize_model_name(raw: str) -> str:
     s = re.sub(r"\s+", " ", str(raw or "")).strip()
     if not s:
         return ""
+    # Remove noisy artifacts occasionally mixed in wiki-derived text.
+    s = re.sub(r"https?://\S+", "", s)
+    s = re.sub(r"%[0-9A-Fa-f]{2}", "", s)
+    s = re.sub(r"\s+", " ", s).strip(" -_")
+    if not s:
+        return ""
     parts = s.split(" ")
     n = len(parts)
     # Some pages provide duplicated model text:
@@ -324,7 +330,7 @@ def load_rohm_cache(path: Path) -> Dict[int, Dict[str, str]]:
             "playerId": pid,
             "name": str(rec.get("name") or "").strip(),
             "url": str(rec.get("url") or "").strip(),
-            "modelName": str(rec.get("modelName") or "").strip(),
+            "modelName": normalize_model_name(str(rec.get("modelName") or "").strip()),
             "nation": str(rec.get("nation") or "").strip(),
             "position": str(rec.get("position") or "").strip(),
         }
