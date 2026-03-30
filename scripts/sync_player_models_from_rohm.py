@@ -6,6 +6,7 @@ import datetime as dt
 import json
 import re
 import sqlite3
+import time
 from collections import defaultdict
 from difflib import SequenceMatcher
 from pathlib import Path
@@ -34,6 +35,18 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--timeout-sec", type=float, default=15.0)
     p.add_argument("--delay-sec", type=float, default=0.0)
     p.add_argument("--max-pages", type=int, default=0, help="0 means auto (follow pager max)")
+    p.add_argument(
+        "--scan-player-id-start",
+        type=int,
+        default=1,
+        help="Start ID for direct /player/{id} scan (used when --scan-player-id-max > 0).",
+    )
+    p.add_argument(
+        "--scan-player-id-max",
+        type=int,
+        default=0,
+        help="If > 0, also scan /player/{id} pages up to this ID to avoid list-url omissions.",
+    )
     p.add_argument(
         "--unresolved-out",
         default=str(Path.cwd() / "app" / "prepared" / "player_model_unresolved_candidates.json"),
@@ -67,6 +80,51 @@ def parse_page_fields(html: str) -> Dict[str, str]:
         if key:
             fields[key] = val
     return fields
+
+
+def extract_site_name_from_title(title: str) -> str:
+    t = str(title or "").strip()
+    if not t:
+        return ""
+    # e.g. "【2023年最新】ローズ (ダヴィド・ルイス)【引退(銅)】 - WEBサカWIKI"
+    m = re.search(r"】\s*(.+?)\s*\(", t)
+    if m:
+        return m.group(1).strip()
+    m = re.search(r"】\s*(.+?)\s*【", t)
+    if m:
+        return m.group(1).strip()
+    return ""
+
+
+def normalize_model_name(raw: str) -> str:
+    s = re.sub(r"\s+", " ", str(raw or "")).strip()
+    if not s:
+        return ""
+    parts = s.split(" ")
+    n = len(parts)
+    # Some pages provide duplicated model text:
+    # "ダヴィド・ルイス ダヴィド・ルイス"
+    if n >= 2 and n % 2 == 0 and parts[: n // 2] == parts[n // 2 :]:
+        return " ".join(parts[: n // 2]).strip()
+    return s
+
+
+def parse_player_page_record(html: str, url: str, player_id: int, fallback_name: str = "") -> Dict[str, str]:
+    soup = BeautifulSoup(html, "html.parser")
+    fields = parse_page_fields(html)
+    title = soup.title.get_text(" ", strip=True) if soup.title else ""
+    name = extract_site_name_from_title(title) or str(fallback_name or "").strip()
+    model = normalize_model_name(fields.get("モデル選手") or fields.get("モデル") or "")
+    nation = (fields.get("国籍") or "").strip()
+    position = (fields.get("ポジション") or "").strip()
+    return {
+        "playerId": int(player_id),
+        "name": name,
+        "url": url,
+        "modelName": model,
+        "nation": nation,
+        "position": position,
+    }
 
 
 def fetch_html(session: requests.Session, url: str, timeout: float) -> str:
@@ -125,6 +183,46 @@ def collect_player_links(session: requests.Session, list_url: str, timeout: floa
         if idx % 5 == 0:
             print(f"[LIST] pages={idx}/{len(pages)} players={len(out)}", flush=True)
     print(f"[LIST] done pages={len(pages)} players={len(out)}", flush=True)
+    return out
+
+
+def scan_player_pages_by_id(
+    session: requests.Session,
+    timeout: float,
+    start_id: int,
+    max_id: int,
+    existing_ids: set[int] | None = None,
+    delay_sec: float = 0.0,
+) -> Dict[int, Dict[str, str]]:
+    out: Dict[int, Dict[str, str]] = {}
+    existing_ids = existing_ids or set()
+    total = max(0, max_id - start_id + 1)
+    checked = 0
+    for pid in range(start_id, max_id + 1):
+        checked += 1
+        if pid in existing_ids:
+            if checked % 300 == 0:
+                print(f"[SCAN] checked={checked}/{total} found={len(out)}", flush=True)
+            continue
+        url = f"{BASE_URL}/player/{pid}"
+        try:
+            r = session.get(url, timeout=timeout)
+        except Exception:
+            continue
+        if r.status_code != 200:
+            continue
+        text = r.content.decode("utf-8", errors="ignore")
+        if "WEBサカWIKI" not in text:
+            continue
+        rec = parse_player_page_record(text, url, pid, "")
+        # Keep pages that at least expose modelName.
+        if rec.get("modelName"):
+            out[pid] = rec
+        if delay_sec > 0:
+            time.sleep(delay_sec)
+        if checked % 300 == 0:
+            print(f"[SCAN] checked={checked}/{total} found={len(out)}", flush=True)
+    print(f"[SCAN] done checked={checked}/{total} found={len(out)}", flush=True)
     return out
 
 
@@ -225,15 +323,25 @@ def main() -> int:
         url = rec["url"]
         try:
             html = fetch_html(session, url, args.timeout_sec)
-            fields = parse_page_fields(html)
-            rec["modelName"] = (fields.get("モデル") or "").strip()
-            rec["nation"] = (fields.get("国籍") or "").strip()
-            rec["position"] = (fields.get("ポジション") or "").strip()
-            rohm_records[pid] = rec
+            rohm_records[pid] = parse_player_page_record(html, url, pid, rec.get("name") or "")
         except Exception as e:
             print(f"[WARN] detail fail player_id={pid}: {e}", flush=True)
         if i % 100 == 0 or i == len(ids):
             print(f"[DETAIL] {i}/{len(ids)}", flush=True)
+
+    if args.scan_player_id_max > 0:
+        scanned = scan_player_pages_by_id(
+            session,
+            args.timeout_sec,
+            max(1, int(args.scan_player_id_start)),
+            int(args.scan_player_id_max),
+            set(rohm_records.keys()),
+            args.delay_sec,
+        )
+        for pid, rec in scanned.items():
+            if pid not in rohm_records:
+                rohm_records[pid] = rec
+        print(f"[MERGE] records after scan: {len(rohm_records)}", flush=True)
 
     conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row
