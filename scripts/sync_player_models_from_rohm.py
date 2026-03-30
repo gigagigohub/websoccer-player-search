@@ -568,6 +568,60 @@ def main() -> int:
     for person, plist in sorted(person_players.items()):
         cands = person_model_candidates.get(person, set())
         existing = existing_manual_map.get(int(person))
+        name_keys = sorted({p["normName"] for p in plist if p.get("normName")})
+        is_mixed_person = len(name_keys) > 1
+
+        # Prefer name-based resolution for mixed personId buckets.
+        # If each in-game name has a unique model on the source site, treat this
+        # person bucket as handled (single-model can be persisted, multi-model stays
+        # handled for downstream name-based rendering and is not surfaced as unresolved).
+        if is_mixed_person:
+            per_name_models: Dict[str, str] = {}
+            all_unique = True
+            for nk in name_keys:
+                models = prefer_fullname_models(set(rohm_models_by_name.get(nk, set())))
+                if len(models) != 1:
+                    all_unique = False
+                    break
+                per_name_models[nk] = next(iter(models))
+            if all_unique and per_name_models:
+                unique_models = sorted({normalize_model_name(v) for v in per_name_models.values() if v})
+                if len(unique_models) == 1:
+                    model = unique_models[0]
+                    src_urls = sorted(
+                        {
+                            u
+                            for nk in name_keys
+                            for u in rohm_urls_by_name.get(nk, set())
+                            if str(u or "").strip()
+                        }
+                    )
+                    resolved_rows.append(
+                        (
+                            int(person),
+                            model,
+                            (src_urls[0] if src_urls else args.list_url),
+                            "name_exact_mixed_person_unique",
+                            1,
+                            "manual_import_from_rohm_normal_list",
+                            now,
+                        )
+                    )
+                elif existing and existing.get("modelName"):
+                    resolved_rows.append(
+                        (
+                            int(person),
+                            existing["modelName"],
+                            existing.get("sourceUrl") or args.list_url,
+                            existing.get("sourceMethod") or "manual_update",
+                            1,
+                            existing.get("notes") or "mixed_personid_name_based",
+                            now,
+                        )
+                    )
+                # Mixed personId with per-name unique mapping is considered handled.
+                continue
+
         if len(cands) == 1:
             model, method, src = next(iter(cands))
             resolved_rows.append(
