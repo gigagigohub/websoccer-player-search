@@ -223,31 +223,6 @@ def load_rohm_name_model_map(cache_path: Path) -> dict[str, dict]:
     return out
 
 
-def load_rohm_name_firsthit_map(cache_path: Path) -> dict[str, dict]:
-    """
-    normalized-name -> first-hit model by cache traversal order.
-    """
-    if not cache_path.exists():
-        return {}
-    try:
-        payload = json.loads(cache_path.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
-    out: dict[str, dict] = {}
-    for rec in payload.get("records", []):
-        name = normalize_name(rec.get("name") or "")
-        if not name or name in out:
-            continue
-        model = dedupe_model_name(normalize_model_name(rec.get("modelName") or ""))
-        if not model:
-            continue
-        out[name] = {
-            "model": model,
-            "url": str(rec.get("url") or "").strip(),
-        }
-    return out
-
-
 def to_grid(param: dict, is_gk: bool):
     r = lambda n: to_int(param.get(f"ZR{n}", 0))
     gk_left = r(13) if is_gk else None
@@ -362,7 +337,6 @@ def build_players(
     conn: sqlite3.Connection,
     fallback_players: dict[int, dict],
     rohm_name_model_map: dict[str, dict],
-    rohm_name_firsthit_map: dict[str, dict],
 ) -> list[dict]:
     conn.row_factory = sqlite3.Row
     nations = {
@@ -459,16 +433,6 @@ def build_players(
                     "isManual": True,
                     "notes": "mixed_personid_name_based_from_rohm_cache",
                 }
-            if not str(model_info.get("name") or "").strip():
-                first_hit = rohm_name_firsthit_map.get(player_name_norm)
-                if first_hit and first_hit.get("model"):
-                    model_info = {
-                        "name": first_hit.get("model") or "",
-                        "sourceMethod": "name_top_hit_websaka",
-                        "isManual": False,
-                        "notes": "auto_fallback_from_rohm_first_hit",
-                    }
-
             if manual:
                 category = manual["category"]
                 category_membership = manual["membership"]
@@ -681,13 +645,12 @@ def main() -> int:
 
     rohm_cache_path = Path(args.rohm_cache_json).expanduser().resolve()
     rohm_name_model_map = load_rohm_name_model_map(rohm_cache_path)
-    rohm_name_firsthit_map = load_rohm_name_firsthit_map(rohm_cache_path)
 
     conn = sqlite3.connect(str(master_db))
     conn.row_factory = sqlite3.Row
     try:
         generated_at = now_jst_iso()
-        players = build_players(conn, fallback_data, rohm_name_model_map, rohm_name_firsthit_map)
+        players = build_players(conn, fallback_data, rohm_name_model_map)
         scouts = build_scouts(conn)
         cm_events = build_cm_events(conn)
         coaches = build_coaches(conn, fallback_coaches)
