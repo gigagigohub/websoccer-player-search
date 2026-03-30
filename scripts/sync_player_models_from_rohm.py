@@ -463,7 +463,14 @@ def main() -> int:
             for r in site_rows
             if str(r.get("name") or "").strip()
         )
+        is_white_nr_only = all(
+            str(r.get("category") or "") == "NR" and int(r.get("rate") or 0) <= 3
+            for r in site_rows
+        )
         if all_blank_model and unique_name:
+            excluded_by_no_model_rule.append(person)
+            continue
+        if is_white_nr_only:
             excluded_by_no_model_rule.append(person)
             continue
         filtered_unresolved.append(item)
