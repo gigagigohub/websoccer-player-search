@@ -32,6 +32,21 @@ def parse_args() -> argparse.Namespace:
         default=str(Path.home() / "Desktop" / "websoccer_master_db" / "wsm_2603292024.sqlite3"),
     )
     p.add_argument("--list-url", default=LIST_URL)
+    p.add_argument(
+        "--rohm-cache-json",
+        default=str(Path.cwd() / "app" / "prepared" / "rohm_player_pages_cache.json"),
+        help="Cached scraped player pages from sp.rohm.websoccer.info",
+    )
+    p.add_argument(
+        "--refresh-cache",
+        action="store_true",
+        help="Force re-scrape and overwrite --rohm-cache-json.",
+    )
+    p.add_argument(
+        "--cache-only",
+        action="store_true",
+        help="Use only --rohm-cache-json (no network scraping).",
+    )
     p.add_argument("--timeout-sec", type=float, default=15.0)
     p.add_argument("--delay-sec", type=float, default=0.0)
     p.add_argument("--max-pages", type=int, default=0, help="0 means auto (follow pager max)")
@@ -44,8 +59,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--scan-player-id-max",
         type=int,
-        default=0,
-        help="If > 0, also scan /player/{id} pages up to this ID to avoid list-url omissions.",
+        default=5000,
+        help="Scan /player/{id} pages up to this ID (full source collection).",
     )
     p.add_argument(
         "--unresolved-out",
@@ -192,6 +207,7 @@ def scan_player_pages_by_id(
     start_id: int,
     max_id: int,
     existing_ids: set[int] | None = None,
+    valid_norm_names: set[str] | None = None,
     delay_sec: float = 0.0,
 ) -> Dict[int, Dict[str, str]]:
     out: Dict[int, Dict[str, str]] = {}
@@ -215,6 +231,11 @@ def scan_player_pages_by_id(
         if "WEBサカWIKI" not in text:
             continue
         rec = parse_player_page_record(text, url, pid, "")
+        norm_name = normalize_name(rec.get("name") or "")
+        # Guardrail: keep only pages whose site player-name can be matched
+        # against master DB player-name normalization.
+        if valid_norm_names is not None and norm_name not in valid_norm_names:
+            continue
         # Keep pages that at least expose modelName.
         if rec.get("modelName"):
             out[pid] = rec
@@ -223,6 +244,69 @@ def scan_player_pages_by_id(
         if checked % 300 == 0:
             print(f"[SCAN] checked={checked}/{total} found={len(out)}", flush=True)
     print(f"[SCAN] done checked={checked}/{total} found={len(out)}", flush=True)
+    return out
+
+
+def collect_player_pages_full_scan(
+    session: requests.Session,
+    timeout: float,
+    start_id: int,
+    max_id: int,
+    delay_sec: float = 0.0,
+) -> Dict[int, Dict[str, str]]:
+    out: Dict[int, Dict[str, str]] = {}
+    total = max(0, max_id - start_id + 1)
+    for i, pid in enumerate(range(start_id, max_id + 1), start=1):
+        url = f"{BASE_URL}/player/{pid}"
+        try:
+            r = session.get(url, timeout=timeout)
+        except Exception:
+            continue
+        if r.status_code != 200:
+            continue
+        text = r.content.decode("utf-8", errors="ignore")
+        if "WEBサカWIKI" not in text:
+            continue
+        rec = parse_player_page_record(text, url, pid, "")
+        if not rec.get("name") or not rec.get("modelName"):
+            continue
+        out[pid] = rec
+        if delay_sec > 0:
+            time.sleep(delay_sec)
+        if i % 300 == 0:
+            print(f"[FULLSCAN] checked={i}/{total} found={len(out)}", flush=True)
+    print(f"[FULLSCAN] done checked={total}/{total} found={len(out)}", flush=True)
+    return out
+
+
+def save_rohm_cache(path: Path, records: Dict[int, Dict[str, str]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "generatedAt": now_jst_iso(),
+        "count": len(records),
+        "records": [records[k] for k in sorted(records)],
+    }
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def load_rohm_cache(path: Path) -> Dict[int, Dict[str, str]]:
+    obj = json.loads(path.read_text(encoding="utf-8"))
+    out: Dict[int, Dict[str, str]] = {}
+    for rec in obj.get("records", []):
+        try:
+            pid = int(rec.get("playerId") or 0)
+        except Exception:
+            pid = 0
+        if pid <= 0:
+            continue
+        out[pid] = {
+            "playerId": pid,
+            "name": str(rec.get("name") or "").strip(),
+            "url": str(rec.get("url") or "").strip(),
+            "modelName": str(rec.get("modelName") or "").strip(),
+            "nation": str(rec.get("nation") or "").strip(),
+            "position": str(rec.get("position") or "").strip(),
+        }
     return out
 
 
@@ -311,43 +395,36 @@ def main() -> int:
     if not db_path.exists():
         raise FileNotFoundError(f"master db not found: {db_path}")
 
-    session = requests.Session()
-    session.headers.update({"User-Agent": "Mozilla/5.0"})
-
-    player_links = collect_player_links(session, args.list_url, args.timeout_sec, args.max_pages)
-    rohm_records: Dict[int, Dict[str, str]] = {}
-
-    ids = sorted(player_links)
-    for i, pid in enumerate(ids, start=1):
-        rec = dict(player_links[pid])
-        url = rec["url"]
-        try:
-            html = fetch_html(session, url, args.timeout_sec)
-            rohm_records[pid] = parse_player_page_record(html, url, pid, rec.get("name") or "")
-        except Exception as e:
-            print(f"[WARN] detail fail player_id={pid}: {e}", flush=True)
-        if i % 100 == 0 or i == len(ids):
-            print(f"[DETAIL] {i}/{len(ids)}", flush=True)
-
-    if args.scan_player_id_max > 0:
-        scanned = scan_player_pages_by_id(
-            session,
-            args.timeout_sec,
-            max(1, int(args.scan_player_id_start)),
-            int(args.scan_player_id_max),
-            set(rohm_records.keys()),
-            args.delay_sec,
-        )
-        for pid, rec in scanned.items():
-            if pid not in rohm_records:
-                rohm_records[pid] = rec
-        print(f"[MERGE] records after scan: {len(rohm_records)}", flush=True)
-
     conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row
     ensure_table(conn)
 
     players = load_master_players(conn)
+    session = requests.Session()
+    session.headers.update({"User-Agent": "Mozilla/5.0"})
+    cache_path = Path(args.rohm_cache_json).expanduser().resolve()
+
+    rohm_records: Dict[int, Dict[str, str]] = {}
+    if cache_path.exists() and not args.refresh_cache:
+        rohm_records = load_rohm_cache(cache_path)
+        print(f"[CACHE] loaded {len(rohm_records)} records: {cache_path}", flush=True)
+    else:
+        if args.cache_only and not cache_path.exists():
+            raise FileNotFoundError(f"--cache-only specified but cache not found: {cache_path}")
+        if args.cache_only and cache_path.exists():
+            rohm_records = load_rohm_cache(cache_path)
+            print(f"[CACHE] loaded {len(rohm_records)} records: {cache_path}", flush=True)
+        else:
+            rohm_records = collect_player_pages_full_scan(
+                session,
+                args.timeout_sec,
+                max(1, int(args.scan_player_id_start)),
+                int(args.scan_player_id_max),
+                args.delay_sec,
+            )
+            save_rohm_cache(cache_path, rohm_records)
+            print(f"[CACHE] wrote {len(rohm_records)} records: {cache_path}", flush=True)
+
     players_by_id = {p["playerId"]: p for p in players}
     person_players = defaultdict(list)
     for p in players:
