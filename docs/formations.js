@@ -3,7 +3,7 @@ const SUPABASE_TABLE = "lineup_states";
 const LINEUP_SIZE = 11;
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-28 18:26 JST";
+const APP_UPDATED_AT_JST = "2026-03-30 19:44 JST";
 const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-player-search/commits/main";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 const METRICS = [
@@ -103,6 +103,11 @@ const els = {
   coachClose: document.querySelector("#coachClose"),
   coachTitle: document.querySelector("#coachTitle"),
   coachDetail: document.querySelector("#coachDetail"),
+  matchupModal: document.querySelector("#matchupModal"),
+  matchupBackdrop: document.querySelector("#matchupBackdrop"),
+  matchupClose: document.querySelector("#matchupClose"),
+  matchupTitle: document.querySelector("#matchupTitle"),
+  matchupDetail: document.querySelector("#matchupDetail"),
   playerCardModal: document.querySelector("#playerCardModal"),
   playerCardBackdrop: document.querySelector("#playerCardBackdrop"),
   playerCardClose: document.querySelector("#playerCardClose"),
@@ -1069,6 +1074,7 @@ function periodTableHtml(player, staticImg, actionImg) {
 
 function profileViewHtml(player, staticImg, actionImg) {
   const nationality = player.nationality || (player.nationId != null ? `国籍ID:${player.nationId}` : "-");
+  const modelPlayer = (player.modelPlayer || "").trim() || "-";
   const playType = player.playType || "-";
   const height = Number(player.height);
   const weight = Number(player.weight);
@@ -1083,6 +1089,7 @@ function profileViewHtml(player, staticImg, actionImg) {
         </div>
         <div class="profile-side">
           <div class="profile-item"><span class="k">国籍</span><span class="v">${nationality}</span></div>
+          <div class="profile-item"><span class="k">モデル</span><span class="v">${modelPlayer}</span></div>
           <div class="profile-item"><span class="k">身長体重</span><span class="v">${hwText}</span></div>
           <div class="profile-item"><span class="k">タイプ</span><span class="v">${playType}</span></div>
         </div>
@@ -1432,6 +1439,7 @@ function openFormationModal(formation) {
           <h3>CC Stats</h3>
           <p>Usage: ${pct(formation.cc.usageRate)} (${formation.cc.uses})</p>
           <p>Win: ${pct(formation.cc.winRate)} (${formation.cc.wins}/${formation.cc.uses || 0})</p>
+          <button type="button" class="formation-matchups-btn" data-open-matchups="${formation.id}">View Formation Matchups</button>
         </div>
       </div>
     </div>
@@ -1469,6 +1477,62 @@ function openFormationModal(formation) {
     </div>
   `;
   els.formationModal.hidden = false;
+}
+
+function matchupRowsHtml(rows = []) {
+  if (!Array.isArray(rows) || !rows.length) return `<p class="dim">No statistically significant matchup yet.</p>`;
+  return `
+    <div class="matchup-table-wrap">
+      <table class="matchup-table">
+        <thead>
+          <tr><th>Formation</th><th>Win</th><th>Δ</th><th>N</th></tr>
+        </thead>
+        <tbody>
+          ${rows.map((row) => {
+            const f = formations.find((x) => Number(x?.id) === Number(row?.formationId));
+            const y = formatFormationYearLabel(f?.year, f?.stride);
+            const name = f ? `${f.name}${y ? ` ${y}` : ""}` : `Formation ${row?.formationId}`;
+            const delta = Number(row?.delta || 0);
+            return `
+              <tr>
+                <td><button type="button" class="inline-pill matchup-formation-link" data-formation-id="${row?.formationId}">${name}</button></td>
+                <td>${pct(row?.winRate)} <span class="dim">(${row?.wins}/${row?.matches})</span></td>
+                <td class="${delta >= 0 ? "matchup-pos" : "matchup-neg"}">${delta >= 0 ? "+" : ""}${(delta * 100).toFixed(1)}pt</td>
+                <td>${row?.matches}</td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function openMatchupModal(formation) {
+  if (!formation || !els.matchupModal || !els.matchupTitle || !els.matchupDetail) return;
+  const y = formatFormationYearLabel(formation.year, formation.stride);
+  els.matchupTitle.textContent = `${formation.name}${y ? ` ${y}` : ""} Matchups`;
+  const m = formation.matchups || {};
+  const criteria = m.criteria || {};
+  els.matchupDetail.innerHTML = `
+    <div class="formation-block">
+      <h3>Strong Against</h3>
+      ${matchupRowsHtml(m.strongAgainst)}
+    </div>
+    <div class="formation-block">
+      <h3>Weak Against</h3>
+      ${matchupRowsHtml(m.weakAgainst)}
+    </div>
+    <p class="dim matchup-criteria">
+      Filter: N ≥ ${Number(criteria.minMatches || 0)}, |Δ| ≥ ${((Number(criteria.minAbsDelta || 0)) * 100).toFixed(1)}pt, |z| ≥ ${Number(criteria.minAbsZScore || 0)}
+    </p>
+  `;
+  els.matchupModal.hidden = false;
+}
+
+function closeMatchupModal() {
+  if (!els.matchupModal) return;
+  els.matchupModal.hidden = true;
 }
 
 function closeFormationModal() {
@@ -1718,6 +1782,13 @@ function bindEvents() {
         }
         return;
       }
+      const matchupBtn = e.target.closest("[data-open-matchups]");
+      if (matchupBtn) {
+        const fid = Number(matchupBtn.dataset.openMatchups);
+        const f = formations.find((x) => Number(x?.id) === fid);
+        if (f) openMatchupModal(f);
+        return;
+      }
       const slotBtn = e.target.closest("[data-slot]");
       if (!slotBtn) return;
       const slot = Number(slotBtn.dataset.slot);
@@ -1732,6 +1803,8 @@ function bindEvents() {
   if (els.slotClose) els.slotClose.addEventListener("click", closeSlotModal);
   if (els.coachBackdrop) els.coachBackdrop.addEventListener("click", closeCoachModal);
   if (els.coachClose) els.coachClose.addEventListener("click", closeCoachModal);
+  if (els.matchupBackdrop) els.matchupBackdrop.addEventListener("click", closeMatchupModal);
+  if (els.matchupClose) els.matchupClose.addEventListener("click", closeMatchupModal);
   if (els.playerCardBackdrop) els.playerCardBackdrop.addEventListener("click", closePlayerCardModal);
   if (els.playerCardClose) els.playerCardClose.addEventListener("click", closePlayerCardModal);
 
@@ -1790,9 +1863,23 @@ function bindEvents() {
     closeSignupModal();
     closeFormationModal();
     closeCoachModal();
+    closeMatchupModal();
     closeSlotModal();
     closePlayerCardModal();
   });
+
+  if (els.matchupDetail) {
+    els.matchupDetail.addEventListener("click", (e) => {
+      const fbtn = e.target.closest("[data-formation-id]");
+      if (!fbtn) return;
+      const fid = Number(fbtn.dataset.formationId);
+      if (!Number.isInteger(fid)) return;
+      const f = formations.find((x) => Number(x?.id) === fid);
+      if (!f) return;
+      closeMatchupModal();
+      openFormationModal(f);
+    });
+  }
 }
 
 async function init() {

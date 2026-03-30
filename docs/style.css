@@ -2531,6 +2531,61 @@ button.ghost {
   font-size: 14px;
 }
 
+.formation-cc-block {
+  min-height: 142px;
+}
+
+.formation-matchups-btn {
+  margin-top: 8px;
+  width: 100%;
+  border: 1px solid var(--line-soft);
+  background: linear-gradient(180deg, #283f6e 0%, #1b2f58 100%);
+  color: var(--text-main);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.formation-matchups-btn:hover {
+  filter: brightness(1.05);
+}
+
+.matchup-table-wrap {
+  overflow: auto;
+}
+
+.matchup-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.matchup-table th,
+.matchup-table td {
+  border: 1px solid var(--line-soft);
+  padding: 6px 8px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.matchup-table td .inline-pill {
+  font-size: 11px;
+}
+
+.matchup-pos {
+  color: #70e58b;
+}
+
+.matchup-neg {
+  color: #ff8b8b;
+}
+
+.matchup-criteria {
+  margin-top: 8px;
+  font-size: 11px;
+}
+
 .formation-param-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -3162,7 +3217,8 @@ button.ghost {
 
 /* Keep SCR right-side profile block inside card bounds on My Team modal. */
 .myteam-page #playerCardHost .profile-view .profile-side {
-  width: min(var(--profile-side-width, 168px), calc(100% - 116px));
+  width: min(var(--profile-side-width, 168px), calc(100% - 124px));
   min-width: 0;
-  max-width: calc(100% - 116px);
+  max-width: calc(100% - 124px);
+  overflow: hidden;
 }

@@ -33,7 +33,7 @@ const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
 const APP_UPDATED_AT_ISO = "2026-03-26T21:53:00+09:00";
-const APP_UPDATED_AT_JST = "2026-03-28 18:26 JST";
+const APP_UPDATED_AT_JST = "2026-03-30 19:44 JST";
 const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-player-search/commits/main";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
@@ -853,6 +853,11 @@ function normalizedPlayerSearchName(player) {
   return toHiragana(`${base}${ruby}`.toLowerCase());
 }
 
+function normalizedModelSearchName(player) {
+  const model = String(player?.modelPlayer || "");
+  return toHiragana(model.toLowerCase());
+}
+
 function hideNameSuggest() {
   if (!els.nameSuggest) return;
   els.nameSuggest.hidden = true;
@@ -864,16 +869,21 @@ function getNameSuggestions(rawQuery, limit = 3) {
   if (!query) return [];
   const seenName = new Set();
   const seenType = new Set();
+  const seenModel = new Set();
   const nameHits = [];
   const typeHits = [];
+  const modelHits = [];
   for (const player of players) {
     const name = String(player?.name || "");
     const type = String(player?.playType || "");
+    const model = String(player?.modelPlayer || "");
     if (!name) continue;
     const norm = normalizedPlayerSearchName(player);
     const typeNorm = toHiragana(type.toLowerCase());
+    const modelNorm = normalizedModelSearchName(player);
     const nameIdx = norm.indexOf(query);
     const typeIdx = typeNorm.indexOf(query);
+    const modelIdx = modelNorm.indexOf(query);
     if (nameIdx >= 0 && !seenName.has(name)) {
       seenName.add(name);
       const score = nameIdx === 0 ? 0 : (nameIdx + 1);
@@ -884,12 +894,26 @@ function getNameSuggestions(rawQuery, limit = 3) {
       const score = typeIdx === 0 ? 0 : (typeIdx + 1);
       typeHits.push({ value: type, score, len: type.length });
     }
+    if (model && modelIdx >= 0 && !seenModel.has(model)) {
+      seenModel.add(model);
+      const score = modelIdx === 0 ? 0 : (modelIdx + 1);
+      modelHits.push({ value: model, score, len: model.length });
+    }
   }
   const sorter = (a, b) => a.score - b.score || a.len - b.len || a.value.localeCompare(b.value, "ja");
   nameHits.sort(sorter);
   typeHits.sort(sorter);
-  if (typeHits.length > 0) return typeHits.slice(0, limit).map((x) => x.value);
-  return nameHits.slice(0, limit).map((x) => x.value);
+  modelHits.sort(sorter);
+  const merged = [];
+  const seen = new Set();
+  [nameHits, typeHits, modelHits].forEach((arr) => {
+    arr.forEach((x) => {
+      if (seen.has(x.value)) return;
+      seen.add(x.value);
+      merged.push(x);
+    });
+  });
+  return merged.slice(0, limit).map((x) => x.value);
 }
 
 function updateNameSuggest() {
@@ -1411,7 +1435,8 @@ function filterPlayers(conditions = getConditions()) {
     const category = getCategory(player);
     const playerName = normalizedPlayerSearchName(player);
     const playerType = toHiragana((player.playType || "").toLowerCase());
-    if (query && !playerName.includes(query) && !playerType.includes(query)) {
+    const playerModel = normalizedModelSearchName(player);
+    if (query && !playerName.includes(query) && !playerType.includes(query) && !playerModel.includes(query)) {
       return false;
     }
     if (positionFilter && player.position !== positionFilter) {
@@ -1571,6 +1596,7 @@ function positionHeatmapsHtml(player) {
 
 function profileViewHtml(player, staticImg, actionImg) {
   const nationality = player.nationality || (player.nationId != null ? `国籍ID:${player.nationId}` : "-");
+  const modelPlayer = (player.modelPlayer || "").trim() || "-";
   const playType = player.playType || "-";
   const height = Number(player.height);
   const weight = Number(player.weight);
@@ -1586,6 +1612,7 @@ function profileViewHtml(player, staticImg, actionImg) {
         </div>
         <div class="profile-side">
           <div class="profile-item"><span class="k">国籍</span><span class="v">${nationality}</span></div>
+          <div class="profile-item"><span class="k">モデル</span><span class="v">${modelPlayer}</span></div>
           <div class="profile-item"><span class="k">身長体重</span><span class="v">${hwText}</span></div>
           <div class="profile-item"><span class="k">タイプ</span><span class="v">${playType}</span></div>
         </div>

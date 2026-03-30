@@ -3,7 +3,7 @@ const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
-const APP_UPDATED_AT_JST = "2026-03-28 18:26 JST";
+const APP_UPDATED_AT_JST = "2026-03-30 19:44 JST";
 const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-player-search/commits/main";
 const STARTING_LINEUP_SIZE = 11;
 const RESERVE_LINEUP_SIZE = 5;
@@ -1561,6 +1561,7 @@ function periodTableHtml(player, staticImg, actionImg, currentSeason) {
 
 function profileViewHtml(player, staticImg, actionImg) {
   const nationality = player.nationality || (player.nationId != null ? `国籍ID:${player.nationId}` : "-");
+  const modelPlayer = (player.modelPlayer || "").trim() || "-";
   const playType = player.playType || "-";
   const height = Number(player.height);
   const weight = Number(player.weight);
@@ -1576,6 +1577,7 @@ function profileViewHtml(player, staticImg, actionImg) {
         </div>
         <div class="profile-side">
           <div class="profile-item"><span class="k">国籍</span><span class="v">${nationality}</span></div>
+          <div class="profile-item"><span class="k">モデル</span><span class="v">${modelPlayer}</span></div>
           <div class="profile-item"><span class="k">身長体重</span><span class="v">${hwText}</span></div>
           <div class="profile-item"><span class="k">タイプ</span><span class="v">${playType}</span></div>
         </div>

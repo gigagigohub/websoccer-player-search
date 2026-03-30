@@ -2,6 +2,7 @@
 import argparse
 import csv
 import json
+import math
 import sqlite3
 from collections import defaultdict
 from pathlib import Path
@@ -369,6 +370,7 @@ def build_data(src):
     coach_use_count = defaultdict(int)  # (formation, coach) -> use count
     coach_pts_sum = defaultdict(float)  # (formation, coach) -> sum pts
     coach_name_by_id = {}
+    match_rows_by_key = defaultdict(list)
 
     for row in team_rows:
         fid = to_int(row.get("formation_id"))
@@ -386,6 +388,8 @@ def build_data(src):
             if pts is not None:
                 coach_pts_sum[key] += pts
             coach_name_by_id[cid] = row.get("headcoach_name") or coach_by_id.get(cid, {}).get("name") or str(cid)
+        mkey = (to_int(row.get("season")), to_int(row.get("world_id")), to_int(row.get("match_id")))
+        match_rows_by_key[mkey].append(row)
 
     # Slot usage and pts by (formation, slot, player)
     formation_slot_total = defaultdict(int)
@@ -445,6 +449,79 @@ def build_data(src):
     for fid in coach_stats:
         coach_stats[fid].sort(key=lambda x: (-x["usageRate"], -x["uses"], -x["avgPts"], x["coachId"]))
 
+    # Formation vs formation matchup stats (with significance filter).
+    # We test uplift/downlift of formation win rate against each opponent
+    # vs the formation's global win rate.
+    matchup_raw = defaultdict(lambda: defaultdict(lambda: {"matches": 0, "wins": 0}))
+    for rows in match_rows_by_key.values():
+        if len(rows) != 2:
+            continue
+        a, b = rows[0], rows[1]
+        fa = to_int(a.get("formation_id"))
+        fb = to_int(b.get("formation_id"))
+        if fa <= 0 or fb <= 0:
+            continue
+        ra = (a.get("result") or "").strip().upper()
+        rb = (b.get("result") or "").strip().upper()
+
+        matchup_raw[fa][fb]["matches"] += 1
+        matchup_raw[fb][fa]["matches"] += 1
+        if ra == "W":
+            matchup_raw[fa][fb]["wins"] += 1
+        if rb == "W":
+            matchup_raw[fb][fa]["wins"] += 1
+
+    min_matchups = 12
+    min_abs_delta = 0.06
+    min_abs_z = 1.96  # approx 95% two-sided z-threshold
+    matchup_stats = defaultdict(lambda: {"strongAgainst": [], "weakAgainst": []})
+
+    for fid, opp_map in matchup_raw.items():
+        uses = formation_team_counts[fid]
+        if uses <= 0:
+            continue
+        p0 = formation_win_counts[fid] / uses
+        strong = []
+        weak = []
+        for opp_id, stat in opp_map.items():
+            n = int(stat["matches"] or 0)
+            if n < min_matchups:
+                continue
+            wins = int(stat["wins"] or 0)
+            p_hat = wins / n if n else 0.0
+            delta = p_hat - p0
+            variance = (p0 * (1.0 - p0) / n) if n > 0 else 0.0
+            if variance <= 0:
+                continue
+            z = delta / math.sqrt(variance)
+            if abs(delta) < min_abs_delta or abs(z) < min_abs_z:
+                continue
+            row = {
+                "formationId": int(opp_id),
+                "matches": n,
+                "wins": wins,
+                "winRate": round(p_hat, 6),
+                "overallWinRate": round(p0, 6),
+                "delta": round(delta, 6),
+                "zScore": round(z, 4),
+            }
+            if delta > 0:
+                strong.append(row)
+            else:
+                weak.append(row)
+
+        strong.sort(key=lambda x: (-x["delta"], -x["matches"], x["formationId"]))
+        weak.sort(key=lambda x: (x["delta"], -x["matches"], x["formationId"]))
+        matchup_stats[fid] = {
+            "strongAgainst": strong[:5],
+            "weakAgainst": weak[:5],
+            "criteria": {
+                "minMatches": min_matchups,
+                "minAbsDelta": min_abs_delta,
+                "minAbsZScore": min_abs_z,
+            },
+        }
+
     formations = []
     for fid in sorted(formation_by_id):
         f = formation_by_id[fid]
@@ -491,6 +568,7 @@ def build_data(src):
                 for slot in sorted(slot_stats[fid])
             },
             "coachStats": coach_stats[fid],
+            "matchups": matchup_stats[fid],
         }
         formations.append(f_item)
 

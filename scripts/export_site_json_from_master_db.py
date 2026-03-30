@@ -220,6 +220,25 @@ def build_players(conn: sqlite3.Connection, fallback_players: dict[int, dict]) -
         for r in conn.execute("SELECT * FROM ao__ZMOPLAYER").fetchall()
     }
 
+    model_map = {}
+    try:
+        model_rows = conn.execute(
+            "SELECT person_id, model_name, source_method, is_manual, notes FROM manual_player_model"
+        ).fetchall()
+        for row in model_rows:
+            person_id = to_int(row["person_id"], 0)
+            if person_id <= 0:
+                continue
+            model_map[person_id] = {
+                "name": row["model_name"] or "",
+                "sourceMethod": row["source_method"] or "",
+                "isManual": bool(to_int(row["is_manual"], 0)),
+                "notes": row["notes"] or "",
+            }
+    except sqlite3.OperationalError:
+        # Compatibility for older DB snapshots without manual_player_model.
+        model_map = {}
+
     params_by_player = defaultdict(list)
     for row in conn.execute("SELECT * FROM ao__ZMOPLAYERSPARAM").fetchall():
         pid = to_int(row["ZPLAYER_ID"])
@@ -253,6 +272,8 @@ def build_players(conn: sqlite3.Connection, fallback_players: dict[int, dict]) -
             nation_id = to_int(core.get("ZNATION_ID", 0))
             nation_name = nations.get(nation_id) or f"国籍ID:{nation_id}"
             info = infos.get(to_int(core.get("ZINFO", 0)), {"playType": "", "description": ""})
+            person_id = to_int(core.get("ZPERSON_ID", 0))
+            model_info = model_map.get(person_id, {})
 
             if manual:
                 category = manual["category"]
@@ -292,6 +313,11 @@ def build_players(conn: sqlite3.Connection, fallback_players: dict[int, dict]) -
                     "weight": to_int(core.get("ZWEIGHT", 0)),
                     "description": info.get("description") or "",
                     "nameRuby": core.get("ZNAMERUBY") or "",
+                    "personId": person_id,
+                    "modelPlayer": model_info.get("name", ""),
+                    "modelPlayerManual": bool(model_info.get("isManual", False)),
+                    "modelPlayerSourceMethod": model_info.get("sourceMethod", ""),
+                    "modelPlayerSourceNote": model_info.get("notes", ""),
                 }
             )
         else:
@@ -304,6 +330,11 @@ def build_players(conn: sqlite3.Connection, fallback_players: dict[int, dict]) -
             membership = fb.get("categoryMembership") or [fb.get("category", "NR")]
             fb["flags"] = {"CM": "CM" in membership, "SS": "SS" in membership}
             fb.setdefault("nameRuby", "")
+            fb.setdefault("personId", 0)
+            fb.setdefault("modelPlayer", "")
+            fb.setdefault("modelPlayerManual", False)
+            fb.setdefault("modelPlayerSourceMethod", "")
+            fb.setdefault("modelPlayerSourceNote", "")
             out.append(fb)
 
     out.sort(key=lambda x: to_int(x.get("id"), 0))
