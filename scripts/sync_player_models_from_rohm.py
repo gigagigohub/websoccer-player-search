@@ -9,7 +9,6 @@ import sqlite3
 import time
 import unicodedata
 from collections import defaultdict
-from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Dict, List, Tuple
 from urllib.parse import urljoin
@@ -723,46 +722,32 @@ def main() -> int:
             )
             continue
 
-        # Suggest candidates by nation + name similarity.
+        # Strict top-hit candidate by exact player-name match (cache order surrogate).
+        # If the top-hit page has blank model, keep unresolved with no candidate.
         p0 = sorted(plist, key=lambda x: x["playerId"])[0]
         base_name = p0.get("name") or ""
         base_norm = normalize_name(base_name)
-        base_nation = (p0.get("nation") or "").strip()
-        scored = []
+        top = []
         for rec in rohm_records.values():
+            name_norm = normalize_name(rec.get("name") or "")
+            if name_norm != base_norm:
+                continue
             model = (rec.get("modelName") or "").strip()
             if not model:
-                continue
-            name = rec.get("name") or ""
-            name_norm = normalize_name(name)
-            sim = SequenceMatcher(None, base_norm, name_norm).ratio()
-            score = sim * 10.0
-            if base_nation and rec.get("nation") and base_nation == rec.get("nation"):
-                score += 3.0
-            if base_norm and base_norm in name_norm:
-                score += 2.0
-            scored.append((score, rec))
-        scored.sort(key=lambda x: x[0], reverse=True)
-        top = []
-        seen = set()
-        for score, rec in scored:
-            key = (rec.get("name"), rec.get("modelName"))
-            if key in seen:
-                continue
-            seen.add(key)
-            top.append(
+                top = []
+                break
+            top = [
                 {
-                    "score": round(score, 3),
+                    "score": 1.0,
                     "rohmPlayerId": rec.get("playerId"),
                     "name": rec.get("name"),
                     "nation": rec.get("nation"),
                     "position": rec.get("position"),
-                    "modelName": rec.get("modelName"),
+                    "modelName": model,
                     "sourceUrl": rec.get("url"),
                 }
-            )
-            if len(top) >= 5:
-                break
+            ]
+            break
         unresolved.append(
             {
                 "personId": person,
