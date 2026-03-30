@@ -485,6 +485,19 @@ def main() -> int:
     ensure_table(conn)
 
     players = load_master_players(conn)
+    existing_manual_map: Dict[int, Dict[str, str]] = {}
+    for r in conn.execute(
+        "SELECT person_id, model_name, source_url, source_method, notes FROM manual_player_model"
+    ):
+        person_id = int(r["person_id"] or 0)
+        if person_id <= 0:
+            continue
+        existing_manual_map[person_id] = {
+            "modelName": normalize_model_name(str(r["model_name"] or "").strip()),
+            "sourceUrl": str(r["source_url"] or "").strip(),
+            "sourceMethod": str(r["source_method"] or "").strip(),
+            "notes": str(r["notes"] or "").strip(),
+        }
     session = requests.Session()
     session.headers.update({"User-Agent": "Mozilla/5.0"})
     cache_path = Path(args.rohm_cache_json).expanduser().resolve()
@@ -554,6 +567,7 @@ def main() -> int:
 
     for person, plist in sorted(person_players.items()):
         cands = person_model_candidates.get(person, set())
+        existing = existing_manual_map.get(int(person))
         if len(cands) == 1:
             model, method, src = next(iter(cands))
             resolved_rows.append(
@@ -569,6 +583,29 @@ def main() -> int:
             )
             continue
         if len(cands) > 1:
+            # If this person already has a manual mapping and it matches one candidate,
+            # prefer the existing manual mapping and do not keep as unresolved.
+            if existing and existing.get("modelName"):
+                ex_key = model_compact_key(existing["modelName"])
+                picked = None
+                for (m, meth, src) in sorted(cands):
+                    if model_compact_key(m) == ex_key:
+                        picked = (m, meth, src)
+                        break
+                if picked is not None:
+                    m, meth, src = picked
+                    resolved_rows.append(
+                        (
+                            int(person),
+                            m,
+                            src or existing.get("sourceUrl") or args.list_url,
+                            existing.get("sourceMethod") or meth or "manual_update",
+                            1,
+                            existing.get("notes") or "manual_import_from_rohm_normal_list",
+                            now,
+                        )
+                    )
+                    continue
             unresolved.append(
                 {
                     "personId": person,
@@ -591,6 +628,23 @@ def main() -> int:
                         for (m, meth, src) in sorted(cands)
                     ],
                 }
+            )
+            continue
+
+        # No candidate from current scrape, but manual mapping already exists.
+        # Keep existing mapping to avoid repeatedly surfacing solved manual cases
+        # as unresolved.
+        if existing and existing.get("modelName"):
+            resolved_rows.append(
+                (
+                    int(person),
+                    existing["modelName"],
+                    existing.get("sourceUrl") or args.list_url,
+                    existing.get("sourceMethod") or "manual_update",
+                    1,
+                    existing.get("notes") or "manual_import_from_rohm_normal_list",
+                    now,
+                )
             )
             continue
 
