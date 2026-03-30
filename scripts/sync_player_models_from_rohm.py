@@ -666,6 +666,21 @@ def main() -> int:
                         )
                     )
                     continue
+                # User-confirmed manual mapping should win even when source-side
+                # candidate spellings are different.
+                if existing.get("sourceMethod") == "manual_user_confirmed":
+                    resolved_rows.append(
+                        (
+                            int(person),
+                            existing["modelName"],
+                            existing.get("sourceUrl") or args.list_url,
+                            existing.get("sourceMethod") or "manual_update",
+                            1,
+                            existing.get("notes") or "manual_import_from_rohm_normal_list",
+                            now,
+                        )
+                    )
+                    continue
             unresolved.append(
                 {
                     "personId": person,
@@ -766,61 +781,9 @@ def main() -> int:
             }
         )
 
-    # Enforce: one model_name must map to exactly one person_id.
-    # Keep the strongest person candidate for each model:
-    #  1) more variants/rows in master player table
-    #  2) larger max player_id
-    #  3) larger person_id
-    person_strength: Dict[int, Tuple[int, int, int]] = {}
-    for person, plist in person_players.items():
-        player_ids = [int(p["playerId"]) for p in plist if int(p.get("playerId") or 0) > 0]
-        person_strength[int(person)] = (
-            len(player_ids),
-            max(player_ids) if player_ids else 0,
-            int(person),
-        )
-
-    grouped_by_model: Dict[str, List[Tuple[int, str, str, str, int, str, str]]] = defaultdict(list)
-    for row in resolved_rows:
-        grouped_by_model[row[1]].append(row)
-
-    deduped_rows: List[Tuple[int, str, str, str, int, str, str]] = []
-    for model_name, rows in grouped_by_model.items():
-        if len(rows) == 1:
-            deduped_rows.extend(rows)
-            continue
-        rows_sorted = sorted(
-            rows,
-            key=lambda r: person_strength.get(int(r[0]), (0, 0, int(r[0]))),
-            reverse=True,
-        )
-        keep = rows_sorted[0]
-        deduped_rows.append(keep)
-        for dropped in rows_sorted[1:]:
-            unresolved.append(
-                {
-                    "personId": int(dropped[0]),
-                    "players": [
-                        {
-                            "playerId": p["playerId"],
-                            "name": p["name"],
-                            "nation": p["nation"],
-                            "playType": p["playType"],
-                        }
-                        for p in sorted(person_players.get(int(dropped[0]), []), key=lambda x: x["playerId"])
-                    ],
-                    "reason": "duplicate_model_name_across_multiple_persons_dropped",
-                    "candidates": [
-                        {
-                            "modelName": model_name,
-                            "keptPersonId": int(keep[0]),
-                            "droppedPersonId": int(dropped[0]),
-                        }
-                    ],
-                }
-            )
-
-    resolved_rows = deduped_rows
+    # Allow the same model_name to be mapped by multiple person_id rows.
+    # The game data contains mixed/non-unique person buckets, so forcing
+    # 1 model -> 1 person introduces false unresolved entries.
 
     # Exclude unresolved rows that are considered "no model exists" by site rule:
     # - modelPlayer is blank for the person in current site data
