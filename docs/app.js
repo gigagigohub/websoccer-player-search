@@ -33,7 +33,7 @@ const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
 const APP_UPDATED_AT_ISO = "2026-03-26T21:53:00+09:00";
-const APP_UPDATED_AT_JST = "2026-03-30 20:01 JST";
+const APP_UPDATED_AT_JST = "2026-03-30 20:02 JST";
 const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-player-search/commits/main";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 
@@ -1421,16 +1421,8 @@ function filterPlayers(conditions = getConditions()) {
     !!query && players.some((p) => normalizedModelSearchName(p) === query);
   const hasAnyModelIncludes =
     !!query && players.some((p) => normalizedModelSearchName(p).includes(query));
-  const hasAnyNameOrTypeIncludes =
-    !!query && players.some((p) => {
-      const name = normalizedPlayerSearchName(p);
-      const type = toHiragana((p.playType || "").toLowerCase());
-      return name.includes(query) || type.includes(query);
-    });
-  const modelPreferredMatch = !!query && hasAnyModelIncludes && !hasAnyNameOrTypeIncludes;
-  const shouldConstrainByModelRepresentative = hasExactModelMatch || modelPreferredMatch;
   const representativePersonIdByModel = new Map();
-  if (shouldConstrainByModelRepresentative) {
+  if (hasAnyModelIncludes) {
     const modelPersonStats = new Map();
     players.forEach((p) => {
       const modelNorm = normalizedModelSearchName(p);
@@ -1476,15 +1468,17 @@ function filterPlayers(conditions = getConditions()) {
     const playerType = toHiragana((player.playType || "").toLowerCase());
     const playerModel = normalizedModelSearchName(player);
     if (query) {
-      if (shouldConstrainByModelRepresentative) {
-        const modelMatched = hasExactModelMatch ? (playerModel === query) : playerModel.includes(query);
-        if (!modelMatched) return false;
+      const nameOrTypeMatched = playerName.includes(query) || playerType.includes(query);
+      const modelMatched = hasExactModelMatch ? (playerModel === query) : playerModel.includes(query);
+      if (!nameOrTypeMatched && !modelMatched) {
+        return false;
+      }
+      // モデル一致だけで引っかかる場合は、同一モデル内で代表 personId のみを残す。
+      if (modelMatched && !nameOrTypeMatched) {
         const rep = representativePersonIdByModel.get(playerModel);
         if (rep != null && Number(player?.personId || 0) !== rep) {
           return false;
         }
-      } else if (!playerName.includes(query) && !playerType.includes(query) && !playerModel.includes(query)) {
-        return false;
       }
     }
     if (positionFilter && player.position !== positionFilter) {
