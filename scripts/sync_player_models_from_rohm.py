@@ -785,14 +785,11 @@ def main() -> int:
     # The game data contains mixed/non-unique person buckets, so forcing
     # 1 model -> 1 person introduces false unresolved entries.
 
-    # Exclude unresolved rows that are considered "no model exists" by site rule:
-    # - modelPlayer is blank for the person in current site data
-    # - and that player name has no same-name variants
-    name_counts = defaultdict(int)
-    for p in players:
-        nm = str(p.get("name") or "").strip()
-        if nm:
-            name_counts[nm] += 1
+    # Exclude unresolved rows only for explicit "white NR only" rule.
+    # NOTE:
+    # We no longer hide blank-model unresolved persons just because
+    # same-name variants do not exist. This was making unresolved=0
+    # even when many players were still unmapped.
     person_site_rows = defaultdict(list)
     for p in players:
         person_site_rows[int(p.get("personId") or 0)].append(p)
@@ -805,19 +802,10 @@ def main() -> int:
         if not site_rows:
             filtered_unresolved.append(item)
             continue
-        all_blank_model = all(not str(r.get("modelPlayer") or "").strip() for r in site_rows)
-        unique_name = all(
-            name_counts.get(str(r.get("name") or "").strip(), 0) == 1
-            for r in site_rows
-            if str(r.get("name") or "").strip()
-        )
         is_white_nr_only = all(
             str(r.get("category") or "") == "NR" and int(r.get("rate") or 0) <= 3
             for r in site_rows
         )
-        if all_blank_model and unique_name:
-            excluded_by_no_model_rule.append(person)
-            continue
         if is_white_nr_only:
             excluded_by_no_model_rule.append(person)
             continue

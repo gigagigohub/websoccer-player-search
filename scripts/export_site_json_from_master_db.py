@@ -120,6 +120,59 @@ def normalize_model_name(text: str) -> str:
     return s
 
 
+def compact_model_token(text: str) -> str:
+    s = normalize_name(text or "")
+    s = unicodedata.normalize("NFKC", s)
+    return s
+
+
+def dedupe_model_name(text: str) -> str:
+    """
+    Collapse accidental duplicated patterns like:
+    - "ロイス マルコロイス" -> "マルコロイス"
+    - "中田 英寿 中田英寿" -> "中田 英寿"
+    while preserving legitimate multi-word names.
+    """
+    base = normalize_model_name(text)
+    if not base:
+        return ""
+    tokens = [t for t in base.split(" ") if t]
+    if len(tokens) <= 1:
+        return base
+
+    token_norms = [compact_model_token(t) for t in tokens]
+
+    # Pattern: first N tokens concatenation == last token (spaced + unspaced duplicate)
+    if len(tokens) >= 3:
+        last_n = token_norms[-1]
+        joined_prev_n = compact_model_token("".join(tokens[:-1]))
+        if last_n and joined_prev_n and last_n == joined_prev_n:
+            return " ".join(tokens[:-1])
+
+    # Remove tokens that are fully contained in another token.
+    keep = [True] * len(tokens)
+    for i in range(len(tokens)):
+        ni = token_norms[i]
+        if not ni:
+            continue
+        for j in range(len(tokens)):
+            if i == j:
+                continue
+            nj = token_norms[j]
+            if not nj:
+                continue
+            if ni != nj and ni in nj:
+                keep[i] = False
+                break
+
+    reduced = [tokens[i] for i, k in enumerate(keep) if k]
+    if not reduced:
+        return base
+    if len(reduced) == 1:
+        return reduced[0]
+    return " ".join(reduced)
+
+
 def load_rohm_name_model_map(cache_path: Path) -> dict[str, dict]:
     """
     Return normalized-name -> model info only for unique mappings.
@@ -402,7 +455,7 @@ def build_players(
                     "description": info.get("description") or "",
                     "nameRuby": core.get("ZNAMERUBY") or "",
                     "personId": person_id,
-                    "modelPlayer": model_info.get("name", ""),
+                    "modelPlayer": dedupe_model_name(model_info.get("name", "")),
                     "modelPlayerManual": bool(model_info.get("isManual", False)),
                     "modelPlayerSourceMethod": model_info.get("sourceMethod", ""),
                     "modelPlayerSourceNote": model_info.get("notes", ""),
