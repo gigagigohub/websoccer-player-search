@@ -368,6 +368,7 @@ def build_players(
     }
 
     model_map = {}
+    model_name_map = {}
     try:
         model_rows = conn.execute(
             "SELECT person_id, model_name, source_method, is_manual, notes FROM manual_player_model"
@@ -385,6 +386,24 @@ def build_players(
     except sqlite3.OperationalError:
         # Compatibility for older DB snapshots without manual_player_model.
         model_map = {}
+
+    try:
+        model_name_rows = conn.execute(
+            "SELECT player_name, model_name, source_method, is_manual, notes FROM manual_player_model_name"
+        ).fetchall()
+        for row in model_name_rows:
+            player_name_norm = normalize_name(row["player_name"] or "")
+            if not player_name_norm:
+                continue
+            model_name_map[player_name_norm] = {
+                "name": row["model_name"] or "",
+                "sourceMethod": row["source_method"] or "",
+                "isManual": bool(to_int(row["is_manual"], 0)),
+                "notes": row["notes"] or "",
+            }
+    except sqlite3.OperationalError:
+        # Compatibility for older DB snapshots without manual_player_model_name.
+        model_name_map = {}
 
     params_by_player = defaultdict(list)
     for row in conn.execute("SELECT * FROM ao__ZMOPLAYERSPARAM").fetchall():
@@ -433,6 +452,11 @@ def build_players(
                     "isManual": True,
                     "notes": "mixed_personid_name_based_from_rohm_cache",
                 }
+            # Highest priority: explicit manual mapping by in-game player name.
+            # This is needed for mixed/invalid personId buckets.
+            manual_name_based = model_name_map.get(player_name_norm)
+            if manual_name_based and manual_name_based.get("name"):
+                model_info = dict(manual_name_based)
             if manual:
                 category = manual["category"]
                 category_membership = manual["membership"]
@@ -491,6 +515,13 @@ def build_players(
                 fb["categoryMembership"] = manual["membership"]
             fb["name"] = normalize_japanese_name_spacing(fb.get("name", ""))
             fb["fullName"] = normalize_japanese_name_spacing(fb.get("fullName", ""))
+            fb_name_norm = normalize_name(fb.get("name", "") or fb.get("fullName", ""))
+            manual_name_based = model_name_map.get(fb_name_norm)
+            if manual_name_based and manual_name_based.get("name"):
+                fb["modelPlayer"] = manual_name_based.get("name", "")
+                fb["modelPlayerManual"] = bool(manual_name_based.get("isManual", False))
+                fb["modelPlayerSourceMethod"] = manual_name_based.get("sourceMethod", "")
+                fb["modelPlayerSourceNote"] = manual_name_based.get("notes", "")
             fb["modelPlayer"] = normalize_japanese_name_spacing(dedupe_model_name(fb.get("modelPlayer", "")))
             membership = fb.get("categoryMembership") or [fb.get("category", "NR")]
             fb["flags"] = {"CM": "CM" in membership, "SS": "SS" in membership}
