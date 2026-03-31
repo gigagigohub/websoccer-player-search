@@ -1417,8 +1417,6 @@ function updateCMFilterVisibility() {
 
 function filterPlayers(conditions = getConditions()) {
   const query = toHiragana(els.nameQuery.value.trim().toLowerCase());
-  const hasExactModelMatch =
-    !!query && players.some((p) => normalizedModelSearchName(p) === query);
   const positionFilter = els.positionFilter.value;
   const aptitudePosFilter = (els.aptitudePositionFilter?.value || "").toUpperCase();
   const aptitudeThreshold = els.aptitudeIncludeSix?.checked ? 6 : 7;
@@ -1439,10 +1437,10 @@ function filterPlayers(conditions = getConditions()) {
     const playerType = toHiragana((player.playType || "").toLowerCase());
     const playerModel = normalizedModelSearchName(player);
     if (query) {
-      const nameOrTypeMatched = playerName.includes(query) || playerType.includes(query);
-      // モデル選手検索は誤ヒットを避けるため完全一致のみ。
-      const modelMatched = hasExactModelMatch ? (playerModel === query) : false;
-      if (!nameOrTypeMatched && !modelMatched) {
+      const nameMatched = playerName === query;
+      const typeMatched = playerType === query;
+      const modelMatched = playerModel === query;
+      if (!nameMatched && !typeMatched && !modelMatched) {
         return false;
       }
     }
