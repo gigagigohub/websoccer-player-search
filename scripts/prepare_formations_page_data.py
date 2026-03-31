@@ -366,6 +366,9 @@ def build_data(src):
     # Team-level aggregate for usage/win rate and coach usage.
     formation_team_counts = defaultdict(int)
     formation_win_counts = defaultdict(int)
+    formation_goal_diff_sum = defaultdict(float)
+    formation_goal_diff_sq_sum = defaultdict(float)
+    formation_goal_diff_n = defaultdict(int)
     total_team_rows = 0
     coach_use_count = defaultdict(int)  # (formation, coach) -> use count
     coach_pts_sum = defaultdict(float)  # (formation, coach) -> sum pts
@@ -380,6 +383,13 @@ def build_data(src):
         formation_team_counts[fid] += 1
         if (row.get("result") or "").strip().upper() == "W":
             formation_win_counts[fid] += 1
+        gf = to_float(row.get("goals_for"), None)
+        ga = to_float(row.get("goals_against"), None)
+        if gf is not None and ga is not None:
+            gd = gf - ga
+            formation_goal_diff_sum[fid] += gd
+            formation_goal_diff_sq_sum[fid] += gd * gd
+            formation_goal_diff_n[fid] += 1
         cid = to_int(row.get("headcoach_id"))
         if cid > 0:
             key = (fid, cid)
@@ -450,9 +460,9 @@ def build_data(src):
         coach_stats[fid].sort(key=lambda x: (-x["usageRate"], -x["uses"], -x["avgPts"], x["coachId"]))
 
     # Formation vs formation matchup stats (with significance filter).
-    # We test uplift/downlift of formation win rate against each opponent
-    # vs the formation's global win rate.
-    matchup_raw = defaultdict(lambda: defaultdict(lambda: {"matches": 0, "wins": 0}))
+    # We test uplift/downlift of per-match goal difference against each
+    # opponent vs the formation's global per-match goal difference.
+    matchup_raw = defaultdict(lambda: defaultdict(lambda: {"matches": 0, "goalDiffSum": 0.0}))
     for rows in match_rows_by_key.values():
         if len(rows) != 2:
             continue
@@ -461,49 +471,51 @@ def build_data(src):
         fb = to_int(b.get("formation_id"))
         if fa <= 0 or fb <= 0:
             continue
-        ra = (a.get("result") or "").strip().upper()
-        rb = (b.get("result") or "").strip().upper()
+        gfa = to_float(a.get("goals_for"), None)
+        gaa = to_float(a.get("goals_against"), None)
+        gfb = to_float(b.get("goals_for"), None)
+        gab = to_float(b.get("goals_against"), None)
+        if gfa is None or gaa is None or gfb is None or gab is None:
+            continue
 
         matchup_raw[fa][fb]["matches"] += 1
         matchup_raw[fb][fa]["matches"] += 1
-        if ra == "W":
-            matchup_raw[fa][fb]["wins"] += 1
-        if rb == "W":
-            matchup_raw[fb][fa]["wins"] += 1
+        matchup_raw[fa][fb]["goalDiffSum"] += (gfa - gaa)
+        matchup_raw[fb][fa]["goalDiffSum"] += (gfb - gab)
 
     # Relaxed thresholds so matchup lists are populated more often while
     # keeping a minimum sample size and effect-size guardrail.
     min_matchups = 8
-    min_abs_delta = 0.04
+    min_abs_delta = 0.20  # goals per match
     min_abs_z = 1.28  # approx 80% two-sided z-threshold
     matchup_stats = defaultdict(lambda: {"strongAgainst": [], "weakAgainst": []})
 
     for fid, opp_map in matchup_raw.items():
-        uses = formation_team_counts[fid]
-        if uses <= 0:
+        gd_n = formation_goal_diff_n[fid]
+        if gd_n <= 0:
             continue
-        p0 = formation_win_counts[fid] / uses
+        mu0 = formation_goal_diff_sum[fid] / gd_n
+        var0 = (formation_goal_diff_sq_sum[fid] / gd_n) - (mu0 * mu0)
+        if var0 <= 1e-9:
+            continue
         strong = []
         weak = []
         for opp_id, stat in opp_map.items():
             n = int(stat["matches"] or 0)
             if n < min_matchups:
                 continue
-            wins = int(stat["wins"] or 0)
-            p_hat = wins / n if n else 0.0
-            delta = p_hat - p0
-            variance = (p0 * (1.0 - p0) / n) if n > 0 else 0.0
-            if variance <= 0:
-                continue
-            z = delta / math.sqrt(variance)
+            gd_sum = float(stat["goalDiffSum"] or 0.0)
+            mu_hat = gd_sum / n if n else 0.0
+            delta = mu_hat - mu0
+            z = delta / math.sqrt(var0 / n)
             if abs(delta) < min_abs_delta or abs(z) < min_abs_z:
                 continue
             row = {
                 "formationId": int(opp_id),
                 "matches": n,
-                "wins": wins,
-                "winRate": round(p_hat, 6),
-                "overallWinRate": round(p0, 6),
+                "goalDiffSum": round(gd_sum, 4),
+                "goalDiffPerMatch": round(mu_hat, 6),
+                "overallGoalDiffPerMatch": round(mu0, 6),
                 "delta": round(delta, 6),
                 "zScore": round(z, 4),
             }
@@ -519,7 +531,7 @@ def build_data(src):
             "weakAgainst": weak[:5],
             "criteria": {
                 "minMatches": min_matchups,
-                "minAbsDelta": min_abs_delta,
+                "minAbsDeltaGoalDiff": min_abs_delta,
                 "minAbsZScore": min_abs_z,
             },
         }

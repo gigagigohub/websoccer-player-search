@@ -1495,7 +1495,7 @@ function matchupRowsHtml(rows = []) {
     <div class="matchup-table-wrap">
       <table class="matchup-table">
         <thead>
-          <tr><th>Formation</th><th>Win</th><th>Δ</th><th>N</th></tr>
+          <tr><th>Formation</th><th>GD</th><th>ΔGD</th><th>N</th></tr>
         </thead>
         <tbody>
           ${rows.map((row) => {
@@ -1503,11 +1503,12 @@ function matchupRowsHtml(rows = []) {
             const y = formatFormationYearLabel(f?.year, f?.stride);
             const name = f ? `${f.name}${y ? ` ${y}` : ""}` : `Formation ${row?.formationId}`;
             const delta = Number(row?.delta || 0);
+            const gd = Number(row?.goalDiffPerMatch || 0);
             return `
               <tr>
                 <td><button type="button" class="inline-pill matchup-formation-link" data-formation-id="${row?.formationId}">${name}</button></td>
-                <td>${pct(row?.winRate)} <span class="dim">(${row?.wins}/${row?.matches})</span></td>
-                <td class="${delta >= 0 ? "matchup-pos" : "matchup-neg"}">${delta >= 0 ? "+" : ""}${(delta * 100).toFixed(1)}pt</td>
+                <td>${gd >= 0 ? "+" : ""}${gd.toFixed(2)} <span class="dim">(${Number(row?.goalDiffSum || 0).toFixed(0)}/${row?.matches})</span></td>
+                <td class="${delta >= 0 ? "matchup-pos" : "matchup-neg"}">${delta >= 0 ? "+" : ""}${delta.toFixed(2)}</td>
                 <td>${row?.matches}</td>
               </tr>
             `;
@@ -1524,6 +1525,7 @@ function openMatchupModal(formation) {
   els.matchupTitle.textContent = `${formation.name}${y ? ` ${y}` : ""} Matchups`;
   const m = formation.matchups || {};
   const criteria = m.criteria || {};
+  const minAbsDeltaGd = Number(criteria.minAbsDeltaGoalDiff ?? criteria.minAbsDelta ?? 0);
   els.matchupDetail.innerHTML = `
     <div class="formation-block">
       <h3>Strong Against</h3>
@@ -1534,7 +1536,7 @@ function openMatchupModal(formation) {
       ${matchupRowsHtml(m.weakAgainst)}
     </div>
     <p class="dim matchup-criteria">
-      Filter: N ≥ ${Number(criteria.minMatches || 0)}, |Δ| ≥ ${((Number(criteria.minAbsDelta || 0)) * 100).toFixed(1)}pt, |z| ≥ ${Number(criteria.minAbsZScore || 0)}
+      Filter: N ≥ ${Number(criteria.minMatches || 0)}, |ΔGD| ≥ ${minAbsDeltaGd.toFixed(2)}, |z| ≥ ${Number(criteria.minAbsZScore || 0)}
     </p>
   `;
   els.matchupModal.hidden = false;

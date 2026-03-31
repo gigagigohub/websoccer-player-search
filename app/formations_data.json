@@ -903,7 +903,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -1994,7 +1994,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -3230,7 +3230,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -3677,7 +3677,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -4643,7 +4643,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -5351,7 +5351,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -6444,7 +6444,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -7372,7 +7372,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -7864,7 +7864,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -8976,7 +8976,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -9493,7 +9493,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -10093,7 +10093,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -10697,7 +10697,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -11660,7 +11660,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -12302,7 +12302,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -13624,7 +13624,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -14368,7 +14368,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -16635,7 +16635,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -17172,7 +17172,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -18810,10 +18810,20 @@
       ],
       "matchups": {
         "strongAgainst": [],
-        "weakAgainst": [],
+        "weakAgainst": [
+          {
+            "formationId": 38,
+            "matches": 14,
+            "goalDiffSum": -10.0,
+            "goalDiffPerMatch": -0.714286,
+            "overallGoalDiffPerMatch": 0.252809,
+            "delta": -0.967095,
+            "zScore": -1.5393
+          }
+        ],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -19260,7 +19270,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -20840,10 +20850,20 @@
       ],
       "matchups": {
         "strongAgainst": [],
-        "weakAgainst": [],
+        "weakAgainst": [
+          {
+            "formationId": 54,
+            "matches": 9,
+            "goalDiffSum": -12.0,
+            "goalDiffPerMatch": -1.333333,
+            "overallGoalDiffPerMatch": -0.1875,
+            "delta": -1.145833,
+            "zScore": -1.6297
+          }
+        ],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -21400,7 +21420,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -23100,40 +23120,30 @@
         }
       ],
       "matchups": {
-        "strongAgainst": [
-          {
-            "formationId": 54,
-            "matches": 11,
-            "wins": 6,
-            "winRate": 0.545455,
-            "overallWinRate": 0.352332,
-            "delta": 0.193123,
-            "zScore": 1.3408
-          }
-        ],
+        "strongAgainst": [],
         "weakAgainst": [
+          {
+            "formationId": 39,
+            "matches": 8,
+            "goalDiffSum": -12.0,
+            "goalDiffPerMatch": -1.5,
+            "overallGoalDiffPerMatch": -0.279793,
+            "delta": -1.220207,
+            "zScore": -1.6266
+          },
           {
             "formationId": 33,
             "matches": 12,
-            "wins": 1,
-            "winRate": 0.083333,
-            "overallWinRate": 0.352332,
-            "delta": -0.268998,
-            "zScore": -1.9507
-          },
-          {
-            "formationId": 36,
-            "matches": 8,
-            "wins": 1,
-            "winRate": 0.125,
-            "overallWinRate": 0.352332,
-            "delta": -0.227332,
-            "zScore": -1.346
+            "goalDiffSum": -15.0,
+            "goalDiffPerMatch": -1.25,
+            "overallGoalDiffPerMatch": -0.279793,
+            "delta": -0.970207,
+            "zScore": -1.584
           }
         ],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -24729,49 +24739,39 @@
         }
       ],
       "matchups": {
-        "strongAgainst": [
-          {
-            "formationId": 64,
-            "matches": 12,
-            "wins": 9,
-            "winRate": 0.75,
-            "overallWinRate": 0.541667,
-            "delta": 0.208333,
-            "zScore": 1.4484
-          }
-        ],
+        "strongAgainst": [],
         "weakAgainst": [
-          {
-            "formationId": 36,
-            "matches": 13,
-            "wins": 3,
-            "winRate": 0.230769,
-            "overallWinRate": 0.541667,
-            "delta": -0.310897,
-            "zScore": -2.2497
-          },
           {
             "formationId": 117,
             "matches": 8,
-            "wins": 2,
-            "winRate": 0.25,
-            "overallWinRate": 0.541667,
-            "delta": -0.291667,
-            "zScore": -1.6557
+            "goalDiffSum": -9.0,
+            "goalDiffPerMatch": -1.125,
+            "overallGoalDiffPerMatch": 0.801282,
+            "delta": -1.926282,
+            "zScore": -2.5985
+          },
+          {
+            "formationId": 36,
+            "matches": 13,
+            "goalDiffSum": -2.0,
+            "goalDiffPerMatch": -0.153846,
+            "overallGoalDiffPerMatch": 0.801282,
+            "delta": -0.955128,
+            "zScore": -1.6424
           },
           {
             "formationId": 56,
             "matches": 13,
-            "wins": 4,
-            "winRate": 0.307692,
-            "overallWinRate": 0.541667,
-            "delta": -0.233974,
-            "zScore": -1.6931
+            "goalDiffSum": 0.0,
+            "goalDiffPerMatch": 0.0,
+            "overallGoalDiffPerMatch": 0.801282,
+            "delta": -0.801282,
+            "zScore": -1.3779
           }
         ],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -26103,7 +26103,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -27058,7 +27058,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -28933,21 +28933,40 @@
         }
       ],
       "matchups": {
-        "strongAgainst": [],
+        "strongAgainst": [
+          {
+            "formationId": 102,
+            "matches": 8,
+            "goalDiffSum": 9.0,
+            "goalDiffPerMatch": 1.125,
+            "overallGoalDiffPerMatch": 0.091168,
+            "delta": 1.033832,
+            "zScore": 1.5927
+          },
+          {
+            "formationId": 32,
+            "matches": 8,
+            "goalDiffSum": 8.0,
+            "goalDiffPerMatch": 1.0,
+            "overallGoalDiffPerMatch": 0.091168,
+            "delta": 0.908832,
+            "zScore": 1.4002
+          }
+        ],
         "weakAgainst": [
           {
-            "formationId": 90,
-            "matches": 12,
-            "wins": 3,
-            "winRate": 0.25,
-            "overallWinRate": 0.438746,
-            "delta": -0.188746,
-            "zScore": -1.3176
+            "formationId": 51,
+            "matches": 14,
+            "goalDiffSum": -10.0,
+            "goalDiffPerMatch": -0.714286,
+            "overallGoalDiffPerMatch": 0.091168,
+            "delta": -0.805454,
+            "zScore": -1.6415
           }
         ],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -29544,7 +29563,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -31803,49 +31822,30 @@
         }
       ],
       "matchups": {
-        "strongAgainst": [
-          {
-            "formationId": 28,
-            "matches": 14,
-            "wins": 9,
-            "winRate": 0.642857,
-            "overallWinRate": 0.459519,
-            "delta": 0.183339,
-            "zScore": 1.3765
-          }
-        ],
+        "strongAgainst": [],
         "weakAgainst": [
           {
             "formationId": 61,
             "matches": 16,
-            "wins": 4,
-            "winRate": 0.25,
-            "overallWinRate": 0.459519,
-            "delta": -0.209519,
-            "zScore": -1.6817
-          },
-          {
-            "formationId": 36,
-            "matches": 18,
-            "wins": 5,
-            "winRate": 0.277778,
-            "overallWinRate": 0.459519,
-            "delta": -0.181741,
-            "zScore": -1.5472
+            "goalDiffSum": -25.0,
+            "goalDiffPerMatch": -1.5625,
+            "overallGoalDiffPerMatch": 0.277899,
+            "delta": -1.840399,
+            "zScore": -3.4263
           },
           {
             "formationId": 39,
             "matches": 28,
-            "wins": 9,
-            "winRate": 0.321429,
-            "overallWinRate": 0.459519,
-            "delta": -0.13809,
-            "zScore": -1.4662
+            "goalDiffSum": -13.0,
+            "goalDiffPerMatch": -0.464286,
+            "overallGoalDiffPerMatch": 0.277899,
+            "delta": -0.742185,
+            "zScore": -1.8278
           }
         ],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -33558,36 +33558,45 @@
         "strongAgainst": [],
         "weakAgainst": [
           {
-            "formationId": 52,
-            "matches": 9,
-            "wins": 2,
-            "winRate": 0.222222,
-            "overallWinRate": 0.53,
-            "delta": -0.307778,
-            "zScore": -1.85
-          },
-          {
             "formationId": 107,
             "matches": 8,
-            "wins": 2,
-            "winRate": 0.25,
-            "overallWinRate": 0.53,
-            "delta": -0.28,
-            "zScore": -1.5868
+            "goalDiffSum": -6.0,
+            "goalDiffPerMatch": -0.75,
+            "overallGoalDiffPerMatch": 0.8675,
+            "delta": -1.6175,
+            "zScore": -1.8811
           },
           {
-            "formationId": 56,
-            "matches": 15,
-            "wins": 5,
-            "winRate": 0.333333,
-            "overallWinRate": 0.53,
-            "delta": -0.196667,
-            "zScore": -1.5261
+            "formationId": 52,
+            "matches": 9,
+            "goalDiffSum": -3.0,
+            "goalDiffPerMatch": -0.333333,
+            "overallGoalDiffPerMatch": 0.8675,
+            "delta": -1.200833,
+            "zScore": -1.4813
+          },
+          {
+            "formationId": 39,
+            "matches": 20,
+            "goalDiffSum": 0.0,
+            "goalDiffPerMatch": 0.0,
+            "overallGoalDiffPerMatch": 0.8675,
+            "delta": -0.8675,
+            "zScore": -1.5952
+          },
+          {
+            "formationId": 36,
+            "matches": 18,
+            "goalDiffSum": 0.0,
+            "goalDiffPerMatch": 0.0,
+            "overallGoalDiffPerMatch": 0.8675,
+            "delta": -0.8675,
+            "zScore": -1.5133
           }
         ],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -34371,7 +34380,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -34922,7 +34931,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -35429,7 +35438,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -36797,7 +36806,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -37245,7 +37254,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -39025,7 +39034,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -39660,7 +39669,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -41097,7 +41106,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -42346,16 +42355,25 @@
           {
             "formationId": 33,
             "matches": 10,
-            "wins": 1,
-            "winRate": 0.1,
-            "overallWinRate": 0.460432,
-            "delta": -0.360432,
-            "zScore": -2.2867
+            "goalDiffSum": -10.0,
+            "goalDiffPerMatch": -1.0,
+            "overallGoalDiffPerMatch": 0.489209,
+            "delta": -1.489209,
+            "zScore": -2.1311
+          },
+          {
+            "formationId": 54,
+            "matches": 8,
+            "goalDiffSum": -6.0,
+            "goalDiffPerMatch": -0.75,
+            "overallGoalDiffPerMatch": 0.489209,
+            "delta": -1.239209,
+            "zScore": -1.5862
           }
         ],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -42935,7 +42953,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -44231,7 +44249,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -46444,30 +46462,49 @@
         }
       ],
       "matchups": {
-        "strongAgainst": [],
+        "strongAgainst": [
+          {
+            "formationId": 90,
+            "matches": 16,
+            "goalDiffSum": 27.0,
+            "goalDiffPerMatch": 1.6875,
+            "overallGoalDiffPerMatch": 0.475155,
+            "delta": 1.212345,
+            "zScore": 2.0208
+          }
+        ],
         "weakAgainst": [
           {
             "formationId": 33,
             "matches": 17,
-            "wins": 2,
-            "winRate": 0.117647,
-            "overallWinRate": 0.465839,
-            "delta": -0.348191,
-            "zScore": -2.878
+            "goalDiffSum": -20.0,
+            "goalDiffPerMatch": -1.176471,
+            "overallGoalDiffPerMatch": 0.475155,
+            "delta": -1.651626,
+            "zScore": -2.8377
           },
           {
             "formationId": 39,
             "matches": 18,
-            "wins": 3,
-            "winRate": 0.166667,
-            "overallWinRate": 0.465839,
-            "delta": -0.299172,
-            "zScore": -2.5445
+            "goalDiffSum": -10.0,
+            "goalDiffPerMatch": -0.555556,
+            "overallGoalDiffPerMatch": 0.475155,
+            "delta": -1.030711,
+            "zScore": -1.8223
+          },
+          {
+            "formationId": 38,
+            "matches": 19,
+            "goalDiffSum": -5.0,
+            "goalDiffPerMatch": -0.263158,
+            "overallGoalDiffPerMatch": 0.475155,
+            "delta": -0.738313,
+            "zScore": -1.3411
           }
         ],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -48215,16 +48252,16 @@
           {
             "formationId": 54,
             "matches": 11,
-            "wins": 2,
-            "winRate": 0.181818,
-            "overallWinRate": 0.378049,
-            "delta": -0.196231,
-            "zScore": -1.3422
+            "goalDiffSum": -16.0,
+            "goalDiffPerMatch": -1.454545,
+            "overallGoalDiffPerMatch": 0.018293,
+            "delta": -1.472838,
+            "zScore": -2.6651
           }
         ],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -49213,7 +49250,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -50876,45 +50913,63 @@
           {
             "formationId": 78,
             "matches": 9,
-            "wins": 7,
-            "winRate": 0.777778,
-            "overallWinRate": 0.45,
-            "delta": 0.327778,
-            "zScore": 1.9766
+            "goalDiffSum": 18.0,
+            "goalDiffPerMatch": 2.0,
+            "overallGoalDiffPerMatch": 0.184211,
+            "delta": 1.815789,
+            "zScore": 2.5449
+          },
+          {
+            "formationId": 52,
+            "matches": 11,
+            "goalDiffSum": 16.0,
+            "goalDiffPerMatch": 1.454545,
+            "overallGoalDiffPerMatch": 0.184211,
+            "delta": 1.270335,
+            "zScore": 1.9683
+          },
+          {
+            "formationId": 30,
+            "matches": 9,
+            "goalDiffSum": 12.0,
+            "goalDiffPerMatch": 1.333333,
+            "overallGoalDiffPerMatch": 0.184211,
+            "delta": 1.149123,
+            "zScore": 1.6105
           }
         ],
         "weakAgainst": [
           {
-            "formationId": 38,
-            "matches": 22,
-            "wins": 5,
-            "winRate": 0.227273,
-            "overallWinRate": 0.45,
-            "delta": -0.222727,
-            "zScore": -2.0999
-          },
-          {
             "formationId": 39,
             "matches": 21,
-            "wins": 5,
-            "winRate": 0.238095,
-            "overallWinRate": 0.45,
-            "delta": -0.211905,
-            "zScore": -1.9519
+            "goalDiffSum": -26.0,
+            "goalDiffPerMatch": -1.238095,
+            "overallGoalDiffPerMatch": 0.184211,
+            "delta": -1.422306,
+            "zScore": -3.045
           },
           {
             "formationId": 56,
             "matches": 19,
-            "wins": 5,
-            "winRate": 0.263158,
-            "overallWinRate": 0.45,
-            "delta": -0.186842,
-            "zScore": -1.6371
+            "goalDiffSum": -19.0,
+            "goalDiffPerMatch": -1.0,
+            "overallGoalDiffPerMatch": 0.184211,
+            "delta": -1.184211,
+            "zScore": -2.4115
+          },
+          {
+            "formationId": 38,
+            "matches": 22,
+            "goalDiffSum": -11.0,
+            "goalDiffPerMatch": -0.5,
+            "overallGoalDiffPerMatch": 0.184211,
+            "delta": -0.684211,
+            "zScore": -1.4993
           }
         ],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -51542,7 +51597,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -53036,48 +53091,58 @@
         }
       ],
       "matchups": {
-        "strongAgainst": [],
-        "weakAgainst": [
+        "strongAgainst": [
           {
-            "formationId": 33,
-            "matches": 13,
-            "wins": 3,
-            "winRate": 0.230769,
-            "overallWinRate": 0.574751,
-            "delta": -0.343982,
-            "zScore": -2.5087
-          },
+            "formationId": 61,
+            "matches": 9,
+            "goalDiffSum": 17.0,
+            "goalDiffPerMatch": 1.888889,
+            "overallGoalDiffPerMatch": 0.893688,
+            "delta": 0.995201,
+            "zScore": 1.3257
+          }
+        ],
+        "weakAgainst": [
           {
             "formationId": 38,
             "matches": 13,
-            "wins": 4,
-            "winRate": 0.307692,
-            "overallWinRate": 0.574751,
-            "delta": -0.267059,
-            "zScore": -1.9477
-          },
-          {
-            "formationId": 36,
-            "matches": 13,
-            "wins": 5,
-            "winRate": 0.384615,
-            "overallWinRate": 0.574751,
-            "delta": -0.190135,
-            "zScore": -1.3867
+            "goalDiffSum": -9.0,
+            "goalDiffPerMatch": -0.692308,
+            "overallGoalDiffPerMatch": 0.893688,
+            "delta": -1.585995,
+            "zScore": -2.5392
           },
           {
             "formationId": 39,
             "matches": 15,
-            "wins": 6,
-            "winRate": 0.4,
-            "overallWinRate": 0.574751,
-            "delta": -0.174751,
-            "zScore": -1.369
+            "goalDiffSum": -4.0,
+            "goalDiffPerMatch": -0.266667,
+            "overallGoalDiffPerMatch": 0.893688,
+            "delta": -1.160354,
+            "zScore": -1.9955
+          },
+          {
+            "formationId": 36,
+            "matches": 13,
+            "goalDiffSum": -2.0,
+            "goalDiffPerMatch": -0.153846,
+            "overallGoalDiffPerMatch": 0.893688,
+            "delta": -1.047534,
+            "zScore": -1.6771
+          },
+          {
+            "formationId": 33,
+            "matches": 13,
+            "goalDiffSum": 0.0,
+            "goalDiffPerMatch": 0.0,
+            "overallGoalDiffPerMatch": 0.893688,
+            "delta": -0.893688,
+            "zScore": -1.4308
           }
         ],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -53599,7 +53664,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -54330,7 +54395,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -55027,7 +55092,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -55701,7 +55766,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -57744,45 +57809,45 @@
           {
             "formationId": 38,
             "matches": 16,
-            "wins": 11,
-            "winRate": 0.6875,
-            "overallWinRate": 0.474576,
-            "delta": 0.212924,
-            "zScore": 1.7056
+            "goalDiffSum": 25.0,
+            "goalDiffPerMatch": 1.5625,
+            "overallGoalDiffPerMatch": 0.264407,
+            "delta": 1.298093,
+            "zScore": 2.2455
           }
         ],
         "weakAgainst": [
           {
             "formationId": 56,
             "matches": 9,
-            "wins": 1,
-            "winRate": 0.111111,
-            "overallWinRate": 0.474576,
-            "delta": -0.363465,
-            "zScore": -2.1836
+            "goalDiffSum": -17.0,
+            "goalDiffPerMatch": -1.888889,
+            "overallGoalDiffPerMatch": 0.264407,
+            "delta": -2.153296,
+            "zScore": -2.7936
           },
           {
             "formationId": 51,
             "matches": 15,
-            "wins": 4,
-            "winRate": 0.266667,
-            "overallWinRate": 0.474576,
-            "delta": -0.20791,
-            "zScore": -1.6125
+            "goalDiffSum": -16.0,
+            "goalDiffPerMatch": -1.066667,
+            "overallGoalDiffPerMatch": 0.264407,
+            "delta": -1.331073,
+            "zScore": -2.2294
           },
           {
             "formationId": 39,
             "matches": 17,
-            "wins": 5,
-            "winRate": 0.294118,
-            "overallWinRate": 0.474576,
-            "delta": -0.180459,
-            "zScore": -1.49
+            "goalDiffSum": -17.0,
+            "goalDiffPerMatch": -1.0,
+            "overallGoalDiffPerMatch": 0.264407,
+            "delta": -1.264407,
+            "zScore": -2.2545
           }
         ],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -58868,7 +58933,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -59382,7 +59447,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -61818,18 +61883,18 @@
         "strongAgainst": [],
         "weakAgainst": [
           {
-            "formationId": 33,
-            "matches": 12,
-            "wins": 1,
-            "winRate": 0.083333,
-            "overallWinRate": 0.27234,
-            "delta": -0.189007,
-            "zScore": -1.4708
+            "formationId": 103,
+            "matches": 9,
+            "goalDiffSum": -18.0,
+            "goalDiffPerMatch": -2.0,
+            "overallGoalDiffPerMatch": -0.753191,
+            "delta": -1.246809,
+            "zScore": -1.6194
           }
         ],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -62848,7 +62913,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -64343,7 +64408,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -65269,7 +65334,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -66037,7 +66102,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -67652,7 +67717,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -69054,7 +69119,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -69536,7 +69601,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -70905,7 +70970,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -71575,7 +71640,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -72234,7 +72299,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -73501,20 +73566,10 @@
       ],
       "matchups": {
         "strongAgainst": [],
-        "weakAgainst": [
-          {
-            "formationId": 38,
-            "matches": 9,
-            "wins": 2,
-            "winRate": 0.222222,
-            "overallWinRate": 0.474227,
-            "delta": -0.252005,
-            "zScore": -1.514
-          }
-        ],
+        "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -73999,12 +74054,7 @@
       ],
       "matchups": {
         "strongAgainst": [],
-        "weakAgainst": [],
-        "criteria": {
-          "minMatches": 8,
-          "minAbsDelta": 0.04,
-          "minAbsZScore": 1.28
-        }
+        "weakAgainst": []
       }
     },
     {
@@ -76332,30 +76382,58 @@
         }
       ],
       "matchups": {
-        "strongAgainst": [],
+        "strongAgainst": [
+          {
+            "formationId": 38,
+            "matches": 10,
+            "goalDiffSum": 3.0,
+            "goalDiffPerMatch": 0.3,
+            "overallGoalDiffPerMatch": -0.639535,
+            "delta": 0.939535,
+            "zScore": 1.4627
+          }
+        ],
         "weakAgainst": [
+          {
+            "formationId": 54,
+            "matches": 9,
+            "goalDiffSum": -18.0,
+            "goalDiffPerMatch": -2.0,
+            "overallGoalDiffPerMatch": -0.639535,
+            "delta": -1.360465,
+            "zScore": -2.0093
+          },
           {
             "formationId": 33,
             "matches": 8,
-            "wins": 0,
-            "winRate": 0.0,
-            "overallWinRate": 0.284884,
-            "delta": -0.284884,
-            "zScore": -1.7852
+            "goalDiffSum": -14.0,
+            "goalDiffPerMatch": -1.75,
+            "overallGoalDiffPerMatch": -0.639535,
+            "delta": -1.110465,
+            "zScore": -1.5463
+          },
+          {
+            "formationId": 39,
+            "matches": 11,
+            "goalDiffSum": -19.0,
+            "goalDiffPerMatch": -1.727273,
+            "overallGoalDiffPerMatch": -0.639535,
+            "delta": -1.087738,
+            "zScore": -1.7761
           },
           {
             "formationId": 56,
             "matches": 11,
-            "wins": 1,
-            "winRate": 0.090909,
-            "overallWinRate": 0.284884,
-            "delta": -0.193975,
-            "zScore": -1.4253
+            "goalDiffSum": -16.0,
+            "goalDiffPerMatch": -1.454545,
+            "overallGoalDiffPerMatch": -0.639535,
+            "delta": -0.815011,
+            "zScore": -1.3308
           }
         ],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -77803,7 +77881,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -78712,7 +78790,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -79818,7 +79896,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -80703,7 +80781,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -82290,7 +82368,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -83793,7 +83871,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -84783,7 +84861,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -85774,7 +85852,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -87857,31 +87935,39 @@
         }
       ],
       "matchups": {
-        "strongAgainst": [
-          {
-            "formationId": 36,
-            "matches": 12,
-            "wins": 7,
-            "winRate": 0.583333,
-            "overallWinRate": 0.353909,
-            "delta": 0.229424,
-            "zScore": 1.662
-          }
-        ],
+        "strongAgainst": [],
         "weakAgainst": [
+          {
+            "formationId": 51,
+            "matches": 16,
+            "goalDiffSum": -27.0,
+            "goalDiffPerMatch": -1.6875,
+            "overallGoalDiffPerMatch": -0.1893,
+            "delta": -1.4982,
+            "zScore": -2.6283
+          },
           {
             "formationId": 56,
             "matches": 10,
-            "wins": 0,
-            "winRate": 0.0,
-            "overallWinRate": 0.353909,
-            "delta": -0.353909,
-            "zScore": -2.3405
+            "goalDiffSum": -14.0,
+            "goalDiffPerMatch": -1.4,
+            "overallGoalDiffPerMatch": -0.1893,
+            "delta": -1.2107,
+            "zScore": -1.6791
+          },
+          {
+            "formationId": 39,
+            "matches": 16,
+            "goalDiffSum": -17.0,
+            "goalDiffPerMatch": -1.0625,
+            "overallGoalDiffPerMatch": -0.1893,
+            "delta": -0.8732,
+            "zScore": -1.5319
           }
         ],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -89577,7 +89663,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -90533,7 +90619,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -92135,7 +92221,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -93070,7 +93156,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -93860,7 +93946,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -94384,7 +94470,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -95939,7 +96025,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -96863,7 +96949,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -98580,31 +98666,11 @@
         }
       ],
       "matchups": {
-        "strongAgainst": [
-          {
-            "formationId": 54,
-            "matches": 8,
-            "wins": 5,
-            "winRate": 0.625,
-            "overallWinRate": 0.348993,
-            "delta": 0.276007,
-            "zScore": 1.6378
-          }
-        ],
-        "weakAgainst": [
-          {
-            "formationId": 36,
-            "matches": 8,
-            "wins": 1,
-            "winRate": 0.125,
-            "overallWinRate": 0.348993,
-            "delta": -0.223993,
-            "zScore": -1.3292
-          }
-        ],
+        "strongAgainst": [],
+        "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -100018,17 +100084,17 @@
           {
             "formationId": 64,
             "matches": 9,
-            "wins": 7,
-            "winRate": 0.777778,
-            "overallWinRate": 0.451327,
-            "delta": 0.32645,
-            "zScore": 1.968
+            "goalDiffSum": 18.0,
+            "goalDiffPerMatch": 2.0,
+            "overallGoalDiffPerMatch": -0.026549,
+            "delta": 2.026549,
+            "zScore": 2.2922
           }
         ],
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -101115,7 +101181,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -101944,7 +102010,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -103299,7 +103365,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -104989,21 +105055,11 @@
         }
       ],
       "matchups": {
-        "strongAgainst": [
-          {
-            "formationId": 39,
-            "matches": 8,
-            "wins": 4,
-            "winRate": 0.5,
-            "overallWinRate": 0.287356,
-            "delta": 0.212644,
-            "zScore": 1.3291
-          }
-        ],
+        "strongAgainst": [],
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -105983,7 +106039,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -107418,7 +107474,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -107879,7 +107935,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -109074,7 +109130,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -110271,16 +110327,16 @@
           {
             "formationId": 39,
             "matches": 8,
-            "wins": 1,
-            "winRate": 0.125,
-            "overallWinRate": 0.372549,
-            "delta": -0.247549,
-            "zScore": -1.4482
+            "goalDiffSum": -9.0,
+            "goalDiffPerMatch": -1.125,
+            "overallGoalDiffPerMatch": 0.019608,
+            "delta": -1.144608,
+            "zScore": -1.4802
           }
         ],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -111289,7 +111345,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -111921,7 +111977,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -113381,7 +113437,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -114266,7 +114322,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
@@ -115412,7 +115468,7 @@
         "weakAgainst": [],
         "criteria": {
           "minMatches": 8,
-          "minAbsDelta": 0.04,
+          "minAbsDeltaGoalDiff": 0.2,
           "minAbsZScore": 1.28
         }
       }
