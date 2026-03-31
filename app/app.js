@@ -1419,35 +1419,6 @@ function filterPlayers(conditions = getConditions()) {
   const query = toHiragana(els.nameQuery.value.trim().toLowerCase());
   const hasExactModelMatch =
     !!query && players.some((p) => normalizedModelSearchName(p) === query);
-  const hasAnyModelIncludes =
-    !!query && players.some((p) => normalizedModelSearchName(p).includes(query));
-  const representativePersonIdByModel = new Map();
-  if (hasAnyModelIncludes) {
-    const modelPersonStats = new Map();
-    players.forEach((p) => {
-      const modelNorm = normalizedModelSearchName(p);
-      const modelMatched = hasExactModelMatch ? (modelNorm === query) : modelNorm.includes(query);
-      if (!modelMatched || !modelNorm) return;
-      const personId = Number(p?.personId || 0);
-      if (!Number.isInteger(personId) || personId <= 0) return;
-      if (!modelPersonStats.has(modelNorm)) modelPersonStats.set(modelNorm, new Map());
-      const personStats = modelPersonStats.get(modelNorm);
-      const prev = personStats.get(personId) || { count: 0, maxRate: 0, maxId: 0 };
-      prev.count += 1;
-      prev.maxRate = Math.max(prev.maxRate, Number(p?.rate || 0));
-      prev.maxId = Math.max(prev.maxId, Number(p?.id || 0));
-      personStats.set(personId, prev);
-    });
-    modelPersonStats.forEach((personStats, modelNorm) => {
-      const rep = [...personStats.entries()]
-        .sort((a, b) => {
-          if (a[1].count !== b[1].count) return b[1].count - a[1].count;
-          if (a[1].maxRate !== b[1].maxRate) return b[1].maxRate - a[1].maxRate;
-          return b[1].maxId - a[1].maxId;
-        })[0]?.[0];
-      if (rep != null) representativePersonIdByModel.set(modelNorm, rep);
-    });
-  }
   const positionFilter = els.positionFilter.value;
   const aptitudePosFilter = (els.aptitudePositionFilter?.value || "").toUpperCase();
   const aptitudeThreshold = els.aptitudeIncludeSix?.checked ? 6 : 7;
@@ -1469,16 +1440,10 @@ function filterPlayers(conditions = getConditions()) {
     const playerModel = normalizedModelSearchName(player);
     if (query) {
       const nameOrTypeMatched = playerName.includes(query) || playerType.includes(query);
-      const modelMatched = hasExactModelMatch ? (playerModel === query) : playerModel.includes(query);
+      // モデル選手検索は誤ヒットを避けるため完全一致のみ。
+      const modelMatched = hasExactModelMatch ? (playerModel === query) : false;
       if (!nameOrTypeMatched && !modelMatched) {
         return false;
-      }
-      // モデル一致だけで引っかかる場合は、同一モデル内で代表 personId のみを残す。
-      if (modelMatched && !nameOrTypeMatched) {
-        const rep = representativePersonIdByModel.get(playerModel);
-        if (rep != null && Number(player?.personId || 0) !== rep) {
-          return false;
-        }
       }
     }
     if (positionFilter && player.position !== positionFilter) {
