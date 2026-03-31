@@ -1433,11 +1433,12 @@ function filterPlayers(conditions = getConditions()) {
 
   return players.filter((player) => {
     const category = getCategory(player);
-    const playerName = normalizedPlayerSearchName(player);
+    const playerName = toHiragana(String(player?.name || "").toLowerCase());
+    const playerNameRuby = toHiragana(String(player?.nameRuby || "").toLowerCase());
     const playerType = toHiragana((player.playType || "").toLowerCase());
     const playerModel = normalizedModelSearchName(player);
     if (query) {
-      const nameMatched = playerName === query;
+      const nameMatched = playerName === query || (!!playerNameRuby && playerNameRuby === query);
       const typeMatched = playerType === query;
       const modelMatched = playerModel === query;
       if (!nameMatched && !typeMatched && !modelMatched) {
