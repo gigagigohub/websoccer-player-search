@@ -1003,6 +1003,14 @@ button.ghost {
   text-overflow: ellipsis;
 }
 
+.profile-item .v.model-small {
+  font-size: 0.62rem;
+}
+
+.profile-item .v.model-xsmall {
+  font-size: 0.56rem;
+}
+
 .profile-description-wrap {
   margin-top: 0;
   border: 1px solid #334a70;

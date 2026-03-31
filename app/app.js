@@ -1602,7 +1602,11 @@ function positionHeatmapsHtml(player) {
 
 function profileViewHtml(player, staticImg, actionImg) {
   const nationality = player.nationality || (player.nationId != null ? `国籍ID:${player.nationId}` : "-");
-  const modelPlayer = (player.modelPlayer || "").trim() || "-";
+  const rawModelPlayer = (player.modelPlayer || "").trim();
+  const modelPlayer = formatModelPlayerLabel(rawModelPlayer) || "-";
+  const modelClass = modelPlayer !== "-"
+    ? (modelPlayer.length >= 18 ? " model-xsmall" : modelPlayer.length >= 13 ? " model-small" : "")
+    : "";
   const playType = player.playType || "-";
   const description = (player.description || "").trim() || "説明なし";
 
@@ -1615,7 +1619,7 @@ function profileViewHtml(player, staticImg, actionImg) {
         </div>
         <div class="profile-side">
           <div class="profile-item"><span class="k">国籍</span><span class="v">${nationality}</span></div>
-          <div class="profile-item"><span class="k">モデル</span><span class="v">${modelPlayer}</span></div>
+          <div class="profile-item"><span class="k">モデル</span><span class="v${modelClass}">${modelPlayer}</span></div>
           <div class="profile-item"><span class="k">タイプ</span><span class="v">${playType}</span></div>
         </div>
       </div>
@@ -1625,6 +1629,16 @@ function profileViewHtml(player, staticImg, actionImg) {
       </div>
     </div>
   `;
+}
+
+function formatModelPlayerLabel(label) {
+  const s = String(label || "").trim();
+  if (!s) return "";
+  const isKatakanaOnly = /^[\u30A0-\u30FFー・･\s\u3000]+$/.test(s);
+  if (isKatakanaOnly && /[\s\u3000]/.test(s)) {
+    return s.replace(/[\s\u3000]+/g, "・");
+  }
+  return s;
 }
 
 function getCardViewMode(playerId) {
