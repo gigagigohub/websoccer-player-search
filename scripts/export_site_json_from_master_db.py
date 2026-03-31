@@ -122,6 +122,36 @@ def normalize_model_name(text: str) -> str:
 
 JP_CHAR_CLASS = r"\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\u3005\u30fc"
 
+JP_MODEL_NAME_CANONICAL_MAP = {
+    "三浦淳宏": "三浦　淳宏",
+    "田中マルクス闘莉王": "田中　マルクス闘莉王",
+    "森重真人": "森重　真人",
+    "武藤嘉紀": "武藤　嘉紀",
+    "西川周作": "西川　周作",
+    "川澄奈穂美": "川澄　奈穂美",
+    "大迫勇也": "大迫　勇也",
+    "冨安健洋": "冨安　健洋",
+    "久保建英": "久保　建英",
+    "久保裕也": "久保　裕也",
+    "伊東純也": "伊東　純也",
+    "鎌田大地": "鎌田　大地",
+    "守田英正": "守田　英正",
+    "古橋亨梧": "古橋　亨梧",
+    "伊藤洋輝": "伊藤　洋輝",
+    "浅野拓磨": "浅野　拓磨",
+    "上田綺世": "上田　綺世",
+    "中村憲剛": "中村　憲剛",
+    "本田圭佑": "本田　圭佑",
+    "長友佑都": "長友　佑都",
+    "吉田麻也": "吉田　麻也",
+    "長谷部誠": "長谷部　誠",
+    "鈴木彩艶": "鈴木　彩艶",
+    "香川真司": "香川　真司",
+    "遠藤航": "遠藤　航",
+    "板倉滉": "板倉　滉",
+    "田中碧_(サッカー選手)": "田中　碧",
+}
+
 
 def normalize_japanese_name_spacing(text: str) -> str:
     """
@@ -134,6 +164,7 @@ def normalize_japanese_name_spacing(text: str) -> str:
     # then convert JP-JP boundaries back to full-width separator.
     s = s.replace("\u3000", " ")
     s = re.sub(r"[ ]{2,}", " ", s).strip()
+    s = JP_MODEL_NAME_CANONICAL_MAP.get(s, s)
     s = re.sub(rf"([{JP_CHAR_CLASS}]) +([{JP_CHAR_CLASS}])", r"\1　\2", s)
     return s
 
