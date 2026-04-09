@@ -483,11 +483,12 @@ def build_data(src):
         matchup_raw[fa][fb]["goalDiffSum"] += (gfa - gaa)
         matchup_raw[fb][fa]["goalDiffSum"] += (gfb - gab)
 
-    # Relaxed thresholds so matchup lists are populated more often while
-    # keeping a minimum sample size and effect-size guardrail.
-    min_matchups = 8
-    min_abs_delta = 0.20  # goals per match
-    min_abs_z = 1.28  # approx 80% two-sided z-threshold
+    # Matchup filter tuned for practical signal:
+    # - primary metric: per-match goal-diff uplift/downlift vs formation baseline
+    # - guardrails: minimum sample, minimum effect size, minimum z-score
+    min_matchups = 15
+    min_abs_delta = 0.25  # goals per match
+    min_abs_z = 0.8
     matchup_stats = defaultdict(lambda: {"strongAgainst": [], "weakAgainst": []})
 
     for fid, opp_map in matchup_raw.items():
@@ -519,6 +520,12 @@ def build_data(src):
                 "delta": round(delta, 6),
                 "zScore": round(z, 4),
             }
+            if n >= 40:
+                row["confidence"] = "High"
+            elif n >= 25:
+                row["confidence"] = "Mid"
+            else:
+                row["confidence"] = "Low"
             if delta > 0:
                 strong.append(row)
             else:
@@ -533,6 +540,11 @@ def build_data(src):
                 "minMatches": min_matchups,
                 "minAbsDeltaGoalDiff": min_abs_delta,
                 "minAbsZScore": min_abs_z,
+                "confidenceBands": {
+                    "low": [15, 24],
+                    "mid": [25, 39],
+                    "high": [40, None],
+                },
             },
         }
 
