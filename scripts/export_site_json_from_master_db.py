@@ -64,11 +64,6 @@ def parse_args() -> argparse.Namespace:
         "--out-docs-dir",
         default=str(Path.cwd() / "docs"),
     )
-    p.add_argument(
-        "--rohm-cache-json",
-        default=str(Path.cwd() / "app" / "prepared" / "rohm_player_pages_cache.json"),
-        help="Rohm player page cache. Used for name-based model mapping on mixed personId rows.",
-    )
     return p.parse_args()
 
 
@@ -367,7 +362,6 @@ def load_fallback_coaches(path: Path) -> dict[int, dict]:
 def build_players(
     conn: sqlite3.Connection,
     fallback_players: dict[int, dict],
-    rohm_name_model_map: dict[str, dict],
 ) -> list[dict]:
     conn.row_factory = sqlite3.Row
     nations = {
@@ -384,24 +378,8 @@ def build_players(
         to_int(r["ZPLAYER_ID"]): dict(r)
         for r in conn.execute("SELECT * FROM ao__ZMOPLAYER").fetchall()
     }
-    mixed_person_ids = {
-        to_int(r["pid"])
-        for r in conn.execute(
-            """
-            SELECT ZPERSON_ID AS pid
-            FROM ao__ZMOPLAYER
-            WHERE ZPERSON_ID > 0
-            GROUP BY ZPERSON_ID
-            HAVING COUNT(DISTINCT ZNAME) > 1
-            """
-        ).fetchall()
-        if to_int(r["pid"], 0) > 0
-    }
-
     model_map = {}
-    model_player_map = {}
     manual_person_override = {}
-    model_name_map = {}
     try:
         manual_person_rows = conn.execute(
             "SELECT player_id, manual_person_id FROM manual_player_person_id"
@@ -414,24 +392,6 @@ def build_players(
     except sqlite3.OperationalError:
         # Compatibility for older DB snapshots without manual_player_person_id.
         manual_person_override = {}
-
-    try:
-        model_player_rows = conn.execute(
-            "SELECT player_id, model_name, source_method, is_manual, notes FROM manual_player_model_player"
-        ).fetchall()
-        for row in model_player_rows:
-            player_id = to_int(row["player_id"], 0)
-            if player_id <= 0:
-                continue
-            model_player_map[player_id] = {
-                "name": row["model_name"] or "",
-                "sourceMethod": row["source_method"] or "",
-                "isManual": bool(to_int(row["is_manual"], 0)),
-                "notes": row["notes"] or "",
-            }
-    except sqlite3.OperationalError:
-        # Compatibility for older DB snapshots without manual_player_model_player.
-        model_player_map = {}
 
     try:
         model_rows = conn.execute(
@@ -450,24 +410,6 @@ def build_players(
     except sqlite3.OperationalError:
         # Compatibility for older DB snapshots without manual_player_model.
         model_map = {}
-
-    try:
-        model_name_rows = conn.execute(
-            "SELECT player_name, model_name, source_method, is_manual, notes FROM manual_player_model_name"
-        ).fetchall()
-        for row in model_name_rows:
-            player_name_norm = normalize_name(row["player_name"] or "")
-            if not player_name_norm:
-                continue
-            model_name_map[player_name_norm] = {
-                "name": row["model_name"] or "",
-                "sourceMethod": row["source_method"] or "",
-                "isManual": bool(to_int(row["is_manual"], 0)),
-                "notes": row["notes"] or "",
-            }
-    except sqlite3.OperationalError:
-        # Compatibility for older DB snapshots without manual_player_model_name.
-        model_name_map = {}
 
     params_by_player = defaultdict(list)
     for row in conn.execute("SELECT * FROM ao__ZMOPLAYERSPARAM").fetchall():
@@ -504,33 +446,9 @@ def build_players(
             info = infos.get(to_int(core.get("ZINFO", 0)), {"playType": "", "description": ""})
             person_id_raw = to_int(core.get("ZPERSON_ID", 0))
             person_id = to_int(manual_person_override.get(pid, person_id_raw), 0)
-            model_info = model_player_map.get(pid, {})
-            if not model_info:
-                # Backward compatibility with legacy personId mapping.
-                model_info = model_map.get(person_id, {})
-
-            # For personId groups with mixed player names, prefer strict name-based
-            # mapping from rohm cache when available and unique.
-            # Apply only when explicit player/person mapping is absent.
-            player_name_norm = normalize_name(core.get("ZNAME") or core.get("ZFULLNAME") or "")
-            name_based = rohm_name_model_map.get(player_name_norm)
-            if (
-                not model_info
-                and person_id in mixed_person_ids
-                and name_based
-                and name_based.get("model")
-            ):
-                model_info = {
-                    "name": name_based.get("model") or "",
-                    "sourceMethod": "name_exact_on_mixed_person",
-                    "isManual": True,
-                    "notes": "mixed_personid_name_based_from_rohm_cache",
-                }
-            # Highest priority: explicit manual mapping by in-game player name.
-            # This is needed for mixed/invalid personId buckets.
-            manual_name_based = model_name_map.get(player_name_norm)
-            if manual_name_based and manual_name_based.get("name"):
-                model_info = dict(manual_name_based)
+            # Single source of truth:
+            # manual person-id (override) -> manual_player_model
+            model_info = model_map.get(person_id, {})
             if manual:
                 category = manual["category"]
                 category_membership = manual["membership"]
@@ -591,19 +509,6 @@ def build_players(
                 fb["categoryMembership"] = manual["membership"]
             fb["name"] = normalize_japanese_name_spacing(fb.get("name", ""))
             fb["fullName"] = normalize_japanese_name_spacing(fb.get("fullName", ""))
-            fb_model_by_player = model_player_map.get(pid)
-            if fb_model_by_player and fb_model_by_player.get("name"):
-                fb["modelPlayer"] = fb_model_by_player.get("name", "")
-                fb["modelPlayerManual"] = bool(fb_model_by_player.get("isManual", False))
-                fb["modelPlayerSourceMethod"] = fb_model_by_player.get("sourceMethod", "")
-                fb["modelPlayerSourceNote"] = fb_model_by_player.get("notes", "")
-            fb_name_norm = normalize_name(fb.get("name", "") or fb.get("fullName", ""))
-            manual_name_based = model_name_map.get(fb_name_norm)
-            if manual_name_based and manual_name_based.get("name"):
-                fb["modelPlayer"] = manual_name_based.get("name", "")
-                fb["modelPlayerManual"] = bool(manual_name_based.get("isManual", False))
-                fb["modelPlayerSourceMethod"] = manual_name_based.get("sourceMethod", "")
-                fb["modelPlayerSourceNote"] = manual_name_based.get("notes", "")
             fb["modelPlayer"] = normalize_japanese_name_spacing(dedupe_model_name(fb.get("modelPlayer", "")))
             membership = fb.get("categoryMembership") or [fb.get("category", "NR")]
             fb["flags"] = {"CM": "CM" in membership, "SS": "SS" in membership}
@@ -756,14 +661,11 @@ def main() -> int:
     fallback_data = load_fallback_players(Path(args.fallback_data_json).expanduser().resolve())
     fallback_coaches = load_fallback_coaches(Path(args.fallback_coaches_json).expanduser().resolve())
 
-    rohm_cache_path = Path(args.rohm_cache_json).expanduser().resolve()
-    rohm_name_model_map = load_rohm_name_model_map(rohm_cache_path)
-
     conn = sqlite3.connect(str(master_db))
     conn.row_factory = sqlite3.Row
     try:
         generated_at = now_jst_iso()
-        players = build_players(conn, fallback_data, rohm_name_model_map)
+        players = build_players(conn, fallback_data)
         scouts = build_scouts(conn)
         cm_events = build_cm_events(conn)
         coaches = build_coaches(conn, fallback_coaches)
