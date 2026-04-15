@@ -399,7 +399,26 @@ def build_players(
     }
 
     model_map = {}
+    model_player_map = {}
     model_name_map = {}
+    try:
+        model_player_rows = conn.execute(
+            "SELECT player_id, model_name, source_method, is_manual, notes FROM manual_player_model_player"
+        ).fetchall()
+        for row in model_player_rows:
+            player_id = to_int(row["player_id"], 0)
+            if player_id <= 0:
+                continue
+            model_player_map[player_id] = {
+                "name": row["model_name"] or "",
+                "sourceMethod": row["source_method"] or "",
+                "isManual": bool(to_int(row["is_manual"], 0)),
+                "notes": row["notes"] or "",
+            }
+    except sqlite3.OperationalError:
+        # Compatibility for older DB snapshots without manual_player_model_player.
+        model_player_map = {}
+
     try:
         model_rows = conn.execute(
             "SELECT person_id, model_name, source_method, is_manual, notes FROM manual_player_model"
@@ -470,13 +489,22 @@ def build_players(
             nation_name = nations.get(nation_id) or f"国籍ID:{nation_id}"
             info = infos.get(to_int(core.get("ZINFO", 0)), {"playType": "", "description": ""})
             person_id = to_int(core.get("ZPERSON_ID", 0))
-            model_info = model_map.get(person_id, {})
+            model_info = model_player_map.get(pid, {})
+            if not model_info:
+                # Backward compatibility with legacy personId mapping.
+                model_info = model_map.get(person_id, {})
 
             # For personId groups with mixed player names, prefer strict name-based
             # mapping from rohm cache when available and unique.
+            # Apply only when explicit player/person mapping is absent.
             player_name_norm = normalize_name(core.get("ZNAME") or core.get("ZFULLNAME") or "")
             name_based = rohm_name_model_map.get(player_name_norm)
-            if person_id in mixed_person_ids and name_based and name_based.get("model"):
+            if (
+                not model_info
+                and person_id in mixed_person_ids
+                and name_based
+                and name_based.get("model")
+            ):
                 model_info = {
                     "name": name_based.get("model") or "",
                     "sourceMethod": "name_exact_on_mixed_person",
@@ -546,6 +574,12 @@ def build_players(
                 fb["categoryMembership"] = manual["membership"]
             fb["name"] = normalize_japanese_name_spacing(fb.get("name", ""))
             fb["fullName"] = normalize_japanese_name_spacing(fb.get("fullName", ""))
+            fb_model_by_player = model_player_map.get(pid)
+            if fb_model_by_player and fb_model_by_player.get("name"):
+                fb["modelPlayer"] = fb_model_by_player.get("name", "")
+                fb["modelPlayerManual"] = bool(fb_model_by_player.get("isManual", False))
+                fb["modelPlayerSourceMethod"] = fb_model_by_player.get("sourceMethod", "")
+                fb["modelPlayerSourceNote"] = fb_model_by_player.get("notes", "")
             fb_name_norm = normalize_name(fb.get("name", "") or fb.get("fullName", ""))
             manual_name_based = model_name_map.get(fb_name_norm)
             if manual_name_based and manual_name_based.get("name"):
