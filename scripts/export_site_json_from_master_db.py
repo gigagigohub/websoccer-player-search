@@ -400,7 +400,21 @@ def build_players(
 
     model_map = {}
     model_player_map = {}
+    manual_person_override = {}
     model_name_map = {}
+    try:
+        manual_person_rows = conn.execute(
+            "SELECT player_id, manual_person_id FROM manual_player_person_id"
+        ).fetchall()
+        for row in manual_person_rows:
+            pid = to_int(row["player_id"], 0)
+            mpid = to_int(row["manual_person_id"], 0)
+            if pid > 0 and mpid > 0:
+                manual_person_override[pid] = mpid
+    except sqlite3.OperationalError:
+        # Compatibility for older DB snapshots without manual_player_person_id.
+        manual_person_override = {}
+
     try:
         model_player_rows = conn.execute(
             "SELECT player_id, model_name, source_method, is_manual, notes FROM manual_player_model_player"
@@ -488,7 +502,8 @@ def build_players(
             nation_id = to_int(core.get("ZNATION_ID", 0))
             nation_name = nations.get(nation_id) or f"国籍ID:{nation_id}"
             info = infos.get(to_int(core.get("ZINFO", 0)), {"playType": "", "description": ""})
-            person_id = to_int(core.get("ZPERSON_ID", 0))
+            person_id_raw = to_int(core.get("ZPERSON_ID", 0))
+            person_id = to_int(manual_person_override.get(pid, person_id_raw), 0)
             model_info = model_player_map.get(pid, {})
             if not model_info:
                 # Backward compatibility with legacy personId mapping.
@@ -559,6 +574,8 @@ def build_players(
                     "description": info.get("description") or "",
                     "nameRuby": core.get("ZNAMERUBY") or "",
                     "personId": person_id,
+                    "personIdRaw": person_id_raw,
+                    "personIdManualOverride": bool(pid in manual_person_override),
                     "modelPlayer": display_model,
                     "modelPlayerManual": bool(model_info.get("isManual", False)),
                     "modelPlayerSourceMethod": model_info.get("sourceMethod", ""),
