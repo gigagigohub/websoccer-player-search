@@ -509,6 +509,17 @@ def build_players(
                 fb["categoryMembership"] = manual["membership"]
             fb["name"] = normalize_japanese_name_spacing(fb.get("name", ""))
             fb["fullName"] = normalize_japanese_name_spacing(fb.get("fullName", ""))
+            fb_person_raw = to_int(fb.get("personId", 0), 0)
+            fb_person = to_int(manual_person_override.get(pid, fb_person_raw), 0)
+            fb["personIdRaw"] = fb_person_raw
+            fb["personId"] = fb_person
+            fb["personIdManualOverride"] = bool(pid in manual_person_override)
+            model_info = model_map.get(fb_person, {})
+            if model_info:
+                fb["modelPlayer"] = model_info.get("name", "")
+                fb["modelPlayerManual"] = bool(model_info.get("isManual", False))
+                fb["modelPlayerSourceMethod"] = model_info.get("sourceMethod", "")
+                fb["modelPlayerSourceNote"] = model_info.get("notes", "")
             fb["modelPlayer"] = normalize_japanese_name_spacing(dedupe_model_name(fb.get("modelPlayer", "")))
             membership = fb.get("categoryMembership") or [fb.get("category", "NR")]
             fb["flags"] = {"CM": "CM" in membership, "SS": "SS" in membership}
