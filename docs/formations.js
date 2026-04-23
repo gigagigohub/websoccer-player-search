@@ -1502,7 +1502,7 @@ function matchupRowsHtml(rows = []) {
   })();
   return `
     <div class="matchup-table-wrap">
-      <table class="matchup-table">
+      <table class="matchup-table" style="--matchup-name-col-width:${nameColWidthCh}ch;">
         <colgroup>
           <col style="width:${nameColWidthCh}ch; min-width:${nameColWidthCh}ch; max-width:${nameColWidthCh}ch;" />
           <col />

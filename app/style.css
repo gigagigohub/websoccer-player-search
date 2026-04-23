@@ -2572,6 +2572,13 @@ button.ghost {
   font-size: 11px;
 }
 
+.matchup-table th:first-child,
+.matchup-table td:first-child {
+  width: var(--matchup-name-col-width, 24ch);
+  min-width: var(--matchup-name-col-width, 24ch);
+  max-width: var(--matchup-name-col-width, 24ch);
+}
+
 .matchup-table th,
 .matchup-table td {
   border: 1px solid var(--line-soft);
