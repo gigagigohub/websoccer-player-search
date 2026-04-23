@@ -1498,7 +1498,7 @@ function matchupRowsHtml(rows = []) {
       const label = f ? `${f.name}${y ? ` ${y}` : ""}` : "";
       maxLen = Math.max(maxLen, String(label || "").length);
     }
-    return Math.min(48, Math.max(16, maxLen + 2));
+    return Math.min(64, Math.max(22, maxLen + 6));
   })();
   return `
     <div class="matchup-table-wrap">
