@@ -2560,25 +2560,31 @@ button.ghost {
 }
 
 .matchup-table-wrap {
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .matchup-table {
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .matchup-table th,
 .matchup-table td {
   border: 1px solid var(--line-soft);
-  padding: 6px 8px;
+  padding: 4px 6px;
   text-align: left;
   vertical-align: middle;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
 .matchup-table td .inline-pill {
   font-size: 11px;
+  white-space: nowrap;
 }
 
 .matchup-pos {
