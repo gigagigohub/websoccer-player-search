@@ -1495,7 +1495,7 @@ function matchupRowsHtml(rows = []) {
     <div class="matchup-table-wrap">
       <table class="matchup-table">
         <thead>
-          <tr><th>Formation</th><th>GD</th><th>ΔGD</th><th>N</th></tr>
+          <tr><th>Formation</th><th>W-D-L</th><th>Pts</th><th>ΔAdjPts</th><th>N</th></tr>
         </thead>
         <tbody>
           ${rows.map((row) => {
@@ -1503,12 +1503,17 @@ function matchupRowsHtml(rows = []) {
             const y = formatFormationYearLabel(f?.year, f?.stride);
             const name = f ? `${f.name}${y ? ` ${y}` : ""}` : `Formation ${row?.formationId}`;
             const delta = Number(row?.delta || 0);
-            const gd = Number(row?.goalDiffPerMatch || 0);
+            const pts = Number(row?.pointsPerMatch || 0);
+            const expPts = Number(row?.expectedPointsPerMatch || 0);
+            const w = Number(row?.wins || 0);
+            const d = Number(row?.draws || 0);
+            const l = Number(row?.losses || 0);
             const confidence = String(row?.confidence || "").trim();
             return `
               <tr>
                 <td><button type="button" class="inline-pill matchup-formation-link" data-formation-id="${row?.formationId}">${name}</button></td>
-                <td>${gd >= 0 ? "+" : ""}${gd.toFixed(2)} <span class="dim">(${Number(row?.goalDiffSum || 0).toFixed(0)}/${row?.matches})</span></td>
+                <td>${w}-${d}-${l}</td>
+                <td>${pts.toFixed(2)} <span class="dim">(Exp ${expPts.toFixed(2)})</span></td>
                 <td class="${delta >= 0 ? "matchup-pos" : "matchup-neg"}">${delta >= 0 ? "+" : ""}${delta.toFixed(2)}</td>
                 <td>${row?.matches}${confidence ? ` <span class="dim">(${confidence})</span>` : ""}</td>
               </tr>
@@ -1526,7 +1531,7 @@ function openMatchupModal(formation) {
   els.matchupTitle.textContent = `${formation.name}${y ? ` ${y}` : ""} Matchups`;
   const m = formation.matchups || {};
   const criteria = m.criteria || {};
-  const minAbsDeltaGd = Number(criteria.minAbsDeltaGoalDiff ?? criteria.minAbsDelta ?? 0);
+  const minAbsDeltaPts = Number(criteria.minAbsDeltaPoints ?? criteria.minAbsDeltaGoalDiff ?? criteria.minAbsDelta ?? 0);
   els.matchupDetail.innerHTML = `
     <div class="formation-block">
       <h3>Strong Against</h3>
@@ -1537,7 +1542,7 @@ function openMatchupModal(formation) {
       ${matchupRowsHtml(m.weakAgainst)}
     </div>
     <p class="dim matchup-criteria">
-      Filter: N ≥ ${Number(criteria.minMatches || 0)}, |ΔAdjGD| ≥ ${minAbsDeltaGd.toFixed(2)}, |z| ≥ ${Number(criteria.minAbsZScore || 0)} (Low: 15-24, Mid: 25-39, High: 40+)
+      Filter: N ≥ ${Number(criteria.minMatches || 0)}, |ΔAdjPts| ≥ ${minAbsDeltaPts.toFixed(2)}, |z| ≥ ${Number(criteria.minAbsZScore || 0)} (Low: 15-24, Mid: 25-39, High: 40+)
     </p>
   `;
   els.matchupModal.hidden = false;

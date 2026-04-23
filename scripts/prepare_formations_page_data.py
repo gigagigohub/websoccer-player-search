@@ -34,6 +34,25 @@ def to_float(v, default=0.0):
         return default
 
 
+def points_from_row(row):
+    res = str(row.get("result") or "").strip().upper()
+    if res == "W":
+        return 3.0
+    if res == "D":
+        return 1.0
+    if res == "L":
+        return 0.0
+    gf = to_float(row.get("goals_for"), None)
+    ga = to_float(row.get("goals_against"), None)
+    if gf is None or ga is None:
+        return None
+    if gf > ga:
+        return 3.0
+    if gf == ga:
+        return 1.0
+    return 0.0
+
+
 def read_csv(path):
     with path.open("r", encoding="utf-8-sig", newline="") as f:
         return list(csv.DictReader(f))
@@ -460,18 +479,78 @@ def build_data(src):
         coach_stats[fid].sort(key=lambda x: (-x["usageRate"], -x["uses"], -x["avgPts"], x["coachId"]))
 
     # Formation vs formation matchup stats (with significance filter).
-    # Use strength-adjusted residuals instead of raw uplift:
-    #   expected_gd(fid vs opp) = mu(fid) - mu(opp)
-    #   residual = observed_gd - expected_gd
-    # This controls for baseline formation strength on both sides.
-    formation_mu_gd = {}
-    for fid, n in formation_goal_diff_n.items():
+    # Primary metric: strength-adjusted expected-points residual.
+    # Why this metric:
+    # - Handles draw-heavy formations better than pure win-rate.
+    # - Avoids over-penalizing strong-but-low-margin styles from GD-only view.
+    # - Controls for baseline formation strength on both sides.
+    #
+    # Points model:
+    #   observedPts = 3/1/0 (W/D/L)
+    #   expectedPts(fid vs opp) ~= global_mu + rating(fid) - rating(opp)
+    # where rating(*) is fitted from all team-level rows by simple regularized
+    # gradient updates.
+    formation_mu_pts = {}
+    formation_pts_sum = defaultdict(float)
+    formation_pts_n = defaultdict(int)
+    obs_rows = []
+    total_pts = 0.0
+    total_n = 0
+    for rows in match_rows_by_key.values():
+        if len(rows) != 2:
+            continue
+        a, b = rows[0], rows[1]
+        fa = to_int(a.get("formation_id"))
+        fb = to_int(b.get("formation_id"))
+        if fa <= 0 or fb <= 0:
+            continue
+        pa = points_from_row(a)
+        pb = points_from_row(b)
+        if pa is None or pb is None:
+            continue
+        obs_rows.append((fa, fb, pa))
+        obs_rows.append((fb, fa, pb))
+        formation_pts_sum[fa] += pa
+        formation_pts_sum[fb] += pb
+        formation_pts_n[fa] += 1
+        formation_pts_n[fb] += 1
+        total_pts += pa + pb
+        total_n += 2
+
+    for fid, n in formation_pts_n.items():
         if n > 0:
-            formation_mu_gd[fid] = formation_goal_diff_sum[fid] / n
+            formation_mu_pts[fid] = formation_pts_sum[fid] / n
+
+    global_mu_pts = (total_pts / total_n) if total_n else 1.0
+    ratings = {fid: 0.0 for fid in formation_pts_n.keys()}
+    if obs_rows:
+        lr = 0.01
+        l2 = 0.001
+        for _ in range(120):
+            for fa, fb, p_obs in obs_rows:
+                ra = ratings.get(fa, 0.0)
+                rb = ratings.get(fb, 0.0)
+                pred = global_mu_pts + ra - rb
+                err = p_obs - pred
+                ratings[fa] = ra + lr * (err - l2 * ra)
+                ratings[fb] = rb - lr * (err + l2 * rb)
+            if ratings:
+                mean_r = sum(ratings.values()) / len(ratings)
+                for fid in ratings:
+                    ratings[fid] -= mean_r
 
     matchup_raw = defaultdict(
         lambda: defaultdict(
-            lambda: {"matches": 0, "goalDiffSum": 0.0, "residualSum": 0.0}
+            lambda: {
+                "matches": 0,
+                "goalDiffSum": 0.0,
+                "pointsSum": 0.0,
+                "expectedPointsSum": 0.0,
+                "residualSum": 0.0,
+                "wins": 0,
+                "draws": 0,
+                "losses": 0,
+            }
         )
     )
     formation_residual_sum = defaultdict(float)
@@ -485,10 +564,6 @@ def build_data(src):
         fb = to_int(b.get("formation_id"))
         if fa <= 0 or fb <= 0:
             continue
-        mu_a = formation_mu_gd.get(fa)
-        mu_b = formation_mu_gd.get(fb)
-        if mu_a is None or mu_b is None:
-            continue
         gfa = to_float(a.get("goals_for"), None)
         gaa = to_float(a.get("goals_against"), None)
         gfb = to_float(b.get("goals_for"), None)
@@ -498,17 +573,35 @@ def build_data(src):
 
         gd_a = gfa - gaa
         gd_b = gfb - gab
-        exp_a = mu_a - mu_b
-        exp_b = mu_b - mu_a
-        res_a = gd_a - exp_a
-        res_b = gd_b - exp_b
+        p_a = points_from_row(a)
+        p_b = points_from_row(b)
+        if p_a is None or p_b is None:
+            continue
+
+        exp_a = global_mu_pts + ratings.get(fa, 0.0) - ratings.get(fb, 0.0)
+        exp_b = global_mu_pts + ratings.get(fb, 0.0) - ratings.get(fa, 0.0)
+        res_a = p_a - exp_a
+        res_b = p_b - exp_b
 
         matchup_raw[fa][fb]["matches"] += 1
         matchup_raw[fb][fa]["matches"] += 1
         matchup_raw[fa][fb]["goalDiffSum"] += gd_a
         matchup_raw[fb][fa]["goalDiffSum"] += gd_b
+        matchup_raw[fa][fb]["pointsSum"] += p_a
+        matchup_raw[fb][fa]["pointsSum"] += p_b
+        matchup_raw[fa][fb]["expectedPointsSum"] += exp_a
+        matchup_raw[fb][fa]["expectedPointsSum"] += exp_b
         matchup_raw[fa][fb]["residualSum"] += res_a
         matchup_raw[fb][fa]["residualSum"] += res_b
+        if p_a >= 2.5:
+            matchup_raw[fa][fb]["wins"] += 1
+            matchup_raw[fb][fa]["losses"] += 1
+        elif p_a >= 0.5:
+            matchup_raw[fa][fb]["draws"] += 1
+            matchup_raw[fb][fa]["draws"] += 1
+        else:
+            matchup_raw[fa][fb]["losses"] += 1
+            matchup_raw[fb][fa]["wins"] += 1
 
         formation_residual_sum[fa] += res_a
         formation_residual_sum[fb] += res_b
@@ -518,10 +611,10 @@ def build_data(src):
         formation_residual_n[fb] += 1
 
     # Matchup filter tuned for practical signal:
-    # - primary metric: strength-adjusted residual (vs expected from both formations)
+    # - primary metric: strength-adjusted points residual (AdjPts)
     # - guardrails: minimum sample, minimum effect size, minimum z-score
     min_matchups = 15
-    min_abs_delta = 0.25  # goals per match
+    min_abs_delta = 0.20  # points per match
     min_abs_z = 0.8
     matchup_stats = defaultdict(lambda: {"strongAgainst": [], "weakAgainst": []})
 
@@ -539,8 +632,12 @@ def build_data(src):
             if n < min_matchups:
                 continue
             gd_sum = float(stat["goalDiffSum"] or 0.0)
+            pts_sum = float(stat["pointsSum"] or 0.0)
+            exp_pts_sum = float(stat["expectedPointsSum"] or 0.0)
             residual_sum = float(stat["residualSum"] or 0.0)
             mu_hat = gd_sum / n if n else 0.0
+            pts_hat = pts_sum / n if n else 0.0
+            exp_pts_hat = exp_pts_sum / n if n else 0.0
             delta = residual_sum / n if n else 0.0
             z = delta / math.sqrt(var0 / n)
             if abs(delta) < min_abs_delta or abs(z) < min_abs_z:
@@ -548,11 +645,15 @@ def build_data(src):
             row = {
                 "formationId": int(opp_id),
                 "matches": n,
+                "wins": int(stat["wins"] or 0),
+                "draws": int(stat["draws"] or 0),
+                "losses": int(stat["losses"] or 0),
                 "goalDiffSum": round(gd_sum, 4),
                 "goalDiffPerMatch": round(mu_hat, 6),
-                "overallGoalDiffPerMatch": round(formation_mu_gd.get(fid, 0.0), 6),
-                "expectedGoalDiffPerMatch": round(formation_mu_gd.get(fid, 0.0) - formation_mu_gd.get(int(opp_id), 0.0), 6),
-                "residualGoalDiffPerMatch": round(delta, 6),
+                "pointsPerMatch": round(pts_hat, 6),
+                "expectedPointsPerMatch": round(exp_pts_hat, 6),
+                "overallPointsPerMatch": round(formation_mu_pts.get(fid, global_mu_pts), 6),
+                "residualPointsPerMatch": round(delta, 6),
                 "delta": round(delta, 6),
                 "zScore": round(z, 4),
             }
@@ -574,9 +675,10 @@ def build_data(src):
             "weakAgainst": weak[:5],
             "criteria": {
                 "minMatches": min_matchups,
-                "minAbsDeltaGoalDiff": min_abs_delta,
+                "minAbsDeltaPoints": min_abs_delta,
+                "minAbsDeltaGoalDiff": min_abs_delta,  # backward-compat key for UI fallback
                 "minAbsZScore": min_abs_z,
-                "method": "strength_adjusted_residual",
+                "method": "strength_adjusted_points_residual",
                 "confidenceBands": {
                     "low": [15, 24],
                     "mid": [25, 39],
