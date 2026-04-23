@@ -1491,9 +1491,25 @@ function openFormationModal(formation) {
 
 function matchupRowsHtml(rows = []) {
   if (!Array.isArray(rows) || !rows.length) return `<p class="dim">No statistically significant matchup yet.</p>`;
+  const nameColWidthCh = (() => {
+    let maxLen = 12;
+    for (const f of formations || []) {
+      const y = formatFormationYearLabel(f?.year, f?.stride);
+      const label = f ? `${f.name}${y ? ` ${y}` : ""}` : "";
+      maxLen = Math.max(maxLen, String(label || "").length);
+    }
+    return Math.min(48, Math.max(16, maxLen + 2));
+  })();
   return `
     <div class="matchup-table-wrap">
       <table class="matchup-table">
+        <colgroup>
+          <col style="width:${nameColWidthCh}ch; min-width:${nameColWidthCh}ch; max-width:${nameColWidthCh}ch;" />
+          <col />
+          <col />
+          <col />
+          <col />
+        </colgroup>
         <thead>
           <tr><th>Formation</th><th>W-D-L</th><th>Pts</th><th>ΔAdjPts</th><th>N</th></tr>
         </thead>
