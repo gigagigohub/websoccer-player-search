@@ -1537,7 +1537,7 @@ function openMatchupModal(formation) {
       ${matchupRowsHtml(m.weakAgainst)}
     </div>
     <p class="dim matchup-criteria">
-      Filter: N ≥ ${Number(criteria.minMatches || 0)}, |ΔGD| ≥ ${minAbsDeltaGd.toFixed(2)}, |z| ≥ ${Number(criteria.minAbsZScore || 0)} (Low: 15-24, Mid: 25-39, High: 40+)
+      Filter: N ≥ ${Number(criteria.minMatches || 0)}, |ΔAdjGD| ≥ ${minAbsDeltaGd.toFixed(2)}, |z| ≥ ${Number(criteria.minAbsZScore || 0)} (Low: 15-24, Mid: 25-39, High: 40+)
     </p>
   `;
   els.matchupModal.hidden = false;
