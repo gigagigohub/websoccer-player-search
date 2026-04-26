@@ -3222,57 +3222,6 @@ button.ghost {
   bottom: 0.55rem;
 }
 
-.coach-formation-pill.is-owned,
-.formation-owned-mark {
-  color: #fbe38e;
-}
-
-.formation-detail-toolbar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 0.5rem;
-}
-
-.formation-owned-toggle {
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  background: rgba(255, 255, 255, 0.08);
-  color: #d4dded;
-  border-radius: 7px;
-  padding: 0.28rem 0.5rem;
-  font-size: 0.75rem;
-}
-
-.formation-owned-toggle.is-on {
-  border-color: rgba(245, 214, 122, 0.7);
-  color: #f7e58f;
-  background: rgba(143, 118, 35, 0.34);
-}
-
-.formation-name-wrap .formation-owned-mark {
-  margin-left: 0.35rem;
-}
-
-.formation-owned-mark {
-  display: inline-block;
-  font-size: 0.9rem;
-  line-height: 1;
-  width: auto;
-  height: auto;
-  border: 0;
-  background: none;
-  vertical-align: -1px;
-}
-
-.formation-owned-toggle .owned-book-icon {
-  display: inline-block;
-  width: auto;
-  height: auto;
-  border: 0;
-  margin-right: 6px;
-  vertical-align: -2px;
-  line-height: 1;
-}
-
 .myteam-coach-wrap {
   margin-top: 0;
 }

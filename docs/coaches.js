@@ -512,8 +512,7 @@ function coachFormationPills(list, withSeason = false) {
       const fid = Number(withSeason ? row?.formationId : row);
       if (!Number.isInteger(fid)) return "";
       const suffix = withSeason && Number(row?.fromSeason) > 1 ? ` (${Number(row.fromSeason)}期目〜)` : "";
-      const owned = cloudMeta.ownedFormationIds?.includes(fid) ? "is-owned" : "";
-      return `<button type="button" class="inline-pill coach-formation-pill ${owned}" data-formation-id="${fid}">${getFormationName(fid)}${suffix}</button>`;
+      return `<button type="button" class="inline-pill coach-formation-pill" data-formation-id="${fid}">${getFormationName(fid)}${suffix}</button>`;
     })
     .join("");
 }

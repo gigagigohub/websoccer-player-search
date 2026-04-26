@@ -731,14 +731,12 @@ function applyFilterAndSort() {
 
 function formationCardHtml(f) {
   const yearText = formatFormationYearLabel(f.year, f.stride);
-  const owned = cloudMeta.ownedFormationIds?.includes(Number(f.id));
   return `
     <button type="button" class="formation-item" data-formation-id="${f.id}">
       <div class="formation-item-head">
         <div class="formation-name-wrap">
           <strong>${f.name}</strong>
           ${yearText ? `<span class="formation-year">${yearText}</span>` : ""}
-          ${owned ? `<span class="formation-owned-mark" title="Owned">📖</span>` : ""}
         </div>
         <span class="formation-system">${f.system || "-"}</span>
       </div>
@@ -1505,12 +1503,10 @@ function renderCoachDetail(coachId) {
   const tab = coachTabModeById.get(Number(coach.id)) || "lead";
   const obtainHtml = obtainable.map((row) => {
     const suffix = Number(row.fromSeason) > 1 ? ` (${row.fromSeason}期目〜)` : "";
-    const owned = cloudMeta.ownedFormationIds?.includes(Number(row.formationId)) ? "is-owned" : "";
-    return `<button type="button" class="inline-pill coach-formation-pill ${owned}" data-formation-id="${row.formationId}">${getFormationName(row.formationId)}${suffix}</button>`;
+    return `<button type="button" class="inline-pill coach-formation-pill" data-formation-id="${row.formationId}">${getFormationName(row.formationId)}${suffix}</button>`;
   }).join(" ");
   const depth4Html = depth4.map((fid) => {
-    const owned = cloudMeta.ownedFormationIds?.includes(Number(fid)) ? "is-owned" : "";
-    return `<button type="button" class="inline-pill coach-formation-pill ${owned}" data-formation-id="${fid}">${getFormationName(fid)}</button>`;
+    return `<button type="button" class="inline-pill coach-formation-pill" data-formation-id="${fid}">${getFormationName(fid)}</button>`;
   }).join(" ");
 
   const staticImg = `./images/chara/headcoaches/static/${coach.id}@2x.gif`;
@@ -1568,14 +1564,8 @@ function openFormationModal(formation, options = {}) {
   if (!els.formationModal || !els.formationTitle || !els.formationDetail) return;
 
   const yearLabel = formatFormationYearLabel(formation.year, formation.stride);
-  const owned = cloudMeta.ownedFormationIds?.includes(Number(formation.id));
   els.formationTitle.textContent = `${formation.name}${yearLabel ? ` ${yearLabel}` : ""} (${formation.system || "-"})`;
   els.formationDetail.innerHTML = `
-    <div class="formation-detail-toolbar">
-      <button type="button" class="formation-owned-toggle ${owned ? "is-on" : ""}" data-toggle-owned="${formation.id}" title="Owned">
-        <span class="owned-book-icon" aria-hidden="true">📖</span>${owned ? "Owned" : "Mark Owned"}
-      </button>
-    </div>
     <div class="formation-detail-grid">
       <div class="formation-field-col">
         ${renderFormationPitch(formation.positions || [], formation.id)}
@@ -1919,25 +1909,6 @@ function bindEvents() {
 
   if (els.formationDetail) {
     els.formationDetail.addEventListener("click", (e) => {
-      const ownedBtn = e.target.closest("[data-toggle-owned]");
-      if (ownedBtn) {
-        const fid = Number(ownedBtn.dataset.toggleOwned);
-        if (!isLoggedIn()) {
-          window.alert("先にLoginしてください。");
-          return;
-        }
-        if (Number.isInteger(fid)) {
-          const set = new Set(cloudMeta.ownedFormationIds || []);
-          if (set.has(fid)) set.delete(fid);
-          else set.add(fid);
-          cloudMeta.ownedFormationIds = [...set].sort((a, b) => a - b);
-          saveCloudMeta().then(() => {
-            if (currentFormation) openFormationModal(currentFormation, { preserveSlotTopMode: true });
-            renderList();
-          }).catch(() => window.alert("保有フォーメーション保存に失敗しました。"));
-        }
-        return;
-      }
       const coachBtn = e.target.closest("[data-coach-id]");
       if (coachBtn) {
         const cid = Number(coachBtn.dataset.coachId);
