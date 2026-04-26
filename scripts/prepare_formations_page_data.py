@@ -768,12 +768,10 @@ def build_data(src):
         formation_residual_n[fa] += 1
         formation_residual_n[fb] += 1
 
-    # Matchup filter tuned for practical signal:
+    # Matchup ranking tuned for practical comparison:
     # - primary metric: strength-adjusted points residual (AdjPts)
-    # - guardrails: minimum sample, minimum effect size, minimum z-score
+    # - guardrail: minimum sample, then show the strongest/weakest ranked deltas.
     min_matchups = 15
-    min_abs_delta = 0.20  # points per match
-    min_abs_z = 0.8
     matchup_stats = defaultdict(lambda: {"strongAgainst": [], "weakAgainst": []})
 
     for fid, opp_map in matchup_raw.items():
@@ -786,6 +784,8 @@ def build_data(src):
         strong = []
         weak = []
         for opp_id, stat in opp_map.items():
+            if int(opp_id) == int(fid):
+                continue
             n = int(stat["matches"] or 0)
             if n < min_matchups:
                 continue
@@ -798,8 +798,6 @@ def build_data(src):
             exp_pts_hat = exp_pts_sum / n if n else 0.0
             delta = residual_sum / n if n else 0.0
             z = delta / math.sqrt(var0 / n)
-            if abs(delta) < min_abs_delta or abs(z) < min_abs_z:
-                continue
             row = {
                 "formationId": int(opp_id),
                 "matches": n,
@@ -821,10 +819,8 @@ def build_data(src):
                 row["confidence"] = "Mid"
             else:
                 row["confidence"] = "Low"
-            if delta > 0:
-                strong.append(row)
-            else:
-                weak.append(row)
+            strong.append(row)
+            weak.append(row)
 
         strong.sort(key=lambda x: (-x["delta"], -x["matches"], x["formationId"]))
         weak.sort(key=lambda x: (x["delta"], -x["matches"], x["formationId"]))
@@ -833,10 +829,8 @@ def build_data(src):
             "weakAgainst": weak[:5],
             "criteria": {
                 "minMatches": min_matchups,
-                "minAbsDeltaPoints": min_abs_delta,
-                "minAbsDeltaGoalDiff": min_abs_delta,  # backward-compat key for UI fallback
-                "minAbsZScore": min_abs_z,
-                "method": "strength_adjusted_points_residual",
+                "method": "ranked_strength_adjusted_points_residual",
+                "ranking": "top_bottom_delta_adj_pts",
                 "confidenceBands": {
                     "low": [15, 24],
                     "mid": [25, 39],

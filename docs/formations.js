@@ -1674,18 +1674,17 @@ function openMatchupModal(formation) {
   els.matchupTitle.textContent = `${formation.name}${y ? ` ${y}` : ""} Matchups`;
   const m = formation.matchups || {};
   const criteria = m.criteria || {};
-  const minAbsDeltaPts = Number(criteria.minAbsDeltaPoints ?? criteria.minAbsDeltaGoalDiff ?? criteria.minAbsDelta ?? 0);
   els.matchupDetail.innerHTML = `
     <div class="formation-block">
-      <h3>Strong Against</h3>
+      <h3>Best Matchups</h3>
       ${matchupRowsHtml(m.strongAgainst)}
     </div>
     <div class="formation-block">
-      <h3>Weak Against</h3>
+      <h3>Worst Matchups</h3>
       ${matchupRowsHtml(m.weakAgainst)}
     </div>
     <p class="dim matchup-criteria">
-      Filter: N ≥ ${Number(criteria.minMatches || 0)}, |ΔAdjPts| ≥ ${minAbsDeltaPts.toFixed(2)}, |z| ≥ ${Number(criteria.minAbsZScore || 0)} (Low: 15-24, Mid: 25-39, High: 40+)
+      Minimum N: ${Number(criteria.minMatches || 0)} / ranked by adjusted points difference (Low: 15-24, Mid: 25-39, High: 40+)
     </p>
   `;
   els.matchupModal.hidden = false;
