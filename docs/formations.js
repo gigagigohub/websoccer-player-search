@@ -834,7 +834,7 @@ function renderKeyPositions(keyPositions) {
 }
 
 function renderSlotTop(slotStats, mode = "usage") {
-  if (mode === "team") {
+  if (mode === "team" || mode === "best") {
     return renderRepresentativeTeam(currentFormation);
   }
   const slots = Array.from({ length: 11 }, (_, i) => i + 1);
@@ -1530,7 +1530,7 @@ function openFormationModal(formation) {
         <div class="slot-top-sort-switch" role="group" aria-label="CC Slot Top sort mode">
           <button type="button" class="slot-top-sort-btn${slotTopSortMode === "usage" ? " is-on" : ""}" data-slot-top-sort="usage">Usage</button>
           <button type="button" class="slot-top-sort-btn${slotTopSortMode === "avg" ? " is-on" : ""}" data-slot-top-sort="avg">Avg</button>
-          <button type="button" class="slot-top-sort-btn${slotTopSortMode === "team" ? " is-on" : ""}" data-slot-top-sort="team">Team</button>
+          <button type="button" class="slot-top-sort-btn${slotTopSortMode === "best" ? " is-on" : ""}" data-slot-top-sort="best">Best Team</button>
         </div>
       </div>
       ${renderSlotTop(formation.slotStats || {}, slotTopSortMode)}
@@ -1864,7 +1864,7 @@ function bindEvents() {
       const sortBtn = e.target.closest("[data-slot-top-sort]");
       if (sortBtn) {
         const mode = String(sortBtn.dataset.slotTopSort || "");
-        if (mode === "usage" || mode === "avg" || mode === "team") {
+        if (mode === "usage" || mode === "avg" || mode === "team" || mode === "best") {
           slotTopSortMode = mode;
           if (currentFormation) openFormationModal(currentFormation);
         }
