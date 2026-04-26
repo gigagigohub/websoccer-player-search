@@ -404,6 +404,7 @@ def build_data(src):
     coach_name_by_id = {}
     match_rows_by_key = defaultdict(list)
     team_row_by_instance = {}
+    team_season_match_count = defaultdict(int)
 
     for row in team_rows:
         fid = to_int(row.get("formation_id"))
@@ -431,6 +432,7 @@ def build_data(src):
         mkey = (to_int(row.get("season")), to_int(row.get("world_id")), to_int(row.get("match_id")))
         match_rows_by_key[mkey].append(row)
         team_row_by_instance[team_instance_key(row)] = row
+        team_season_match_count[(to_int(row.get("season")), to_int(row.get("team_id")))] += 1
 
     # Slot usage and pts by (formation, slot, player)
     formation_slot_total = defaultdict(int)
@@ -522,11 +524,13 @@ def build_data(src):
         lineup_signature = tuple((int(m["slot"]), int(m["playerId"])) for m in lineup)
         group_key = (season, team_id, fid, cid, lineup_signature)
         if group_key not in best_team_groups:
+            team_season_matches = team_season_match_count[(season, team_id)]
             best_team_groups[group_key] = {
                 "formationId": fid,
                 "season": season,
                 "teamId": team_id,
                 "teamName": team.get("team_name") or "",
+                "teamSeasonMatches": team_season_matches,
                 "coach": {
                     "id": cid,
                     "name": team.get("headcoach_name") or coach_name_by_id.get(cid, str(cid)),
@@ -572,6 +576,9 @@ def build_data(src):
         matches = int(group["matches"] or 0)
         if matches <= 0:
             continue
+        team_season_matches = int(group.get("teamSeasonMatches") or 0)
+        if team_season_matches > 0 and matches != team_season_matches:
+            continue
         members = []
         for slot in sorted(group["membersBySlot"]):
             member = group["membersBySlot"][slot]
@@ -592,6 +599,7 @@ def build_data(src):
             "teamId": group["teamId"],
             "teamName": group["teamName"],
             "matches": matches,
+            "teamSeasonMatches": team_season_matches,
             "wins": int(group["wins"] or 0),
             "draws": int(group["draws"] or 0),
             "losses": int(group["losses"] or 0),
