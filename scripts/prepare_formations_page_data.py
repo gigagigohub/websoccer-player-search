@@ -819,8 +819,10 @@ def build_data(src):
                 row["confidence"] = "Mid"
             else:
                 row["confidence"] = "Low"
-            strong.append(row)
-            weak.append(row)
+            if delta > 0:
+                strong.append(row)
+            elif delta < 0:
+                weak.append(row)
 
         strong.sort(key=lambda x: (-x["delta"], -x["matches"], x["formationId"]))
         weak.sort(key=lambda x: (x["delta"], -x["matches"], x["formationId"]))
