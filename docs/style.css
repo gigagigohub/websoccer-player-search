@@ -2515,6 +2515,7 @@ button.ghost {
 
 .formation-field-col {
   min-width: 0;
+  margin-top: 10px;
 }
 
 .formation-cc-col {
