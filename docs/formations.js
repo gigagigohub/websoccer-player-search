@@ -834,6 +834,9 @@ function renderKeyPositions(keyPositions) {
 }
 
 function renderSlotTop(slotStats, mode = "usage") {
+  if (mode === "team") {
+    return renderRepresentativeTeam(currentFormation);
+  }
   const slots = Array.from({ length: 11 }, (_, i) => i + 1);
   const keySlots = new Set(
     (currentFormation?.keyPositions || [])
@@ -871,6 +874,56 @@ function renderSlotTop(slotStats, mode = "usage") {
                 <span class="slot-top-statline">
                   ${categoryBadgeHtmlByPlayerId(top.playerId)}
                   <span>Usage ${pct(top.usageRate)} / Avg ${avg(top.avgPts)}</span>
+                </span>
+              </div>
+            </button>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
+}
+
+function renderRepresentativeTeam(formation) {
+  if (!formation || typeof formation !== "object") {
+    return `<p class="dim">No representative team data.</p>`;
+  }
+  const cc = formation.cc || {};
+  const coach = Array.isArray(formation.coachStats) && formation.coachStats.length
+    ? formation.coachStats.slice().sort((a, b) =>
+        Number(b?.avgPts || 0) - Number(a?.avgPts || 0)
+        || Number(b?.uses || 0) - Number(a?.uses || 0)
+        || String(a?.coachName || "").localeCompare(String(b?.coachName || ""), "ja")
+      )[0]
+    : null;
+  const topPlayers = Object.keys(formation.slotTop || {})
+    .map((slot) => ({ slot: Number(slot), ...(formation.slotTop?.[slot] || {}) }))
+    .filter((row) => Number.isInteger(row.slot))
+    .sort((a, b) => a.slot - b.slot);
+  if (!topPlayers.length) {
+    return `<p class="dim">No representative lineup available.</p>`;
+  }
+  return `
+    <div class="formation-team-summary">
+      <p class="dim">CC usage ${pct(cc.usageRate)} / wins ${Number(cc.wins || 0)} / win rate ${pct(cc.winRate)}</p>
+      ${coach ? `<p><strong>Representative Coach:</strong> ${coach.coachName} (${pct(coach.usageRate)} uses, avg ${avg(coach.avgPts)})</p>` : `<p class="dim">No coach ranking available.</p>`}
+    </div>
+    <div class="formation-slot-top-list">
+      ${topPlayers
+        .map((top) => {
+          const slotLabel = `Slot ${top.slot}`;
+          const imgSrc = `./images/chara/players/static/${top.playerId}.gif`;
+          return `
+            <button type="button" class="slot-top-row coach-top-row" disabled>
+              <span class="slot-top-slotno">${slotLabel}</span>
+              <div class="slot-top-thumb">
+                <img loading="lazy" src="${imgSrc}" alt="${top.playerName}" />
+              </div>
+              <div class="slot-top-meta">
+                <strong class="slot-top-name">${top.playerName}</strong>
+                <span class="slot-top-statline">
+                  ${categoryBadgeHtmlByPlayerId(top.playerId)}
+                  <span>${pct(top.usageRate)} / Avg ${avg(top.avgPts)}</span>
                 </span>
               </div>
             </button>
@@ -1477,6 +1530,7 @@ function openFormationModal(formation) {
         <div class="slot-top-sort-switch" role="group" aria-label="CC Slot Top sort mode">
           <button type="button" class="slot-top-sort-btn${slotTopSortMode === "usage" ? " is-on" : ""}" data-slot-top-sort="usage">Usage</button>
           <button type="button" class="slot-top-sort-btn${slotTopSortMode === "avg" ? " is-on" : ""}" data-slot-top-sort="avg">Avg</button>
+          <button type="button" class="slot-top-sort-btn${slotTopSortMode === "team" ? " is-on" : ""}" data-slot-top-sort="team">Team</button>
         </div>
       </div>
       ${renderSlotTop(formation.slotStats || {}, slotTopSortMode)}
@@ -1810,7 +1864,7 @@ function bindEvents() {
       const sortBtn = e.target.closest("[data-slot-top-sort]");
       if (sortBtn) {
         const mode = String(sortBtn.dataset.slotTopSort || "");
-        if (mode === "usage" || mode === "avg") {
+        if (mode === "usage" || mode === "avg" || mode === "team") {
           slotTopSortMode = mode;
           if (currentFormation) openFormationModal(currentFormation);
         }
@@ -1924,13 +1978,38 @@ async function init() {
   buildSortOptions();
   bindEvents();
 
-  const [formationsRes, coachesMetaRes] = await Promise.all([
+  const [formationsRes, playersRes, coachesMetaRes] = await Promise.all([
     fetch("./formations_data.json"),
+    fetch("./data.json").catch(() => null),
     fetch("./coaches_data.json").catch(() => null),
   ]);
   const formationData = await formationsRes.json();
   formations = Array.isArray(formationData.formations) ? formationData.formations : [];
   coaches = Array.isArray(formationData.coaches) ? formationData.coaches : [];
+  if (playersRes && playersRes.ok) {
+    try {
+      const playersData = await playersRes.json();
+      const rows = Array.isArray(playersData?.players) ? playersData.players : [];
+      syncProfileSideWidthFromPlayers(rows);
+      playerCategoryById = new Map(
+        rows
+          .map((p) => [Number(p?.id), normalizeCategory(p?.category)])
+          .filter(([id]) => Number.isInteger(id))
+      );
+      playerRateById = new Map(
+        rows
+          .map((p) => [Number(p?.id), Number(p?.rate)])
+          .filter(([id]) => Number.isInteger(id))
+      );
+      playersById = new Map(
+        rows
+          .map((p) => [Number(p?.id), p])
+          .filter(([id]) => Number.isInteger(id))
+      );
+    } catch (e) {
+      console.warn(e);
+    }
+  }
   if (coachesMetaRes && coachesMetaRes.ok) {
     try {
       const raw = await coachesMetaRes.json();
