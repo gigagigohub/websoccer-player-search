@@ -903,8 +903,8 @@ function renderBestTeam(formation) {
   const losses = Number(team?.losses || 0);
   const goalDiff = Number(team?.goalDiff || 0);
   const goalsFor = Number(team?.goalsFor || 0);
-  const matches = Number(team?.matches || 0);
-  const teamSeasonMatches = Number(team?.teamSeasonMatches || matches);
+  const goalsAgainst = Number(team?.goalsAgainst || 0);
+  const finish = String(team?.finish || "-");
   const coach = team?.coach || {};
   const rankTabs = teams.length > 1
     ? `<div class="best-team-rank-switch" role="group" aria-label="Top Teams rank">
@@ -925,11 +925,11 @@ function renderBestTeam(formation) {
         ${rankTabs}
       </div>
       <div class="best-team-score-grid">
-        <span>Wins <strong>${Number.isFinite(wins) ? wins : "-"}</strong></span>
+        <span>Finish <strong>${finish}</strong></span>
+        <span>Record <strong>${wins}-${draws}-${losses}</strong></span>
         <span>Goal Diff <strong>${Number.isFinite(goalDiff) ? (goalDiff >= 0 ? `+${goalDiff}` : goalDiff) : "-"}</strong></span>
         <span>Goals For <strong>${Number.isFinite(goalsFor) ? goalsFor : "-"}</strong></span>
-        <span>Record <strong>${wins}-${draws}-${losses}</strong></span>
-        <span>Matches <strong>${Number.isFinite(matches) ? `${matches}/${teamSeasonMatches || matches}` : "-"}</strong></span>
+        <span>Goals Against <strong>${Number.isFinite(goalsAgainst) ? goalsAgainst : "-"}</strong></span>
         <span>Avg Pts <strong>${avg(team?.avgPlayerPts)}</strong></span>
       </div>
       ${Number(coach?.id || 0) > 0 ? `

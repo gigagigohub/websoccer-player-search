@@ -53,6 +53,37 @@ def points_from_row(row):
     return 0.0
 
 
+def cc_round_rank(title):
+    s = str(title or "")
+    if "決勝" in s and "準決勝" not in s and "準々決勝" not in s:
+        return 5
+    if "準決勝" in s:
+        return 4
+    if "準々決勝" in s or "ベスト8" in s:
+        return 3
+    if "ベスト16" in s:
+        return 2
+    if "グループ" in s:
+        return 1
+    return 0
+
+
+def finish_label_from_rank(rank, final_result=None, final_side=None, final_pk_winner_side=None):
+    if rank >= 5:
+        if str(final_result or "").strip().upper() == "W" or (
+            final_pk_winner_side and str(final_pk_winner_side).strip().lower() == str(final_side or "").strip().lower()
+        ):
+            return "Champion"
+        return "Runner-up"
+    if rank == 4:
+        return "Best 4"
+    if rank == 3:
+        return "Best 8"
+    if rank == 2:
+        return "Best 16"
+    return "GL Exit"
+
+
 def team_instance_key(row):
     return (
         to_int(row.get("season")),
@@ -77,6 +108,7 @@ def load_sources(base_csv_dir, cc_dir):
         "formation_pos": read_csv(sqlite_dir / "ZMOFORMATIONSPOSITION.csv"),
         "coach": read_csv(sqlite_dir / "ZMOHEADCOACH.csv"),
         "coach_understanding": read_csv(sqlite_dir / "ZMOHEADCOACHESUNDERSTANDING.csv"),
+        "match_level": read_csv(cc_dir / "normalized" / "match_level.csv"),
         "team_level": read_csv(cc_dir / "normalized" / "team_level.csv"),
         "player_level": read_csv(cc_dir / "normalized" / "player_level.csv"),
     }
@@ -201,6 +233,20 @@ def load_sources_from_master_db(master_db_path):
                     """
                 ).fetchall()
             ],
+            "match_level": [
+                dict(r)
+                for r in conn.execute(
+                    """
+                    SELECT
+                      season,
+                      world_id,
+                      match_id,
+                      title,
+                      pk_winner_side
+                    FROM cc_matches
+                    """
+                ).fetchall()
+            ],
             "player_level": [
                 dict(r)
                 for r in conn.execute(
@@ -258,6 +304,20 @@ def load_cc_from_db(cc_db_path):
                 """
             ).fetchall()
         ]
+        match_rows = [
+            dict(r)
+            for r in conn.execute(
+                """
+                SELECT
+                  season,
+                  world_id,
+                  match_id,
+                  title,
+                  pk_winner_side
+                FROM matches
+                """
+            ).fetchall()
+        ]
         player_rows = [
             dict(r)
             for r in conn.execute(
@@ -282,7 +342,7 @@ def load_cc_from_db(cc_db_path):
                 """
             ).fetchall()
         ]
-        return {"team_level": team_rows, "player_level": player_rows}
+        return {"match_level": match_rows, "team_level": team_rows, "player_level": player_rows}
     finally:
         conn.close()
 
@@ -294,6 +354,7 @@ def build_data(src):
     pos_rows = src["formation_pos"]
     coach_rows = src["coach"]
     understanding_rows = src["coach_understanding"]
+    match_rows = src.get("match_level", [])
     team_rows = src["team_level"]
     player_rows = src["player_level"]
 
@@ -405,6 +466,16 @@ def build_data(src):
     match_rows_by_key = defaultdict(list)
     team_row_by_instance = {}
     team_season_match_count = defaultdict(int)
+    match_info_by_key = {}
+    team_season_finish = {}
+
+    for row in match_rows:
+        mkey = (to_int(row.get("season")), to_int(row.get("world_id")), to_int(row.get("match_id")))
+        match_info_by_key[mkey] = {
+            "title": row.get("title") or "",
+            "roundRank": cc_round_rank(row.get("title")),
+            "pkWinnerSide": row.get("pk_winner_side") or "",
+        }
 
     for row in team_rows:
         fid = to_int(row.get("formation_id"))
@@ -433,6 +504,20 @@ def build_data(src):
         match_rows_by_key[mkey].append(row)
         team_row_by_instance[team_instance_key(row)] = row
         team_season_match_count[(to_int(row.get("season")), to_int(row.get("team_id")))] += 1
+        finish_key = (to_int(row.get("season")), to_int(row.get("team_id")))
+        match_info = match_info_by_key.get(mkey, {})
+        round_rank = int(match_info.get("roundRank") or 0)
+        prev = team_season_finish.get(finish_key)
+        if not prev or round_rank > int(prev.get("roundRank") or 0):
+            team_season_finish[finish_key] = {
+                "roundRank": round_rank,
+                "label": finish_label_from_rank(
+                    round_rank,
+                    row.get("result"),
+                    row.get("side"),
+                    match_info.get("pkWinnerSide"),
+                ),
+            }
 
     # Slot usage and pts by (formation, slot, player)
     formation_slot_total = defaultdict(int)
@@ -605,6 +690,7 @@ def build_data(src):
             "season": group["season"],
             "teamId": group["teamId"],
             "teamName": group["teamName"],
+            "finish": team_season_finish.get((group["season"], group["teamId"]), {}).get("label", "GL Exit"),
             "matches": matches,
             "teamSeasonMatches": team_season_matches,
             "wins": int(group["wins"] or 0),
