@@ -1438,9 +1438,9 @@ function filterPlayers(conditions = getConditions()) {
     const playerType = toHiragana((player.playType || "").toLowerCase());
     const playerModel = normalizedModelSearchName(player);
     if (query) {
-      const nameMatched = playerName === query || (!!playerNameRuby && playerNameRuby === query);
-      const typeMatched = playerType === query;
-      const modelMatched = playerModel === query;
+      const nameMatched = playerName.includes(query) || (!!playerNameRuby && playerNameRuby.includes(query));
+      const typeMatched = playerType.includes(query);
+      const modelMatched = playerModel.includes(query);
       if (!nameMatched && !typeMatched && !modelMatched) {
         return false;
       }
@@ -2009,7 +2009,7 @@ async function init() {
       const name = String(btn.dataset.name || "");
       els.nameQuery.value = name;
       hideNameSuggest();
-      els.nameQuery.focus();
+      render();
     });
   }
   if (els.loadMoreResults) {
