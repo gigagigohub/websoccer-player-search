@@ -583,12 +583,19 @@ def build_data(src):
         for slot in sorted(group["membersBySlot"]):
             member = group["membersBySlot"][slot]
             pts_sum = float(member.get("ptsSum") or 0.0)
+            player_id = int(member.get("playerId") or 0)
+            slot_usage_rate = 0
+            for row in slot_stats[group["formationId"]].get(slot, []):
+                if int(row.get("playerId") or 0) == player_id:
+                    slot_usage_rate = row.get("usageRate", 0)
+                    break
             members.append({
                 "slot": slot,
-                "playerId": int(member.get("playerId") or 0),
+                "playerId": player_id,
                 "playerName": member.get("playerName") or "",
                 "playerFullName": member.get("playerFullName") or member.get("playerName") or "",
                 "pos": int(member.get("pos") or 0),
+                "usageRate": slot_usage_rate,
                 "ptsSum": round(pts_sum, 4),
                 "avgPts": round(pts_sum / matches, 4),
             })

@@ -952,7 +952,7 @@ function renderBestTeam(formation) {
               <strong class="slot-top-name">${member?.playerName || "-"}</strong>
               <span class="slot-top-statline">
                 ${categoryBadgeHtmlByPlayerId(playerId)}
-                <span>Avg ${avg(member?.avgPts)} / Total ${Number(member?.ptsSum || 0).toFixed(0)}</span>
+                <span>Usage ${pct(member?.usageRate)} / Avg ${avg(member?.avgPts)}</span>
               </span>
             </div>
           </button>
