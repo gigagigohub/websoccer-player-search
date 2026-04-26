@@ -2843,6 +2843,11 @@ button.ghost {
   color: var(--text-main);
 }
 
+.best-team-score-grid span:first-child {
+  border-color: rgba(112, 149, 240, 0.48);
+  background: rgba(112, 149, 240, 0.1);
+}
+
 .best-team-coach {
   width: 100%;
   border: 1px solid #30486b;
@@ -3004,7 +3009,24 @@ button.ghost {
 
 @media (max-width: 840px) {
   .formation-detail-grid {
-    grid-template-columns: 176px minmax(0, 1fr);
+    grid-template-columns: 1fr;
+  }
+
+  .formation-field-col {
+    display: flex;
+    justify-content: center;
+  }
+
+  .formation-cc-col {
+    width: 100%;
+  }
+
+  .best-team-score-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .best-team-score-grid span:first-child {
+    grid-column: 1 / -1;
   }
 }
 
