@@ -53,6 +53,16 @@ def points_from_row(row):
     return 0.0
 
 
+def team_instance_key(row):
+    return (
+        to_int(row.get("season")),
+        to_int(row.get("world_id")),
+        to_int(row.get("match_id")),
+        str(row.get("side") or "").strip().lower(),
+        to_int(row.get("team_id")),
+    )
+
+
 def read_csv(path):
     with path.open("r", encoding="utf-8-sig", newline="") as f:
         return list(csv.DictReader(f))
@@ -393,6 +403,7 @@ def build_data(src):
     coach_pts_sum = defaultdict(float)  # (formation, coach) -> sum pts
     coach_name_by_id = {}
     match_rows_by_key = defaultdict(list)
+    team_row_by_instance = {}
 
     for row in team_rows:
         fid = to_int(row.get("formation_id"))
@@ -419,12 +430,15 @@ def build_data(src):
             coach_name_by_id[cid] = row.get("headcoach_name") or coach_by_id.get(cid, {}).get("name") or str(cid)
         mkey = (to_int(row.get("season")), to_int(row.get("world_id")), to_int(row.get("match_id")))
         match_rows_by_key[mkey].append(row)
+        team_row_by_instance[team_instance_key(row)] = row
 
     # Slot usage and pts by (formation, slot, player)
     formation_slot_total = defaultdict(int)
     slot_player_count = defaultdict(int)
     slot_player_pts_sum = defaultdict(float)
     slot_player_name = {}
+    slot_player_fullname = {}
+    starting_members_by_instance = defaultdict(list)
 
     for row in player_rows:
         if str(row.get("is_starting11") or "") != "1":
@@ -441,6 +455,15 @@ def build_data(src):
         if pts is not None:
             slot_player_pts_sum[key] += pts
         slot_player_name[pid] = row.get("player_name") or row.get("player_fullname") or str(pid)
+        slot_player_fullname[pid] = row.get("player_fullname") or row.get("player_name") or str(pid)
+        starting_members_by_instance[team_instance_key(row)].append({
+            "slot": slot,
+            "playerId": pid,
+            "playerName": row.get("player_name") or row.get("player_fullname") or str(pid),
+            "playerFullName": row.get("player_fullname") or row.get("player_name") or str(pid),
+            "pos": to_int(row.get("pos_code_1_4")),
+            "ptsSum": to_float(row.get("pts"), 0.0),
+        })
 
     slot_stats = defaultdict(lambda: defaultdict(list))
     slot_top = defaultdict(dict)
@@ -449,11 +472,14 @@ def build_data(src):
         denom = formation_slot_total[(fid, slot)] or 1
         rate = count / denom
         pts_avg = slot_player_pts_sum[(fid, slot, pid)] / count if count else 0.0
+        pts_sum = slot_player_pts_sum[(fid, slot, pid)]
         item = {
             "playerId": pid,
             "playerName": slot_player_name.get(pid, str(pid)),
+            "playerFullName": slot_player_fullname.get(pid, slot_player_name.get(pid, str(pid))),
             "uses": count,
             "usageRate": round(rate, 6),
+            "ptsSum": round(pts_sum, 4),
             "avgPts": round(pts_avg, 4),
         }
         slot_stats[fid][slot].append(item)
@@ -473,10 +499,134 @@ def build_data(src):
             "coachName": coach_name_by_id.get(cid, str(cid)),
             "uses": count,
             "usageRate": round(usage, 6),
+            "ptsSum": round(coach_pts_sum[(fid, cid)], 4),
             "avgPts": round(avg_pts, 4),
         })
     for fid in coach_stats:
         coach_stats[fid].sort(key=lambda x: (-x["usageRate"], -x["uses"], -x["avgPts"], x["coachId"]))
+
+    best_team_groups = {}
+    for instance_key, members in starting_members_by_instance.items():
+        team = team_row_by_instance.get(instance_key)
+        if not team:
+            continue
+        fid = to_int(team.get("formation_id"))
+        cid = to_int(team.get("headcoach_id"))
+        season = to_int(team.get("season"))
+        team_id = to_int(team.get("team_id"))
+        if fid not in formation_by_id or cid <= 0 or season <= 0 or team_id <= 0:
+            continue
+        lineup = sorted(members, key=lambda x: x["slot"])
+        if len(lineup) != 11 or len({m["slot"] for m in lineup}) != 11:
+            continue
+        lineup_signature = tuple((int(m["slot"]), int(m["playerId"])) for m in lineup)
+        group_key = (season, team_id, fid, cid, lineup_signature)
+        if group_key not in best_team_groups:
+            best_team_groups[group_key] = {
+                "formationId": fid,
+                "season": season,
+                "teamId": team_id,
+                "teamName": team.get("team_name") or "",
+                "coach": {
+                    "id": cid,
+                    "name": team.get("headcoach_name") or coach_name_by_id.get(cid, str(cid)),
+                    "ptsSum": 0.0,
+                },
+                "matches": 0,
+                "wins": 0,
+                "draws": 0,
+                "losses": 0,
+                "points": 0.0,
+                "goalsFor": 0,
+                "goalsAgainst": 0,
+                "goalDiff": 0,
+                "playerPtsSum": 0.0,
+                "membersBySlot": {int(m["slot"]): {**m} for m in lineup},
+            }
+        group = best_team_groups[group_key]
+        group["matches"] += 1
+        result = str(team.get("result") or "").strip().upper()
+        if result == "W":
+            group["wins"] += 1
+        elif result == "D":
+            group["draws"] += 1
+        elif result == "L":
+            group["losses"] += 1
+        points = points_from_row(team) or 0.0
+        gf = to_int(team.get("goals_for"))
+        ga = to_int(team.get("goals_against"))
+        group["points"] += points
+        group["goalsFor"] += gf
+        group["goalsAgainst"] += ga
+        group["goalDiff"] += gf - ga
+        coach_pts = to_float(team.get("headcoach_pts"), 0.0)
+        group["coach"]["ptsSum"] += coach_pts
+        for member in lineup:
+            slot = int(member["slot"])
+            pts = float(member.get("ptsSum") or 0.0)
+            group["playerPtsSum"] += pts
+            group["membersBySlot"][slot]["ptsSum"] = float(group["membersBySlot"][slot].get("ptsSum") or 0.0) + pts
+
+    best_teams = defaultdict(list)
+    for group in best_team_groups.values():
+        matches = int(group["matches"] or 0)
+        if matches <= 0:
+            continue
+        members = []
+        for slot in sorted(group["membersBySlot"]):
+            member = group["membersBySlot"][slot]
+            pts_sum = float(member.get("ptsSum") or 0.0)
+            members.append({
+                "slot": slot,
+                "playerId": int(member.get("playerId") or 0),
+                "playerName": member.get("playerName") or "",
+                "playerFullName": member.get("playerFullName") or member.get("playerName") or "",
+                "pos": int(member.get("pos") or 0),
+                "ptsSum": round(pts_sum, 4),
+                "avgPts": round(pts_sum / matches, 4),
+            })
+        coach_pts_sum = float(group["coach"].get("ptsSum") or 0.0)
+        item = {
+            "method": "season_team_same_coach_formation_lineup",
+            "season": group["season"],
+            "teamId": group["teamId"],
+            "teamName": group["teamName"],
+            "matches": matches,
+            "wins": int(group["wins"] or 0),
+            "draws": int(group["draws"] or 0),
+            "losses": int(group["losses"] or 0),
+            "points": round(float(group["points"] or 0.0), 4),
+            "goalsFor": int(group["goalsFor"] or 0),
+            "goalsAgainst": int(group["goalsAgainst"] or 0),
+            "goalDiff": int(group["goalDiff"] or 0),
+            "score": int(group["wins"] or 0),
+            "playerPtsSum": round(float(group["playerPtsSum"] or 0.0), 4),
+            "avgPlayerPts": round(float(group["playerPtsSum"] or 0.0) / (matches * 11), 4),
+            "coach": {
+                "id": group["coach"]["id"],
+                "name": group["coach"]["name"],
+                "ptsSum": round(coach_pts_sum, 4),
+                "avgPts": round(coach_pts_sum / matches, 4),
+            },
+            "members": members,
+        }
+        best_teams[group["formationId"]].append(item)
+
+    for fid in best_teams:
+        best_teams[fid].sort(
+            key=lambda x: (
+                -int(x.get("wins") or 0),
+                -int(x.get("goalDiff") or 0),
+                -int(x.get("goalsFor") or 0),
+                -float(x.get("points") or 0.0),
+                -int(x.get("matches") or 0),
+                -int(x.get("season") or 0),
+                str(x.get("teamName") or ""),
+                int(x.get("teamId") or 0),
+            )
+        )
+        for idx, team in enumerate(best_teams[fid][:5], start=1):
+            team["rank"] = idx
 
     # Formation vs formation matchup stats (with significance filter).
     # Primary metric: strength-adjusted expected-points residual.
@@ -734,6 +884,7 @@ def build_data(src):
             },
             "coachStats": coach_stats[fid],
             "matchups": matchup_stats[fid],
+            "bestTeams": best_teams[fid][:5],
         }
         formations.append(f_item)
 

@@ -2790,6 +2790,71 @@ button.ghost {
   color: #f2f7ff;
 }
 
+.best-team-summary {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #30486b;
+  border-radius: 8px;
+  background: #121f36;
+  padding: 8px;
+}
+
+.best-team-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.best-team-title-row > div:first-child {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.best-team-title-row strong {
+  font-size: 0.86rem;
+  line-height: 1.2;
+}
+
+.best-team-rank-switch {
+  display: inline-flex;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+
+.best-team-score-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.best-team-score-grid span {
+  border: 1px solid rgba(93, 135, 213, 0.35);
+  border-radius: 6px;
+  padding: 5px 6px;
+  color: var(--text-sub);
+  font-size: 0.7rem;
+  line-height: 1.1;
+}
+
+.best-team-score-grid strong {
+  color: var(--text-main);
+}
+
+.best-team-coach {
+  width: 100%;
+  border: 1px solid #30486b;
+  border-radius: 6px;
+  background: #172844;
+  color: #dbe7ff;
+  padding: 7px 8px;
+  text-align: left;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+
 .slot-top-row {
   border: 1px solid #30486b;
   border-radius: 8px;

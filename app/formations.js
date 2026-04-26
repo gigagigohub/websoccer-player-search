@@ -125,6 +125,7 @@ let cloudMeta = { formationId: null, ownedFormationIds: [], coach: null };
 let filteredAndSorted = [];
 let currentFormation = null;
 let slotTopSortMode = "usage";
+const bestTeamIndexByFormation = new Map();
 let selectedPlayerId = null;
 const coachTabModeById = new Map();
 const cardViewModeById = new Map();
@@ -834,7 +835,10 @@ function renderKeyPositions(keyPositions) {
 }
 
 function renderSlotTop(slotStats, mode = "usage") {
-  if (mode === "team" || mode === "best") {
+  if (mode === "best") {
+    return renderBestTeam(currentFormation);
+  }
+  if (mode === "team") {
     return renderRepresentativeTeam(currentFormation);
   }
   const slots = Array.from({ length: 11 }, (_, i) => i + 1);
@@ -880,6 +884,81 @@ function renderSlotTop(slotStats, mode = "usage") {
           `;
         })
         .join("")}
+    </div>
+  `;
+}
+
+function renderBestTeam(formation) {
+  const teams = Array.isArray(formation?.bestTeams) ? formation.bestTeams : [];
+  if (!teams.length) {
+    return `<p class="dim">No best team data.</p>`;
+  }
+  const fid = Number(formation?.id);
+  const savedIndex = bestTeamIndexByFormation.get(fid) || 0;
+  const index = Math.max(0, Math.min(teams.length - 1, savedIndex));
+  const team = teams[index] || teams[0];
+  const members = Array.isArray(team?.members)
+    ? team.members.slice().sort((a, b) => Number(a?.slot || 0) - Number(b?.slot || 0)).slice(0, 11)
+    : [];
+  const wins = Number(team?.wins || 0);
+  const draws = Number(team?.draws || 0);
+  const losses = Number(team?.losses || 0);
+  const goalDiff = Number(team?.goalDiff || 0);
+  const goalsFor = Number(team?.goalsFor || 0);
+  const matches = Number(team?.matches || 0);
+  const coach = team?.coach || {};
+  const rankTabs = teams.length > 1
+    ? `<div class="best-team-rank-switch" role="group" aria-label="Best Team rank">
+        ${teams.map((row, idx) => `
+          <button type="button" class="slot-top-sort-btn${idx === index ? " is-on" : ""}" data-best-team-index="${idx}">
+            #${Number(row?.rank || idx + 1)}
+          </button>
+        `).join("")}
+      </div>`
+    : "";
+  return `
+    <div class="best-team-summary">
+      <div class="best-team-title-row">
+        <div>
+          <strong>${team?.teamName || "-"}</strong>
+          <span class="dim">Season ${Number(team?.season || 0)}</span>
+        </div>
+        ${rankTabs}
+      </div>
+      <div class="best-team-score-grid">
+        <span>Wins <strong>${Number.isFinite(wins) ? wins : "-"}</strong></span>
+        <span>Goal Diff <strong>${Number.isFinite(goalDiff) ? (goalDiff >= 0 ? `+${goalDiff}` : goalDiff) : "-"}</strong></span>
+        <span>Goals For <strong>${Number.isFinite(goalsFor) ? goalsFor : "-"}</strong></span>
+        <span>Record <strong>${wins}-${draws}-${losses}</strong></span>
+        <span>Matches <strong>${Number.isFinite(matches) ? matches : "-"}</strong></span>
+        <span>Avg Pts <strong>${avg(team?.avgPlayerPts)}</strong></span>
+      </div>
+      ${Number(coach?.id || 0) > 0 ? `
+        <button type="button" class="best-team-coach" data-coach-id="${Number(coach.id)}">
+          Coach: ${coach.name || "-"} / Avg ${avg(coach.avgPts)} / Total ${Number(coach.ptsSum || 0).toFixed(0)}
+        </button>
+      ` : `<p class="dim">No coach data.</p>`}
+    </div>
+    <div class="formation-slot-top-list">
+      ${members.map((member) => {
+        const playerId = Number(member?.playerId || 0);
+        const imgSrc = `./images/chara/players/static/${playerId}.gif`;
+        return `
+          <button type="button" class="slot-top-row best-team-player-row" data-player-id="${playerId}">
+            <span class="slot-top-slotno">Slot ${Number(member?.slot || 0)}</span>
+            <div class="slot-top-thumb">
+              <img loading="lazy" src="${imgSrc}" alt="${member?.playerName || ""}" />
+            </div>
+            <div class="slot-top-meta">
+              <strong class="slot-top-name">${member?.playerName || "-"}</strong>
+              <span class="slot-top-statline">
+                ${categoryBadgeHtmlByPlayerId(playerId)}
+                <span>Avg ${avg(member?.avgPts)} / Total ${Number(member?.ptsSum || 0).toFixed(0)}</span>
+              </span>
+            </div>
+          </button>
+        `;
+      }).join("")}
     </div>
   `;
 }
@@ -1480,8 +1559,11 @@ function closeCoachModal() {
   els.coachModal.hidden = true;
 }
 
-function openFormationModal(formation) {
+function openFormationModal(formation, options = {}) {
   currentFormation = formation;
+  if (!options.preserveSlotTopMode) {
+    slotTopSortMode = "usage";
+  }
   if (!els.formationModal || !els.formationTitle || !els.formationDetail) return;
 
   const yearLabel = formatFormationYearLabel(formation.year, formation.stride);
@@ -1849,7 +1931,7 @@ function bindEvents() {
           else set.add(fid);
           cloudMeta.ownedFormationIds = [...set].sort((a, b) => a - b);
           saveCloudMeta().then(() => {
-            if (currentFormation) openFormationModal(currentFormation);
+            if (currentFormation) openFormationModal(currentFormation, { preserveSlotTopMode: true });
             renderList();
           }).catch(() => window.alert("保有フォーメーション保存に失敗しました。"));
         }
@@ -1861,12 +1943,21 @@ function bindEvents() {
         if (Number.isInteger(cid)) openCoachModal(cid);
         return;
       }
+      const bestTeamBtn = e.target.closest("[data-best-team-index]");
+      if (bestTeamBtn) {
+        const index = Number(bestTeamBtn.dataset.bestTeamIndex);
+        if (currentFormation && Number.isInteger(index)) {
+          bestTeamIndexByFormation.set(Number(currentFormation.id), index);
+          openFormationModal(currentFormation, { preserveSlotTopMode: true });
+        }
+        return;
+      }
       const sortBtn = e.target.closest("[data-slot-top-sort]");
       if (sortBtn) {
         const mode = String(sortBtn.dataset.slotTopSort || "");
         if (mode === "usage" || mode === "avg" || mode === "team" || mode === "best") {
           slotTopSortMode = mode;
-          if (currentFormation) openFormationModal(currentFormation);
+          if (currentFormation) openFormationModal(currentFormation, { preserveSlotTopMode: true });
         }
         return;
       }
@@ -1875,6 +1966,12 @@ function bindEvents() {
         const fid = Number(matchupBtn.dataset.openMatchups);
         const f = formations.find((x) => Number(x?.id) === fid);
         if (f) openMatchupModal(f);
+        return;
+      }
+      const playerBtn = e.target.closest("[data-player-id]");
+      if (playerBtn) {
+        const playerId = Number(playerBtn.dataset.playerId);
+        if (Number.isInteger(playerId) && playerId > 0) openPlayerCardModal(playerId);
         return;
       }
       const slotBtn = e.target.closest("[data-slot]");
