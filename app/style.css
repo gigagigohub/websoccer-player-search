@@ -3250,8 +3250,8 @@ button.ghost {
   min-width: 32px;
 }
 
-/* Keep SCR right-side profile block inside card bounds on My Team modal. */
-.myteam-page #playerCardHost .profile-view .profile-side {
+/* Keep SCR right-side profile block inside player detail modal bounds. */
+#playerCardHost .profile-view .profile-side {
   width: min(var(--profile-side-width, 168px), calc(100% - 124px));
   min-width: 0;
   max-width: calc(100% - 124px);
