@@ -907,7 +907,7 @@ function renderBestTeam(formation) {
   const teamSeasonMatches = Number(team?.teamSeasonMatches || matches);
   const coach = team?.coach || {};
   const rankTabs = teams.length > 1
-    ? `<div class="best-team-rank-switch" role="group" aria-label="Best Team rank">
+    ? `<div class="best-team-rank-switch" role="group" aria-label="Top Teams rank">
         ${teams.map((row, idx) => `
           <button type="button" class="slot-top-sort-btn${idx === index ? " is-on" : ""}" data-best-team-index="${idx}">
             #${Number(row?.rank || idx + 1)}
@@ -1603,7 +1603,7 @@ function openFormationModal(formation, options = {}) {
         <div class="slot-top-sort-switch" role="group" aria-label="CC Slot Top sort mode">
           <button type="button" class="slot-top-sort-btn${slotTopSortMode === "usage" ? " is-on" : ""}" data-slot-top-sort="usage">Usage</button>
           <button type="button" class="slot-top-sort-btn${slotTopSortMode === "avg" ? " is-on" : ""}" data-slot-top-sort="avg">Avg</button>
-          <button type="button" class="slot-top-sort-btn${slotTopSortMode === "best" ? " is-on" : ""}" data-slot-top-sort="best">Best Team</button>
+          <button type="button" class="slot-top-sort-btn${slotTopSortMode === "best" ? " is-on" : ""}" data-slot-top-sort="best">Top Teams</button>
         </div>
       </div>
       ${renderSlotTop(formation.slotStats || {}, slotTopSortMode)}
