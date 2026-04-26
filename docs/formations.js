@@ -558,8 +558,8 @@ function categoryBadgeHtmlByPlayerId(playerId) {
   const id = Number(playerId);
   const rawCategory = getCcCategoryLabelByPlayerId(id);
   const player = playersById.get(id);
-  const category = badgeCategoryByRecency(player, rawCategory);
-  const rate = Number(playerRateById.get(id));
+  const category = player ? badgeCategoryByRecency(player, rawCategory) : rawCategory;
+  const rate = player ? Number(playerRateById.get(id)) : 0;
   const c = normalizeCategory(category);
   return `<span class="badge type-badge ${categoryBadgeClass(c, rate)}">${c}</span>`;
 }
@@ -1924,9 +1924,8 @@ async function init() {
   buildSortOptions();
   bindEvents();
 
-  const [formationsRes, playersRes, coachesMetaRes] = await Promise.all([
+  const [formationsRes, coachesMetaRes] = await Promise.all([
     fetch("./formations_data.json"),
-    fetch("./data.json").catch(() => null),
     fetch("./coaches_data.json").catch(() => null),
   ]);
   const formationData = await formationsRes.json();
@@ -1941,30 +1940,6 @@ async function init() {
     }
   }
   rebuildFormationAvailableCoachesFromMeta();
-  if (playersRes && playersRes.ok) {
-    try {
-      const playersData = await playersRes.json();
-      const rows = Array.isArray(playersData?.players) ? playersData.players : [];
-      syncProfileSideWidthFromPlayers(rows);
-      playerCategoryById = new Map(
-        rows
-          .map((p) => [Number(p?.id), normalizeCategory(p?.category)])
-          .filter(([id]) => Number.isInteger(id))
-      );
-      playerRateById = new Map(
-        rows
-          .map((p) => [Number(p?.id), Number(p?.rate)])
-          .filter(([id]) => Number.isInteger(id))
-      );
-      playersById = new Map(
-        rows
-          .map((p) => [Number(p?.id), p])
-          .filter(([id]) => Number.isInteger(id))
-      );
-    } catch (e) {
-      console.warn(e);
-    }
-  }
   buildCoachFilters();
   if (isLoggedIn()) {
     await loadCloudMeta().catch(() => {});
