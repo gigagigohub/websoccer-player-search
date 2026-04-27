@@ -200,6 +200,8 @@ def init_schema(conn: sqlite3.Connection) -> None:
           player_id INTEGER PRIMARY KEY,
           category TEXT NOT NULL,
           category_membership_json TEXT NOT NULL,
+          retired INTEGER NOT NULL DEFAULT 0,
+          retired_reason TEXT,
           is_manual INTEGER NOT NULL DEFAULT 1,
           source_file TEXT NOT NULL,
           source_note TEXT
@@ -464,13 +466,15 @@ def import_manual_truth(
             continue
         cat = str(p.get("category") or "NR")
         membership = p.get("categoryMembership") or [cat]
+        retired = 1 if p.get("retired") else 0
+        retired_reason = str(p.get("retiredReason") or "")
         conn.execute(
             """
             INSERT INTO manual_player_category
-            (player_id, category, category_membership_json, is_manual, source_file, source_note)
-            VALUES (?, ?, ?, 1, ?, 'category treated as manual truth')
+            (player_id, category, category_membership_json, retired, retired_reason, is_manual, source_file, source_note)
+            VALUES (?, ?, ?, ?, ?, 1, ?, 'category treated as manual truth')
             """,
-            (pid, cat, _to_json(membership), str(app_data_json)),
+            (pid, cat, _to_json(membership), retired, retired_reason, str(app_data_json)),
         )
 
     for s in app.get("scouts") or []:

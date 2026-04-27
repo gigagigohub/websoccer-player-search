@@ -45,6 +45,20 @@ POS_TYPE_MAP = {
     3: "DF",
     4: "GK",
 }
+RETIRED_PLAYER_IDS = {
+    29, 33, 48, 49, 55, 106, 134, 163, 203, 211, 220, 221, 222, 235, 242, 245,
+    250, 335, 494, 520, 529, 531, 567, 568, 569, 571, 580, 581, 584, 596, 616,
+    638, 643, 1148, 1149, 1270, 1418, 1464, 1529, 1539, 1544, 1557, 1558,
+    1590, 1668, 1669, 1682, 1688, 1695, 1745, 1746, 1880, 2019, 2112, 2181,
+    2329, 2410, 2765,
+}
+
+def normalize_category_for_retired(player_id: int, category: str, membership: list[str], retired: bool = False, retired_reason: str = ""):
+    is_retired = retired or player_id in RETIRED_PLAYER_IDS or category == "RT" or "RT" in membership
+    if not is_retired:
+        return category, membership, False, ""
+    reason = retired_reason or ("teamdata_unobserved_or_old_only" if player_id in RETIRED_PLAYER_IDS else "legacy_rt_category")
+    return "NR", ["NR"], True, reason
 
 
 def parse_args() -> argparse.Namespace:
@@ -425,14 +439,25 @@ def build_players(
         if pid > 0:
             params_by_player[pid].append(dict(row))
 
+    cat_cols = {
+        str(row["name"])
+        for row in conn.execute("PRAGMA table_info(manual_player_category)").fetchall()
+    }
+    retired_select = "retired" if "retired" in cat_cols else "0 AS retired"
+    retired_reason_select = "retired_reason" if "retired_reason" in cat_cols else "'' AS retired_reason"
     cat_map = {}
     for row in conn.execute(
-        "SELECT player_id, category, category_membership_json FROM manual_player_category"
+        f"""
+        SELECT player_id, category, category_membership_json, {retired_select}, {retired_reason_select}
+        FROM manual_player_category
+        """
     ).fetchall():
         pid = to_int(row["player_id"])
         cat_map[pid] = {
             "category": row["category"] or "NR",
             "membership": parse_json_list(row["category_membership_json"]) or [row["category"] or "NR"],
+            "retired": bool(to_int(row["retired"], 0)),
+            "retiredReason": row["retired_reason"] or "",
         }
 
     all_ids = sorted(set(players.keys()) | set(cat_map.keys()))
@@ -464,6 +489,13 @@ def build_players(
                 fb = fallback_players.get(pid, {})
                 category = fb.get("category", "NR")
                 category_membership = fb.get("categoryMembership", [category])
+            category, category_membership, retired, retired_reason = normalize_category_for_retired(
+                pid,
+                category,
+                category_membership,
+                bool(manual.get("retired")) if manual else bool(fb.get("retired")),
+                (manual.get("retiredReason") if manual else fb.get("retiredReason")) or "",
+            )
 
             flags = {
                 "CM": "CM" in category_membership,
@@ -488,6 +520,8 @@ def build_players(
                     "position": POS_TYPE_MAP.get(pos_type, "MF"),
                     "category": category,
                     "categoryMembership": category_membership,
+                    "retired": retired,
+                    "retiredReason": retired_reason,
                     "rate": to_int(core.get("ZRARITY", 0)),
                     "positionHeatmaps": segments,
                     "positionHeatmapBySeason": by_season,
@@ -515,6 +549,18 @@ def build_players(
             if manual:
                 fb["category"] = manual["category"]
                 fb["categoryMembership"] = manual["membership"]
+            membership = fb.get("categoryMembership") or [fb.get("category", "NR")]
+            category, membership, retired, retired_reason = normalize_category_for_retired(
+                pid,
+                fb.get("category", "NR"),
+                membership,
+                bool(fb.get("retired")),
+                fb.get("retiredReason", ""),
+            )
+            fb["category"] = category
+            fb["categoryMembership"] = membership
+            fb["retired"] = retired
+            fb["retiredReason"] = retired_reason
             fb["name"] = normalize_japanese_name_spacing(fb.get("name", ""))
             fb["fullName"] = normalize_japanese_name_spacing(fb.get("fullName", ""))
             fb_person_raw = to_int(fb.get("personId", 0), 0)
@@ -529,7 +575,6 @@ def build_players(
                 fb["modelPlayerSourceMethod"] = model_info.get("sourceMethod", "")
                 fb["modelPlayerSourceNote"] = model_info.get("notes", "")
             fb["modelPlayer"] = normalize_japanese_name_spacing(dedupe_model_name(fb.get("modelPlayer", "")))
-            membership = fb.get("categoryMembership") or [fb.get("category", "NR")]
             fb["flags"] = {"CM": "CM" in membership, "SS": "SS" in membership}
             fb.setdefault("nameRuby", "")
             fb.setdefault("personId", 0)

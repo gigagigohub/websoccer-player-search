@@ -548,6 +548,18 @@ select {
   gap: 3px;
 }
 
+.retired-toggle {
+  margin-top: 6px;
+  gap: 6px;
+  width: max-content;
+  color: #b8c8e8;
+  white-space: nowrap;
+}
+
+.retired-toggle input {
+  width: auto;
+}
+
 .flag-row .cat-filter-chip {
   width: auto;
   border: 0;
@@ -1558,6 +1570,19 @@ button.ghost {
 
 .type-badge.cat-na {
   background: linear-gradient(180deg, #7e7b92 0%, #5a5670 100%);
+}
+
+.retired-badge {
+  align-self: center;
+  border: 1px solid rgba(169, 182, 205, 0.44);
+  border-radius: 5px;
+  background: rgba(91, 101, 123, 0.34);
+  color: #c6cfdd;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 3px 5px;
+  text-shadow: none;
 }
 
 .metrics-wrap {

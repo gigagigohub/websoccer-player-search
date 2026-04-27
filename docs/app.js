@@ -97,6 +97,7 @@ const els = {
   nrGoldOnly: document.querySelector("#nrGoldOnly"),
   nrAllOnly: document.querySelector("#nrAllOnly"),
   ccOnly: document.querySelector("#ccOnly"),
+  includeRetired: document.querySelector("#includeRetired"),
   scoutFilterWrap: document.querySelector("#scoutFilterWrap"),
   scoutEventFilter: document.querySelector("#scoutEventFilter"),
   cmFilterWrap: document.querySelector("#cmFilterWrap"),
@@ -1012,6 +1013,7 @@ function checkValueCondition(value, condition) {
 }
 
 function getCategory(player) {
+  if (player?.retired && player.category === "RT") return "NR";
   if (player.category) return player.category;
   const hasCM = !!player.flags?.CM;
   const hasSS = !!player.flags?.SS;
@@ -1044,6 +1046,10 @@ function categoryBadgesHtmlByPlayer(player) {
   }
   const typeClass = typeClassByPlayer(player);
   return `<span class="badge type-badge ${typeClass}">${typeLabel}</span>`;
+}
+
+function retiredBadgeHtml(player) {
+  return player?.retired ? `<span class="badge retired-badge">Retired</span>` : "";
 }
 
 function formatEventPeriod(start, end) {
@@ -1465,11 +1471,15 @@ function filterPlayers(conditions = getConditions()) {
   const nrGoldOnly = isCategoryChipActive(els.nrGoldOnly);
   const nrAllOnly = isCategoryChipActive(els.nrAllOnly);
   const ccOnly = isCategoryChipActive(els.ccOnly);
+  const includeRetired = !!els.includeRetired?.checked;
   const scoutEventFilter = Number(els.scoutEventFilter?.value || 0);
   const cmEventFilter = Number(els.cmEventFilter?.value || 0);
 
   return players.filter((player) => {
     const category = getCategory(player);
+    if (player?.retired && !includeRetired) {
+      return false;
+    }
     const playerName = toHiragana(String(player?.name || "").toLowerCase());
     const playerNameRuby = toHiragana(String(player?.nameRuby || "").toLowerCase());
     const playerType = toHiragana((player.playType || "").toLowerCase());
@@ -1756,6 +1766,7 @@ function cardHtml(player) {
   const group2 = ["PK", "FK", "CK", "CP"];
   const typeLabel = getCategory(player);
   const typeBadges = categoryBadgesHtmlByPlayer(player);
+  const retiredBadge = retiredBadgeHtml(player);
   const hasScoutHistory = scouts.some((s) =>
     (Array.isArray(s?.playerIds) ? s.playerIds : []).some((x) => Number(x) === Number(player.id))
   );
@@ -1844,6 +1855,7 @@ function cardHtml(player) {
             <span class="badge pos-badge ${posClass}">${pos}</span>
             ${typeBadges}
             <span>${player.name}</span>
+            ${retiredBadge}
           </h3>
         </div>
       </div>
@@ -1998,6 +2010,7 @@ async function init() {
     els.positionFilter.value = "";
     if (els.aptitudePositionFilter) els.aptitudePositionFilter.value = "";
     if (els.aptitudeIncludeSix) els.aptitudeIncludeSix.checked = false;
+    if (els.includeRetired) els.includeRetired.checked = false;
     if (els.scoutEventFilter) els.scoutEventFilter.value = "";
     if (els.cmEventFilter) els.cmEventFilter.value = "";
     syncAptitudeAreaLabel();
@@ -2006,6 +2019,9 @@ async function init() {
   });
   if (els.aptitudeIncludeSix) {
     els.aptitudeIncludeSix.addEventListener("change", syncAptitudeAreaLabel);
+  }
+  if (els.includeRetired) {
+    els.includeRetired.addEventListener("change", render);
   }
   if (els.nrAllOnly) {
     els.nrAllOnly.addEventListener("click", () => {
