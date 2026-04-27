@@ -376,6 +376,39 @@ def core_similarity(candidate_matrix, target):
     return 0.48 * pattern_fit + 0.34 * gap_fit + 0.12 * level + 0.06 * ratio
 
 
+def core_shortfall(candidate_matrix, target):
+    cand = candidate_matrix[:, CORE_IDX]
+    tgt = target[CORE_IDX]
+    pattern = core_pattern(tgt)
+    target_order = np.argsort(-tgt)
+    short = np.maximum(tgt - cand, 0.0)
+
+    if pattern["kind"] == "single_specialist":
+        primary = target_order[0]
+        support = target_order[1:]
+        primary_short = short[:, primary] / max(float(tgt[primary]), 0.08)
+        support_short = short[:, support].mean(axis=1) / max(float(tgt[support].mean()), 0.08)
+        return 0.72 * primary_short + 0.28 * support_short
+
+    if pattern["kind"] == "double_specialist":
+        top2 = target_order[:2]
+        third = target_order[2]
+        top2_short = short[:, top2].mean(axis=1) / max(float(tgt[top2].mean()), 0.08)
+        third_short = short[:, third] / max(float(tgt[third]), 0.08)
+        return 0.78 * top2_short + 0.22 * third_short
+
+    if pattern["kind"] == "high_balanced":
+        floor_target = max(float(tgt.min()), 0.08)
+        floor_short = np.maximum(floor_target - cand.min(axis=1), 0.0) / floor_target
+        avg_short = np.maximum(float(tgt.mean()) - cand.mean(axis=1), 0.0) / max(float(tgt.mean()), 0.08)
+        all_short = (short / np.maximum(tgt, 0.08)).mean(axis=1)
+        return 0.44 * floor_short + 0.34 * avg_short + 0.22 * all_short
+
+    avg_short = np.maximum(float(tgt.mean()) - cand.mean(axis=1), 0.0) / max(float(tgt.mean()), 0.08)
+    all_short = (short / np.maximum(tgt, 0.08)).mean(axis=1)
+    return 0.55 * avg_short + 0.45 * all_short
+
+
 def mental_similarity(candidate_matrix, target):
     cand = candidate_matrix[:, MENTAL_IDX]
     tgt = target[MENTAL_IDX]
@@ -398,6 +431,7 @@ def score_candidate_periods(candidate_matrix, target, global_mean):
         return np.zeros(0, dtype=float)
     formation = formation_similarity(candidate_matrix, target)
     core = core_similarity(candidate_matrix, target)
+    core_lack = core_shortfall(candidate_matrix, target)
     mental = mental_similarity(candidate_matrix, target)
     line = line_similarity(candidate_matrix, target)
 
@@ -411,6 +445,7 @@ def score_candidate_periods(candidate_matrix, target, global_mean):
         + 0.05 * line
         - 0.10 * excess_all
         - 0.10 * excess_irrelevant
+        - 0.18 * core_lack
         - 0.06 * low_floor
     )
 
