@@ -262,19 +262,41 @@ def candidate_best_score(candidate, period_scores):
     return best
 
 
-def score_candidate_periods(candidate_matrix, weights, concentration):
+def score_candidate_periods(candidate_matrix, weights, target, concentration):
     weighted_idx = np.argsort(weights)[::-1]
     top_k = max(3, min(8, int(math.ceil(len(weights) * 0.25))))
     relevant = set(int(i) for i in weighted_idx[:top_k] if weights[i] > 0)
     if candidate_matrix.size == 0:
         return np.zeros(0, dtype=float)
-    base = candidate_matrix @ weights
-    if relevant:
+
+    weighted_distance = np.sqrt(np.sum(((candidate_matrix - target) ** 2) * weights, axis=1))
+    profile_fit = np.clip(1.0 - (weighted_distance / 0.65), 0.0, 1.0)
+
+    relevant_idx = sorted(relevant)
+    if relevant_idx:
+        required = np.maximum(target[relevant_idx], 0.08)
+        key_fit = np.minimum(candidate_matrix[:, relevant_idx] / required, 1.0).mean(axis=1)
         non_relevant = [i for i in range(len(weights)) if i not in relevant]
-        excess = candidate_matrix[:, non_relevant].mean(axis=1) if non_relevant else 0.0
     else:
-        excess = 0.0
-    return base - (0.12 * concentration * excess)
+        key_fit = np.ones(candidate_matrix.shape[0], dtype=float)
+        non_relevant = []
+
+    level_fit = np.clip(candidate_matrix @ weights, 0.0, 1.0)
+    slot_total = float(target.mean())
+    candidate_total = candidate_matrix.mean(axis=1)
+    total_excess = np.maximum(candidate_total - slot_total - 0.04, 0.0)
+    if relevant:
+        irrelevant_excess = np.maximum(candidate_matrix[:, non_relevant] - target[non_relevant], 0.0).mean(axis=1) if non_relevant else 0.0
+    else:
+        irrelevant_excess = 0.0
+
+    return (
+        0.56 * profile_fit
+        + 0.28 * key_fit
+        + 0.16 * level_fit
+        - 0.36 * concentration * total_excess
+        - 0.26 * concentration * irrelevant_excess
+    )
 
 
 def analyze_slot(rows, params_by_player, player_index, candidates, candidate_period_owners, candidate_matrix):
@@ -316,7 +338,24 @@ def analyze_slot(rows, params_by_player, player_index, candidates, candidate_per
     weights = coefficient_weights(coefs[1 : 1 + len(FEATURES)])
     concentration = float(np.sum(weights * weights))
 
-    all_period_scores = score_candidate_periods(candidate_matrix, weights, concentration)
+    category_effects = {
+        CATEGORY_KEYS[i]: float(coefs[1 + len(FEATURES) + i])
+        for i in range(len(CATEGORY_KEYS))
+    }
+    adjusted_y = np.array([
+        to_float(r["pts"]) - category_effects.get(cat, 0.0)
+        for r, _, cat in usable
+    ], dtype=float)
+    cutoff = float(np.quantile(adjusted_y, 0.68))
+    perf_weight = np.maximum(adjusted_y - cutoff, 0.0)
+    if perf_weight.sum() <= 1e-9:
+        perf_weight = np.maximum(adjusted_y - adjusted_y.mean(), 0.0)
+    if perf_weight.sum() <= 1e-9:
+        perf_weight = np.ones(n, dtype=float)
+    target = np.average(feature_matrix, axis=0, weights=perf_weight)
+    target = np.clip(target, 0.0, 1.0)
+
+    all_period_scores = score_candidate_periods(candidate_matrix, weights, target, concentration)
     scores_by_candidate = defaultdict(list)
     for idx, (ci, _) in enumerate(candidate_period_owners):
         scores_by_candidate[ci].append(float(all_period_scores[idx]))
@@ -345,10 +384,15 @@ def analyze_slot(rows, params_by_player, player_index, candidates, candidate_per
         "confidence": confidence_label(n, unique_players),
         "method": "category_adjusted_ridge_slot_fit",
         "categoryEffects": {
-            CATEGORY_KEYS[i]: round(float(coefs[1 + len(FEATURES) + i]), 4)
-            for i in range(len(CATEGORY_KEYS))
+            key: round(value, 4)
+            for key, value in category_effects.items()
         },
         "concentration": round(concentration, 6),
+        "target": {
+            FEATURES[i][0]: round(float(target[i]), 4)
+            for i in range(len(FEATURES))
+            if weights[i] >= 0.005
+        },
         "requirements": feature_importance(weights),
         "top": top[:TOP_N],
     }
