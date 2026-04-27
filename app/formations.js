@@ -125,6 +125,9 @@ let cloudMeta = { formationId: null, ownedFormationIds: [], coach: null };
 let filteredAndSorted = [];
 let currentFormation = null;
 let slotTopSortMode = "usage";
+let fullPlayersLoaded = false;
+let playersDataPromise = null;
+const formationAiCache = new Map();
 const bestTeamIndexByFormation = new Map();
 let selectedPlayerId = null;
 const coachTabModeById = new Map();
@@ -561,6 +564,10 @@ function categoryBadgeHtmlByPlayerId(playerId) {
   const player = playersById.get(id);
   const category = badgeCategoryByRecency(player, rawCategory);
   const rate = Number(playerRateById.get(id));
+  return categoryBadgeHtml(category, rate);
+}
+
+function categoryBadgeHtml(category, rate = null) {
   const c = normalizeCategory(category);
   return `<span class="badge type-badge ${categoryBadgeClass(c, rate)}">${c}</span>`;
 }
@@ -651,6 +658,47 @@ function renderFormationNameSuggest() {
   els.formationNameSuggest.innerHTML = list
     .map((label) => `<button type="button" class="name-suggest-item" data-name="${label}">${label}</button>`)
     .join("");
+}
+
+function populatePlayerMaps(rows, { syncWidth = false, full = false } = {}) {
+  const list = Array.isArray(rows) ? rows : [];
+  if (syncWidth) syncProfileSideWidthFromPlayers(list);
+  playerCategoryById = new Map(
+    list
+      .map((p) => [Number(p?.id), normalizeCategory(p?.category)])
+      .filter(([id]) => Number.isInteger(id))
+  );
+  playerRateById = new Map(
+    list
+      .map((p) => [Number(p?.id), Number(p?.rate)])
+      .filter(([id]) => Number.isInteger(id))
+  );
+  playersById = new Map(
+    list
+      .map((p) => [Number(p?.id), p])
+      .filter(([id]) => Number.isInteger(id))
+  );
+  fullPlayersLoaded = !!full;
+}
+
+async function ensurePlayersDataLoaded() {
+  if (fullPlayersLoaded) return;
+  if (!playersDataPromise) {
+    playersDataPromise = fetch("./data.json")
+      .then((res) => {
+        if (!res.ok) throw new Error(`data.json ${res.status}`);
+        return res.json();
+      })
+      .then((playersData) => {
+        const rows = Array.isArray(playersData?.players) ? playersData.players : [];
+        populatePlayerMaps(rows, { syncWidth: true, full: true });
+      })
+      .catch((e) => {
+        playersDataPromise = null;
+        throw e;
+      });
+  }
+  await playersDataPromise;
 }
 
 function nationNameFromId(nationId) {
@@ -832,7 +880,114 @@ function renderKeyPositions(keyPositions) {
   `;
 }
 
+function featureLabel(key, fallback = "") {
+  const labels = {
+    spd: "Speed",
+    tec: "Technique",
+    pwr: "Power",
+    individual: "Individual",
+    organization: "Organization",
+    sense: "Sense",
+    intelligence: "Intelligence",
+    r16: "FW",
+    r17: "MF",
+    r18: "DF",
+  };
+  const k = String(key || "");
+  if (labels[k]) return labels[k];
+  if (/^r\d+$/.test(k)) return `R${k.slice(1)}`;
+  return fallback || k || "-";
+}
+
+function renderRequirementChips(requirements = [], limit = 3) {
+  const rows = Array.isArray(requirements) ? requirements.slice(0, limit) : [];
+  if (!rows.length) return `<span class="dim">-</span>`;
+  return rows
+    .map((r) => `<span class="ai-req-chip">${featureLabel(r?.key, r?.label)} ${(Number(r?.weight || 0) * 100).toFixed(0)}%</span>`)
+    .join("");
+}
+
+function loadFormationAi(formationId) {
+  const fid = Number(formationId);
+  if (!Number.isInteger(fid) || fid <= 0) return { status: "error", data: null };
+  const cached = formationAiCache.get(fid);
+  if (cached) return cached;
+  const entry = { status: "loading", data: null };
+  formationAiCache.set(fid, entry);
+  fetch(`./formation_ai/${fid}.json`)
+    .then((res) => {
+      if (!res.ok) throw new Error(`formation_ai/${fid}.json ${res.status}`);
+      return res.json();
+    })
+    .then((data) => {
+      formationAiCache.set(fid, { status: "ready", data });
+      if (currentFormation && Number(currentFormation.id) === fid && slotTopSortMode === "ai") {
+        openFormationModal(currentFormation, { preserveSlotTopMode: true });
+      }
+    })
+    .catch((e) => {
+      console.warn(e);
+      formationAiCache.set(fid, { status: "error", data: null });
+      if (currentFormation && Number(currentFormation.id) === fid && slotTopSortMode === "ai") {
+        openFormationModal(currentFormation, { preserveSlotTopMode: true });
+      }
+    });
+  return entry;
+}
+
+function renderFormationAi(formation) {
+  const state = loadFormationAi(formation?.id);
+  if (state.status === "loading") {
+    return `<p class="dim">Loading AI slot fit...</p>`;
+  }
+  if (state.status !== "ready" || !state.data) {
+    return `<p class="dim">No AI slot fit data.</p>`;
+  }
+  const slots = state.data?.slots || {};
+  return `
+    <div class="formation-slot-top-list">
+      ${Array.from({ length: 11 }, (_, i) => i + 1).map((slot) => {
+        const row = slots[String(slot)] || {};
+        const top = Array.isArray(row?.top) ? row.top[0] : null;
+        if (row.status !== "ok" || !top) {
+          return `
+            <button type="button" class="slot-top-row ai-slot-row" data-ai-slot="${slot}">
+              <span class="slot-top-slotno">Slot ${slot}</span>
+              <div class="slot-top-thumb slot-top-thumb-empty"></div>
+              <div class="slot-top-meta">
+                <strong class="slot-top-name">Not enough data</strong>
+                <span class="dim">N ${Number(row?.sampleSize || 0)} / Players ${Number(row?.uniquePlayers || 0)}</span>
+              </div>
+            </button>
+          `;
+        }
+        const playerId = Number(top.playerId || 0);
+        const imgSrc = `./images/chara/players/static/${playerId}.gif`;
+        return `
+          <button type="button" class="slot-top-row ai-slot-row" data-ai-slot="${slot}">
+            <span class="slot-top-slotno">Slot ${slot}</span>
+            <div class="slot-top-thumb">
+              <img loading="lazy" src="${imgSrc}" alt="${top.playerName || ""}" />
+            </div>
+            <div class="slot-top-meta">
+              <strong class="slot-top-name">${top.playerName || "-"}</strong>
+              <span class="slot-top-statline">
+                ${categoryBadgeHtml(top.category, top.rate)}
+                <span>Fit ${Number(top.score || 0).toFixed(1)} / ${top.bestSeason || "-"}</span>
+              </span>
+              <span class="ai-req-line">${renderRequirementChips(row.requirements, 3)}</span>
+            </div>
+          </button>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
 function renderSlotTop(slotStats, mode = "usage") {
+  if (mode === "ai") {
+    return renderFormationAi(currentFormation);
+  }
   if (mode === "best") {
     return renderBestTeam(currentFormation);
   }
@@ -1388,12 +1543,22 @@ function renderPlayerCardModal() {
   els.playerCardHost.innerHTML = playerCardHtml(player);
 }
 
-function openPlayerCardModal(playerId) {
+async function openPlayerCardModal(playerId) {
   const id = Number(playerId);
   if (!Number.isInteger(id)) return;
   selectedPlayerId = id;
-  renderPlayerCardModal();
   if (els.playerCardModal) els.playerCardModal.hidden = false;
+  if (!fullPlayersLoaded) {
+    if (els.playerCardHost) els.playerCardHost.innerHTML = `<p class="dim">Loading player data...</p>`;
+    try {
+      await ensurePlayersDataLoaded();
+    } catch (e) {
+      console.warn(e);
+      if (els.playerCardHost) els.playerCardHost.innerHTML = `<p class="dim">Failed to load player data.</p>`;
+      return;
+    }
+  }
+  if (selectedPlayerId === id) renderPlayerCardModal();
 }
 
 function closePlayerCardModal() {
@@ -1604,6 +1769,7 @@ function openFormationModal(formation, options = {}) {
         <div class="slot-top-sort-switch" role="group" aria-label="CC Slot Top sort mode">
           <button type="button" class="slot-top-sort-btn${slotTopSortMode === "usage" ? " is-on" : ""}" data-slot-top-sort="usage">Usage</button>
           <button type="button" class="slot-top-sort-btn${slotTopSortMode === "avg" ? " is-on" : ""}" data-slot-top-sort="avg">Avg</button>
+          <button type="button" class="slot-top-sort-btn${slotTopSortMode === "ai" ? " is-on" : ""}" data-slot-top-sort="ai">AI</button>
           <button type="button" class="slot-top-sort-btn${slotTopSortMode === "best" ? " is-on" : ""}" data-slot-top-sort="best">Top Teams</button>
         </div>
       </div>
@@ -1720,6 +1886,10 @@ function tryOpenFormationFromQuery() {
 
 function openSlotModal(slot) {
   if (!currentFormation || !els.slotModal || !els.slotTitle || !els.slotDetail) return;
+  if (slotTopSortMode === "ai") {
+    openAiSlotModal(slot);
+    return;
+  }
   const allRows = currentFormation.slotStats?.[String(slot)] || [];
   const rows = sortSlotRows(allRows, slotTopSortMode).slice(0, 20);
   const yearLabel = formatFormationYearLabel(currentFormation.year, currentFormation.stride);
@@ -1752,6 +1922,59 @@ function openSlotModal(slot) {
       </div>
     `;
   }
+  els.slotModal.hidden = false;
+}
+
+function openAiSlotModal(slot) {
+  if (!currentFormation || !els.slotModal || !els.slotTitle || !els.slotDetail) return;
+  const fid = Number(currentFormation.id);
+  const state = formationAiCache.get(fid) || loadFormationAi(fid);
+  const yearLabel = formatFormationYearLabel(currentFormation.year, currentFormation.stride);
+  els.slotTitle.textContent = `${currentFormation.name}${yearLabel ? ` ${yearLabel}` : ""} / Slot ${slot} AI`;
+  if (state.status === "loading") {
+    els.slotDetail.innerHTML = `<p class="dim">Loading AI slot fit...</p>`;
+    els.slotModal.hidden = false;
+    return;
+  }
+  const row = state.data?.slots?.[String(slot)] || null;
+  if (!row || row.status !== "ok") {
+    els.slotDetail.innerHTML = `
+      <div class="ai-slot-summary">
+        <strong>Not enough data</strong>
+        <span>N ${Number(row?.sampleSize || 0)} / Players ${Number(row?.uniquePlayers || 0)}</span>
+      </div>
+    `;
+    els.slotModal.hidden = false;
+    return;
+  }
+  const topRows = Array.isArray(row.top) ? row.top.slice(0, 10) : [];
+  els.slotDetail.innerHTML = `
+    <div class="ai-slot-summary">
+      <div>
+        <strong>Requirements</strong>
+        <div class="ai-req-list">${renderRequirementChips(row.requirements, 6)}</div>
+      </div>
+      <span>N ${Number(row.sampleSize || 0)} / Players ${Number(row.uniquePlayers || 0)} / ${row.confidence || "Low"}</span>
+    </div>
+    <div class="slot-table-wrap">
+      <table class="slot-table ai-slot-table">
+        <thead>
+          <tr><th>#</th><th>Player</th><th>Cat</th><th>Fit</th><th>Best</th></tr>
+        </thead>
+        <tbody>
+          ${topRows.map((r, idx) => `
+            <tr class="slot-player-row" data-player-id="${Number(r.playerId || 0)}">
+              <td>${idx + 1}</td>
+              <td>${r.playerName || "-"}</td>
+              <td>${categoryBadgeHtml(r.category, r.rate)}</td>
+              <td>${Number(r.score || 0).toFixed(1)}</td>
+              <td>${r.bestSeason || "-"}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
   els.slotModal.hidden = false;
 }
 
@@ -1927,7 +2150,7 @@ function bindEvents() {
       const sortBtn = e.target.closest("[data-slot-top-sort]");
       if (sortBtn) {
         const mode = String(sortBtn.dataset.slotTopSort || "");
-        if (mode === "usage" || mode === "avg" || mode === "team" || mode === "best") {
+        if (mode === "usage" || mode === "avg" || mode === "team" || mode === "ai" || mode === "best") {
           slotTopSortMode = mode;
           if (currentFormation) openFormationModal(currentFormation, { preserveSlotTopMode: true });
         }
@@ -1938,6 +2161,12 @@ function bindEvents() {
         const fid = Number(matchupBtn.dataset.openMatchups);
         const f = formations.find((x) => Number(x?.id) === fid);
         if (f) openMatchupModal(f);
+        return;
+      }
+      const aiSlotBtn = e.target.closest("[data-ai-slot]");
+      if (aiSlotBtn) {
+        const slot = Number(aiSlotBtn.dataset.aiSlot);
+        if (Number.isInteger(slot)) openAiSlotModal(slot);
         return;
       }
       const playerBtn = e.target.closest("[data-player-id]");
@@ -2047,9 +2276,9 @@ async function init() {
   buildSortOptions();
   bindEvents();
 
-  const [formationsRes, playersRes, coachesMetaRes] = await Promise.all([
+  const [formationsRes, playerIndexRes, coachesMetaRes] = await Promise.all([
     fetch("./formations_data.json"),
-    fetch("./data.json").catch(() => null),
+    fetch("./player_index.json").catch(() => null),
     fetch("./coaches_data.json").catch(() => null),
   ]);
   const formationData = await formationsRes.json();
@@ -2064,26 +2293,11 @@ async function init() {
     }
   }
   rebuildFormationAvailableCoachesFromMeta();
-  if (playersRes && playersRes.ok) {
+  if (playerIndexRes && playerIndexRes.ok) {
     try {
-      const playersData = await playersRes.json();
+      const playersData = await playerIndexRes.json();
       const rows = Array.isArray(playersData?.players) ? playersData.players : [];
-      syncProfileSideWidthFromPlayers(rows);
-      playerCategoryById = new Map(
-        rows
-          .map((p) => [Number(p?.id), normalizeCategory(p?.category)])
-          .filter(([id]) => Number.isInteger(id))
-      );
-      playerRateById = new Map(
-        rows
-          .map((p) => [Number(p?.id), Number(p?.rate)])
-          .filter(([id]) => Number.isInteger(id))
-      );
-      playersById = new Map(
-        rows
-          .map((p) => [Number(p?.id), p])
-          .filter(([id]) => Number.isInteger(id))
-      );
+      populatePlayerMaps(rows, { syncWidth: false, full: false });
     } catch (e) {
       console.warn(e);
     }
