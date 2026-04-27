@@ -25,6 +25,11 @@ METRIC_MAP = OrderedDict([
     ('個人', 'STDP'),
     ('組織', 'TMP'),
 ])
+POSITION_FITNESS_METRIC_MAP = OrderedDict([
+    ('FW適正', 'R16'),
+    ('MF適正', 'R17'),
+    ('DF適正', 'R18'),
+])
 
 POS_TYPE_MAP = {
     1: 'FW',
@@ -56,6 +61,7 @@ def make_periods(params: list):
     periods = []
     for row in rows:
         metrics = {jp: int(row.get(en, 0) or 0) for jp, en in METRIC_MAP.items()}
+        metrics.update({jp: int(row.get(en, 0) or 0) for jp, en in POSITION_FITNESS_METRIC_MAP.items()})
         periods.append({
             'season': season_label(int(row.get('SZN_NO', 0) or 0)),
             'metrics': metrics,
