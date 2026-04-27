@@ -27,6 +27,10 @@ MIN_SAMPLES = 30
 MIN_UNIQUE_PLAYERS = 8
 RIDGE_LAMBDA = 2.5
 TOP_N = 10
+CORE_IDX = [0, 1, 2]
+MENTAL_IDX = [3, 4, 5, 6]
+FORMATION_IDX = list(range(7, 22))
+LINE_IDX = [22, 23, 24]
 
 
 def to_int(v, default=0):
@@ -241,6 +245,28 @@ def feature_importance(weights, limit=6):
     return rows[:limit]
 
 
+def target_importance(target, reference=None, limit=6):
+    ref = reference if reference is not None else np.zeros_like(target)
+    deltas = np.maximum(target - ref, 0.0)
+    rows = []
+    for i, value in enumerate(deltas):
+        if value < 0.015:
+            continue
+        key, label, _, _ = FEATURES[i]
+        rows.append({"key": key, "label": label, "weight": round(float(value), 6)})
+    rows.sort(key=lambda x: (-x["weight"], x["key"]))
+    if rows:
+        return rows[:limit]
+    fallback = []
+    for i, value in enumerate(target):
+        if value < 0.015:
+            continue
+        key, label, _, _ = FEATURES[i]
+        fallback.append({"key": key, "label": label, "weight": round(float(value), 6)})
+    fallback.sort(key=lambda x: (-x["weight"], x["key"]))
+    return fallback[:limit]
+
+
 def confidence_label(n, unique_players):
     if n >= 120 and unique_players >= 20:
         return "High"
@@ -262,40 +288,72 @@ def candidate_best_score(candidate, period_scores):
     return best
 
 
-def score_candidate_periods(candidate_matrix, weights, target, concentration):
-    weighted_idx = np.argsort(weights)[::-1]
-    top_k = max(3, min(8, int(math.ceil(len(weights) * 0.25))))
-    relevant = set(int(i) for i in weighted_idx[:top_k] if weights[i] > 0)
+def ratio_similarity(candidate_part, target_part):
+    cand_sum = candidate_part.sum(axis=1, keepdims=True)
+    target_sum = float(target_part.sum())
+    cand_ratio = np.divide(candidate_part, np.maximum(cand_sum, 1e-9))
+    target_ratio = target_part / max(target_sum, 1e-9)
+    dist = np.sqrt(np.mean((cand_ratio - target_ratio) ** 2, axis=1))
+    return np.clip(1.0 - dist / 0.42, 0.0, 1.0)
+
+
+def level_similarity(candidate_part, target_part, scale=0.45):
+    dist = np.sqrt(np.mean((candidate_part - target_part) ** 2, axis=1))
+    return np.clip(1.0 - dist / scale, 0.0, 1.0)
+
+
+def formation_similarity(candidate_matrix, target):
+    cand = candidate_matrix[:, FORMATION_IDX]
+    tgt = target[FORMATION_IDX]
+    level = level_similarity(cand, tgt, scale=0.34)
+    shape = ratio_similarity(cand, tgt)
+    return 0.72 * level + 0.28 * shape
+
+
+def core_similarity(candidate_matrix, target):
+    cand = candidate_matrix[:, CORE_IDX]
+    tgt = target[CORE_IDX]
+    ratio = ratio_similarity(cand, tgt)
+    level = level_similarity(cand, tgt, scale=0.42)
+    return 0.72 * ratio + 0.28 * level
+
+
+def mental_similarity(candidate_matrix, target):
+    cand = candidate_matrix[:, MENTAL_IDX]
+    tgt = target[MENTAL_IDX]
+    level = level_similarity(cand, tgt, scale=0.42)
+    tgt_dom = int(np.argmax(tgt))
+    tgt_sorted = np.sort(tgt)
+    tgt_gap = float(tgt_sorted[-1] - tgt_sorted[-2]) if len(tgt_sorted) >= 2 else 0.0
+    cand_dom = np.argmax(cand, axis=1)
+    same_dom = (cand_dom == tgt_dom).astype(float)
+    dom_bonus = same_dom * min(1.0, tgt_gap / 0.12)
+    return 0.72 * level + 0.28 * dom_bonus
+
+
+def line_similarity(candidate_matrix, target):
+    return level_similarity(candidate_matrix[:, LINE_IDX], target[LINE_IDX], scale=0.45)
+
+
+def score_candidate_periods(candidate_matrix, target, global_mean):
     if candidate_matrix.size == 0:
         return np.zeros(0, dtype=float)
+    formation = formation_similarity(candidate_matrix, target)
+    core = core_similarity(candidate_matrix, target)
+    mental = mental_similarity(candidate_matrix, target)
+    line = line_similarity(candidate_matrix, target)
 
-    weighted_distance = np.sqrt(np.sum(((candidate_matrix - target) ** 2) * weights, axis=1))
-    profile_fit = np.clip(1.0 - (weighted_distance / 0.65), 0.0, 1.0)
-
-    relevant_idx = sorted(relevant)
-    if relevant_idx:
-        required = np.maximum(target[relevant_idx], 0.08)
-        key_fit = np.minimum(candidate_matrix[:, relevant_idx] / required, 1.0).mean(axis=1)
-        non_relevant = [i for i in range(len(weights)) if i not in relevant]
-    else:
-        key_fit = np.ones(candidate_matrix.shape[0], dtype=float)
-        non_relevant = []
-
-    level_fit = np.clip(candidate_matrix @ weights, 0.0, 1.0)
-    slot_total = float(target.mean())
-    candidate_total = candidate_matrix.mean(axis=1)
-    total_excess = np.maximum(candidate_total - slot_total - 0.04, 0.0)
-    if relevant:
-        irrelevant_excess = np.maximum(candidate_matrix[:, non_relevant] - target[non_relevant], 0.0).mean(axis=1) if non_relevant else 0.0
-    else:
-        irrelevant_excess = 0.0
-
+    excess_all = np.maximum(candidate_matrix.mean(axis=1) - target.mean() - 0.05, 0.0)
+    excess_irrelevant = np.maximum(candidate_matrix[:, FORMATION_IDX] - target[FORMATION_IDX] - 0.10, 0.0).mean(axis=1)
+    low_floor = np.maximum(global_mean - candidate_matrix, 0.0).mean(axis=1)
     return (
-        0.56 * profile_fit
-        + 0.28 * key_fit
-        + 0.16 * level_fit
-        - 0.36 * concentration * total_excess
-        - 0.26 * concentration * irrelevant_excess
+        0.50 * formation
+        + 0.22 * core
+        + 0.20 * mental
+        + 0.08 * line
+        - 0.10 * excess_all
+        - 0.10 * excess_irrelevant
+        - 0.06 * low_floor
     )
 
 
@@ -336,7 +394,6 @@ def analyze_slot(rows, params_by_player, player_index, candidates, candidate_per
     y = np.array([to_float(r["pts"]) for r, _, _ in usable], dtype=float)
     coefs = ridge_fit(X, y)
     weights = coefficient_weights(coefs[1 : 1 + len(FEATURES)])
-    concentration = float(np.sum(weights * weights))
 
     category_effects = {
         CATEGORY_KEYS[i]: float(coefs[1 + len(FEATURES) + i])
@@ -346,16 +403,49 @@ def analyze_slot(rows, params_by_player, player_index, candidates, candidate_per
         to_float(r["pts"]) - category_effects.get(cat, 0.0)
         for r, _, cat in usable
     ], dtype=float)
-    cutoff = float(np.quantile(adjusted_y, 0.68))
-    perf_weight = np.maximum(adjusted_y - cutoff, 0.0)
-    if perf_weight.sum() <= 1e-9:
-        perf_weight = np.maximum(adjusted_y - adjusted_y.mean(), 0.0)
-    if perf_weight.sum() <= 1e-9:
-        perf_weight = np.ones(n, dtype=float)
-    target = np.average(feature_matrix, axis=0, weights=perf_weight)
-    target = np.clip(target, 0.0, 1.0)
 
-    all_period_scores = score_candidate_periods(candidate_matrix, weights, target, concentration)
+    player_perf = {}
+    for idx, (r, pr, cat) in enumerate(usable):
+        pid = to_int(r["player_id"])
+        if pid not in player_perf:
+            player_perf[pid] = {
+                "count": 0,
+                "pts": 0.0,
+                "vector": row_feature_vector(pr),
+                "name": player_index.get(pid, {}).get("name", str(pid)),
+            }
+        player_perf[pid]["count"] += 1
+        player_perf[pid]["pts"] += float(adjusted_y[idx])
+
+    perf_rows = []
+    for pid, stat in player_perf.items():
+        count = int(stat["count"])
+        avg_pts = float(stat["pts"] / count) if count else 0.0
+        reliability = min(1.0, math.sqrt(count / 8.0))
+        perf_rows.append({
+            "playerId": pid,
+            "playerName": stat["name"],
+            "count": count,
+            "avgPts": avg_pts,
+            "reliability": reliability,
+            "vector": stat["vector"],
+            "score": avg_pts * (0.65 + 0.35 * reliability),
+        })
+    perf_rows.sort(key=lambda x: (-x["score"], -x["count"], x["playerId"]))
+    top_k = max(5, min(14, math.ceil(unique_players * 0.28)))
+    reference_players = perf_rows[:top_k]
+    ref_scores = np.array([p["score"] for p in reference_players], dtype=float)
+    cutoff = float(np.quantile(ref_scores, 0.35)) if len(ref_scores) else 0.0
+    ref_weights = np.array([
+        max(0.05, (p["score"] - cutoff) + 0.05) * math.sqrt(max(1, p["count"]))
+        for p in reference_players
+    ], dtype=float)
+    ref_matrix = np.vstack([p["vector"] for p in reference_players])
+    target = np.average(ref_matrix, axis=0, weights=ref_weights)
+    target = np.clip(target, 0.0, 1.0)
+    global_mean = np.mean(feature_matrix, axis=0)
+
+    all_period_scores = score_candidate_periods(candidate_matrix, target, global_mean)
     scores_by_candidate = defaultdict(list)
     for idx, (ci, _) in enumerate(candidate_period_owners):
         scores_by_candidate[ci].append(float(all_period_scores[idx]))
@@ -382,18 +472,26 @@ def analyze_slot(rows, params_by_player, player_index, candidates, candidate_per
         "sampleSize": n,
         "uniquePlayers": unique_players,
         "confidence": confidence_label(n, unique_players),
-        "method": "category_adjusted_ridge_slot_fit",
+        "method": "top_performer_profile_similarity",
         "categoryEffects": {
             key: round(value, 4)
             for key, value in category_effects.items()
         },
-        "concentration": round(concentration, 6),
         "target": {
             FEATURES[i][0]: round(float(target[i]), 4)
             for i in range(len(FEATURES))
-            if weights[i] >= 0.005
+            if abs(float(target[i] - global_mean[i])) >= 0.015
         },
-        "requirements": feature_importance(weights),
+        "referencePlayers": [
+            {
+                "playerId": int(p["playerId"]),
+                "playerName": p["playerName"],
+                "uses": int(p["count"]),
+                "avgPts": round(float(p["avgPts"]), 4),
+            }
+            for p in reference_players[:8]
+        ],
+        "requirements": target_importance(target, global_mean),
         "top": top[:TOP_N],
     }
 
@@ -455,7 +553,7 @@ def build_ai(master_db):
                     "retired": "excluded",
                 },
                 "features": [{"key": key, "label": label} for key, label, _, _ in FEATURES],
-                "method": "CC match slot rating regression with category-effect adjustment",
+                "method": "high-sample top performer profile similarity with category-effect adjustment",
             },
             "slots": slots,
         }
