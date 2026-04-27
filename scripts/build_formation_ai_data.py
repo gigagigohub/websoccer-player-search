@@ -299,8 +299,10 @@ def core_pattern(target_core):
     sorted_vals = target_core[order]
     gap1 = float(sorted_vals[0] - sorted_vals[1])
     gap2 = float(sorted_vals[1] - sorted_vals[2])
+    level = float(np.mean(target_core))
+    floor = float(np.min(target_core))
     if gap1 < 0.08 and gap2 < 0.08:
-        kind = "balanced"
+        kind = "high_balanced" if floor >= 0.78 else "balanced"
     elif gap1 >= 0.12:
         kind = "single_specialist"
     elif gap2 >= 0.12:
@@ -312,6 +314,8 @@ def core_pattern(target_core):
         "primary": labels[int(order[0])],
         "secondary": labels[int(order[1])],
         "gaps": [round(gap1, 4), round(gap2, 4)],
+        "level": round(level, 4),
+        "floor": round(floor, 4),
     }
 
 
@@ -347,15 +351,28 @@ def core_similarity(candidate_matrix, target):
         ])
         third_not_too_high = np.clip(1.0 - np.maximum(cand[:, target_order[2]] - tgt[target_order[2]] - 0.08, 0.0) / 0.22, 0.0, 1.0)
         pattern_fit = 0.70 * top2_fit + 0.30 * third_not_too_high
+    elif pattern["kind"] == "high_balanced":
+        spread = cand.max(axis=1) - cand.min(axis=1)
+        target_spread = float(tgt.max() - tgt.min())
+        balance_fit = np.clip(1.0 - np.abs(spread - target_spread) / 0.14, 0.0, 1.0)
+        floor_fit = np.clip(cand.min(axis=1) / max(float(tgt.min()), 0.08), 0.0, 1.0)
+        avg_fit = np.clip(1.0 - np.abs(cand.mean(axis=1) - float(tgt.mean())) / 0.20, 0.0, 1.0)
+        no_low_value = np.clip(1.0 - np.maximum(float(tgt.min()) - cand.min(axis=1), 0.0) / 0.16, 0.0, 1.0)
+        pattern_fit = 0.34 * balance_fit + 0.28 * floor_fit + 0.24 * avg_fit + 0.14 * no_low_value
     elif pattern["kind"] == "balanced":
         spread = cand.max(axis=1) - cand.min(axis=1)
         target_spread = float(tgt.max() - tgt.min())
-        pattern_fit = np.clip(1.0 - np.abs(spread - target_spread) / 0.16, 0.0, 1.0)
+        balance_fit = np.clip(1.0 - np.abs(spread - target_spread) / 0.16, 0.0, 1.0)
+        avg_fit = np.clip(1.0 - np.abs(cand.mean(axis=1) - float(tgt.mean())) / 0.24, 0.0, 1.0)
+        floor_fit = np.clip(1.0 - np.maximum(float(tgt.min()) - cand.min(axis=1), 0.0) / 0.22, 0.0, 1.0)
+        pattern_fit = 0.52 * balance_fit + 0.28 * avg_fit + 0.20 * floor_fit
     else:
         top_fit = (cand_order[:, 0] == target_order[0]).astype(float)
         gap_shape = gap_fit
         pattern_fit = 0.50 * top_fit + 0.50 * gap_shape
 
+    if pattern["kind"] == "high_balanced":
+        return 0.56 * pattern_fit + 0.28 * level + 0.10 * gap_fit + 0.06 * ratio
     return 0.48 * pattern_fit + 0.34 * gap_fit + 0.12 * level + 0.06 * ratio
 
 
