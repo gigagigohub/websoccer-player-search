@@ -224,27 +224,6 @@ def ridge_fit(X, y):
         return np.linalg.pinv(xtx + reg) @ X.T @ y
 
 
-def coefficient_weights(coefs):
-    raw = np.maximum(coefs[: len(FEATURES)], 0.0)
-    if raw.sum() <= 1e-9:
-        raw = np.abs(coefs[: len(FEATURES)])
-    if raw.sum() <= 1e-9:
-        raw = np.ones(len(FEATURES), dtype=float)
-    weights = raw / raw.sum()
-    return weights
-
-
-def feature_importance(weights, limit=6):
-    rows = []
-    for i, w in enumerate(weights):
-        if w < 0.005:
-            continue
-        key, label, _, _ = FEATURES[i]
-        rows.append({"key": key, "label": label, "weight": round(float(w), 6)})
-    rows.sort(key=lambda x: (-x["weight"], x["key"]))
-    return rows[:limit]
-
-
 def target_importance(target, reference=None, limit=6):
     ref = reference if reference is not None else np.zeros_like(target)
     deltas = np.maximum(target - ref, 0.0)
@@ -305,17 +284,79 @@ def level_similarity(candidate_part, target_part, scale=0.45):
 def formation_similarity(candidate_matrix, target):
     cand = candidate_matrix[:, FORMATION_IDX]
     tgt = target[FORMATION_IDX]
-    level = level_similarity(cand, tgt, scale=0.34)
-    shape = ratio_similarity(cand, tgt)
-    return 0.72 * level + 0.28 * shape
+    level = level_similarity(cand, tgt, scale=0.31)
+    distribution = ratio_similarity(cand, tgt)
+    cand_centered = cand - cand.mean(axis=1, keepdims=True)
+    tgt_centered = tgt - tgt.mean()
+    contour_dist = np.sqrt(np.mean((cand_centered - tgt_centered) ** 2, axis=1))
+    contour = np.clip(1.0 - contour_dist / 0.30, 0.0, 1.0)
+    return 0.45 * level + 0.35 * distribution + 0.20 * contour
+
+
+def core_pattern(target_core):
+    labels = ["Speed", "Technique", "Power"]
+    order = np.argsort(-target_core)
+    sorted_vals = target_core[order]
+    gap1 = float(sorted_vals[0] - sorted_vals[1])
+    gap2 = float(sorted_vals[1] - sorted_vals[2])
+    if gap1 < 0.08 and gap2 < 0.08:
+        kind = "balanced"
+    elif gap1 >= 0.12:
+        kind = "single_specialist"
+    elif gap2 >= 0.12:
+        kind = "double_specialist"
+    else:
+        kind = "specialist_plus_support"
+    return {
+        "kind": kind,
+        "primary": labels[int(order[0])],
+        "secondary": labels[int(order[1])],
+        "gaps": [round(gap1, 4), round(gap2, 4)],
+    }
 
 
 def core_similarity(candidate_matrix, target):
     cand = candidate_matrix[:, CORE_IDX]
     tgt = target[CORE_IDX]
+    pattern = core_pattern(tgt)
+    target_order = np.argsort(-tgt)
+    cand_order = np.argsort(-cand, axis=1)
+    sorted_cand = np.take_along_axis(cand, cand_order, axis=1)
+    sorted_tgt = tgt[target_order]
+
+    gap_tgt = np.array([sorted_tgt[0] - sorted_tgt[1], sorted_tgt[1] - sorted_tgt[2]])
+    gap_cand = np.column_stack([
+        sorted_cand[:, 0] - sorted_cand[:, 1],
+        sorted_cand[:, 1] - sorted_cand[:, 2],
+    ])
+    gap_fit = np.clip(1.0 - np.mean(np.abs(gap_cand - gap_tgt), axis=1) / 0.18, 0.0, 1.0)
+
+    level = level_similarity(cand, tgt, scale=0.36)
     ratio = ratio_similarity(cand, tgt)
-    level = level_similarity(cand, tgt, scale=0.42)
-    return 0.72 * ratio + 0.28 * level
+
+    if pattern["kind"] == "single_specialist":
+        top_fit = (cand_order[:, 0] == target_order[0]).astype(float)
+        support = np.minimum(cand[:, target_order[1]], tgt[target_order[1]] + 0.08)
+        support_fit = np.clip(support / max(float(tgt[target_order[1]]), 0.08), 0.0, 1.0)
+        pattern_fit = 0.62 * top_fit + 0.38 * support_fit
+    elif pattern["kind"] == "double_specialist":
+        target_top2 = set(int(i) for i in target_order[:2])
+        top2_fit = np.array([
+            1.0 if set(int(i) for i in row[:2]) == target_top2 else 0.35 if int(row[0]) in target_top2 else 0.0
+            for row in cand_order
+        ])
+        third_not_too_high = np.clip(1.0 - np.maximum(cand[:, target_order[2]] - tgt[target_order[2]] - 0.08, 0.0) / 0.22, 0.0, 1.0)
+        pattern_fit = 0.70 * top2_fit + 0.30 * third_not_too_high
+    elif pattern["kind"] == "balanced":
+        spread = cand.max(axis=1) - cand.min(axis=1)
+        target_spread = float(tgt.max() - tgt.min())
+        pattern_fit = np.clip(1.0 - np.abs(spread - target_spread) / 0.16, 0.0, 1.0)
+    else:
+        top_fit = (cand_order[:, 0] == target_order[0]).astype(float)
+        gap_shape = gap_fit
+        pattern_fit = 0.50 * top_fit + 0.50 * gap_shape
+
+    return 0.48 * pattern_fit + 0.34 * gap_fit + 0.12 * level + 0.06 * ratio
 
 
 def mental_similarity(candidate_matrix, target):
@@ -347,10 +388,10 @@ def score_candidate_periods(candidate_matrix, target, global_mean):
     excess_irrelevant = np.maximum(candidate_matrix[:, FORMATION_IDX] - target[FORMATION_IDX] - 0.10, 0.0).mean(axis=1)
     low_floor = np.maximum(global_mean - candidate_matrix, 0.0).mean(axis=1)
     return (
-        0.50 * formation
+        0.56 * formation
         + 0.22 * core
-        + 0.20 * mental
-        + 0.08 * line
+        + 0.17 * mental
+        + 0.05 * line
         - 0.10 * excess_all
         - 0.10 * excess_irrelevant
         - 0.06 * low_floor
@@ -393,7 +434,6 @@ def analyze_slot(rows, params_by_player, player_index, candidates, candidate_per
     X = np.column_stack([np.ones(n), z, cat_matrix])
     y = np.array([to_float(r["pts"]) for r, _, _ in usable], dtype=float)
     coefs = ridge_fit(X, y)
-    weights = coefficient_weights(coefs[1 : 1 + len(FEATURES)])
 
     category_effects = {
         CATEGORY_KEYS[i]: float(coefs[1 + len(FEATURES) + i])
@@ -482,6 +522,7 @@ def analyze_slot(rows, params_by_player, player_index, candidates, candidate_per
             for i in range(len(FEATURES))
             if abs(float(target[i] - global_mean[i])) >= 0.015
         },
+        "corePattern": core_pattern(target[CORE_IDX]),
         "referencePlayers": [
             {
                 "playerId": int(p["playerId"]),
