@@ -39,18 +39,23 @@ POS_TYPE_MAP = {
 }
 RETIRED_PLAYER_IDS = {
     29, 33, 48, 49, 55, 106, 134, 163, 203, 211, 220, 221, 222, 235, 242, 245,
-    250, 335, 494, 520, 529, 531, 567, 568, 569, 571, 580, 581, 584, 596, 616,
+    250, 335, 459, 467, 494, 520, 529, 531, 567, 568, 646, 569, 571, 580, 581, 584, 596, 616,
     638, 643, 1148, 1149, 1270, 1418, 1464, 1529, 1539, 1544, 1557, 1558,
     1590, 1668, 1669, 1682, 1688, 1695, 1745, 1746, 1880, 2019, 2112, 2181,
     2329, 2410, 2765,
 }
+CC_RETIRED_PLAYER_IDS = {459, 467, 646}
 
 def normalize_category_for_retired(player_id: int, category: str, membership: list[str]):
-    is_retired = player_id in RETIRED_PLAYER_IDS or category == 'RT' or 'RT' in membership
+    is_legacy_rt = category == 'RT' or 'RT' in membership
+    is_retired = player_id in RETIRED_PLAYER_IDS or is_legacy_rt
     if not is_retired:
         return category, membership, False, ''
-    reason = 'teamdata_unobserved_or_old_only' if player_id in RETIRED_PLAYER_IDS else 'legacy_rt_category'
-    return 'NR', ['NR'], True, reason
+    if is_legacy_rt:
+        return 'NR', ['NR'], True, 'legacy_rt_category'
+    if player_id in CC_RETIRED_PLAYER_IDS:
+        return category, membership, True, 'cc_player_retired_manual'
+    return category, membership, True, 'teamdata_unobserved_or_old_only'
 
 
 def season_label(raw_szn_no: int) -> str:
