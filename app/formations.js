@@ -931,13 +931,7 @@ function renderModelSlots(formation) {
         const player = playersById.get(playerId);
         const isLinked = playerId > 0 && player;
         const modelName = row?.modelName || player?.modelPlayer || row?.sourceName || "-";
-        const sourceName = row?.sourceName && row.sourceName !== modelName ? row.sourceName : "";
         const playerName = player?.name || row?.playerName || row?.playerFullName || (playerId ? `Player ${playerId}` : "");
-        const playerFullName = (player?.fullName || row?.playerFullName || "").trim();
-        const fullNameExtra = playerFullName && playerFullName !== playerName ? playerFullName : "";
-        const extra = isLinked
-          ? [fullNameExtra, player?.nationality || row?.nation, player?.playType || row?.playType].filter(Boolean).join(" / ")
-          : [sourceName ? `OCR ${sourceName}` : "", row?.sourceTitle].filter(Boolean).join(" / ");
         const linkedBody = isLinked
           ? `
             <button type="button" class="slot-top-row model-slot-row" data-player-id="${playerId}">
@@ -946,12 +940,11 @@ function renderModelSlots(formation) {
                 <img loading="lazy" src="./images/chara/players/static/${playerId}.gif" alt="${playerName}" />
               </div>
               <div class="slot-top-meta">
-                <strong class="slot-top-name">${modelName}</strong>
+                <strong class="slot-top-name">${playerName}</strong>
                 <span class="slot-top-statline model-slot-statline">
                   ${categoryBadgeHtml(player?.category || row?.category, playerId)}
-                  <span>${playerName}<span class="model-slot-id"> #${playerId}</span></span>
+                  <span>${modelName}</span>
                 </span>
-                ${extra ? `<span class="model-slot-extra">${extra}</span>` : ""}
               </div>
             </button>
           `
@@ -964,7 +957,6 @@ function renderModelSlots(formation) {
                 <span class="slot-top-statline model-slot-statline">
                   <span class="model-slot-status">Unlinked</span>
                 </span>
-                ${extra ? `<span class="model-slot-extra">${extra}</span>` : ""}
               </div>
             </div>
           `;
