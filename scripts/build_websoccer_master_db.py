@@ -246,16 +246,6 @@ def init_schema(conn: sqlite3.Connection) -> None:
           updated_at TEXT NOT NULL
         );
 
-        CREATE TABLE IF NOT EXISTS manual_player_model_player (
-          player_id INTEGER PRIMARY KEY,
-          model_name TEXT NOT NULL,
-          source_url TEXT NOT NULL,
-          source_method TEXT NOT NULL DEFAULT 'manual_update',
-          is_manual INTEGER NOT NULL DEFAULT 1,
-          notes TEXT,
-          updated_at TEXT NOT NULL
-        );
-
         CREATE TABLE IF NOT EXISTS manual_player_person_id (
           player_id INTEGER PRIMARY KEY,
           manual_person_id INTEGER NOT NULL,

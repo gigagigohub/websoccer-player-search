@@ -59,7 +59,7 @@ MODEL_NAME_CANONICAL_MAP = {
     "孫興慜": "孫興ミン",
     "キリアン・ムバッペ": "キリアン・エムバペ",
     # Full-name vs short-name variants (same player).
-    "ティボー・クルトワ": "ティボ・クルトゥワ",
+    "ティボ・クルトゥワ": "ティボー・クルトワ",
     "ガリー・ケーヒル": "ガリー・ジェームズ・ケーヒル",
     "パウロ・フェレイラ": "パウロ・レナト・レボショ・フェレイラ",
     "ジョバニ・ドス・サントス": "ジオバニ・アレックス・ドス・サントス・ラミレス",
@@ -463,45 +463,11 @@ def upsert_manual_model_rows(
     )
 
 
-def upsert_manual_model_player_rows(
-    conn: sqlite3.Connection,
-    rows: List[Tuple[int, str, str, str, int, str, str]],
-) -> None:
-    conn.executemany(
-        """
-        INSERT INTO manual_player_model_player
-          (player_id, model_name, source_url, source_method, is_manual, notes, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(player_id) DO UPDATE SET
-          model_name=excluded.model_name,
-          source_url=excluded.source_url,
-          source_method=excluded.source_method,
-          is_manual=excluded.is_manual,
-          notes=excluded.notes,
-          updated_at=excluded.updated_at
-        """,
-        rows,
-    )
-
-
 def ensure_table(conn: sqlite3.Connection) -> None:
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS manual_player_model (
           person_id INTEGER PRIMARY KEY,
-          model_name TEXT NOT NULL,
-          source_url TEXT NOT NULL,
-          source_method TEXT NOT NULL DEFAULT 'manual_update',
-          is_manual INTEGER NOT NULL DEFAULT 1,
-          notes TEXT,
-          updated_at TEXT NOT NULL
-        )
-        """
-    )
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS manual_player_model_player (
-          player_id INTEGER PRIMARY KEY,
           model_name TEXT NOT NULL,
           source_url TEXT NOT NULL,
           source_method TEXT NOT NULL DEFAULT 'manual_update',
@@ -845,36 +811,17 @@ def main() -> int:
             filtered.append(c)
         item["candidates"] = filtered
 
-    # Build player_id-based rows from resolved person-based rows.
     resolved_by_person = {int(r[0]): r for r in resolved_rows}
-    resolved_player_rows: List[Tuple[int, str, str, str, int, str, str]] = []
-    for person_id, plist in person_players.items():
-        row = resolved_by_person.get(int(person_id))
-        if not row:
-            continue
-        _, model_name, source_url, source_method, is_manual, notes, updated_at = row
-        for p in plist:
-            player_id = int(p.get("playerId") or 0)
-            if player_id <= 0:
-                continue
-            resolved_player_rows.append(
-                (
-                    player_id,
-                    model_name,
-                    source_url,
-                    source_method,
-                    is_manual,
-                    notes,
-                    updated_at,
-                )
-            )
+    resolved_player_count = sum(
+        len(plist)
+        for person_id, plist in person_players.items()
+        if int(person_id) in resolved_by_person
+    )
 
     if not args.dry_run:
         if args.reset_table:
             conn.execute("DELETE FROM manual_player_model")
-            conn.execute("DELETE FROM manual_player_model_player")
         upsert_manual_model_rows(conn, resolved_rows)
-        upsert_manual_model_player_rows(conn, resolved_player_rows)
         conn.commit()
 
     unresolved_path = Path(args.unresolved_out).expanduser().resolve()
@@ -886,7 +833,7 @@ def main() -> int:
                 "sourceUrl": args.list_url,
                 "masterDb": str(db_path),
                 "resolvedCount": len(resolved_rows),
-                "resolvedPlayerCount": len(resolved_player_rows),
+                "resolvedPlayerCount": resolved_player_count,
                 "unresolvedCount": len(unresolved),
                 "excludedNoModelByRuleCount": len(excluded_by_no_model_rule),
                 "excludedNoModelByRulePersonIds": sorted(set(excluded_by_no_model_rule)),
@@ -899,7 +846,7 @@ def main() -> int:
     )
 
     print(
-        f"[DONE] resolved_person={len(resolved_rows)} resolved_player={len(resolved_player_rows)} "
+        f"[DONE] resolved_person={len(resolved_rows)} resolved_player={resolved_player_count} "
         f"unresolved={len(unresolved)} dry_run={args.dry_run}"
     )
     print(f"[OUT] unresolved candidates: {unresolved_path}")
