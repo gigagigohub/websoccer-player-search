@@ -928,28 +928,47 @@ function renderModelSlots(formation) {
           `;
         }
         const playerId = Number(row?.playerId || 0);
-        const imgSrc = `./images/chara/players/static/${playerId}.gif`;
-        const modelName = row?.modelName || row?.sourceName || "-";
-        const sourceName = row?.sourceName && row.sourceName !== modelName ? ` / ${row.sourceName}` : "";
-        const playerName = row?.playerName || row?.playerFullName || `Player ${playerId}`;
-        const playerFullName = row?.playerFullName && row.playerFullName !== playerName ? row.playerFullName : "";
-        const extra = [row?.nation, row?.playType].filter(Boolean).join(" / ");
-        return `
-          <button type="button" class="slot-top-row model-slot-row" data-player-id="${playerId}">
-            <span class="slot-top-slotno">${slotLabel}</span>
-            <div class="slot-top-thumb">
-              <img loading="lazy" src="${imgSrc}" alt="${playerName}" />
+        const player = playersById.get(playerId);
+        const isLinked = playerId > 0 && player;
+        const modelName = row?.modelName || player?.modelPlayer || row?.sourceName || "-";
+        const sourceName = row?.sourceName && row.sourceName !== modelName ? row.sourceName : "";
+        const playerName = player?.name || row?.playerName || row?.playerFullName || (playerId ? `Player ${playerId}` : "");
+        const playerFullName = (player?.fullName || row?.playerFullName || "").trim();
+        const fullNameExtra = playerFullName && playerFullName !== playerName ? playerFullName : "";
+        const extra = isLinked
+          ? [fullNameExtra, player?.nationality || row?.nation, player?.playType || row?.playType].filter(Boolean).join(" / ")
+          : [sourceName ? `OCR ${sourceName}` : "", row?.sourceTitle].filter(Boolean).join(" / ");
+        const linkedBody = isLinked
+          ? `
+            <button type="button" class="slot-top-row model-slot-row" data-player-id="${playerId}">
+              <span class="slot-top-slotno">${slotLabel}</span>
+              <div class="slot-top-thumb">
+                <img loading="lazy" src="./images/chara/players/static/${playerId}.gif" alt="${playerName}" />
+              </div>
+              <div class="slot-top-meta">
+                <strong class="slot-top-name">${modelName}</strong>
+                <span class="slot-top-statline model-slot-statline">
+                  ${categoryBadgeHtml(player?.category || row?.category, playerId)}
+                  <span>${playerName}<span class="model-slot-id"> #${playerId}</span></span>
+                </span>
+                ${extra ? `<span class="model-slot-extra">${extra}</span>` : ""}
+              </div>
+            </button>
+          `
+          : `
+            <div class="slot-top-row model-slot-row is-empty">
+              <span class="slot-top-slotno">${slotLabel}</span>
+              <div class="slot-top-thumb slot-top-thumb-empty"></div>
+              <div class="slot-top-meta">
+                <strong class="slot-top-name">${modelName}</strong>
+                <span class="slot-top-statline model-slot-statline">
+                  <span class="model-slot-status">Unlinked</span>
+                </span>
+                ${extra ? `<span class="model-slot-extra">${extra}</span>` : ""}
+              </div>
             </div>
-            <div class="slot-top-meta">
-              <strong class="slot-top-name">${playerName}<span class="model-slot-id"> #${playerId}</span></strong>
-              <span class="slot-top-statline model-slot-statline">
-                ${categoryBadgeHtml(row?.category, playerId)}
-                <span>Model ${modelName}${sourceName}</span>
-              </span>
-              ${playerFullName || extra ? `<span class="model-slot-extra">${[playerFullName, extra].filter(Boolean).join(" / ")}</span>` : ""}
-            </div>
-          </button>
-        `;
+          `;
+        return linkedBody;
       }).join("")}
     </div>
   `;

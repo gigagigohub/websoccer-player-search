@@ -2043,6 +2043,13 @@ async function init() {
   if (els.nameQuery) {
     els.nameQuery.addEventListener("input", updateNameSuggest);
     els.nameQuery.addEventListener("focus", updateNameSuggest);
+    els.nameQuery.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" || e.isComposing || e.keyCode === 229) return;
+      e.preventDefault();
+      hideNameSuggest();
+      render();
+      els.nameQuery.blur();
+    });
   }
   if (els.nameSuggest) {
     els.nameSuggest.addEventListener("click", (e) => {

@@ -20,7 +20,7 @@ PARAM_KEYS = [
 ]
 
 DEFAULT_MODEL_SLOT_CSV = Path(
-    "/Users/k.nishimura/work/coding/wsc_data/model_slot_mapping_probe/model_slot_validated_candidates_strict.csv"
+    "/Users/k.nishimura/work/coding/wsc_data/model_slot_mapping_probe/model_slot_ocr_candidates_strict.csv"
 )
 
 
@@ -103,6 +103,16 @@ def read_csv(path):
         return list(csv.DictReader(f))
 
 
+def parse_json_list(text):
+    if not text:
+        return []
+    try:
+        value = json.loads(text)
+    except Exception:
+        return []
+    return value if isinstance(value, list) else []
+
+
 def load_model_slots(path):
     model_path = Path(path).expanduser()
     if not model_path.exists():
@@ -112,24 +122,32 @@ def load_model_slots(path):
         fid = to_int(row.get("formation_id"))
         slot = to_int(row.get("slot"))
         player_id = to_int(row.get("best_player_id"))
-        if not fid or not slot or not player_id:
+        source_name = row.get("ocr_cleaned") or row.get("ocr_raw") or ""
+        if not fid or not slot or not source_name:
             continue
+        candidates = parse_json_list(row.get("candidate_json"))
+        confidence = round(to_float(row.get("best_score")), 1)
+        is_linked = player_id > 0 and confidence >= 85
         rows.append({
             "formationId": fid,
             "slot": slot,
-            "sourceName": row.get("ocr_cleaned") or row.get("ocr_raw") or "",
-            "modelName": row.get("best_model_name") or "",
-            "playerId": player_id,
-            "playerName": row.get("best_game_name") or "",
-            "playerFullName": row.get("best_fullname") or "",
-            "nation": row.get("best_nation") or "",
-            "category": row.get("best_category") or "",
-            "playType": row.get("best_play_type") or "",
+            "sourceName": source_name,
+            "modelName": row.get("best_model_name") if is_linked else "",
+            "playerId": player_id if is_linked else 0,
+            "isLinked": is_linked,
+            "playerName": row.get("best_game_name") if is_linked else "",
+            "playerFullName": row.get("best_fullname") if is_linked else "",
+            "nation": row.get("best_nation") if is_linked else "",
+            "category": row.get("best_category") if is_linked else "",
+            "playType": row.get("best_play_type") if is_linked else "",
             "sourceTitle": row.get("source_title") or "",
             "sourceUrl": row.get("source_url") or "",
-            "confidence": round(to_float(row.get("best_score")), 1),
+            "confidence": confidence,
             "ocrConfidence": round(to_float(row.get("ocr_conf")), 1),
             "slotDistance": round(to_float(row.get("slot_dist")), 3),
+            "candidateCount": len(candidates),
+            "candidatePlayerId": player_id if player_id > 0 and not is_linked else 0,
+            "candidateModelName": row.get("best_model_name") if player_id > 0 and not is_linked else "",
         })
     rows.sort(key=lambda x: (x["formationId"], x["slot"], -x["confidence"], x["playerId"]))
     return rows

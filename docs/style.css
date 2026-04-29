@@ -2985,6 +2985,13 @@ button.ghost {
   font-weight: 700;
 }
 
+.model-slot-status {
+  color: #a7bbe5;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
 .model-slot-statline {
   min-width: 0;
 }
