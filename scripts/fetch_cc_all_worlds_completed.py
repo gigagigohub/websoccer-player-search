@@ -76,6 +76,11 @@ def parse_args() -> argparse.Namespace:
         default=12,
         help="Max tournament round index to scan (default: 12).",
     )
+    ap.add_argument(
+        "--include-preliminary",
+        action="store_true",
+        help="Also include preliminary list endpoint as supplement (default: off).",
+    )
     ap.add_argument("--delay-sec", type=float, default=0.08, help="Delay between summary requests")
     ap.add_argument("--timeout-sec", type=float, default=10.0, help="HTTP timeout")
     ap.add_argument("--progress-every", type=int, default=20, help="Print progress every N targets (default: 20)")
@@ -319,6 +324,7 @@ def fetch_world_pairs(
     world_id: int,
     flg_szn: int,
     round_max: int,
+    include_preliminary: bool,
     auth: AuthHeaders,
     timeout_sec: float,
 ) -> Tuple[List[int], str]:
@@ -359,29 +365,30 @@ def fetch_world_pairs(
             if empty_rounds >= 3 and rnd >= 4:
                 break
 
-    # 2) preliminary (kept as supplement)
+    # 2) preliminary (optional supplement)
     # preliminary endpoint order is:
     #   /cc/preliminary/{team_id}/{world_id}/{group_idx}/{season_sel}.json
-    p_pre = f"/cc/preliminary/{team_id}/{world_id}/0/{flg_szn}.json"
-    ok, data = request_json(p_pre, auth, timeout_sec)
-    if ok:
-        obj = data if isinstance(data, dict) else {}
-        if obj.get("code") == "000":
-            added = 0
-            for row in iter_match_rows(obj.get("m_data")):
-                if not isinstance(row, dict):
-                    continue
-                if not is_completed_row(row):
-                    continue
-                try:
-                    before = len(mids)
-                    mids.add(int(row.get("id")))
-                    if len(mids) > before:
-                        added += 1
-                except Exception:
-                    continue
-            if added > 0:
-                sources.append(p_pre)
+    if include_preliminary:
+        p_pre = f"/cc/preliminary/{team_id}/{world_id}/0/{flg_szn}.json"
+        ok, data = request_json(p_pre, auth, timeout_sec)
+        if ok:
+            obj = data if isinstance(data, dict) else {}
+            if obj.get("code") == "000":
+                added = 0
+                for row in iter_match_rows(obj.get("m_data")):
+                    if not isinstance(row, dict):
+                        continue
+                    if not is_completed_row(row):
+                        continue
+                    try:
+                        before = len(mids)
+                        mids.add(int(row.get("id")))
+                        if len(mids) > before:
+                            added += 1
+                    except Exception:
+                        continue
+                if added > 0:
+                    sources.append(p_pre)
 
     if not mids:
         return [], "no_completed_rows"
@@ -444,7 +451,7 @@ def main() -> int:
     list_sources: Dict[int, str] = {}
     for wid in worlds:
         mids, src = fetch_world_pairs(
-            team_id, wid, args.flg_szn, args.round_max, auth, args.timeout_sec
+            team_id, wid, args.flg_szn, args.round_max, args.include_preliminary, auth, args.timeout_sec
         )
         list_sources[wid] = src
         for mid in mids:

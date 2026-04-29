@@ -2787,6 +2787,7 @@ button.ghost {
   justify-content: space-between;
   gap: 8px;
   margin-bottom: 6px;
+  flex-wrap: wrap;
 }
 
 .slot-top-toolbar h3 {
@@ -2796,6 +2797,8 @@ button.ghost {
 .slot-top-sort-switch {
   display: inline-flex;
   gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .slot-top-sort-btn {
@@ -2899,6 +2902,11 @@ button.ghost {
   cursor: default;
 }
 
+.model-slot-row.is-empty {
+  cursor: default;
+  opacity: 0.72;
+}
+
 .slot-top-slotno {
   font-size: 0.74rem;
   color: #a7bbe5;
@@ -2970,6 +2978,26 @@ button.ghost {
   min-width: 2.05em;
   padding: 1px 6px;
   font-size: 0.7rem;
+}
+
+.model-slot-id {
+  color: #a7bbe5;
+  font-weight: 700;
+}
+
+.model-slot-statline {
+  min-width: 0;
+}
+
+.model-slot-statline > span:last-child,
+.model-slot-extra {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.model-slot-extra {
+  white-space: nowrap;
 }
 
 .slot-table .type-badge {

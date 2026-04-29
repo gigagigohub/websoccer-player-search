@@ -246,12 +246,14 @@ def init_schema(conn: sqlite3.Connection) -> None:
           updated_at TEXT NOT NULL
         );
 
-        CREATE TABLE IF NOT EXISTS manual_player_person_id (
+        CREATE TABLE IF NOT EXISTS player_person_identity (
           player_id INTEGER PRIMARY KEY,
-          manual_person_id INTEGER NOT NULL,
-          source_method TEXT NOT NULL DEFAULT 'manual_fix',
-          is_manual INTEGER NOT NULL DEFAULT 1,
+          raw_person_id INTEGER,
+          canonical_person_id INTEGER NOT NULL,
+          is_override INTEGER NOT NULL DEFAULT 0,
+          source_method TEXT NOT NULL DEFAULT 'canonical_from_raw',
           notes TEXT,
+          source_file TEXT,
           updated_at TEXT NOT NULL
         );
 
@@ -467,6 +469,32 @@ def import_manual_truth(
             (pid, cat, _to_json(membership), retired, retired_reason, str(app_data_json)),
         )
 
+        raw_person_id = int(p.get("personIdRaw") or p.get("personId") or 0)
+        canonical_person_id = int(p.get("personId") or raw_person_id or 0)
+        if canonical_person_id <= 0:
+            canonical_person_id = raw_person_id if raw_person_id > 0 else pid
+        is_override = 1 if p.get("personIdManualOverride") else 0
+        if raw_person_id != canonical_person_id:
+            is_override = 1
+        source_method = "manual_canonical_person_id" if is_override else "canonical_from_raw"
+        conn.execute(
+            """
+            INSERT INTO player_person_identity
+              (player_id, raw_person_id, canonical_person_id, is_override, source_method, notes, source_file, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                pid,
+                raw_person_id if raw_person_id > 0 else None,
+                canonical_person_id,
+                is_override,
+                source_method,
+                "imported from site data person identity",
+                str(app_data_json),
+                now_jst_iso(),
+            ),
+        )
+
     for s in app.get("scouts") or []:
         event_id = int(s.get("eventId") or 0)
         if event_id <= 0:
@@ -570,6 +598,8 @@ def summarize(conn: sqlite3.Connection) -> List[str]:
     out.append(
         "manual_player_category="
         + str(conn.execute("SELECT COUNT(*) FROM manual_player_category").fetchone()[0])
+        + " player_person_identity="
+        + str(conn.execute("SELECT COUNT(*) FROM player_person_identity").fetchone()[0])
         + " manual_player_model="
         + str(conn.execute("SELECT COUNT(*) FROM manual_player_model").fetchone()[0])
         + " manual_scout_event="

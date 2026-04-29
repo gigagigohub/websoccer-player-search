@@ -6,7 +6,6 @@ import datetime as dt
 import json
 import re
 import sqlite3
-import unicodedata
 from collections import OrderedDict, defaultdict
 from pathlib import Path
 
@@ -122,26 +121,6 @@ def parse_json_list(text):
     return value if isinstance(value, list) else []
 
 
-def normalize_name(text: str) -> str:
-    s = str(text or "").strip().lower()
-    s = s.replace("・", "").replace("･", "").replace("·", "")
-    s = s.replace(" ", "")
-    s = re.sub(r"[\u30a1-\u30f6]", lambda m: chr(ord(m.group(0)) - 0x60), s)
-    s = unicodedata.normalize("NFKC", s)
-    return s
-
-
-def normalize_model_name(text: str) -> str:
-    s = str(text or "").replace("･", "・").replace("·", "・")
-    s = re.sub(r"\s+", " ", s).strip()
-    s = re.sub(r"https?://\S+", "", s)
-    s = re.sub(r"%[0-9A-Fa-f]{2}", "", s)
-    s = re.sub(r"\s+\([^)]*\)$", "", s)
-    s = re.sub(r"\s+（[^）]*）$", "", s)
-    s = re.sub(r"\s+", " ", s).strip(" -_")
-    return s
-
-
 JP_CHAR_CLASS = r"\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\u3005\u30fc"
 
 JP_MODEL_NAME_CANONICAL_MAP = {
@@ -189,91 +168,6 @@ def normalize_japanese_name_spacing(text: str) -> str:
     s = JP_MODEL_NAME_CANONICAL_MAP.get(s, s)
     s = re.sub(rf"([{JP_CHAR_CLASS}]) +([{JP_CHAR_CLASS}])", r"\1　\2", s)
     return s
-
-
-def compact_model_token(text: str) -> str:
-    s = normalize_name(text or "")
-    s = unicodedata.normalize("NFKC", s)
-    return s
-
-
-def dedupe_model_name(text: str) -> str:
-    """
-    Collapse accidental duplicated patterns like:
-    - "ロイス マルコロイス" -> "マルコロイス"
-    - "中田 英寿 中田英寿" -> "中田 英寿"
-    while preserving legitimate multi-word names.
-    """
-    base = normalize_model_name(text)
-    if not base:
-        return ""
-    tokens = [t for t in base.split(" ") if t]
-    if len(tokens) <= 1:
-        return base
-
-    token_norms = [compact_model_token(t) for t in tokens]
-
-    # Pattern: first N tokens concatenation == last token (spaced + unspaced duplicate)
-    if len(tokens) >= 3:
-        last_n = token_norms[-1]
-        joined_prev_n = compact_model_token("".join(tokens[:-1]))
-        if last_n and joined_prev_n and last_n == joined_prev_n:
-            return " ".join(tokens[:-1])
-
-    # Remove tokens that are fully contained in another token.
-    keep = [True] * len(tokens)
-    for i in range(len(tokens)):
-        ni = token_norms[i]
-        if not ni:
-            continue
-        for j in range(len(tokens)):
-            if i == j:
-                continue
-            nj = token_norms[j]
-            if not nj:
-                continue
-            if ni != nj and ni in nj:
-                keep[i] = False
-                break
-
-    reduced = [tokens[i] for i, k in enumerate(keep) if k]
-    if not reduced:
-        return base
-    if len(reduced) == 1:
-        return reduced[0]
-    return " ".join(reduced)
-
-
-def load_rohm_name_model_map(cache_path: Path) -> dict[str, dict]:
-    """
-    Return normalized-name -> model info only for unique mappings.
-    """
-    if not cache_path.exists():
-        return {}
-    try:
-        payload = json.loads(cache_path.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
-    grouped = defaultdict(list)
-    for rec in payload.get("records", []):
-        name = normalize_name(rec.get("name") or "")
-        model = normalize_model_name(rec.get("modelName") or "")
-        if not name or not model:
-            continue
-        grouped[name].append(
-            {
-                "model": model,
-                "url": str(rec.get("url") or "").strip(),
-            }
-        )
-    out = {}
-    for name, rows in grouped.items():
-        unique_models = sorted({r["model"] for r in rows if r["model"]})
-        if len(unique_models) != 1:
-            continue
-        first = next((r for r in rows if r["model"] == unique_models[0]), rows[0])
-        out[name] = {"model": unique_models[0], "url": first.get("url") or ""}
-    return out
 
 
 def to_grid(param: dict, is_gk: bool):
@@ -407,19 +301,23 @@ def build_players(
         for r in conn.execute("SELECT * FROM ao__ZMOPLAYER").fetchall()
     }
     model_map = {}
-    manual_person_override = {}
-    try:
-        manual_person_rows = conn.execute(
-            "SELECT player_id, manual_person_id FROM manual_player_person_id"
-        ).fetchall()
-        for row in manual_person_rows:
-            pid = to_int(row["player_id"], 0)
-            mpid = to_int(row["manual_person_id"], 0)
-            if pid > 0 and mpid > 0:
-                manual_person_override[pid] = mpid
-    except sqlite3.OperationalError:
-        # Compatibility for older DB snapshots without manual_player_person_id.
-        manual_person_override = {}
+    person_identity = {}
+    person_identity_rows = conn.execute(
+        """
+        SELECT player_id, raw_person_id, canonical_person_id, is_override
+        FROM player_person_identity
+        """
+    ).fetchall()
+    for row in person_identity_rows:
+        pid = to_int(row["player_id"], 0)
+        canonical_person_id = to_int(row["canonical_person_id"], 0)
+        if pid <= 0 or canonical_person_id <= 0:
+            continue
+        person_identity[pid] = {
+            "raw": to_int(row["raw_person_id"], 0),
+            "canonical": canonical_person_id,
+            "isOverride": bool(to_int(row["is_override"], 0)),
+        }
 
     try:
         model_rows = conn.execute(
@@ -467,10 +365,18 @@ def build_players(
         }
 
     all_ids = sorted(set(players.keys()) | set(cat_map.keys()))
+    missing_identity = [pid for pid in all_ids if pid not in person_identity]
+    if missing_identity:
+        preview = ", ".join(str(x) for x in missing_identity[:20])
+        raise RuntimeError(
+            f"player_person_identity is missing {len(missing_identity)} player_id rows: {preview}"
+        )
+
     out = []
     for pid in all_ids:
         core = players.get(pid)
         manual = cat_map.get(pid)
+        identity = person_identity[pid]
 
         if core:
             period_rows = params_by_player.get(pid, [])
@@ -483,10 +389,8 @@ def build_players(
             nation_id = to_int(core.get("ZNATION_ID", 0))
             nation_name = nations.get(nation_id) or f"国籍ID:{nation_id}"
             info = infos.get(to_int(core.get("ZINFO", 0)), {"playType": "", "description": ""})
-            person_id_raw = to_int(core.get("ZPERSON_ID", 0))
-            person_id = to_int(manual_person_override.get(pid, person_id_raw), 0)
-            # Single source of truth:
-            # manual person-id (override) -> manual_player_model
+            person_id_raw = identity["raw"] or to_int(core.get("ZPERSON_ID", 0))
+            person_id = identity["canonical"]
             model_info = model_map.get(person_id, {})
             if manual:
                 category = manual["category"]
@@ -510,7 +414,6 @@ def build_players(
 
             display_name = normalize_japanese_name_spacing(core.get("ZNAME") or core.get("ZFULLNAME") or f"ID{pid}")
             display_full_name = normalize_japanese_name_spacing(core.get("ZFULLNAME") or core.get("ZNAME") or "")
-            display_model = normalize_japanese_name_spacing(dedupe_model_name(model_info.get("name", "")))
 
             out.append(
                 {
@@ -541,8 +444,8 @@ def build_players(
                     "nameRuby": core.get("ZNAMERUBY") or "",
                     "personId": person_id,
                     "personIdRaw": person_id_raw,
-                    "personIdManualOverride": bool(pid in manual_person_override),
-                    "modelPlayer": display_model,
+                    "personIdManualOverride": identity["isOverride"],
+                    "modelPlayer": model_info.get("name", ""),
                     "modelPlayerManual": bool(model_info.get("isManual", False)),
                     "modelPlayerSourceMethod": model_info.get("sourceMethod", ""),
                     "modelPlayerSourceNote": model_info.get("notes", ""),
@@ -569,18 +472,17 @@ def build_players(
             fb["retiredReason"] = retired_reason
             fb["name"] = normalize_japanese_name_spacing(fb.get("name", ""))
             fb["fullName"] = normalize_japanese_name_spacing(fb.get("fullName", ""))
-            fb_person_raw = to_int(fb.get("personId", 0), 0)
-            fb_person = to_int(manual_person_override.get(pid, fb_person_raw), 0)
+            fb_person_raw = identity["raw"] or to_int(fb.get("personIdRaw") or fb.get("personId"), 0)
+            fb_person = identity["canonical"]
             fb["personIdRaw"] = fb_person_raw
             fb["personId"] = fb_person
-            fb["personIdManualOverride"] = bool(pid in manual_person_override)
+            fb["personIdManualOverride"] = identity["isOverride"]
             model_info = model_map.get(fb_person, {})
             if model_info:
                 fb["modelPlayer"] = model_info.get("name", "")
                 fb["modelPlayerManual"] = bool(model_info.get("isManual", False))
                 fb["modelPlayerSourceMethod"] = model_info.get("sourceMethod", "")
                 fb["modelPlayerSourceNote"] = model_info.get("notes", "")
-            fb["modelPlayer"] = normalize_japanese_name_spacing(dedupe_model_name(fb.get("modelPlayer", "")))
             fb["flags"] = {"CM": "CM" in membership, "SS": "SS" in membership}
             fb.setdefault("nameRuby", "")
             fb.setdefault("personId", 0)

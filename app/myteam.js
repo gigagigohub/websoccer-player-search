@@ -1561,8 +1561,7 @@ function periodTableHtml(player, staticImg, actionImg, currentSeason) {
 
 function profileViewHtml(player, staticImg, actionImg) {
   const nationality = player.nationality || (player.nationId != null ? `国籍ID:${player.nationId}` : "-");
-  const rawModelPlayer = (player.modelPlayer || "").trim();
-  const modelPlayer = formatModelPlayerLabel(rawModelPlayer) || "-";
+  const modelPlayer = player.modelPlayer || "-";
   const modelClass = modelPlayer !== "-"
     ? (modelPlayer.length >= 18 ? " model-xsmall" : modelPlayer.length >= 13 ? " model-small" : "")
     : "";
@@ -1588,16 +1587,6 @@ function profileViewHtml(player, staticImg, actionImg) {
       </div>
     </div>
   `;
-}
-
-function formatModelPlayerLabel(label) {
-  const s = String(label || "").trim();
-  if (!s) return "";
-  const isKatakanaOnly = /^[\u30A0-\u30FFー・･\s\u3000]+$/.test(s);
-  if (isKatakanaOnly && /[\s\u3000]/.test(s)) {
-    return s.replace(/[\s\u3000]+/g, "・");
-  }
-  return s;
 }
 
 function getCardViewMode(playerId) {

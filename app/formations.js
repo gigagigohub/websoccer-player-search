@@ -559,9 +559,19 @@ function categoryBadgeHtmlByPlayerId(playerId) {
   const id = Number(playerId);
   const rawCategory = getCcCategoryLabelByPlayerId(id);
   const player = playersById.get(id);
-  const category = badgeCategoryByRecency(player, rawCategory);
-  const rate = Number(playerRateById.get(id));
+  const category = player ? badgeCategoryByRecency(player, rawCategory) : rawCategory;
+  const rate = player ? Number(playerRateById.get(id)) : 0;
   const c = normalizeCategory(category);
+  return `<span class="badge type-badge ${categoryBadgeClass(c, rate)}">${c}</span>`;
+}
+
+function categoryBadgeHtml(category, playerId = null) {
+  const id = Number(playerId);
+  const player = playersById.get(id);
+  const rawCategory = normalizeCategory(category || getCcCategoryLabelByPlayerId(id));
+  const badgeCategory = player ? badgeCategoryByRecency(player, rawCategory) : rawCategory;
+  const rate = player ? Number(playerRateById.get(id)) : 0;
+  const c = normalizeCategory(badgeCategory);
   return `<span class="badge type-badge ${categoryBadgeClass(c, rate)}">${c}</span>`;
 }
 
@@ -836,6 +846,9 @@ function renderSlotTop(slotStats, mode = "usage") {
   if (mode === "best") {
     return renderBestTeam(currentFormation);
   }
+  if (mode === "model") {
+    return renderModelSlots(currentFormation);
+  }
   if (mode === "team") {
     return renderRepresentativeTeam(currentFormation);
   }
@@ -882,6 +895,62 @@ function renderSlotTop(slotStats, mode = "usage") {
           `;
         })
         .join("")}
+    </div>
+  `;
+}
+
+function renderModelSlots(formation) {
+  const slots = Array.from({ length: 11 }, (_, i) => i + 1);
+  const keySlots = new Set(
+    (formation?.keyPositions || [])
+      .map((k) => Number(k?.slot))
+      .filter((n) => Number.isInteger(n) && n > 0)
+  );
+  const rowsBySlot = new Map(
+    (Array.isArray(formation?.modelSlots) ? formation.modelSlots : [])
+      .map((row) => [Number(row?.slot), row])
+  );
+  return `
+    <div class="formation-slot-top-list">
+      ${slots.map((slot) => {
+        const row = rowsBySlot.get(slot);
+        const slotLabel = `Slot ${slot}${keySlots.has(slot) ? ` <span class="slot-top-key-star" aria-hidden="true">★</span>` : ""}`;
+        if (!row) {
+          return `
+            <div class="slot-top-row model-slot-row is-empty">
+              <span class="slot-top-slotno">${slotLabel}</span>
+              <div class="slot-top-thumb slot-top-thumb-empty"></div>
+              <div class="slot-top-meta">
+                <strong class="slot-top-name">No model data</strong>
+                <span class="dim">-</span>
+              </div>
+            </div>
+          `;
+        }
+        const playerId = Number(row?.playerId || 0);
+        const imgSrc = `./images/chara/players/static/${playerId}.gif`;
+        const modelName = row?.modelName || row?.sourceName || "-";
+        const sourceName = row?.sourceName && row.sourceName !== modelName ? ` / ${row.sourceName}` : "";
+        const playerName = row?.playerName || row?.playerFullName || `Player ${playerId}`;
+        const playerFullName = row?.playerFullName && row.playerFullName !== playerName ? row.playerFullName : "";
+        const extra = [row?.nation, row?.playType].filter(Boolean).join(" / ");
+        return `
+          <button type="button" class="slot-top-row model-slot-row" data-player-id="${playerId}">
+            <span class="slot-top-slotno">${slotLabel}</span>
+            <div class="slot-top-thumb">
+              <img loading="lazy" src="${imgSrc}" alt="${playerName}" />
+            </div>
+            <div class="slot-top-meta">
+              <strong class="slot-top-name">${playerName}<span class="model-slot-id"> #${playerId}</span></strong>
+              <span class="slot-top-statline model-slot-statline">
+                ${categoryBadgeHtml(row?.category, playerId)}
+                <span>Model ${modelName}${sourceName}</span>
+              </span>
+              ${playerFullName || extra ? `<span class="model-slot-extra">${[playerFullName, extra].filter(Boolean).join(" / ")}</span>` : ""}
+            </div>
+          </button>
+        `;
+      }).join("")}
     </div>
   `;
 }
@@ -1206,8 +1275,7 @@ function periodTableHtml(player, staticImg, actionImg) {
 
 function profileViewHtml(player, staticImg, actionImg) {
   const nationality = player.nationality || (player.nationId != null ? `国籍ID:${player.nationId}` : "-");
-  const rawModelPlayer = (player.modelPlayer || "").trim();
-  const modelPlayer = formatModelPlayerLabel(rawModelPlayer) || "-";
+  const modelPlayer = player.modelPlayer || "-";
   const modelClass = modelPlayer !== "-"
     ? (modelPlayer.length >= 18 ? " model-xsmall" : modelPlayer.length >= 13 ? " model-small" : "")
     : "";
@@ -1232,16 +1300,6 @@ function profileViewHtml(player, staticImg, actionImg) {
       </div>
     </div>
   `;
-}
-
-function formatModelPlayerLabel(label) {
-  const s = String(label || "").trim();
-  if (!s) return "";
-  const isKatakanaOnly = /^[\u30A0-\u30FFー・･\s\u3000]+$/.test(s);
-  if (isKatakanaOnly && /[\s\u3000]/.test(s)) {
-    return s.replace(/[\s\u3000]+/g, "・");
-  }
-  return s;
 }
 
 function getCardViewMode(playerId) {
@@ -1600,10 +1658,11 @@ function openFormationModal(formation, options = {}) {
     </div>
     <div class="formation-block">
       <div class="slot-top-toolbar">
-        <h3>CC Slot Top Player (#1)</h3>
+        <h3>${slotTopSortMode === "model" ? "Model Players" : slotTopSortMode === "best" ? "Top Teams" : "CC Slot Top Player (#1)"}</h3>
         <div class="slot-top-sort-switch" role="group" aria-label="CC Slot Top sort mode">
           <button type="button" class="slot-top-sort-btn${slotTopSortMode === "usage" ? " is-on" : ""}" data-slot-top-sort="usage">Usage</button>
           <button type="button" class="slot-top-sort-btn${slotTopSortMode === "avg" ? " is-on" : ""}" data-slot-top-sort="avg">Avg</button>
+          <button type="button" class="slot-top-sort-btn${slotTopSortMode === "model" ? " is-on" : ""}" data-slot-top-sort="model">Model</button>
           <button type="button" class="slot-top-sort-btn${slotTopSortMode === "best" ? " is-on" : ""}" data-slot-top-sort="best">Top Teams</button>
         </div>
       </div>
@@ -1927,7 +1986,7 @@ function bindEvents() {
       const sortBtn = e.target.closest("[data-slot-top-sort]");
       if (sortBtn) {
         const mode = String(sortBtn.dataset.slotTopSort || "");
-        if (mode === "usage" || mode === "avg" || mode === "team" || mode === "best") {
+        if (mode === "usage" || mode === "avg" || mode === "team" || mode === "best" || mode === "model") {
           slotTopSortMode = mode;
           if (currentFormation) openFormationModal(currentFormation, { preserveSlotTopMode: true });
         }

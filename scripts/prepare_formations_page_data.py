@@ -19,6 +19,10 @@ PARAM_KEYS = [
     ("dif", "ZDIF"),
 ]
 
+DEFAULT_MODEL_SLOT_CSV = Path(
+    "/Users/k.nishimura/work/coding/wsc_data/model_slot_mapping_probe/model_slot_validated_candidates_strict.csv"
+)
+
 
 def to_int(v, default=0):
     try:
@@ -97,6 +101,38 @@ def team_instance_key(row):
 def read_csv(path):
     with path.open("r", encoding="utf-8-sig", newline="") as f:
         return list(csv.DictReader(f))
+
+
+def load_model_slots(path):
+    model_path = Path(path).expanduser()
+    if not model_path.exists():
+        return []
+    rows = []
+    for row in read_csv(model_path):
+        fid = to_int(row.get("formation_id"))
+        slot = to_int(row.get("slot"))
+        player_id = to_int(row.get("best_player_id"))
+        if not fid or not slot or not player_id:
+            continue
+        rows.append({
+            "formationId": fid,
+            "slot": slot,
+            "sourceName": row.get("ocr_cleaned") or row.get("ocr_raw") or "",
+            "modelName": row.get("best_model_name") or "",
+            "playerId": player_id,
+            "playerName": row.get("best_game_name") or "",
+            "playerFullName": row.get("best_fullname") or "",
+            "nation": row.get("best_nation") or "",
+            "category": row.get("best_category") or "",
+            "playType": row.get("best_play_type") or "",
+            "sourceTitle": row.get("source_title") or "",
+            "sourceUrl": row.get("source_url") or "",
+            "confidence": round(to_float(row.get("best_score")), 1),
+            "ocrConfidence": round(to_float(row.get("ocr_conf")), 1),
+            "slotDistance": round(to_float(row.get("slot_dist")), 3),
+        })
+    rows.sort(key=lambda x: (x["formationId"], x["slot"], -x["confidence"], x["playerId"]))
+    return rows
 
 
 def load_sources(base_csv_dir, cc_dir):
@@ -357,6 +393,7 @@ def build_data(src):
     match_rows = src.get("match_level", [])
     team_rows = src["team_level"]
     player_rows = src["player_level"]
+    model_slot_rows = src.get("model_slots", [])
 
     formation_by_id = {}
     for row in formation_rows:
@@ -412,6 +449,17 @@ def build_data(src):
 
     for f in formation_by_id.values():
         f["keyPositions"].sort(key=lambda p: (p["rank"], p["slot"]))
+
+    model_slots_by_formation = defaultdict(list)
+    for row in model_slot_rows:
+        fid = to_int(row.get("formationId"))
+        slot = to_int(row.get("slot"))
+        if not fid or not slot:
+            continue
+        model_slots_by_formation[fid].append(row)
+
+    for rows in model_slots_by_formation.values():
+        rows.sort(key=lambda x: (to_int(x.get("slot")), -to_float(x.get("confidence")), to_int(x.get("playerId"))))
 
     coach_by_id = {}
     for row in coach_rows:
@@ -982,6 +1030,7 @@ def build_data(src):
             "coachStats": coach_stats[fid],
             "matchups": matchup_stats[fid],
             "bestTeams": best_teams[fid][:5],
+            "modelSlots": model_slots_by_formation.get(fid, []),
         }
         formations.append(f_item)
 
@@ -1025,6 +1074,11 @@ def main():
         default="",
         help="Unified master SQLite DB path (if set and exists, this is used as full source)",
     )
+    parser.add_argument(
+        "--model-slot-csv",
+        default=str(DEFAULT_MODEL_SLOT_CSV),
+        help="CSV path for validated formation model-player mappings",
+    )
     parser.add_argument("--out", default="/Users/k.nishimura/work/coding/websoccer-player-search/app/formations_data.json")
     args = parser.parse_args()
 
@@ -1040,6 +1094,12 @@ def main():
             print(f"using cc db: {cc_db_path}")
         else:
             print(f"cc db not found, fallback csv: {Path(args.cc_dir).expanduser().resolve()}")
+    model_slots = load_model_slots(args.model_slot_csv)
+    src["model_slots"] = model_slots
+    if model_slots:
+        print(f"using model slot csv: {Path(args.model_slot_csv).expanduser().resolve()} ({len(model_slots)} rows)")
+    else:
+        print(f"model slot csv not found or empty: {Path(args.model_slot_csv).expanduser().resolve()}")
     out = build_data(src)
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
