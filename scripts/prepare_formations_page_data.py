@@ -846,6 +846,7 @@ def load_model_slots(path, page_dir=None, master_db_path=None, ocr_dir=None, ove
     model_alias_index = build_model_alias_index(model_entries) if model_entries else None
     model_ocr_alias_index = build_model_ocr_alias_index(model_entries) if model_entries else None
     model_entry_by_name = {normalize_match_text(entry.get("modelName")): entry for entry in model_entries}
+    model_entry_by_person_id = {entry["personId"]: entry for entry in model_entries}
     formation_positions = load_formation_slot_positions(master_db_path) if ocr_dir else {}
     page_entries_by_slug = {}
     source_rows = read_csv(model_path)
@@ -1047,7 +1048,10 @@ def load_model_slots(path, page_dir=None, master_db_path=None, ocr_dir=None, ove
                 continue
             slug = str(override.get("slug") or "").strip()
             meta = metadata_by_group.get((fid, slug), {})
-            entry = model_entry_by_name.get(normalize_match_text(model_name))
+            person_id = to_int(override.get("person_id") or override.get("manual_person_id"))
+            entry = model_entry_by_person_id.get(person_id) if person_id else None
+            if not entry:
+                entry = model_entry_by_name.get(normalize_match_text(model_name))
             rows_by_key[(fid, slot)] = {
                 "formationId": fid,
                 "slot": slot,
