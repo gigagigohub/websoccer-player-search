@@ -40,6 +40,12 @@ MODEL_EXTRA_ALIASES = {
     "フレドリック・ユングベリ": ["リュングベリ", "リュンゲベリ", "リュンゲヘリ"],
     "ロベール・ピレス": ["ピレス", "ヒビレス", "ヒビレース"],
 }
+MODEL_CARD_CATEGORY_PRIORITY = {
+    "NR": 0,
+    "SS": 1,
+    "CM": 2,
+    "CC": 3,
+}
 
 
 def to_int(v, default=0):
@@ -272,6 +278,15 @@ def model_ocr_candidates_for_source(source_aliases, model_ocr_alias_index):
     return list(candidates.values())
 
 
+def model_card_rank(row):
+    category = str(row["category"] or "").strip().upper()
+    return (
+        MODEL_CARD_CATEGORY_PRIORITY.get(category, 99),
+        to_int(row["retired"], 0),
+        to_int(row["player_id"]),
+    )
+
+
 def load_model_entries(master_db_path):
     db_path = Path(master_db_path).expanduser() if master_db_path else None
     if not db_path or not db_path.exists():
@@ -298,14 +313,14 @@ def load_model_entries(master_db_path):
             LEFT JOIN ao__ZMOPLAYERSINFO info ON info.Z_PK = p.ZINFO
             LEFT JOIN manual_player_category c ON c.player_id = i.player_id
             WHERE COALESCE(m.model_name, '') <> ''
-            ORDER BY m.person_id, COALESCE(c.retired, 0), i.player_id
+            ORDER BY m.person_id, i.player_id
             """
         ).fetchall()
     finally:
         conn.close()
 
     by_person = {}
-    for row in rows:
+    for row in sorted(rows, key=lambda r: (to_int(r["person_id"]), model_card_rank(r))):
         person_id = to_int(row["person_id"])
         if person_id in by_person:
             continue
