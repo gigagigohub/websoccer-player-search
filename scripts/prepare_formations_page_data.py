@@ -34,6 +34,7 @@ DEFAULT_MODEL_OCR_DIR = Path(
     "/Users/k.nishimura/work/coding/wsc_data/model_slot_mapping_probe/ocr"
 )
 DEFAULT_MODEL_SLOT_OVERRIDES_CSV = Path(__file__).resolve().parents[1] / "data" / "formation_model_slot_overrides.csv"
+DEFAULT_MODEL_CARD_OVERRIDES_CSV = Path(__file__).resolve().parents[1] / "data" / "formation_model_card_overrides.csv"
 MODEL_BODY_LINK_THRESHOLD = 0.66
 MODEL_EXTRA_ALIASES = {
     "ダヴィド・アラバ": ["アルバ"],
@@ -279,15 +280,41 @@ def model_ocr_candidates_for_source(source_aliases, model_ocr_alias_index):
 
 
 def model_card_rank(row):
-    category = str(row["category"] or "").strip().upper()
+    def value(*keys):
+        for key in keys:
+            try:
+                if row[key] is not None:
+                    return row[key]
+            except Exception:
+                continue
+        return None
+
+    category = str(value("category") or "").strip().upper()
     return (
         MODEL_CARD_CATEGORY_PRIORITY.get(category, 99),
-        to_int(row["retired"], 0),
-        to_int(row["player_id"]),
+        to_int(value("retired"), 0),
+        to_int(value("player_id", "playerId")),
     )
 
 
-def load_model_entries(master_db_path):
+def model_entry_from_row(row):
+    model_name = row["model_name"] or ""
+    return {
+        "personId": to_int(row["person_id"]),
+        "modelName": model_name,
+        "aliases": model_name_aliases(model_name),
+        "ocrAliases": model_name_aliases(model_name, include_all_parts=True),
+        "playerId": to_int(row["player_id"]),
+        "playerName": row["player_name"] or "",
+        "playerFullName": row["player_fullname"] or "",
+        "nation": row["nation"] or "",
+        "category": row["category"] or "",
+        "retired": to_int(row["retired"], 0),
+        "playType": row["play_type"] or "",
+    }
+
+
+def load_model_card_entries(master_db_path):
     db_path = Path(master_db_path).expanduser() if master_db_path else None
     if not db_path or not db_path.exists():
         return []
@@ -318,26 +345,33 @@ def load_model_entries(master_db_path):
         ).fetchall()
     finally:
         conn.close()
+    return [model_entry_from_row(row) for row in rows]
 
+
+def load_model_entries(master_db_path):
+    rows = load_model_card_entries(master_db_path)
     by_person = {}
-    for row in sorted(rows, key=lambda r: (to_int(r["person_id"]), model_card_rank(r))):
-        person_id = to_int(row["person_id"])
+    for row in sorted(rows, key=lambda r: (to_int(r["personId"]), model_card_rank(r))):
+        person_id = to_int(row["personId"])
         if person_id in by_person:
             continue
-        model_name = row["model_name"] or ""
-        by_person[person_id] = {
-            "personId": person_id,
-            "modelName": model_name,
-            "aliases": model_name_aliases(model_name),
-            "ocrAliases": model_name_aliases(model_name, include_all_parts=True),
-            "playerId": to_int(row["player_id"]),
-            "playerName": row["player_name"] or "",
-            "playerFullName": row["player_fullname"] or "",
-            "nation": row["nation"] or "",
-            "category": row["category"] or "",
-            "playType": row["play_type"] or "",
-        }
+        by_person[person_id] = row
     return list(by_person.values())
+
+
+def load_model_card_overrides(path):
+    overrides_file = Path(path).expanduser() if path else None
+    if not overrides_file or not overrides_file.exists():
+        return {}
+    rows = {}
+    for row in read_csv(overrides_file):
+        fid = to_int(row.get("formation_id"))
+        slot = to_int(row.get("slot"))
+        player_id = to_int(row.get("player_id"))
+        if not fid or not slot or not player_id:
+            continue
+        rows[(fid, slot)] = row
+    return rows
 
 
 def load_formation_slot_positions(master_db_path):
@@ -838,15 +872,18 @@ def best_body_candidate_match(candidates, page_entries):
     return best, best_score
 
 
-def load_model_slots(path, page_dir=None, master_db_path=None, ocr_dir=None, overrides_path=None):
+def load_model_slots(path, page_dir=None, master_db_path=None, ocr_dir=None, overrides_path=None, card_overrides_path=None):
     model_path = Path(path).expanduser()
     if not model_path.exists():
         return []
+    model_card_entries = load_model_card_entries(master_db_path)
     model_entries = load_model_entries(master_db_path)
     model_alias_index = build_model_alias_index(model_entries) if model_entries else None
     model_ocr_alias_index = build_model_ocr_alias_index(model_entries) if model_entries else None
     model_entry_by_name = {normalize_match_text(entry.get("modelName")): entry for entry in model_entries}
     model_entry_by_person_id = {entry["personId"]: entry for entry in model_entries}
+    model_entry_by_player_id = {entry["playerId"]: entry for entry in model_card_entries}
+    card_overrides = load_model_card_overrides(card_overrides_path)
     formation_positions = load_formation_slot_positions(master_db_path) if ocr_dir else {}
     page_entries_by_slug = {}
     source_rows = read_csv(model_path)
@@ -928,6 +965,7 @@ def load_model_slots(path, page_dir=None, master_db_path=None, ocr_dir=None, ove
             "bodyCandidate": 3,
             "body": 2,
             "manual": 9,
+            "uniformCard": 10,
             "": 0,
         }.get(row.get("linkSource") or "", 1)
         return (
@@ -1075,6 +1113,41 @@ def load_model_slots(path, page_dir=None, master_db_path=None, ocr_dir=None, ove
                 "candidateModelName": "",
                 "bodyMatchScore": 0,
             }
+
+    for (fid, slot), override in card_overrides.items():
+        entry = model_entry_by_player_id.get(to_int(override.get("player_id")))
+        if not entry:
+            continue
+        key = (fid, slot)
+        existing = rows_by_key.get(key, {})
+        rows_by_key[key] = {
+            "formationId": fid,
+            "slot": slot,
+            "sourceName": str(
+                override.get("source_name")
+                or existing.get("sourceName")
+                or override.get("model_name")
+                or entry["modelName"]
+            ).strip(),
+            "modelName": entry["modelName"],
+            "playerId": entry["playerId"],
+            "isLinked": True,
+            "linkSource": str(override.get("source") or "uniformCard").strip() or "uniformCard",
+            "playerName": entry["playerName"],
+            "playerFullName": entry["playerFullName"],
+            "nation": entry["nation"],
+            "category": entry["category"],
+            "playType": entry["playType"],
+            "sourceTitle": existing.get("sourceTitle") or "",
+            "sourceUrl": existing.get("sourceUrl") or "",
+            "confidence": to_float(override.get("confidence"), 100.0),
+            "ocrConfidence": 0,
+            "slotDistance": 0,
+            "candidateCount": 0,
+            "candidatePlayerId": 0,
+            "candidateModelName": "",
+            "bodyMatchScore": 0,
+        }
 
     linked_by_formation_player = defaultdict(list)
     for key, row in rows_by_key.items():
@@ -2069,6 +2142,11 @@ def main():
         default=str(DEFAULT_MODEL_SLOT_OVERRIDES_CSV),
         help="CSV path for manually confirmed formation model slot overrides",
     )
+    parser.add_argument(
+        "--model-card-overrides-csv",
+        default=str(DEFAULT_MODEL_CARD_OVERRIDES_CSV),
+        help="CSV path for manually confirmed formation model card overrides",
+    )
     parser.add_argument("--out", default="/Users/k.nishimura/work/coding/websoccer-player-search/app/formations_data.json")
     args = parser.parse_args()
 
@@ -2090,6 +2168,7 @@ def main():
         master_db_path,
         args.model_ocr_dir,
         args.model_slot_overrides_csv,
+        args.model_card_overrides_csv,
     )
     src["model_slots"] = model_slots
     if model_slots:
