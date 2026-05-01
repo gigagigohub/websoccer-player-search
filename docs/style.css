@@ -2565,6 +2565,18 @@ button.ghost {
   font-size: 14px;
 }
 
+.formation-description-block {
+  background: #111d33;
+}
+
+.formation-description {
+  color: var(--text-main);
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .formation-cc-block {
   min-height: 142px;
 }

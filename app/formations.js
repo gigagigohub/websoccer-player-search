@@ -602,6 +602,16 @@ function positionClass(position) {
   return "";
 }
 
+function escapeHtml(value) {
+  return String(value || "").replace(/[&<>"']/g, (ch) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#39;",
+  }[ch]));
+}
+
 function formatFormationYearLabel(year, stride) {
   const y = Number(year);
   const s = Number(stride);
@@ -840,6 +850,12 @@ function renderKeyPositions(keyPositions) {
         .join("")}
     </div>
   `;
+}
+
+function renderFormationDescription(formation) {
+  const description = String(formation?.description || "").trim();
+  if (!description) return `<p class="dim">No description data.</p>`;
+  return `<div class="formation-description">${escapeHtml(description)}</div>`;
 }
 
 function renderSlotTop(slotStats, mode = "usage") {
@@ -1648,6 +1664,10 @@ function openFormationModal(formation, options = {}) {
           <button type="button" class="formation-matchups-btn" data-open-matchups="${formation.id}">View Formation Matchups</button>
         </div>
       </div>
+    </div>
+    <div class="formation-block formation-description-block">
+      <h3>Description</h3>
+      ${renderFormationDescription(formation)}
     </div>
     <div class="formation-detail-stack">
         <div class="formation-block">
