@@ -38,6 +38,7 @@ const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const RENDER_BATCH_SIZE = 200;
 const RENDER_CARDS_PER_FRAME = 24;
+const NAME_SUGGESTION_LIMIT = 10;
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
@@ -874,7 +875,7 @@ function hideNameSuggest() {
   els.nameSuggest.innerHTML = "";
 }
 
-function getNameSuggestions(rawQuery, limit = 3) {
+function getNameSuggestions(rawQuery, limit = NAME_SUGGESTION_LIMIT) {
   const query = toHiragana(String(rawQuery || "").toLowerCase().trim());
   if (!query) return [];
   const seenName = new Set();
@@ -928,7 +929,7 @@ function getNameSuggestions(rawQuery, limit = 3) {
 
 function updateNameSuggest() {
   if (!els.nameSuggest || !els.nameQuery) return;
-  const list = getNameSuggestions(els.nameQuery.value, 3);
+  const list = getNameSuggestions(els.nameQuery.value);
   if (!list.length) {
     hideNameSuggest();
     return;

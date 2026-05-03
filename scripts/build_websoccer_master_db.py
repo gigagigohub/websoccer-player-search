@@ -38,6 +38,19 @@ SKIP_EXT = {
 }
 
 
+def default_updatefile_dir() -> Path:
+    root = Path.home() / "work" / "coding" / "wsc_data"
+    candidates = []
+    for p in root.glob("UpdateFile_p*_*"):
+        m = re.fullmatch(r"UpdateFile_p(\d+)_(\d+)", p.name)
+        if p.is_dir() and m:
+            candidates.append((int(m.group(2)), int(m.group(1)), p))
+    if candidates:
+        candidates.sort(reverse=True)
+        return candidates[0][2]
+    return root / "UpdateFile_p40_322"
+
+
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
         description="Build unified WebSoccer master SQLite DB from CC DB + Product.sqlite + UpdateFile zips + manual truth."
@@ -61,7 +74,7 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument(
         "--updatefile-dir",
-        default=str(Path.home() / "Desktop" / "UpdateFile_p40_320"),
+        default=str(default_updatefile_dir()),
     )
     p.add_argument(
         "--app-data-json",
@@ -632,7 +645,7 @@ def main() -> int:
         put_source(conn, "app_original_product_sqlite", product, "all non-image app original tables copied as ao__*")
         conn.commit()
         import_updatefiles(conn, update_dir, verbose=args.verbose)
-        put_source(conn, "updatefile_p40_320", update_dir, "all non-image file entries in p40-320 archives")
+        put_source(conn, "updatefile_archives", update_dir, "all non-image file entries in UpdateFile archives")
         conn.commit()
         import_manual_truth(conn, app_data, coaches_data)
         put_source(conn, "manual_truth_app_data_json", app_data, "manual truth overlay from current site data")

@@ -5,6 +5,10 @@ Collect downloadable UpdateFile assets by combining:
 2) Optional brute-force p-range probing (/UpdateFile/p{n}.zip)
 3) Recursive URL discovery from downloaded zip contents (plist/json/txt)
 
+UpdateFile archives are served from resources-ios.app.websoccer.jp. Do not use
+api.app.websoccer.jp for these files; that host is for JSON game APIs and
+returns misleading non-zip responses for UpdateFile paths.
+
 Outputs:
 - <out>/inventory.csv            per-attempt result
 - <out>/candidates.txt           normalized candidate URLs (path/query)
@@ -38,8 +42,7 @@ ABS_URL_RE = re.compile(
 )
 
 DEFAULT_BASE_URLS = [
-    "https://api.app.websoccer.jp",
-    "https://app.websoccer.jp",
+    "https://resources-ios.app.websoccer.jp",
 ]
 DEFAULT_USER_AGENT = "WebSoccer/1.3.28 CFNetwork/3860.400.51 Darwin/25.3.0"
 
@@ -92,6 +95,28 @@ def normalize_candidate(candidate: str) -> str:
 
 def load_bytes(path: Path) -> bytes:
     return path.read_bytes()
+
+
+def extract_candidates_from_source_file(path: Path) -> Set[str]:
+    try:
+        data = load_bytes(path)
+    except Exception:
+        return set()
+
+    found = set(extract_candidates_from_bytes(data))
+    if path.suffix.lower() == ".chlz" or zipfile.is_zipfile(path):
+        try:
+            with zipfile.ZipFile(path) as zf:
+                for zinfo in zf.infolist():
+                    if zinfo.is_dir() or zinfo.file_size > 16 * 1024 * 1024:
+                        continue
+                    try:
+                        found.update(extract_candidates_from_bytes(zf.read(zinfo.filename)))
+                    except Exception:
+                        continue
+        except Exception:
+            pass
+    return found
 
 
 def extract_candidates_from_bytes(payload: bytes) -> Set[str]:
@@ -204,9 +229,11 @@ def attempt_download(
         )
 
     last_note = ""
+    last_code: Optional[int] = None
     for idx, url in enumerate(urls):
         try:
             code, ctype, body = http_get(url, timeout=timeout, user_agent=user_agent, insecure=insecure)
+            last_code = code
             ok, kind = is_likely_valid(candidate, body, ctype)
             sha = hashlib.sha256(body).hexdigest() if body else ""
             if ok:
@@ -224,6 +251,7 @@ def attempt_download(
                 )
             last_note = f"{kind} ct={ctype} size={len(body)}"
         except urllib.error.HTTPError as e:
+            last_code = e.code
             last_note = f"HTTPError {e.code}"
         except Exception as e:
             last_note = f"{type(e).__name__}: {e}"
@@ -235,7 +263,7 @@ def attempt_download(
         candidate=candidate,
         url=urls[0] if urls else "",
         status="failed",
-        http_code=None,
+        http_code=last_code,
         content_type="",
         size=0,
         sha256="",
@@ -277,7 +305,12 @@ def main() -> int:
     ap.add_argument("--max-rounds", type=int, default=3, help="zip re-discovery rounds")
     ap.add_argument("--skip-download", action="store_true")
     ap.add_argument("--user-agent", default=DEFAULT_USER_AGENT)
-    ap.add_argument("--insecure", action="store_true", help="skip TLS certificate validation")
+    ap.add_argument(
+        "--verify-tls",
+        action="store_true",
+        help="enable TLS certificate validation. Disabled by default because the app asset host can fail Python CA verification.",
+    )
+    ap.add_argument("--insecure", action="store_true", help=argparse.SUPPRESS)
     args = ap.parse_args()
 
     out = Path(args.out)
@@ -290,11 +323,7 @@ def main() -> int:
     print(f"[INFO] source files: {len(source_files)}")
     candidates: Set[str] = set()
     for p in source_files:
-        try:
-            data = load_bytes(p)
-        except Exception:
-            continue
-        found = extract_candidates_from_bytes(data)
+        found = extract_candidates_from_source_file(p)
         if found:
             candidates.update(found)
 
@@ -334,7 +363,7 @@ def main() -> int:
                 timeout=args.timeout,
                 user_agent=args.user_agent,
                 sleep_sec=args.sleep,
-                insecure=args.insecure,
+                insecure=(not args.verify_tls),
             )
             attempts.append(a)
 

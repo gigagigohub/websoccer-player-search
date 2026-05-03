@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 ROOT = Path('/Users/k.nishimura/work/coding/websoccer-player-search')
-ZIP_DIR = Path('/Users/k.nishimura/Desktop/UpdateFile_p40_320')
+ZIP_DIR = Path('/Users/k.nishimura/work/coding/wsc_data/UpdateFile_p40_322')
 
 APP_DATA = ROOT / 'app' / 'data.json'
 DOCS_DATA = ROOT / 'docs' / 'data.json'

@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 ROOT = Path('/Users/k.nishimura/work/coding/websoccer-player-search')
-ZIP_DIR = Path('/Users/k.nishimura/Desktop/UpdateFile_p40_320')
-FILLED_CSV = Path('/Users/k.nishimura/Desktop/UpdateFile_inventory/updatefile_p40_320_ss_events_filled.csv')
+ZIP_DIR = Path('/Users/k.nishimura/work/coding/wsc_data/UpdateFile_p40_322')
+FILLED_CSV = Path('/Users/k.nishimura/work/coding/wsc_data/UpdateFile_inventory/updatefile_ss_events_filled.csv')
 
 APP_DATA = ROOT / 'app' / 'data.json'
 DOCS_DATA = ROOT / 'docs' / 'data.json'
