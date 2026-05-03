@@ -985,15 +985,22 @@ function getConditions() {
     .map((row) => {
       const metric = row.querySelector(".metric").value;
       const op = row.querySelector(".op").value;
-      const v1 = Number(row.querySelector(".value1").value);
-      const v2 = Number(row.querySelector(".value2").value);
+      const raw1 = row.querySelector(".value1").value.trim();
+      const raw2 = row.querySelector(".value2").value.trim();
 
-      if (!metric || Number.isNaN(v1)) {
+      if (!metric || raw1 === "") {
+        return null;
+      }
+
+      const v1 = Number(raw1);
+      const v2 = Number(raw2);
+
+      if (Number.isNaN(v1)) {
         return null;
       }
 
       if (op === "between") {
-        if (Number.isNaN(v2)) return null;
+        if (raw2 === "" || Number.isNaN(v2)) return null;
         return { metric, op, value1: Math.min(v1, v2), value2: Math.max(v1, v2) };
       }
 
