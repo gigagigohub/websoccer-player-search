@@ -36,7 +36,7 @@ const RESERVE_LINEUP_SIZE = 5;
 const LINEUP_SIZE = STARTING_LINEUP_SIZE + RESERVE_LINEUP_SIZE;
 const LINEUP_STORAGE_KEY = "ws_starting_eleven_v1";
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
-const RENDER_BATCH_SIZE = 200;
+const RENDER_BATCH_SIZE = 100;
 const RENDER_CARDS_PER_FRAME = 24;
 const NAME_SUGGESTION_LIMIT = 10;
 const SUPABASE_TABLE = "lineup_states";
@@ -1568,6 +1568,24 @@ function filterPlayers(conditions = getConditions()) {
   });
 }
 
+function hasActiveSearchCriteria(conditions) {
+  const hasCategoryFilter = [
+    els.nrWhiteOnly, els.nrBronzeOnly, els.nrSilverOnly, els.nrGoldOnly, els.nrAllOnly,
+    els.ssOnly, els.cmOnly, els.ccOnly,
+  ].some((el) => isCategoryChipActive(el));
+  return (
+    conditions.length > 0 ||
+    !!els.nameQuery.value.trim() ||
+    !!els.positionFilter.value ||
+    !!els.aptitudePositionFilter?.value ||
+    !!els.aptitudeIncludeSix?.checked ||
+    !!els.includeRetired?.checked ||
+    Number(els.scoutEventFilter?.value || 0) > 0 ||
+    Number(els.cmEventFilter?.value || 0) > 0 ||
+    hasCategoryFilter
+  );
+}
+
 function periodTableHtml(player, staticImg, actionImg) {
   const periods = Array.isArray(player.periods) ? player.periods : [];
   const header = METRICS.map((m) => `<th>${detailMetricLabel(m)}</th>`).join("");
@@ -1893,6 +1911,7 @@ function render() {
   const conditions = getConditions();
   const filtered = filterPlayers(conditions);
   const hasIdCondition = conditions.some((c) => c?.metric === "ID");
+  const hasSearchCriteria = hasActiveSearchCriteria(conditions);
   const scoutEventFilter = Number(els.scoutEventFilter?.value || 0);
   const cmEventFilter = Number(els.cmEventFilter?.value || 0);
   const categoryRank = {
@@ -1905,7 +1924,7 @@ function render() {
     "RT": 99,
   };
   if (hasIdCondition) {
-    filtered.sort((a, b) => Number(b.id || 0) - Number(a.id || 0));
+    filtered.sort((a, b) => Number(a.id || 0) - Number(b.id || 0));
   } else if (cmEventFilter > 0) {
     const event = cmEventsByEventId.get(cmEventFilter);
     const orderMap = new Map(
@@ -1936,8 +1955,15 @@ function render() {
       if (ar !== br) return ar - br;
       return (b.bestTotal - a.bestTotal) || a.name.localeCompare(b.name, "ja");
     });
-  } else {
+  } else if (!hasSearchCriteria) {
     filtered.sort((a, b) => Number(b.id || 0) - Number(a.id || 0));
+  } else {
+    filtered.sort((a, b) => {
+      const ar = categoryRank[getCategory(a)] ?? 50;
+      const br = categoryRank[getCategory(b)] ?? 50;
+      if (ar !== br) return ar - br;
+      return (b.bestTotal - a.bestTotal) || a.name.localeCompare(b.name, "ja");
+    });
   }
   currentFilteredPlayers = filtered;
   renderedCount = 0;
