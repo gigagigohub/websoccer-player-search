@@ -1195,6 +1195,9 @@ def load_sources(base_csv_dir, cc_dir):
         "match_level": read_csv(cc_dir / "normalized" / "match_level.csv"),
         "team_level": read_csv(cc_dir / "normalized" / "team_level.csv"),
         "player_level": read_csv(cc_dir / "normalized" / "player_level.csv"),
+        "goal_level": read_csv(cc_dir / "normalized" / "goal_level.csv")
+        if (cc_dir / "normalized" / "goal_level.csv").exists()
+        else [],
     }
 
 
@@ -1355,6 +1358,22 @@ def load_sources_from_master_db(master_db_path):
                     """
                 ).fetchall()
             ],
+            "goal_level": [
+                dict(r)
+                for r in conn.execute(
+                    """
+                    SELECT
+                      season,
+                      world_id,
+                      match_id,
+                      goal_index,
+                      side,
+                      minute,
+                      scorer_player_id
+                    FROM cc_goals
+                    """
+                ).fetchall()
+            ],
         }
         return src
     finally:
@@ -1426,7 +1445,23 @@ def load_cc_from_db(cc_db_path):
                 """
             ).fetchall()
         ]
-        return {"match_level": match_rows, "team_level": team_rows, "player_level": player_rows}
+        goal_rows = [
+            dict(r)
+            for r in conn.execute(
+                """
+                SELECT
+                  season,
+                  world_id,
+                  match_id,
+                  goal_index,
+                  side,
+                  minute,
+                  scorer_player_id
+                FROM goals
+                """
+            ).fetchall()
+        ]
+        return {"match_level": match_rows, "team_level": team_rows, "player_level": player_rows, "goal_level": goal_rows}
     finally:
         conn.close()
 
@@ -1441,6 +1476,7 @@ def build_data(src):
     match_rows = src.get("match_level", [])
     team_rows = src["team_level"]
     player_rows = src["player_level"]
+    goal_rows = src.get("goal_level", [])
     model_slot_rows = src.get("model_slots", [])
 
     formation_by_id = {}
@@ -1616,9 +1652,24 @@ def build_data(src):
             }
 
     # Slot usage and pts by (formation, slot, player)
+    goals_by_instance_player = defaultdict(int)
+    for row in goal_rows:
+        scorer_id = to_int(row.get("scorer_player_id"))
+        if scorer_id <= 0:
+            continue
+        key = (
+            to_int(row.get("season")),
+            to_int(row.get("world_id")),
+            to_int(row.get("match_id")),
+            str(row.get("side") or "").strip().lower(),
+            scorer_id,
+        )
+        goals_by_instance_player[key] += 1
+
     formation_slot_total = defaultdict(int)
     slot_player_count = defaultdict(int)
     slot_player_pts_sum = defaultdict(float)
+    slot_player_goal_sum = defaultdict(int)
     slot_player_name = {}
     slot_player_fullname = {}
     starting_members_by_instance = defaultdict(list)
@@ -1632,8 +1683,17 @@ def build_data(src):
         if fid not in formation_by_id or slot < 1 or slot > 11 or pid <= 0:
             continue
         key = (fid, slot, pid)
+        instance_player_key = (
+            to_int(row.get("season")),
+            to_int(row.get("world_id")),
+            to_int(row.get("match_id")),
+            str(row.get("side") or "").strip().lower(),
+            pid,
+        )
+        goals = int(goals_by_instance_player.get(instance_player_key, 0))
         formation_slot_total[(fid, slot)] += 1
         slot_player_count[key] += 1
+        slot_player_goal_sum[key] += goals
         pts = to_float(row.get("pts"), None)
         if pts is not None:
             slot_player_pts_sum[key] += pts
@@ -1646,6 +1706,7 @@ def build_data(src):
             "playerFullName": row.get("player_fullname") or row.get("player_name") or str(pid),
             "pos": to_int(row.get("pos_code_1_4")),
             "ptsSum": to_float(row.get("pts"), 0.0),
+            "goals": goals,
         })
 
     slot_stats = defaultdict(lambda: defaultdict(list))
@@ -1656,6 +1717,8 @@ def build_data(src):
         rate = count / denom
         pts_avg = slot_player_pts_sum[(fid, slot, pid)] / count if count else 0.0
         pts_sum = slot_player_pts_sum[(fid, slot, pid)]
+        goal_sum = int(slot_player_goal_sum[(fid, slot, pid)])
+        goals_per_7 = (goal_sum / count * 7) if count else 0.0
         item = {
             "playerId": pid,
             "playerName": slot_player_name.get(pid, str(pid)),
@@ -1664,6 +1727,8 @@ def build_data(src):
             "usageRate": round(rate, 6),
             "ptsSum": round(pts_sum, 4),
             "avgPts": round(pts_avg, 4),
+            "goals": goal_sum,
+            "goalsPer7": round(goals_per_7, 4),
         }
         slot_stats[fid][slot].append(item)
 
@@ -1726,7 +1791,7 @@ def build_data(src):
                 "goalsAgainst": 0,
                 "goalDiff": 0,
                 "playerPtsSum": 0.0,
-                "membersBySlot": {int(m["slot"]): {**m} for m in lineup},
+                "membersBySlot": {int(m["slot"]): {**m, "goals": 0} for m in lineup},
             }
         group = best_team_groups[group_key]
         group["matches"] += 1
@@ -1749,8 +1814,10 @@ def build_data(src):
         for member in lineup:
             slot = int(member["slot"])
             pts = float(member.get("ptsSum") or 0.0)
+            goals = int(member.get("goals") or 0)
             group["playerPtsSum"] += pts
             group["membersBySlot"][slot]["ptsSum"] = float(group["membersBySlot"][slot].get("ptsSum") or 0.0) + pts
+            group["membersBySlot"][slot]["goals"] = int(group["membersBySlot"][slot].get("goals") or 0) + goals
 
     best_teams = defaultdict(list)
     for group in best_team_groups.values():
@@ -1779,6 +1846,7 @@ def build_data(src):
                 "usageRate": slot_usage_rate,
                 "ptsSum": round(pts_sum, 4),
                 "avgPts": round(pts_sum / matches, 4),
+                "goals": int(member.get("goals") or 0),
             })
         coach_pts_sum = float(group["coach"].get("ptsSum") or 0.0)
         item = {
@@ -2098,6 +2166,7 @@ def build_data(src):
             "generatedFrom": {
                 "ccTeamRows": len(team_rows),
                 "ccPlayerRows": len(player_rows),
+                "ccGoalRows": len(goal_rows),
                 "formationCount": len(formations),
                 "coachCount": len(coaches),
                 "totalTeamRowsForUsage": total_team_rows,

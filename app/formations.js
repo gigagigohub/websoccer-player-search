@@ -482,6 +482,15 @@ function avg(v) {
   return Number(v || 0).toFixed(2);
 }
 
+function goalsPer7(v) {
+  return Number(v || 0).toFixed(2);
+}
+
+function goalsCount(v) {
+  const n = Number(v || 0);
+  return Number.isFinite(n) ? String(Math.trunc(n)) : "-";
+}
+
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
 }
@@ -902,9 +911,9 @@ function renderSlotTop(slotStats, mode = "usage") {
               </div>
               <div class="slot-top-meta">
                 <strong class="slot-top-name">${top.playerName}</strong>
-                <span class="slot-top-statline">
+                <span class="slot-top-statline with-goals">
                   ${categoryBadgeHtmlByPlayerId(top.playerId)}
-                  <span>Usage ${pct(top.usageRate)} / Avg ${avg(top.avgPts)}</span>
+                  <span class="slot-top-stat-text">Usage ${pct(top.usageRate)} / Avg ${avg(top.avgPts)} / Goals ${goalsPer7(top.goalsPer7)}</span>
                 </span>
               </div>
             </button>
@@ -1047,9 +1056,9 @@ function renderBestTeam(formation) {
             </div>
             <div class="slot-top-meta">
               <strong class="slot-top-name">${member?.playerName || "-"}</strong>
-              <span class="slot-top-statline">
+              <span class="slot-top-statline with-goals">
                 ${categoryBadgeHtmlByPlayerId(playerId)}
-                <span>Usage ${pct(member?.usageRate)} / Avg ${avg(member?.avgPts)}</span>
+                <span class="slot-top-stat-text">Usage ${pct(member?.usageRate)} / Avg ${avg(member?.avgPts)} / Goals ${goalsCount(member?.goals)}</span>
               </span>
             </div>
           </button>
@@ -1821,7 +1830,7 @@ function openSlotModal(slot) {
       <div class="slot-table-wrap">
         <table class="slot-table">
           <thead>
-            <tr><th>#</th><th>Player</th><th>Cat</th><th>Usage</th><th>Avg</th></tr>
+            <tr><th>#</th><th>Player</th><th>Cat</th><th>Usage</th><th>Avg</th><th>Goals</th></tr>
           </thead>
           <tbody>
             ${rows
@@ -1833,6 +1842,7 @@ function openSlotModal(slot) {
                     <td>${categoryBadgeHtmlByPlayerId(r.playerId)}</td>
                     <td>${pct(r.usageRate)} (${r.uses})</td>
                     <td>${avg(r.avgPts)}</td>
+                    <td>${goalsPer7(r.goalsPer7)}</td>
                   </tr>
                 `
               )
