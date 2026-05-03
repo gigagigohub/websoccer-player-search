@@ -910,9 +910,11 @@ function renderSlotTop(slotStats, mode = "usage") {
                 <img loading="lazy" src="${imgSrc}" alt="${top.playerName}" />
               </div>
               <div class="slot-top-meta">
-                <strong class="slot-top-name">${top.playerName}</strong>
-                <span class="slot-top-statline with-goals">
+                <span class="slot-top-titleline">
+                  <strong class="slot-top-name">${top.playerName}</strong>
                   ${categoryBadgeHtmlByPlayerId(top.playerId)}
+                </span>
+                <span class="slot-top-statline with-goals">
                   <span class="slot-top-stat-text">Usage ${pct(top.usageRate)} / Avg ${avg(top.avgPts)} / Goals ${goalsPer7(top.goalsPer7)}</span>
                 </span>
               </div>
@@ -965,10 +967,12 @@ function renderModelSlots(formation) {
                 <img loading="lazy" src="./images/chara/players/static/${playerId}.gif" alt="${playerName}" />
               </div>
               <div class="slot-top-meta">
-                <strong class="slot-top-name">${playerName}</strong>
-                <span class="slot-top-statline model-slot-statline">
+                <span class="slot-top-titleline">
+                  <strong class="slot-top-name">${playerName}</strong>
                   ${categoryBadgeHtml(player?.category || row?.category, playerId)}
-                  <span>${modelName}</span>
+                </span>
+                <span class="slot-top-statline model-slot-statline">
+                  <span class="slot-top-stat-text">${modelName}</span>
                 </span>
               </div>
             </button>
@@ -978,9 +982,11 @@ function renderModelSlots(formation) {
               <span class="slot-top-slotno">${slotLabel}</span>
               <div class="slot-top-thumb slot-top-thumb-empty"></div>
               <div class="slot-top-meta">
-                <strong class="slot-top-name">${modelName}</strong>
+                <span class="slot-top-titleline">
+                  <strong class="slot-top-name">No linked player</strong>
+                </span>
                 <span class="slot-top-statline model-slot-statline">
-                  <span class="model-slot-status">Unlinked</span>
+                  <span class="slot-top-stat-text">${modelName}</span>
                 </span>
               </div>
             </div>
@@ -1012,6 +1018,11 @@ function renderBestTeam(formation) {
   const finish = String(team?.finish || "-");
   const finishDisplay = finish === "1" ? "Champion" : finish;
   const coach = team?.coach || {};
+  const keySlots = new Set(
+    (formation?.keyPositions || [])
+      .map((k) => Number(k?.slot))
+      .filter((n) => Number.isInteger(n) && n > 0)
+  );
   const rankTabs = teams.length > 1
     ? `<div class="best-team-rank-switch" role="group" aria-label="Top Teams rank">
         ${teams.map((row, idx) => `
@@ -1047,17 +1058,21 @@ function renderBestTeam(formation) {
     <div class="formation-slot-top-list">
       ${members.map((member) => {
         const playerId = Number(member?.playerId || 0);
+        const slot = Number(member?.slot || 0);
+        const slotLabel = `Slot ${slot}${keySlots.has(slot) ? ` <span class="slot-top-key-star" aria-hidden="true">★</span>` : ""}`;
         const imgSrc = `./images/chara/players/static/${playerId}.gif`;
         return `
           <button type="button" class="slot-top-row best-team-player-row" data-player-id="${playerId}">
-            <span class="slot-top-slotno">Slot ${Number(member?.slot || 0)}</span>
+            <span class="slot-top-slotno">${slotLabel}</span>
             <div class="slot-top-thumb">
               <img loading="lazy" src="${imgSrc}" alt="${member?.playerName || ""}" />
             </div>
             <div class="slot-top-meta">
-              <strong class="slot-top-name">${member?.playerName || "-"}</strong>
-              <span class="slot-top-statline with-goals">
+              <span class="slot-top-titleline">
+                <strong class="slot-top-name">${member?.playerName || "-"}</strong>
                 ${categoryBadgeHtmlByPlayerId(playerId)}
+              </span>
+              <span class="slot-top-statline with-goals">
                 <span class="slot-top-stat-text">Usage ${pct(member?.usageRate)} / Avg ${avg(member?.avgPts)} / Goals ${goalsCount(member?.goals)}</span>
               </span>
             </div>

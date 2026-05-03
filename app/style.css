@@ -2963,7 +2963,17 @@ button.ghost {
   gap: 1px;
 }
 
+.slot-top-titleline {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-main);
+}
+
 .slot-top-name {
+  min-width: 0;
+  flex: 0 1 auto;
   font-size: 0.76rem;
   line-height: 1.15;
   white-space: nowrap;
@@ -2986,19 +2996,31 @@ button.ghost {
   text-overflow: ellipsis;
 }
 
+.slot-top-stat-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .slot-top-statline.with-goals {
-  flex-wrap: wrap;
-  row-gap: 2px;
+  display: block;
   white-space: normal;
-  overflow: visible;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .slot-top-statline.with-goals .slot-top-stat-text {
+  display: block;
   min-width: 0;
-  white-space: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+.slot-top-titleline .type-badge,
 .slot-top-statline .type-badge {
+  flex: 0 0 auto;
   min-width: 2.05em;
   padding: 1px 6px;
   font-size: 0.7rem;
@@ -3017,7 +3039,10 @@ button.ghost {
 }
 
 .model-slot-statline {
+  display: block;
   min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .model-slot-statline > span:last-child,
