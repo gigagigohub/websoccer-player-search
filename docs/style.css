@@ -2811,6 +2811,10 @@ button.ghost {
   gap: 4px;
 }
 
+.coach-ranking-switch {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .slot-top-sort-btn {
   border: 1px solid #30486b;
   border-radius: 6px;

@@ -1594,6 +1594,10 @@ def build_data(src):
     total_team_rows = 0
     coach_use_count = defaultdict(int)  # (formation, coach) -> use count
     coach_pts_sum = defaultdict(float)  # (formation, coach) -> sum pts
+    coach_win_count = defaultdict(int)  # (formation, coach) -> win count
+    coach_goal_for_sum = defaultdict(float)  # (formation, coach) -> total goals for
+    coach_goal_against_sum = defaultdict(float)  # (formation, coach) -> total goals against
+    coach_goal_n = defaultdict(int)  # (formation, coach) -> rows with goal data
     coach_name_by_id = {}
     match_rows_by_key = defaultdict(list)
     team_row_by_instance = {}
@@ -1628,9 +1632,15 @@ def build_data(src):
         if cid > 0:
             key = (fid, cid)
             coach_use_count[key] += 1
+            if (row.get("result") or "").strip().upper() == "W":
+                coach_win_count[key] += 1
             pts = to_float(row.get("headcoach_pts"), None)
             if pts is not None:
                 coach_pts_sum[key] += pts
+            if gf is not None and ga is not None:
+                coach_goal_for_sum[key] += gf
+                coach_goal_against_sum[key] += ga
+                coach_goal_n[key] += 1
             coach_name_by_id[cid] = row.get("headcoach_name") or coach_by_id.get(cid, {}).get("name") or str(cid)
         mkey = (to_int(row.get("season")), to_int(row.get("world_id")), to_int(row.get("match_id")))
         match_rows_by_key[mkey].append(row)
@@ -1742,11 +1752,18 @@ def build_data(src):
         denom = formation_team_counts[fid] or 1
         usage = count / denom
         avg_pts = coach_pts_sum[(fid, cid)] / count if count else 0.0
+        goal_n = coach_goal_n[(fid, cid)]
+        avg_goals_for = coach_goal_for_sum[(fid, cid)] / goal_n if goal_n else 0.0
+        avg_goals_against = coach_goal_against_sum[(fid, cid)] / goal_n if goal_n else 0.0
         coach_stats[fid].append({
             "coachId": cid,
             "coachName": coach_name_by_id.get(cid, str(cid)),
             "uses": count,
             "usageRate": round(usage, 6),
+            "wins": coach_win_count[(fid, cid)],
+            "winRate": round(coach_win_count[(fid, cid)] / count, 6) if count else 0.0,
+            "avgGoalsFor": round(avg_goals_for, 4),
+            "avgGoalsAgainst": round(avg_goals_against, 4),
             "ptsSum": round(coach_pts_sum[(fid, cid)], 4),
             "avgPts": round(avg_pts, 4),
         })

@@ -125,6 +125,7 @@ let cloudMeta = { formationId: null, ownedFormationIds: [], coach: null };
 let filteredAndSorted = [];
 let currentFormation = null;
 let slotTopSortMode = "usage";
+let coachRankingMode = "usage";
 const bestTeamIndexByFormation = new Map();
 let selectedPlayerId = null;
 const coachTabModeById = new Map();
@@ -1133,8 +1134,43 @@ function renderRepresentativeTeam(formation) {
   `;
 }
 
-function renderCoachRanking(coachStats) {
+function sortCoachRankingRows(coachStats, mode = "usage") {
   const rows = Array.isArray(coachStats) ? coachStats : [];
+  const sorters = {
+    usage: (a, b) =>
+      Number(b?.usageRate || 0) - Number(a?.usageRate || 0)
+      || Number(b?.uses || 0) - Number(a?.uses || 0)
+      || Number(b?.avgPts || 0) - Number(a?.avgPts || 0)
+      || String(a?.coachName || "").localeCompare(String(b?.coachName || ""), "ja"),
+    avg: (a, b) =>
+      Number(b?.avgPts || 0) - Number(a?.avgPts || 0)
+      || Number(b?.uses || 0) - Number(a?.uses || 0)
+      || Number(b?.usageRate || 0) - Number(a?.usageRate || 0)
+      || String(a?.coachName || "").localeCompare(String(b?.coachName || ""), "ja"),
+    stats: (a, b) =>
+      Number(b?.winRate || 0) - Number(a?.winRate || 0)
+      || Number(b?.uses || 0) - Number(a?.uses || 0)
+      || (Number(b?.avgGoalsFor || 0) - Number(b?.avgGoalsAgainst || 0))
+        - (Number(a?.avgGoalsFor || 0) - Number(a?.avgGoalsAgainst || 0))
+      || Number(b?.avgGoalsFor || 0) - Number(a?.avgGoalsFor || 0)
+      || String(a?.coachName || "").localeCompare(String(b?.coachName || ""), "ja"),
+  };
+  const sorter = sorters[mode] || sorters.usage;
+  return rows.slice().sort(sorter);
+}
+
+function coachRankingStatLine(coach, mode = "usage") {
+  if (mode === "avg") {
+    return `Avg ${avg(coach?.avgPts)}`;
+  }
+  if (mode === "stats") {
+    return `Win ${pct(coach?.winRate)} / Goals ${avg(coach?.avgGoalsFor)} / Against ${avg(coach?.avgGoalsAgainst)}`;
+  }
+  return `Usage ${pct(coach?.usageRate)} (${Number(coach?.uses || 0)} matches)`;
+}
+
+function renderCoachRanking(coachStats, mode = "usage") {
+  const rows = sortCoachRankingRows(coachStats, mode);
   if (!rows.length) {
     return `<p class="dim">No coach usage data.</p>`;
   }
@@ -1151,7 +1187,7 @@ function renderCoachRanking(coachStats) {
               </div>
               <div class="slot-top-meta">
                 <strong class="slot-top-name">${c.coachName}</strong>
-                <span>Usage ${pct(c.usageRate)} / Avg ${avg(c.avgPts)}</span>
+                <span>${coachRankingStatLine(c, mode)}</span>
               </div>
             </button>
           `;
@@ -1670,6 +1706,7 @@ function openFormationModal(formation, options = {}) {
   currentFormation = formation;
   if (!options.preserveSlotTopMode) {
     slotTopSortMode = "usage";
+    coachRankingMode = "usage";
   }
   if (!els.formationModal || !els.formationTitle || !els.formationDetail) return;
 
@@ -1724,8 +1761,15 @@ function openFormationModal(formation, options = {}) {
       ${renderSlotTop(formation.slotStats || {}, slotTopSortMode)}
     </div>
     <div class="formation-block">
-      <h3>CC Coach Ranking</h3>
-      ${renderCoachRanking(formation.coachStats)}
+      <div class="slot-top-toolbar">
+        <h3>CC Coach Ranking</h3>
+        <div class="slot-top-sort-switch coach-ranking-switch" role="group" aria-label="CC Coach Ranking mode">
+          <button type="button" class="slot-top-sort-btn${coachRankingMode === "usage" ? " is-on" : ""}" data-coach-rank-mode="usage">Usage</button>
+          <button type="button" class="slot-top-sort-btn${coachRankingMode === "avg" ? " is-on" : ""}" data-coach-rank-mode="avg">Avg</button>
+          <button type="button" class="slot-top-sort-btn${coachRankingMode === "stats" ? " is-on" : ""}" data-coach-rank-mode="stats">Stats</button>
+        </div>
+      </div>
+      ${renderCoachRanking(formation.coachStats, coachRankingMode)}
     </div>
   `;
   els.formationModal.hidden = false;
@@ -2036,6 +2080,15 @@ function bindEvents() {
         if (currentFormation && Number.isInteger(index)) {
           bestTeamIndexByFormation.set(Number(currentFormation.id), index);
           openFormationModal(currentFormation, { preserveSlotTopMode: true });
+        }
+        return;
+      }
+      const coachRankBtn = e.target.closest("[data-coach-rank-mode]");
+      if (coachRankBtn) {
+        const mode = String(coachRankBtn.dataset.coachRankMode || "");
+        if (mode === "usage" || mode === "avg" || mode === "stats") {
+          coachRankingMode = mode;
+          if (currentFormation) openFormationModal(currentFormation, { preserveSlotTopMode: true });
         }
         return;
       }
