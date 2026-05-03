@@ -357,9 +357,13 @@ def build_players(
         """
     ).fetchall():
         pid = to_int(row["player_id"])
+        category = row["category"] if row["category"] is not None else ""
+        membership = parse_json_list(row["category_membership_json"])
+        if not membership and category:
+            membership = [category]
         cat_map[pid] = {
-            "category": row["category"] or "NR",
-            "membership": parse_json_list(row["category_membership_json"]) or [row["category"] or "NR"],
+            "category": category,
+            "membership": membership,
             "retired": bool(to_int(row["retired"], 0)),
             "retiredReason": row["retired_reason"] or "",
         }
@@ -399,6 +403,7 @@ def build_players(
                 fb = fallback_players.get(pid, {})
                 category = fb.get("category", "NR")
                 category_membership = fb.get("categoryMembership", [category])
+            category_pending = manual is not None and not category and not category_membership
             category, category_membership, retired, retired_reason = normalize_category_for_retired(
                 pid,
                 category,
@@ -429,6 +434,8 @@ def build_players(
                     "position": POS_TYPE_MAP.get(pos_type, "MF"),
                     "category": category,
                     "categoryMembership": category_membership,
+                    "categoryPending": category_pending,
+                    "imagePending": category_pending,
                     "retired": retired,
                     "retiredReason": retired_reason,
                     "rate": to_int(core.get("ZRARITY", 0)),

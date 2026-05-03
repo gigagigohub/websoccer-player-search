@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="220" viewBox="0 0 160 220" role="img" aria-label="画像未取得">
+  <rect width="160" height="220" rx="10" fill="#162131"/>
+  <rect x="14" y="14" width="132" height="192" rx="8" fill="#202d3e" stroke="#3b4c63"/>
+  <circle cx="80" cy="68" r="28" fill="#34445a"/>
+  <path d="M44 153c4-29 19-48 36-48s32 19 36 48" fill="#34445a"/>
+  <text x="80" y="178" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="18" font-weight="700" fill="#d7e3f2">未取得</text>
+  <text x="80" y="196" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-size="10" fill="#94a6bc">NO IMAGE</text>
+</svg>

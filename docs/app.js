@@ -681,7 +681,7 @@ function successorSummaryHtml(entry, currentRemaining) {
     <div class="lineup-successor">
       <div class="lineup-successor-arrow" aria-hidden="true">▶</div>
       <div class="lineup-thumb-wrap">
-        <img loading="lazy" src="./images/chara/players/static/${successorPlayer.id}.gif" alt="${successorPlayer.name}" />
+        <img loading="lazy" src="${playerImageSrc(successorPlayer, "static")}" alt="${successorPlayer.name}" />
       </div>
       <div class="lineup-successor-meta">
         <div class="lineup-badges">
@@ -757,7 +757,7 @@ function renderLineupSlots() {
       ? categoryBadgesHtmlByPlayer(player)
       : `<span class="badge type-badge cat-na">-</span>`;
     const imageHtml = player
-      ? `<img loading="lazy" src="./images/chara/players/static/${player.id}.gif" alt="${player.name}" />`
+      ? `<img loading="lazy" src="${playerImageSrc(player, "static")}" alt="${player.name}" />`
       : `<div class="lineup-empty-thumb"></div>`;
     const selectedPeriod = hasPlayer ? findPeriodBySeason(player, season) : null;
     const selectedMetrics = selectedPeriod?.metrics || (player ? getPeakMetrics(player) : null);
@@ -955,7 +955,7 @@ function addConditionRow(defaults = {}) {
     metric.appendChild(option);
   });
 
-  metric.value = defaults.metric || "スピ";
+  metric.value = defaults.metric || "ID";
   op.value = defaults.op || "gte";
   value1.value = defaults.value1 ?? "";
   value2.value = defaults.value2 ?? "";
@@ -973,6 +973,11 @@ function addConditionRow(defaults = {}) {
 
   syncBetween();
   els.conditions.appendChild(node);
+}
+
+function resetDefaultConditionRow() {
+  els.conditions.innerHTML = "";
+  addConditionRow({ metric: "ID", op: "gte", value1: "" });
 }
 
 function getConditions() {
@@ -1014,6 +1019,8 @@ function checkValueCondition(value, condition) {
 }
 
 function getCategory(player) {
+  if (player?.categoryPending) return "";
+  if (!player?.category && Array.isArray(player?.categoryMembership) && !player.categoryMembership.length) return "";
   if (player?.retired && player.category === "RT") return "NR";
   if (player.category) return player.category;
   const hasCM = !!player.flags?.CM;
@@ -1042,6 +1049,7 @@ function typeClassByPlayer(player) {
 
 function categoryBadgesHtmlByPlayer(player) {
   const typeLabel = getCategory(player);
+  if (!typeLabel) return "";
   if (typeLabel === "CM/SS") {
     return `<span class="badge type-badge cat-ss">SS</span><span class="badge type-badge cat-cm">CM</span>`;
   }
@@ -1051,6 +1059,14 @@ function categoryBadgesHtmlByPlayer(player) {
 
 function retiredBadgeHtml(player) {
   return player?.retired ? `<span class="badge retired-badge">Retired</span>` : "";
+}
+
+function playerImageSrc(player, kind = "static") {
+  if (player?.imagePending) {
+    return "./images/chara/players/pending.svg";
+  }
+  const safeKind = kind === "action" ? "action" : "static";
+  return `./images/chara/players/${safeKind}/${player.id}.gif`;
 }
 
 function formatEventPeriod(start, end) {
@@ -1717,8 +1733,8 @@ function swipeDeckHtml(viewMode, normalViewHtml, detailViewHtml, thirdViewHtml) 
 }
 
 function cardHtml(player) {
-  const staticImg = `./images/chara/players/static/${player.id}.gif`;
-  const actionImg = `./images/chara/players/action/${player.id}.gif`;
+  const staticImg = playerImageSrc(player, "static");
+  const actionImg = playerImageSrc(player, "action");
   const displayMetrics = getPeakMetrics(player);
   const viewMode = getCardViewMode(player.id);
   const peakTimeline = getPeakTimeline(player);
@@ -1889,7 +1905,7 @@ function render() {
     "RT": 99,
   };
   if (hasIdCondition) {
-    filtered.sort((a, b) => Number(a.id || 0) - Number(b.id || 0));
+    filtered.sort((a, b) => Number(b.id || 0) - Number(a.id || 0));
   } else if (cmEventFilter > 0) {
     const event = cmEventsByEventId.get(cmEventFilter);
     const orderMap = new Map(
@@ -1921,12 +1937,7 @@ function render() {
       return (b.bestTotal - a.bestTotal) || a.name.localeCompare(b.name, "ja");
     });
   } else {
-    filtered.sort((a, b) => {
-      const ar = categoryRank[getCategory(a)] ?? 50;
-      const br = categoryRank[getCategory(b)] ?? 50;
-      if (ar !== br) return ar - br;
-      return (b.bestTotal - a.bestTotal) || a.name.localeCompare(b.name, "ja");
-    });
+    filtered.sort((a, b) => Number(b.id || 0) - Number(a.id || 0));
   }
   currentFilteredPlayers = filtered;
   renderedCount = 0;
@@ -1986,11 +1997,11 @@ async function init() {
   window.addEventListener("resize", syncMenuButtonSize);
 
   els.addCondition.addEventListener("click", () => {
-    addConditionRow({ metric: "スピ", op: "gte", value1: "" });
+    addConditionRow({ metric: "ID", op: "gte", value1: "" });
   });
 
   els.resetCondition.addEventListener("click", () => {
-    els.conditions.innerHTML = "";
+    resetDefaultConditionRow();
     els.nameQuery.value = "";
     hideNameSuggest();
     [
@@ -2006,6 +2017,7 @@ async function init() {
     syncAptitudeAreaLabel();
     updateScoutFilterVisibility();
     updateCMFilterVisibility();
+    render();
   });
   if (els.aptitudeIncludeSix) {
     els.aptitudeIncludeSix.addEventListener("change", syncAptitudeAreaLabel);
@@ -2519,6 +2531,7 @@ async function init() {
     if (Number.isInteger(eventId)) cmEventsByEventId.set(eventId, s);
   });
   appUpdatedAtJst = APP_UPDATED_AT_JST;
+  resetDefaultConditionRow();
   syncAptitudeAreaLabel();
   syncNRAllChip();
   renderScoutEventFilterOptions();
@@ -2527,9 +2540,7 @@ async function init() {
   updateCMFilterVisibility();
   renderHeaderMeta();
   refreshUpdatedAtFromGitHub();
-  els.resultCount.textContent = "0 results";
-  els.results.innerHTML = "";
-  if (els.loadMoreResults) els.loadMoreResults.hidden = true;
+  render();
 }
 
 init().catch((e) => {
