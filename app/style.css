@@ -1499,8 +1499,8 @@ button.ghost {
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
   background-color: #5d2cc0;
   background-image:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0.07) 22%, rgba(0, 0, 0, 0) 48%, rgba(0, 0, 0, 0.16) 100%),
-    url("./images/badges/ss-category-badge-bg.png?v=20260504-ssbadge4");
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.03) 22%, rgba(0, 0, 0, 0) 48%, rgba(0, 0, 0, 0.14) 100%),
+    url("./images/badges/ss-category-badge-bg.png?v=20260504-ssbadge6");
   background-position: center;
   background-repeat: no-repeat;
   background-size: 100% 100%;
