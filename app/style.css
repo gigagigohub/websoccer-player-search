@@ -1498,14 +1498,11 @@ button.ghost {
   color: #fff;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
   background-color: #5d2cc0;
-  background-image: url("./images/badges/ss-category-badge-bg.png?v=20260504-ssbadge");
+  background-image: url("./images/badges/ss-category-badge-bg.png?v=20260504-ssbadge2");
   background-position: center;
   background-repeat: no-repeat;
   background-size: 100% 100%;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.38),
-    inset 0 -1px 0 rgba(32, 36, 86, 0.48),
-    0 0 0 1px rgba(118, 90, 170, 0.45);
+  box-shadow: none;
 }
 
 .type-badge.cat-cm {
