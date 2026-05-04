@@ -658,6 +658,18 @@ select {
   margin: 6px 0 12px;
 }
 
+.scout-event-preview {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.scout-event-preview img {
+  width: min(100%, 300px);
+  height: auto;
+  image-rendering: auto;
+}
+
 .condition-row {
   margin-top: 9px;
   display: grid;

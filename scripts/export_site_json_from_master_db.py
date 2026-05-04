@@ -281,11 +281,43 @@ def load_fallback_coaches(path: Path) -> dict[int, dict]:
     return result
 
 
+def collect_player_image_ids(*site_dirs: Path) -> set[int]:
+    ids: set[int] = set()
+    for site_dir in site_dirs:
+        players_dir = site_dir / "images" / "chara" / "players"
+        for kind in ("static", "action"):
+            image_dir = players_dir / kind
+            if not image_dir.exists():
+                continue
+            for image_path in image_dir.glob("*.gif"):
+                try:
+                    ids.add(int(image_path.stem))
+                except ValueError:
+                    continue
+    return ids
+
+
+def collect_scout_button_event_ids(*site_dirs: Path) -> set[int]:
+    ids: set[int] = set()
+    pattern = re.compile(r"ss_btn_(\d+)\.png$")
+    for site_dir in site_dirs:
+        button_dir = site_dir / "images" / "Shop" / "btn"
+        if not button_dir.exists():
+            continue
+        for image_path in button_dir.glob("ss_btn_*.png"):
+            match = pattern.fullmatch(image_path.name)
+            if match:
+                ids.add(int(match.group(1)))
+    return ids
+
+
 def build_players(
     conn: sqlite3.Connection,
     fallback_players: dict[int, dict],
+    image_available_player_ids: set[int] | None = None,
 ) -> list[dict]:
     conn.row_factory = sqlite3.Row
+    image_available_player_ids = image_available_player_ids or set()
     nations = {
         to_int(r["ZNATION_ID"]): (r["ZNAME"] or "")
         for r in conn.execute("SELECT ZNATION_ID, ZNAME FROM ao__ZMONATION").fetchall()
@@ -404,6 +436,7 @@ def build_players(
                 category = fb.get("category", "NR")
                 category_membership = fb.get("categoryMembership", [category])
             category_pending = manual is not None and not category and not category_membership
+            image_pending = category_pending and pid not in image_available_player_ids
             category, category_membership, retired, retired_reason = normalize_category_for_retired(
                 pid,
                 category,
@@ -435,7 +468,7 @@ def build_players(
                     "category": category,
                     "categoryMembership": category_membership,
                     "categoryPending": category_pending,
-                    "imagePending": category_pending,
+                    "imagePending": image_pending,
                     "retired": retired,
                     "retiredReason": retired_reason,
                     "rate": to_int(core.get("ZRARITY", 0)),
@@ -503,7 +536,8 @@ def build_players(
     return out
 
 
-def build_scouts(conn: sqlite3.Connection) -> list[dict]:
+def build_scouts(conn: sqlite3.Connection, scout_button_event_ids: set[int] | None = None) -> list[dict]:
+    scout_button_event_ids = scout_button_event_ids or set()
     rows = conn.execute(
         """
         SELECT
@@ -515,10 +549,12 @@ def build_scouts(conn: sqlite3.Connection) -> list[dict]:
     ).fetchall()
     out = []
     for r in rows:
+        event_id = to_int(r["event_id"])
         ids = [to_int(x) for x in parse_json_list(r["player_ids_json"])]
+        shop_button_image = f"./images/Shop/btn/ss_btn_{event_id}.png" if event_id in scout_button_event_ids else ""
         out.append(
             {
-                "eventId": to_int(r["event_id"]),
+                "eventId": event_id,
                 "name": r["name"] or "",
                 "start": r["start"] or "",
                 "end": r["end"] or "",
@@ -529,6 +565,7 @@ def build_scouts(conn: sqlite3.Connection) -> list[dict]:
                 "nameSource": r["name_source"] or "",
                 "playerCount": to_int(r["player_count"], len(ids)),
                 "playerIds": ids,
+                "shopButtonImage": shop_button_image,
             }
         )
     return out
@@ -640,12 +677,17 @@ def main() -> int:
     fallback_data = load_fallback_players(Path(args.fallback_data_json).expanduser().resolve())
     fallback_coaches = load_fallback_coaches(Path(args.fallback_coaches_json).expanduser().resolve())
 
+    out_app_dir = Path(args.out_app_dir).expanduser().resolve()
+    out_docs_dir = Path(args.out_docs_dir).expanduser().resolve()
+    image_available_player_ids = collect_player_image_ids(out_app_dir, out_docs_dir)
+    scout_button_event_ids = collect_scout_button_event_ids(out_app_dir, out_docs_dir)
+
     conn = sqlite3.connect(str(master_db))
     conn.row_factory = sqlite3.Row
     try:
         generated_at = now_jst_iso()
-        players = build_players(conn, fallback_data)
-        scouts = build_scouts(conn)
+        players = build_players(conn, fallback_data, image_available_player_ids)
+        scouts = build_scouts(conn, scout_button_event_ids)
         cm_events = build_cm_events(conn)
         coaches = build_coaches(conn, fallback_coaches)
     finally:
@@ -666,9 +708,6 @@ def main() -> int:
         },
         "coaches": coaches,
     }
-
-    out_app_dir = Path(args.out_app_dir).expanduser().resolve()
-    out_docs_dir = Path(args.out_docs_dir).expanduser().resolve()
 
     app_data = out_app_dir / "data.json"
     docs_data = out_docs_dir / "data.json"

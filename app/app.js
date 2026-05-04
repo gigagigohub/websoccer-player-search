@@ -101,6 +101,7 @@ const els = {
   includeRetired: document.querySelector("#includeRetired"),
   scoutFilterWrap: document.querySelector("#scoutFilterWrap"),
   scoutEventFilter: document.querySelector("#scoutEventFilter"),
+  scoutEventPreview: document.querySelector("#scoutEventPreview"),
   cmFilterWrap: document.querySelector("#cmFilterWrap"),
   cmEventFilter: document.querySelector("#cmEventFilter"),
   applySearch: document.querySelector("#applySearch"),
@@ -1437,6 +1438,21 @@ function renderScoutEventFilterOptions() {
   });
   els.scoutEventFilter.innerHTML = options.join("");
   if (current) els.scoutEventFilter.value = current;
+  renderScoutEventPreview();
+}
+
+function renderScoutEventPreview() {
+  if (!els.scoutEventPreview || !els.scoutEventFilter) return;
+  const eventId = Number(els.scoutEventFilter.value || 0);
+  const scout = scoutsByEventId.get(eventId);
+  const shouldShow = !!scout?.shopButtonImage;
+  if (!shouldShow) {
+    els.scoutEventPreview.hidden = true;
+    els.scoutEventPreview.innerHTML = "";
+    return;
+  }
+  els.scoutEventPreview.innerHTML = `<img src="${scout.shopButtonImage}" alt="Scout ${eventId}" />`;
+  els.scoutEventPreview.hidden = false;
 }
 
 function renderCMEventFilterOptions() {
@@ -1466,6 +1482,7 @@ function updateScoutFilterVisibility() {
   els.scoutFilterWrap.hidden = !show;
   if (!show) {
     els.scoutEventFilter.value = "";
+    renderScoutEventPreview();
     return;
   }
   renderScoutEventFilterOptions();
@@ -2086,6 +2103,15 @@ async function init() {
   });
 
   els.applySearch.addEventListener("click", render);
+  if (els.scoutEventFilter) {
+    els.scoutEventFilter.addEventListener("change", () => {
+      renderScoutEventPreview();
+      render();
+    });
+  }
+  if (els.cmEventFilter) {
+    els.cmEventFilter.addEventListener("change", render);
+  }
   if (els.nameQuery) {
     els.nameQuery.addEventListener("input", updateNameSuggest);
     els.nameQuery.addEventListener("focus", updateNameSuggest);
