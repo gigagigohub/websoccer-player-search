@@ -517,6 +517,11 @@ def build_players(
             fb["personIdRaw"] = fb_person_raw
             fb["personId"] = fb_person
             fb["personIdManualOverride"] = identity["isOverride"]
+            fb_nation_id = to_int(fb.get("nationId"), 0)
+            if fb_nation_id > 0:
+                fb["nationId"] = fb_nation_id
+                if not fb.get("nationality") or str(fb.get("nationality", "")).startswith("国籍ID:"):
+                    fb["nationality"] = nations.get(fb_nation_id) or f"国籍ID:{fb_nation_id}"
             model_info = model_map.get(fb_person, {})
             if model_info:
                 fb["modelPlayer"] = model_info.get("name", "")
