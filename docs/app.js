@@ -1121,6 +1121,7 @@ function renderListResultsByEvent(eventId, source) {
 
   if (els.scoutEventFilter) els.scoutEventFilter.value = isCM ? "" : String(eventId);
   if (els.cmEventFilter) els.cmEventFilter.value = isCM ? String(eventId) : "";
+  renderScoutEventPreview();
 
   render();
 

@@ -250,7 +250,7 @@ formation_id,slug,slot,player_id,model_name,source_name,current_player_id,curren
 54,bra14,2,731,ダニエウ・アウヴェス,ダニエル・アウベス,498,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 2
 54,bra14,3,729,チアゴ・シウバ,チアゴ・シウバ,512,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 2
 54,bra14,4,730,ダヴィド・ルイス,ダビド・ルイス,597,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 2
-54,bra14,5,728,マルセロ・ヴィエイラ,マルセロ,1004,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 2
+54,bra14,5,728,マルセロ,マルセロ,1004,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 2
 54,bra14,6,727,パウリーニョ,パウリーニョ,1701,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 2
 54,bra14,8,724,フッキ,フッキー,594,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 2
 54,bra14,9,725,オスカル,オスカル,1014,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 2
@@ -406,7 +406,7 @@ formation_id,slug,slot,player_id,model_name,source_name,current_player_id,curren
 80,gamba08,9,499,遠藤　保仁,遠藤 保仁,3030,SS,,,,,,,userMultiCategoryCard,100.0,user selected option 2
 81,roma0001,3,1398,ワルテル・サムエル,サムエル,447,NR,206,ローマ,2000,0.773,0.088,0.088,userUniformCard,100.0,user selected option 2
 81,roma0001,5,1124,カフー,カフー,239,NR,206,ローマ,2000,0.743,0.334,0.021,userUniformCard,100.0,user selected option 2
-81,roma0001,6,1307,エメルソン・フェレイラ,エメルソン,252,NR,206,ローマ,2000,0.765,0.021,0.021,userUniformCard,100.0,user selected option 2
+81,roma0001,6,1307,エメルソン,エメルソン,252,NR,206,ローマ,2000,0.765,0.021,0.021,userUniformCard,100.0,user selected option 2
 81,roma0001,9,1290,フランチェスコ・トッティ,トッティ,115,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 2
 81,roma0001,10,1394,ガブリエル・バティストゥータ,バティストゥータ,146,NR,206,ローマ,2000,0.733,0.089,0.089,userUniformCard,100.0,user selected option 2
 82,ita06,1,822,ジャンルイジ・ブッフォン,ブッフォン,169,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 2
@@ -443,7 +443,7 @@ formation_id,slug,slot,player_id,model_name,source_name,current_player_id,curren
 87,bra06,2,239,カフー,カフー,239,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 1
 87,bra06,4,492,ルシオ,ルシオ,492,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 1
 87,bra06,5,51,ロベルト・カルロス,ロベルト・カルロス,51,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 1
-87,bra06,6,252,エメルソン・フェレイラ,エメルソン,252,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 1
+87,bra06,6,252,エメルソン,エメルソン,252,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 1
 87,bra06,8,444,カカ,カカ,444,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 1
 87,bra06,9,247,ロナウジーニョ,ロナウジーニョ,247,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 1
 87,bra06,10,2039,ロナウド,ロナウド,2039,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 1
@@ -563,7 +563,7 @@ formation_id,slug,slot,player_id,model_name,source_name,current_player_id,curren
 108,ita2020,11,2422,チーロ・インモービレ,インモービレ,2314,NR,152,イタリア,2012,0.803,0.801,0.801,userUniformCard,100.0,user selected option 2
 109,madr2122,1,2148,ティボー・クルトワ,クルトワ,1019,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 5
 109,madr2122,2,2564,ダニエル・カルバハル,カルバハル,1594,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 4
-109,madr2122,3,2551,エデル・ガブリエウ・ミリトン,ミリトン,2544,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 2
+109,madr2122,3,2551,エデル・ミリトン,ミリトン,2544,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 2
 109,madr2122,4,2487,ダヴィド・アラバ,アラバ,1188,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 7
 109,madr2122,5,2491,フェルラン・メンディ,メンディ,3026,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 2
 109,madr2122,6,2015,カゼミーロ,カセミロ,1666,NR,,,,,,,userMultiCategoryCard,100.0,user selected option 4
