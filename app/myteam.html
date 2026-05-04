@@ -123,7 +123,30 @@
       </div>
       <div id="playerCardHost"></div>
       <div class="player-card-actions">
-        <button id="playerDeleteBtn" type="button" class="player-delete-btn">Delete from Team</button>
+        <button id="playerReplaceBtn" type="button" class="player-replace-btn">Replace Player</button>
+        <button id="playerRemoveSuccessorBtn" type="button" class="player-delete-btn" hidden>Remove Successor</button>
+      </div>
+      <div id="playerReplacePanel" class="player-replace-panel" hidden>
+        <label class="label" for="playerReplaceSearch">Replace with</label>
+        <input id="playerReplaceSearch" type="search" autocomplete="off" placeholder="Search player name / ID" />
+        <div id="playerReplaceResults" class="player-replace-results"></div>
+        <label class="label" for="playerReplaceSeason">Season</label>
+        <select id="playerReplaceSeason"></select>
+        <div id="playerReplaceSourceWrap" class="player-replace-source-wrap" hidden>
+          <label class="label" for="playerReplaceSourceType">Source Team</label>
+          <select id="playerReplaceSourceType">
+            <option value="self">自チーム</option>
+            <option value="custom">その他</option>
+          </select>
+          <div id="playerReplaceSourceCustomWrap" class="source-custom-wrap" hidden>
+            <label class="label" for="playerReplaceSourceInput">Team Name</label>
+            <input id="playerReplaceSourceInput" type="text" placeholder="例: チームシェンモ" />
+          </div>
+        </div>
+        <div class="season-actions player-replace-actions">
+          <button id="playerReplaceApply" type="button">Replace</button>
+          <button id="playerReplaceCancel" type="button" class="ghost">Cancel</button>
+        </div>
       </div>
     </div>
   </div>

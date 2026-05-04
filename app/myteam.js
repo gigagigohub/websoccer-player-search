@@ -79,9 +79,21 @@ const els = {
   emptySlotOk: document.querySelector("#emptySlotOk"),
   playerCardModal: document.querySelector("#playerCardModal"),
   playerCardBackdrop: document.querySelector("#playerCardBackdrop"),
+  playerCardTitle: document.querySelector("#playerCardTitle"),
   playerCardClose: document.querySelector("#playerCardClose"),
   playerCardHost: document.querySelector("#playerCardHost"),
-  playerDeleteBtn: document.querySelector("#playerDeleteBtn"),
+  playerReplaceBtn: document.querySelector("#playerReplaceBtn"),
+  playerRemoveSuccessorBtn: document.querySelector("#playerRemoveSuccessorBtn"),
+  playerReplacePanel: document.querySelector("#playerReplacePanel"),
+  playerReplaceSearch: document.querySelector("#playerReplaceSearch"),
+  playerReplaceResults: document.querySelector("#playerReplaceResults"),
+  playerReplaceSeason: document.querySelector("#playerReplaceSeason"),
+  playerReplaceSourceWrap: document.querySelector("#playerReplaceSourceWrap"),
+  playerReplaceSourceType: document.querySelector("#playerReplaceSourceType"),
+  playerReplaceSourceCustomWrap: document.querySelector("#playerReplaceSourceCustomWrap"),
+  playerReplaceSourceInput: document.querySelector("#playerReplaceSourceInput"),
+  playerReplaceApply: document.querySelector("#playerReplaceApply"),
+  playerReplaceCancel: document.querySelector("#playerReplaceCancel"),
   coachCardModal: document.querySelector("#coachCardModal"),
   coachCardBackdrop: document.querySelector("#coachCardBackdrop"),
   coachCardClose: document.querySelector("#coachCardClose"),
@@ -101,6 +113,7 @@ let cloudConfig = { url: "", anonKey: "", lineupKey: "" };
 let selectedSlotIndex = null;
 let selectedPlayerId = null;
 let selectedPlayerMode = "starter";
+let replacementPlayerId = null;
 let lifecycleModeEnabled = false;
 const cardViewModeById = new Map();
 let formations = [];
@@ -958,6 +971,35 @@ function positionClass(position) {
   return "";
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function toHiragana(value) {
+  return String(value || "")
+    .replace(/[\u30a1-\u30f6]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0x60))
+    .replace(/[・･·.．\s\-ー＝=]/g, "")
+    .toLowerCase();
+}
+
+function normalizedReplacementSearchText(player) {
+  return toHiragana(player?.name || "");
+}
+
+function replacementCategoryRank(player) {
+  const label = typeLabelByPlayer(player);
+  if (label === "NR") return 0;
+  if (label === "CC") return 1;
+  if (label === "SS") return 2;
+  if (label === "CM") return 3;
+  return 4;
+}
+
 function coreTotal(metrics) {
   return (metrics?.["スピ"] || 0) + (metrics?.["テク"] || 0) + (metrics?.["パワ"] || 0);
 }
@@ -1386,7 +1428,7 @@ function handleMyTeamSlotClick(e) {
   if (clickedSuccessor) {
     const successorId = Number(entry?.successor?.playerId);
     if (!Number.isInteger(successorId)) {
-      openEmptySlotModal();
+      openEmptyPlayerSlotModal(idx, "successor");
       return;
     }
     openPlayerCardModal(idx, "successor");
@@ -1394,7 +1436,7 @@ function handleMyTeamSlotClick(e) {
   }
   const playerId = Number(entry?.playerId);
   if (!Number.isInteger(playerId)) {
-    openEmptySlotModal();
+    openEmptyPlayerSlotModal(idx);
     return;
   }
   openPlayerCardModal(idx);
@@ -1752,10 +1794,14 @@ function renderPlayerCardModal() {
   const season = selectedPlayerMode === "successor"
     ? getSuccessorDisplaySeason(entry)
     : (entry?.season || null);
+  if (els.playerCardTitle) els.playerCardTitle.textContent = "Player";
   els.playerCardHost.innerHTML = playerCardHtml(player, season);
-  if (els.playerDeleteBtn) {
-    els.playerDeleteBtn.textContent = selectedPlayerMode === "successor" ? "Remove Successor" : "Delete from Team";
-    els.playerDeleteBtn.hidden = false;
+  if (els.playerReplaceBtn) {
+    els.playerReplaceBtn.textContent = selectedPlayerMode === "successor" ? "Replace Successor" : "Replace Player";
+    els.playerReplaceBtn.hidden = false;
+  }
+  if (els.playerRemoveSuccessorBtn) {
+    els.playerRemoveSuccessorBtn.hidden = selectedPlayerMode !== "successor";
   }
 }
 
@@ -1772,26 +1818,208 @@ function openPlayerCardModal(slotIndex, mode = "starter") {
   if (els.playerCardModal) els.playerCardModal.hidden = false;
 }
 
+function openEmptyPlayerSlotModal(slotIndex, mode = "starter") {
+  if (!Number.isInteger(slotIndex) || !els.playerCardModal || !els.playerCardHost) return;
+  selectedSlotIndex = slotIndex;
+  selectedPlayerId = null;
+  selectedPlayerMode = mode === "successor" ? "successor" : "starter";
+  const isSuccessor = selectedPlayerMode === "successor";
+  if (els.playerCardTitle) els.playerCardTitle.textContent = isSuccessor ? "Add Successor" : "Add Player";
+  els.playerCardHost.innerHTML = `
+    <div class="player-replace-empty-slot">
+      <div class="lineup-empty-thumb"></div>
+      <div>
+        <div class="player-replace-empty-title">未登録</div>
+        <div class="player-replace-empty-text">検索して${isSuccessor ? "後継選手" : "選手"}と期を選択してください。</div>
+      </div>
+    </div>
+  `;
+  if (els.playerReplaceBtn) els.playerReplaceBtn.hidden = true;
+  els.playerCardModal.hidden = false;
+  openPlayerReplacePanel();
+}
+
 function closePlayerCardModal() {
   selectedSlotIndex = null;
   selectedPlayerId = null;
   selectedPlayerMode = "starter";
+  closePlayerReplacePanel();
   if (els.playerCardModal) els.playerCardModal.hidden = true;
-  if (els.playerDeleteBtn) els.playerDeleteBtn.hidden = true;
+  if (els.playerReplaceBtn) els.playerReplaceBtn.hidden = true;
+  if (els.playerRemoveSuccessorBtn) els.playerRemoveSuccessorBtn.hidden = true;
 }
 
-async function removeSelectedPlayerFromTeam() {
+function closePlayerReplacePanel() {
+  replacementPlayerId = null;
+  if (els.playerReplacePanel) els.playerReplacePanel.hidden = true;
+  if (els.playerReplaceSearch) els.playerReplaceSearch.value = "";
+  if (els.playerReplaceResults) els.playerReplaceResults.innerHTML = "";
+  if (els.playerReplaceSeason) els.playerReplaceSeason.innerHTML = "";
+  if (els.playerReplaceSourceWrap) els.playerReplaceSourceWrap.hidden = true;
+  if (els.playerReplaceSourceType) els.playerReplaceSourceType.value = "self";
+  if (els.playerReplaceSourceInput) els.playerReplaceSourceInput.value = "";
+  syncPlayerReplaceSourceInput();
+  if (els.playerReplaceApply) els.playerReplaceApply.disabled = true;
+}
+
+function syncPlayerReplaceSourceInput() {
+  if (!els.playerReplaceSourceType || !els.playerReplaceSourceCustomWrap) return;
+  els.playerReplaceSourceCustomWrap.hidden = els.playerReplaceSourceType.value !== "custom";
+}
+
+function playerReplacementScore(player, rawQuery, query) {
+  const idText = String(player?.id || "");
+  const name = toHiragana(player?.name || "");
+  if (idText === rawQuery) return 0;
+  if (name === query) return 1;
+  if (idText.startsWith(rawQuery)) return 2;
+  if (name.startsWith(query)) return 3;
+  if (name.includes(query)) return 4;
+  return 9;
+}
+
+function replacementCandidates(rawQuery) {
+  const raw = String(rawQuery || "").trim();
+  const query = toHiragana(raw);
+  if (!raw || !query) return [];
+  return players
+    .filter((player) => {
+      if (!player || player.retired) return false;
+      const score = playerReplacementScore(player, raw, query);
+      return score < 9;
+    })
+    .sort((a, b) => {
+      const sa = playerReplacementScore(a, raw, query);
+      const sb = playerReplacementScore(b, raw, query);
+      if (sa !== sb) return sa - sb;
+      const nameA = normalizedReplacementSearchText(a);
+      const nameB = normalizedReplacementSearchText(b);
+      if (nameA === nameB) {
+        const ca = replacementCategoryRank(a);
+        const cb = replacementCategoryRank(b);
+        if (ca !== cb) return ca - cb;
+      }
+      return Number(b.id || 0) - Number(a.id || 0);
+    })
+    .slice(0, 12);
+}
+
+function renderPlayerReplaceResults() {
+  if (!els.playerReplaceResults) return;
+  replacementPlayerId = null;
+  if (els.playerReplaceSeason) els.playerReplaceSeason.innerHTML = "";
+  if (els.playerReplaceApply) els.playerReplaceApply.disabled = true;
+  const list = replacementCandidates(els.playerReplaceSearch?.value || "");
+  if (!list.length) {
+    els.playerReplaceResults.innerHTML = `<div class="player-replace-empty">No candidates</div>`;
+    return;
+  }
+  els.playerReplaceResults.innerHTML = list.map((player) => {
+    const pos = (player.position || "-").toUpperCase();
+    const posClass = positionClass(pos);
+    const typeLabel = typeLabelByPlayer(player);
+    const typeClass = typeClassByPlayer(player);
+    return `
+      <button type="button" class="player-replace-option" data-player-id="${player.id}">
+        <span class="player-replace-thumb">
+          <img loading="lazy" src="./images/chara/players/static/${player.id}.gif" alt="${escapeHtml(player.name)}" />
+        </span>
+        <span class="player-replace-meta">
+          <span class="player-replace-name">${escapeHtml(player.name)}</span>
+          <span class="player-replace-sub">
+            <span class="badge pos-badge ${posClass}">${escapeHtml(pos)}</span>
+            <span class="badge type-badge ${typeClass}">${escapeHtml(typeLabel)}</span>
+            ID: ${player.id}
+          </span>
+        </span>
+      </button>
+    `;
+  }).join("");
+}
+
+function selectReplacementPlayer(playerId) {
+  const id = Number(playerId);
+  const player = players.find((p) => Number(p?.id) === id);
+  if (!player || !els.playerReplaceSeason) return;
+  replacementPlayerId = id;
+  const seasons = (Array.isArray(player.periods) ? player.periods : [])
+    .map((p) => p?.season)
+    .filter((s) => typeof s === "string" && s.length > 0);
+  els.playerReplaceSeason.innerHTML = seasons
+    .map((season) => `<option value="${escapeHtml(season)}">${escapeHtml(season)}</option>`)
+    .join("");
+  if (els.playerReplaceResults) {
+    els.playerReplaceResults.querySelectorAll(".player-replace-option").forEach((btn) => {
+      btn.classList.toggle("is-selected", Number(btn.dataset.playerId) === id);
+    });
+  }
+  if (els.playerReplaceApply) els.playerReplaceApply.disabled = !seasons.length;
+}
+
+function openPlayerReplacePanel() {
+  if (!Number.isInteger(selectedSlotIndex) || !els.playerReplacePanel) return;
+  replacementPlayerId = null;
+  els.playerReplacePanel.hidden = false;
+  const isSuccessor = selectedPlayerMode === "successor";
+  if (els.playerReplaceSourceWrap) els.playerReplaceSourceWrap.hidden = !isSuccessor;
+  if (els.playerReplaceSourceType) els.playerReplaceSourceType.value = "self";
+  if (els.playerReplaceSourceInput) els.playerReplaceSourceInput.value = "";
+  syncPlayerReplaceSourceInput();
+  if (els.playerReplaceApply) els.playerReplaceApply.disabled = true;
+  if (els.playerReplaceSearch) {
+    els.playerReplaceSearch.value = "";
+    els.playerReplaceSearch.focus();
+  }
+  if (els.playerReplaceResults) {
+    els.playerReplaceResults.innerHTML = `<div class="player-replace-empty">Search player name or ID</div>`;
+  }
+  if (els.playerReplaceSeason) els.playerReplaceSeason.innerHTML = "";
+}
+
+async function applySelectedPlayerReplacement() {
   if (!Number.isInteger(selectedSlotIndex)) return;
   const idx = selectedSlotIndex;
   const entry = lineup[idx];
-  if (!entry) return;
+  const playerId = Number(replacementPlayerId);
+  const season = String(els.playerReplaceSeason?.value || "").trim();
+  if (!Number.isInteger(playerId) || !season) return;
 
   if (selectedPlayerMode === "successor") {
-    lineup[idx] = { ...entry, successor: null };
+    if (!entry) return;
+    const sourceType = els.playerReplaceSourceType?.value === "custom" ? "custom" : "self";
+    const source = sourceType === "custom"
+      ? String(els.playerReplaceSourceInput?.value || "").trim()
+      : "自チーム";
+    if (!source) return;
+    lineup[idx] = {
+      ...entry,
+      successor: { playerId, season, source },
+    };
   } else {
-    lineup[idx] = null;
+    const currentSuccessor = normalizeSuccessor(entry?.successor);
+    lineup[idx] = { playerId, season, successor: currentSuccessor };
   }
 
+  saveLineupLocal();
+  if (hasCloudConfig()) {
+    try {
+      await saveCloudLineup();
+    } catch (e) {
+      window.alert("クラウド保存に失敗しました。");
+    }
+  }
+  renderLineup();
+  selectedPlayerId = playerId;
+  closePlayerReplacePanel();
+  renderPlayerCardModal();
+}
+
+async function removeSelectedSuccessorFromTeam() {
+  if (!Number.isInteger(selectedSlotIndex)) return;
+  const idx = selectedSlotIndex;
+  const entry = lineup[idx];
+  if (!entry || !entry.successor) return;
+  lineup[idx] = { ...entry, successor: null };
   saveLineupLocal();
   if (hasCloudConfig()) {
     try {
@@ -2009,15 +2237,43 @@ async function init() {
 
   if (els.playerCardBackdrop) els.playerCardBackdrop.addEventListener("click", closePlayerCardModal);
   if (els.playerCardClose) els.playerCardClose.addEventListener("click", closePlayerCardModal);
-  if (els.playerDeleteBtn) {
-    els.playerDeleteBtn.addEventListener("click", async () => {
-      const msg = selectedPlayerMode === "successor"
-        ? "この後継選手を解除します。よろしいですか？"
-        : "この選手をチームから外します。よろしいですか？";
-      const ok = window.confirm(msg);
-      if (!ok) return;
-      await removeSelectedPlayerFromTeam();
+  if (els.playerReplaceBtn) {
+    els.playerReplaceBtn.addEventListener("click", () => {
+      openPlayerReplacePanel();
     });
+  }
+  if (els.playerRemoveSuccessorBtn) {
+    els.playerRemoveSuccessorBtn.addEventListener("click", async () => {
+      const ok = window.confirm("この後継選手を解除します。よろしいですか？");
+      if (!ok) return;
+      await removeSelectedSuccessorFromTeam();
+    });
+  }
+  if (els.playerReplaceSearch) {
+    els.playerReplaceSearch.addEventListener("input", renderPlayerReplaceResults);
+    els.playerReplaceSearch.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return;
+      const first = els.playerReplaceResults?.querySelector(".player-replace-option");
+      if (!first) return;
+      e.preventDefault();
+      selectReplacementPlayer(first.dataset.playerId);
+    });
+  }
+  if (els.playerReplaceSourceType) {
+    els.playerReplaceSourceType.addEventListener("change", syncPlayerReplaceSourceInput);
+  }
+  if (els.playerReplaceResults) {
+    els.playerReplaceResults.addEventListener("click", (e) => {
+      const btn = e.target.closest(".player-replace-option");
+      if (!btn) return;
+      selectReplacementPlayer(btn.dataset.playerId);
+    });
+  }
+  if (els.playerReplaceCancel) {
+    els.playerReplaceCancel.addEventListener("click", closePlayerReplacePanel);
+  }
+  if (els.playerReplaceApply) {
+    els.playerReplaceApply.addEventListener("click", applySelectedPlayerReplacement);
   }
   if (els.playerCardHost) {
     els.playerCardHost.addEventListener("click", (e) => {
