@@ -48,7 +48,6 @@ def parse_args() -> argparse.Namespace:
         help="Repository root used for site JSON update.",
     )
     p.add_argument("--out-app-dir", default="", help="Site app dir. Default: <repo-dir>/app")
-    p.add_argument("--out-docs-dir", default="", help="Site docs dir. Default: <repo-dir>/docs")
     return p.parse_args()
 
 
@@ -472,7 +471,7 @@ def cleanup_wsm_files(directory: Path, keep: int) -> list[Path]:
     return removed
 
 
-def update_site_json(repo_dir: Path, master_db: Path, season: int, out_app_dir: Path, out_docs_dir: Path) -> None:
+def update_site_json(repo_dir: Path, master_db: Path, season: int, out_app_dir: Path) -> None:
     cmd = [
         "python3",
         str(repo_dir / "scripts" / "update_site_from_master_db.py"),
@@ -480,8 +479,6 @@ def update_site_json(repo_dir: Path, master_db: Path, season: int, out_app_dir: 
         str(master_db),
         "--out-app-dir",
         str(out_app_dir),
-        "--out-docs-dir",
-        str(out_docs_dir),
         "--require-best-team-season",
         str(season),
     ]
@@ -497,7 +494,6 @@ def main() -> int:
     desktop_dir = Path(args.desktop_dir).expanduser().resolve()
     repo_dir = Path(args.repo_dir).expanduser().resolve()
     out_app_dir = Path(args.out_app_dir).expanduser().resolve() if args.out_app_dir else repo_dir / "app"
-    out_docs_dir = Path(args.out_docs_dir).expanduser().resolve() if args.out_docs_dir else repo_dir / "docs"
     source = Path(args.source_wsm).expanduser().resolve() if args.source_wsm else latest_wsm(local_dir)
     out_db = Path(args.out_db).expanduser().resolve() if args.out_db else default_out_path(local_dir).resolve()
     season = args.season or latest_season_in_json(json_root)
@@ -531,7 +527,7 @@ def main() -> int:
         removed_desktop = cleanup_wsm_files(desktop_dir, args.keep_desktop)
 
     if not args.skip_site_update:
-        update_site_json(repo_dir, out_db, season, out_app_dir, out_docs_dir)
+        update_site_json(repo_dir, out_db, season, out_app_dir)
 
     print(f"[DONE] source_wsm={source}")
     print(f"[DONE] out_wsm={out_db}")

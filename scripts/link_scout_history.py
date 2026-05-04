@@ -13,7 +13,6 @@ ZIP_DIR = Path('/Users/k.nishimura/work/coding/wsc_data/UpdateFile_p40_322')
 FILLED_CSV = Path('/Users/k.nishimura/work/coding/wsc_data/UpdateFile_inventory/updatefile_ss_events_filled.csv')
 
 APP_DATA = ROOT / 'app' / 'data.json'
-DOCS_DATA = ROOT / 'docs' / 'data.json'
 
 ZIP_RE = re.compile(r'p(\d+)\.zip$')
 
@@ -203,12 +202,10 @@ def main() -> None:
 
     scouts, history = build_scouts()
     app_changed, app_linked = update_data_json(APP_DATA, scouts, history, now_iso)
-    docs_changed, docs_linked = update_data_json(DOCS_DATA, scouts, history, now_iso)
 
     print(f'scout events: {len(scouts)}')
     print(f'players with scout history: {len(history)}')
     print(f'app: linked={app_linked} changed_to_ss={app_changed}')
-    print(f'docs: linked={docs_linked} changed_to_ss={docs_changed}')
     print(f'generatedAt: {now_iso}')
 
 

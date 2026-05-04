@@ -4,7 +4,6 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import shutil
 import subprocess
 from pathlib import Path
 
@@ -40,10 +39,6 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--out-app-dir",
         default=str(Path.cwd() / "app"),
-    )
-    p.add_argument(
-        "--out-docs-dir",
-        default=str(Path.cwd() / "docs"),
     )
     p.add_argument(
         "--fallback-legacy",
@@ -86,7 +81,6 @@ def main() -> int:
     args = parse_args()
     repo = Path(__file__).resolve().parent.parent
     out_app_dir = Path(args.out_app_dir).expanduser().resolve()
-    out_docs_dir = Path(args.out_docs_dir).expanduser().resolve()
 
     if args.fallback_legacy:
         legacy_cmd = [
@@ -100,8 +94,6 @@ def main() -> int:
             args.base_csv_dir,
             "--out-app",
             str(out_app_dir / "formations_data.json"),
-            "--out-docs",
-            str(out_docs_dir / "formations_data.json"),
         ]
         if args.verbose:
             legacy_cmd.append("--verbose")
@@ -127,8 +119,6 @@ def main() -> int:
             str(out_app_dir / "coaches_data.json"),
             "--out-app-dir",
             str(out_app_dir),
-            "--out-docs-dir",
-            str(out_docs_dir),
         ]
     )
 
@@ -143,12 +133,9 @@ def main() -> int:
         ]
     )
 
-    out_docs_dir.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(out_app_dir / "formations_data.json", out_docs_dir / "formations_data.json")
     if args.require_best_team_season:
         count = validate_best_team_season(out_app_dir / "formations_data.json", args.require_best_team_season)
         print(f"[DONE] verified Top Teams season {args.require_best_team_season}: {count} entries")
-    print(f"[DONE] synced formations_data.json to {out_docs_dir / 'formations_data.json'}")
     print("[DONE] master-db flow completed.")
     return 0
 

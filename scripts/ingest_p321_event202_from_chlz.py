@@ -98,7 +98,6 @@ def parse_ss_event(p321_zip: Path, event_id: int) -> dict:
 
 def copy_new_player_images(p321_zip: Path, ids: list[int], site_root: Path) -> None:
     app_root = site_root / "app"
-    docs_root = site_root / "docs"
     with zipfile.ZipFile(p321_zip, "r") as zf:
         zset = set(zf.namelist())
         for pid in ids:
@@ -107,10 +106,9 @@ def copy_new_player_images(p321_zip: Path, ids: list[int], site_root: Path) -> N
                 if src not in zset:
                     continue
                 data = zf.read(src)
-                for root in (app_root, docs_root):
-                    out = root / "images" / "chara" / "players" / kind / f"{pid}.gif"
-                    out.parent.mkdir(parents=True, exist_ok=True)
-                    out.write_bytes(data)
+                out = app_root / "images" / "chara" / "players" / kind / f"{pid}.gif"
+                out.parent.mkdir(parents=True, exist_ok=True)
+                out.write_bytes(data)
 
 
 def main() -> int:

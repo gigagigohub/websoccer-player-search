@@ -86,10 +86,6 @@ def parse_args() -> argparse.Namespace:
         "--out-app-dir",
         default=str(Path.cwd() / "app"),
     )
-    p.add_argument(
-        "--out-docs-dir",
-        default=str(Path.cwd() / "docs"),
-    )
     return p.parse_args()
 
 
@@ -683,9 +679,8 @@ def main() -> int:
     fallback_coaches = load_fallback_coaches(Path(args.fallback_coaches_json).expanduser().resolve())
 
     out_app_dir = Path(args.out_app_dir).expanduser().resolve()
-    out_docs_dir = Path(args.out_docs_dir).expanduser().resolve()
-    image_available_player_ids = collect_player_image_ids(out_app_dir, out_docs_dir)
-    scout_button_event_ids = collect_scout_button_event_ids(out_app_dir, out_docs_dir)
+    image_available_player_ids = collect_player_image_ids(out_app_dir)
+    scout_button_event_ids = collect_scout_button_event_ids(out_app_dir)
 
     conn = sqlite3.connect(str(master_db))
     conn.row_factory = sqlite3.Row
@@ -715,19 +710,13 @@ def main() -> int:
     }
 
     app_data = out_app_dir / "data.json"
-    docs_data = out_docs_dir / "data.json"
     app_coaches = out_app_dir / "coaches_data.json"
-    docs_coaches = out_docs_dir / "coaches_data.json"
 
     write_json(app_data, data_obj)
-    write_json(docs_data, data_obj)
     write_json(app_coaches, coaches_obj)
-    write_json(docs_coaches, coaches_obj)
 
     print(f"wrote {app_data}")
-    print(f"wrote {docs_data}")
     print(f"wrote {app_coaches}")
-    print(f"wrote {docs_coaches}")
     print(
         f"players={len(players)} scouts={len(scouts)} cmEvents={len(cm_events)} coaches={len(coaches)} generatedAt={generated_at}"
     )

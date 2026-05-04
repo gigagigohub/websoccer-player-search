@@ -11,7 +11,6 @@ ROOT = Path('/Users/k.nishimura/work/coding/websoccer-player-search')
 ZIP_DIR = Path('/Users/k.nishimura/work/coding/wsc_data/UpdateFile_p40_322')
 
 APP_DATA = ROOT / 'app' / 'data.json'
-DOCS_DATA = ROOT / 'docs' / 'data.json'
 
 ZIP_RE = re.compile(r'p(\d+)\.zip$')
 CM_PLISTS = [
@@ -213,12 +212,10 @@ def main() -> None:
 
     cm_events, cm_history = _build_cm_data()
     app_linked, app_to_cm, app_to_cmss = _update_data_json(APP_DATA, cm_events, cm_history, now_iso)
-    docs_linked, docs_to_cm, docs_to_cmss = _update_data_json(DOCS_DATA, cm_events, cm_history, now_iso)
 
     print(f'cm events: {len(cm_events)}')
     print(f'players with cm history: {len(cm_history)}')
     print(f'app: linked={app_linked} changed_to_cm={app_to_cm} changed_to_cmss={app_to_cmss}')
-    print(f'docs: linked={docs_linked} changed_to_cm={docs_to_cm} changed_to_cmss={docs_to_cmss}')
     print(f'generatedAt: {now_iso}')
 
 

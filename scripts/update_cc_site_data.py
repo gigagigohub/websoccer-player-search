@@ -2,14 +2,13 @@
 from __future__ import annotations
 
 import argparse
-import shutil
 import subprocess
 from pathlib import Path
 
 
 def parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser(
-        description="Incremental CC ingest (SQLite) + formations_data.json generation + docs sync."
+        description="Incremental CC ingest (SQLite) + app/formations_data.json generation."
     )
     ap.add_argument(
         "--json-root",
@@ -30,11 +29,6 @@ def parse_args() -> argparse.Namespace:
         "--out-app",
         default="/Users/k.nishimura/work/coding/websoccer-player-search/app/formations_data.json",
         help="Output app formations_data.json",
-    )
-    ap.add_argument(
-        "--out-docs",
-        default="/Users/k.nishimura/work/coding/websoccer-player-search/docs/formations_data.json",
-        help="Output docs formations_data.json",
     )
     ap.add_argument("--verbose", action="store_true", help="Verbose ingest progress")
     return ap.parse_args()
@@ -74,14 +68,9 @@ def main() -> int:
         ]
     )
 
-    out_app = Path(args.out_app).resolve()
-    out_docs = Path(args.out_docs).resolve()
-    out_docs.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(out_app, out_docs)
-    print(f"[DONE] synced docs formations data: {out_docs}")
+    print(f"[DONE] wrote app formations data: {Path(args.out_app).resolve()}")
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

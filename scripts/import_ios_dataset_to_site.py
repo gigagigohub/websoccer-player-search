@@ -253,11 +253,10 @@ def convert_players(input_players: list, nation_lookup: dict):
 
 
 def main():
-    ap = argparse.ArgumentParser(description='Import iOS source data/images into site app/docs')
+    ap = argparse.ArgumentParser(description='Import iOS source data/images into site app')
     ap.add_argument('--input-json', default='app/prepared/players_ios_source_categorized_lifecycle.json')
     ap.add_argument('--resources-zip', required=True)
     ap.add_argument('--app-dir', default='app')
-    ap.add_argument('--docs-dir', default='docs')
     ap.add_argument('--sqlite-path', default='')
     args = ap.parse_args()
 
@@ -276,25 +275,17 @@ def main():
     }
 
     app_data_path = os.path.join(args.app_dir, 'data.json')
-    docs_data_path = os.path.join(args.docs_dir, 'data.json')
 
     with open(app_data_path, 'w', encoding='utf-8') as f:
-        json.dump(out_data, f, ensure_ascii=False)
-    with open(docs_data_path, 'w', encoding='utf-8') as f:
         json.dump(out_data, f, ensure_ascii=False)
 
     app_static = os.path.join(args.app_dir, 'images/chara/players/static')
     app_action = os.path.join(args.app_dir, 'images/chara/players/action')
-    docs_static = os.path.join(args.docs_dir, 'images/chara/players/static')
-    docs_action = os.path.join(args.docs_dir, 'images/chara/players/action')
 
     app_counts = extract_images(args.resources_zip, app_static, app_action)
-    docs_counts = extract_images(args.resources_zip, docs_static, docs_action)
 
     print('Wrote', app_data_path)
-    print('Wrote', docs_data_path)
     print('App images static/action', app_counts)
-    print('Docs images static/action', docs_counts)
     print('Players', len(players), 'generatedAt', now)
 
 
