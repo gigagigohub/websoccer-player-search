@@ -931,19 +931,25 @@ def load_model_slots(path, page_dir=None, master_db_path=None, ocr_dir=None, ove
             if body_entry:
                 player_id = body_entry["playerId"]
                 is_linked = True
+        linked_entry = None
+        if is_linked:
+            linked_entry = body_entry or model_entry_by_player_id.get(player_id)
+            if not linked_entry:
+                linked_entry = model_entry_by_name.get(normalize_match_text(row.get("best_model_name")))
         rows.append({
             "formationId": fid,
             "slot": slot,
             "sourceName": source_name,
-            "modelName": (body_entry["modelName"] if body_entry else row.get("best_model_name")) if is_linked else "",
+            "personId": linked_entry["personId"] if linked_entry else 0,
+            "modelName": (linked_entry["modelName"] if linked_entry else row.get("best_model_name")) if is_linked else "",
             "playerId": player_id if is_linked else 0,
             "isLinked": is_linked,
             "linkSource": link_source if body_entry else ("ocr" if is_linked else ""),
-            "playerName": (body_entry["playerName"] if body_entry else row.get("best_game_name")) if is_linked else "",
-            "playerFullName": (body_entry["playerFullName"] if body_entry else row.get("best_fullname")) if is_linked else "",
-            "nation": (body_entry["nation"] if body_entry else row.get("best_nation")) if is_linked else "",
-            "category": (body_entry["category"] if body_entry else row.get("best_category")) if is_linked else "",
-            "playType": (body_entry["playType"] if body_entry else row.get("best_play_type")) if is_linked else "",
+            "playerName": (linked_entry["playerName"] if linked_entry else row.get("best_game_name")) if is_linked else "",
+            "playerFullName": (linked_entry["playerFullName"] if linked_entry else row.get("best_fullname")) if is_linked else "",
+            "nation": (linked_entry["nation"] if linked_entry else row.get("best_nation")) if is_linked else "",
+            "category": (linked_entry["category"] if linked_entry else row.get("best_category")) if is_linked else "",
+            "playType": (linked_entry["playType"] if linked_entry else row.get("best_play_type")) if is_linked else "",
             "sourceTitle": row.get("source_title") or "",
             "sourceUrl": row.get("source_url") or "",
             "confidence": confidence,
@@ -1009,6 +1015,7 @@ def load_model_slots(path, page_dir=None, master_db_path=None, ocr_dir=None, ove
                     "formationId": fid,
                     "slot": slot,
                     "sourceName": chunk["sourceName"],
+                    "personId": entry["personId"],
                     "modelName": entry["modelName"],
                     "playerId": entry["playerId"],
                     "isLinked": True,
@@ -1054,6 +1061,7 @@ def load_model_slots(path, page_dir=None, master_db_path=None, ocr_dir=None, ove
                     "formationId": fid,
                     "slot": slot,
                     "sourceName": mention["sentence"][:48],
+                    "personId": entry["personId"],
                     "modelName": entry["modelName"],
                     "playerId": entry["playerId"],
                     "isLinked": True,
@@ -1088,12 +1096,11 @@ def load_model_slots(path, page_dir=None, master_db_path=None, ocr_dir=None, ove
             meta = metadata_by_group.get((fid, slug), {})
             person_id = to_int(override.get("person_id") or override.get("manual_person_id"))
             entry = model_entry_by_person_id.get(person_id) if person_id else None
-            if not entry:
-                entry = model_entry_by_name.get(normalize_match_text(model_name))
             rows_by_key[(fid, slot)] = {
                 "formationId": fid,
                 "slot": slot,
                 "sourceName": str(override.get("source_name") or model_name).strip(),
+                "personId": entry["personId"] if entry else person_id,
                 "modelName": entry["modelName"] if entry else model_name,
                 "playerId": entry["playerId"] if entry else 0,
                 "isLinked": bool(entry),
@@ -1129,6 +1136,7 @@ def load_model_slots(path, page_dir=None, master_db_path=None, ocr_dir=None, ove
                 or override.get("model_name")
                 or entry["modelName"]
             ).strip(),
+            "personId": entry["personId"],
             "modelName": entry["modelName"],
             "playerId": entry["playerId"],
             "isLinked": True,
@@ -1167,6 +1175,7 @@ def load_model_slots(path, page_dir=None, master_db_path=None, ocr_dir=None, ove
             if key == keep_key:
                 continue
             row["isLinked"] = False
+            row["personId"] = 0
             row["playerId"] = 0
             row["modelName"] = ""
             row["playerName"] = ""
