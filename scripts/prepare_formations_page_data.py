@@ -1486,6 +1486,17 @@ def build_data(src):
     team_rows = src["team_level"]
     player_rows = src["player_level"]
     goal_rows = src.get("goal_level", [])
+    match_keys = {
+        (to_int(row.get("season")), to_int(row.get("world_id")), to_int(row.get("match_id")))
+        for row in match_rows
+        if to_int(row.get("season")) > 0 and to_int(row.get("world_id")) > 0 and to_int(row.get("match_id")) > 0
+    }
+    cc_seasons = sorted({key[0] for key in match_keys})
+    cc_data_meta = {
+        "seasonStart": cc_seasons[0] if cc_seasons else None,
+        "seasonEnd": cc_seasons[-1] if cc_seasons else None,
+        "games": len(match_keys),
+    }
     model_slot_rows = src.get("model_slots", [])
 
     formation_by_id = {}
@@ -2193,10 +2204,14 @@ def build_data(src):
                 "ccTeamRows": len(team_rows),
                 "ccPlayerRows": len(player_rows),
                 "ccGoalRows": len(goal_rows),
+                "ccSeasonStart": cc_data_meta["seasonStart"],
+                "ccSeasonEnd": cc_data_meta["seasonEnd"],
+                "ccGames": cc_data_meta["games"],
                 "formationCount": len(formations),
                 "coachCount": len(coaches),
                 "totalTeamRowsForUsage": total_team_rows,
-            }
+            },
+            "ccData": cc_data_meta,
         },
         "formations": formations,
         "coaches": coaches,

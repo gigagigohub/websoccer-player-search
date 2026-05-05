@@ -67,6 +67,14 @@ def main() -> int:
             args.out_app,
         ]
     )
+    run(
+        [
+            "python3",
+            str(repo / "scripts" / "write_site_meta.py"),
+            "--app-dir",
+            str(Path(args.out_app).expanduser().resolve().parent),
+        ]
+    )
 
     print(f"[DONE] wrote app formations data: {Path(args.out_app).resolve()}")
     return 0

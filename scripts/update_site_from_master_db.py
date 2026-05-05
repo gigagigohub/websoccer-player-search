@@ -132,6 +132,14 @@ def main() -> int:
             str(out_app_dir / "formations_data.json"),
         ]
     )
+    run(
+        [
+            "python3",
+            str(repo / "scripts" / "write_site_meta.py"),
+            "--app-dir",
+            str(out_app_dir),
+        ]
+    )
 
     if args.require_best_team_season:
         count = validate_best_team_season(out_app_dir / "formations_data.json", args.require_best_team_season)

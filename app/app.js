@@ -46,6 +46,7 @@ const APP_UPDATED_AT_ISO = "2026-03-26T21:53:00+09:00";
 const APP_UPDATED_AT_JST = "2026-03-30 23:10 JST";
 const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-player-search/commits/main";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
+let ccDataMeta = null;
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -314,7 +315,27 @@ function isLoggedIn() {
 
 function renderHeaderMeta() {
   if (!els.metaText) return;
-  els.metaText.innerHTML = `Updated: ${appUpdatedAtJst}`;
+  const ccLine = ccDataMeta
+    ? `<span class="meta-line">CC Data: ${ccDataMeta.seasonStart}-${ccDataMeta.seasonEnd} (${ccDataMeta.games} games)</span>`
+    : "";
+  els.metaText.innerHTML = `<span class="meta-line">Updated: ${appUpdatedAtJst}</span>${ccLine}`;
+}
+
+async function loadSiteMeta() {
+  try {
+    const res = await fetch("./site_meta.json");
+    if (!res.ok) return;
+    const meta = await res.json();
+    const cc = meta?.ccData || {};
+    const seasonStart = Number(cc.seasonStart);
+    const seasonEnd = Number(cc.seasonEnd);
+    const games = Number(cc.games);
+    if (Number.isInteger(seasonStart) && Number.isInteger(seasonEnd) && Number.isInteger(games)) {
+      ccDataMeta = { seasonStart, seasonEnd, games };
+    }
+  } catch (e) {
+    // Keep the header compact when metadata is unavailable.
+  }
 }
 
 function syncMenuButtonSize() {
@@ -2574,7 +2595,10 @@ async function init() {
     }
   });
 
-  const res = await fetch("./data.json");
+  const [res] = await Promise.all([
+    fetch("./data.json"),
+    loadSiteMeta(),
+  ]);
   const data = await res.json();
   players = data.players || [];
   syncProfileSideWidthFromPlayers(players);

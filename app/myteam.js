@@ -35,6 +35,7 @@ const DETAIL_METRIC_LABELS = {
 };
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 let updatedAtFetchStarted = false;
+let ccDataMeta = null;
 
 const els = {
   hero: document.querySelector(".hero"),
@@ -733,7 +734,10 @@ async function applySignupFromModal() {
 function renderMyTeamMeta() {
   if (!els.myTeamMeta) return;
   const loggedIn = hasCloudConfig();
-  els.myTeamMeta.innerHTML = `Updated: ${appUpdatedAtJst}`;
+  const ccLine = ccDataMeta
+    ? `<span class="meta-line">CC Data: ${ccDataMeta.seasonStart}-${ccDataMeta.seasonEnd} (${ccDataMeta.games} games)</span>`
+    : "";
+  els.myTeamMeta.innerHTML = `<span class="meta-line">Updated: ${appUpdatedAtJst}</span>${ccLine}`;
   if (els.myteamLoginButton) els.myteamLoginButton.hidden = loggedIn;
   if (els.myteamLogoutButton) els.myteamLogoutButton.hidden = !loggedIn;
   if (els.myteamMenuLoginId) {
@@ -775,12 +779,32 @@ async function refreshUpdatedAtFromGitHub() {
     appUpdatedAtJst = label;
     if (els.myTeamMeta) {
       const loggedIn = hasCloudConfig();
-      els.myTeamMeta.innerHTML = `Updated: ${appUpdatedAtJst}`;
+      const ccLine = ccDataMeta
+        ? `<span class="meta-line">CC Data: ${ccDataMeta.seasonStart}-${ccDataMeta.seasonEnd} (${ccDataMeta.games} games)</span>`
+        : "";
+      els.myTeamMeta.innerHTML = `<span class="meta-line">Updated: ${appUpdatedAtJst}</span>${ccLine}`;
       if (els.myteamLoginButton) els.myteamLoginButton.hidden = loggedIn;
       if (els.myteamLogoutButton) els.myteamLogoutButton.hidden = !loggedIn;
     }
   } catch (e) {
     // fallback static label
+  }
+}
+
+async function loadSiteMeta() {
+  try {
+    const res = await fetch("./site_meta.json");
+    if (!res.ok) return;
+    const meta = await res.json();
+    const cc = meta?.ccData || {};
+    const seasonStart = Number(cc.seasonStart);
+    const seasonEnd = Number(cc.seasonEnd);
+    const games = Number(cc.games);
+    if (Number.isInteger(seasonStart) && Number.isInteger(seasonEnd) && Number.isInteger(games)) {
+      ccDataMeta = { seasonStart, seasonEnd, games };
+    }
+  } catch (e) {
+    // fallback static header
   }
 }
 
@@ -2413,6 +2437,7 @@ async function init() {
     fetch("./data.json"),
     fetch("./formations_data.json").catch(() => null),
     fetch("./coaches_data.json").catch(() => null),
+    loadSiteMeta(),
   ]);
   const data = await dataRes.json();
   players = data.players || [];

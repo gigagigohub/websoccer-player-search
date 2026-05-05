@@ -6,6 +6,7 @@ const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOi
 const APP_UPDATED_AT_JST = "2026-03-30 23:10 JST";
 const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-player-search/commits/main";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
+let ccDataMeta = null;
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織",
@@ -280,7 +281,27 @@ function isLoggedIn() {
 
 function renderMeta() {
   if (!els.metaText) return;
-  els.metaText.innerHTML = `Updated: ${appUpdatedAtJst}`;
+  const ccLine = ccDataMeta
+    ? `<span class="meta-line">CC Data: ${ccDataMeta.seasonStart}-${ccDataMeta.seasonEnd} (${ccDataMeta.games} games)</span>`
+    : "";
+  els.metaText.innerHTML = `<span class="meta-line">Updated: ${appUpdatedAtJst}</span>${ccLine}`;
+}
+
+async function loadSiteMeta() {
+  try {
+    const res = await fetch("./site_meta.json");
+    if (!res.ok) return;
+    const meta = await res.json();
+    const cc = meta?.ccData || {};
+    const seasonStart = Number(cc.seasonStart);
+    const seasonEnd = Number(cc.seasonEnd);
+    const games = Number(cc.games);
+    if (Number.isInteger(seasonStart) && Number.isInteger(seasonEnd) && Number.isInteger(games)) {
+      ccDataMeta = { seasonStart, seasonEnd, games };
+    }
+  } catch (e) {
+    // fallback static header
+  }
 }
 
 function formatJstFromIso(iso) {
@@ -2219,6 +2240,7 @@ async function init() {
     fetch("./formations_data.json"),
     fetch("./data.json").catch(() => null),
     fetch("./coaches_data.json").catch(() => null),
+    loadSiteMeta(),
   ]);
   const formationData = await formationsRes.json();
   formations = Array.isArray(formationData.formations) ? formationData.formations : [];
