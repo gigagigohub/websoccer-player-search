@@ -735,7 +735,7 @@ function renderMyTeamMeta() {
   if (!els.myTeamMeta) return;
   const loggedIn = hasCloudConfig();
   const ccLine = ccDataMeta
-    ? `<span class="meta-line">CC Data: ${ccDataMeta.seasonStart}-${ccDataMeta.seasonEnd} (${ccDataMeta.games} games)</span>`
+    ? `<span class="meta-line">CC Data: ${ccDataMeta.seasonStart}-${ccDataMeta.seasonEnd} / ${ccDataMeta.games} games</span>`
     : "";
   els.myTeamMeta.innerHTML = `<span class="meta-line">Updated: ${appUpdatedAtJst}</span>${ccLine}`;
   if (els.myteamLoginButton) els.myteamLoginButton.hidden = loggedIn;
@@ -780,7 +780,7 @@ async function refreshUpdatedAtFromGitHub() {
     if (els.myTeamMeta) {
       const loggedIn = hasCloudConfig();
       const ccLine = ccDataMeta
-        ? `<span class="meta-line">CC Data: ${ccDataMeta.seasonStart}-${ccDataMeta.seasonEnd} (${ccDataMeta.games} games)</span>`
+        ? `<span class="meta-line">CC Data: ${ccDataMeta.seasonStart}-${ccDataMeta.seasonEnd} / ${ccDataMeta.games} games</span>`
         : "";
       els.myTeamMeta.innerHTML = `<span class="meta-line">Updated: ${appUpdatedAtJst}</span>${ccLine}`;
       if (els.myteamLoginButton) els.myteamLoginButton.hidden = loggedIn;
