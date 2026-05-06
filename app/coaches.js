@@ -558,7 +558,6 @@ function coachCardHtml(coach) {
           <span class="badge pos-badge hc-badge">HC</span>
           <span>${coach.name}</span>
         </h3>
-        <button type="button" class="lineup-toggle coach-add-btn" data-coach-id="${coach.id}" aria-label="監督登録">Add</button>
       </div>
       <div class="coach-card-body">
         <div class="coach-images-btn">

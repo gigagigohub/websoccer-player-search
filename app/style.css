@@ -326,7 +326,7 @@ body.modal-scroll-lock .hero {
   height: 88px;
   object-fit: contain;
   object-position: center bottom;
-  transform: translateY(31px);
+  transform: translateY(22px);
 }
 
 .coach-replace-thumb img {

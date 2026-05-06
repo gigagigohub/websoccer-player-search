@@ -1915,7 +1915,6 @@ function cardHtml(player) {
       <div class="card-top">
         ${cardTabsHtml(player.id, viewMode)}
         ${showScoutButton ? `<button type="button" class="scout-list-toggle" data-player-id="${player.id}" aria-label="履歴" ${hasAnyListHistory ? "" : "disabled"}>List</button>` : ""}
-        <button type="button" class="lineup-toggle" data-player-id="${player.id}" aria-label="スタメン登録">Add</button>
         <span class="card-id">ID: ${player.id}</span>
         <div class="card-head-main">
           <h3 class="card-name">
