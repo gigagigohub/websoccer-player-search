@@ -559,10 +559,7 @@ function closeMenuPanel() {
 
 function syncMenuButtonSize() {
   if (!els.myteamMenuButton) return;
-  const heroEl = els.hero || els.myteamMenuButton.closest(".hero");
-  const heroHeight = heroEl ? Math.round(heroEl.getBoundingClientRect().height) : 40;
-  const size = Math.max(30, Math.round(heroHeight * 0.72));
-  document.documentElement.style.setProperty("--menu-button-size", `${size}px`);
+  document.documentElement.style.setProperty("--menu-button-size", "40px");
 }
 
 function openMyteamSettingModal() {

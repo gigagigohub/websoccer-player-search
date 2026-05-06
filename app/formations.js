@@ -368,10 +368,11 @@ async function refreshUpdatedAtFromGitHub() {
 
 function syncMenuButtonSize() {
   if (!els.menuButton) return;
+  document.documentElement.style.setProperty("--menu-button-size", "40px");
   const heroEl = els.hero || els.menuButton.closest(".hero");
-  const heroHeight = heroEl ? Math.round(heroEl.getBoundingClientRect().height) : 40;
-  const size = Math.max(30, Math.round(heroHeight * 0.72));
-  document.documentElement.style.setProperty("--menu-button-size", `${size}px`);
+  if (!heroEl || getComputedStyle(heroEl).display === "none") return;
+  const heroHeight = Math.round(heroEl.getBoundingClientRect().height);
+  if (heroHeight <= 0) return;
   document.documentElement.style.setProperty("--sticky-header-space", `${heroHeight + 10}px`);
 }
 

@@ -8,6 +8,7 @@
   --brand-soft: #1b2436;
   --danger: #c24a64;
   --profile-side-width: 168px;
+  --menu-button-size: 40px;
   --sticky-header-space: 86px;
   --header-action-right: max(8px, calc((100vw - 980px) / 2 + 22px));
 }
