@@ -5,7 +5,7 @@ const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
 const APP_UPDATED_AT_JST = "2026-03-30 23:10 JST";
 const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-player-search/commits/main";
-const ROHM_SLOT_DATA_URL = "./rohm_slot_data.json?v=20260506-rohm-slot2";
+const ROHM_SLOT_DATA_URL = "./rohm_slot_data.json?v=20260506-rohm-slot3";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 let ccDataMeta = null;
 const METRICS = [
@@ -977,14 +977,23 @@ function renderSlotTop(slotStats, mode = "usage") {
 
 function rohmCategoryClass(category) {
   const c = String(category || "");
-  if (c === "無") return "cat-rohm-none";
-  if (c === "銅") return "cat-rohm-bronze";
-  if (c === "銀") return "cat-rohm-silver";
-  if (c === "金") return "cat-rohm-gold";
+  if (c === "無" || c === "引退(無)") return "cat-nr-r13";
+  if (c === "銅" || c === "引退(銅)" || c === "CP銅") return "cat-nr-r4";
+  if (c === "銀" || c === "引退(銀)" || c === "CP銀") return "cat-nr-r56";
+  if (c === "金" || c === "引退(金)" || c === "CP金") return "cat-nr-r7";
   if (c === "PS") return "cat-ss";
   if (c === "CM") return "cat-cm";
   if (c === "CC") return "cat-cc";
   return "cat-rohm-other";
+}
+
+function rohmCategoryLabel(category) {
+  const c = String(category || "-");
+  if (c === "PS") return "SS";
+  if (c === "無" || c === "銅" || c === "銀" || c === "金") return "NR";
+  if (/^引退\((無|銅|銀|金)\)$/.test(c)) return "NR";
+  if (/^CP(銅|銀|金)$/.test(c)) return "CP";
+  return c.length > 2 ? c.slice(0, 2) : c;
 }
 
 function rohmCategoryBadgeHtml(row) {
@@ -993,8 +1002,7 @@ function rohmCategoryBadgeHtml(row) {
     return categoryBadgeHtmlByPlayerId(playerId);
   }
   const category = String(row?.rohmCategory || "-");
-  const label = category === "PS" ? "SS" : category;
-  return `<span class="badge type-badge rohm-category-badge ${rohmCategoryClass(category)}">${escapeHtml(label)}</span>`;
+  return `<span class="badge type-badge rohm-category-badge ${rohmCategoryClass(category)}">${escapeHtml(rohmCategoryLabel(category))}</span>`;
 }
 
 function getRohmSlotData(formation, slot) {
@@ -2029,15 +2037,7 @@ function renderRohmSlotDetail(slot) {
   if (!rows.length) {
     return `<p class="dim">No Rohm slot data.</p>`;
   }
-  const sourceLine = `
-    <p class="slot-detail-source-note">
-      Rohm: ${escapeHtml(rohm?.title || "")}
-      ${rohm?.updatedAt ? `<span>Updated ${escapeHtml(rohm.updatedAt)}</span>` : ""}
-      ${rohm?.url ? `<a href="${rohm.url}" target="_blank" rel="noopener">Source</a>` : ""}
-    </p>
-  `;
   return `
-    ${sourceLine}
     <div class="slot-table-wrap">
       <table class="slot-table rohm-slot-table">
         <thead>
@@ -2049,11 +2049,10 @@ function renderRohmSlotDetail(slot) {
               const playerId = Number(r?.localPlayerId || 0);
               const isLinked = Number.isInteger(playerId) && playerId > 0;
               const playerName = isLinked ? (playersById.get(playerId)?.name || r.playerName) : r.playerName;
-              const note = isLinked ? "" : `<span class="rohm-unlinked-note">No linked</span>`;
               return `
                 <tr class="${isLinked ? "slot-player-row" : "rohm-unlinked-row"}" ${isLinked ? `data-player-id="${playerId}"` : ""}>
                   <td>${idx + 1}</td>
-                  <td>${escapeHtml(playerName)}${note}</td>
+                  <td>${escapeHtml(playerName)}</td>
                   <td>${rohmCategoryBadgeHtml(r)}</td>
                   <td>${Number(r?.uses || 0).toLocaleString()}</td>
                   <td>${avg(r?.avgPts)}</td>
