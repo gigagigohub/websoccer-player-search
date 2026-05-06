@@ -5,7 +5,7 @@ const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
 const APP_UPDATED_AT_JST = "2026-03-30 23:10 JST";
 const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-player-search/commits/main";
-const ROHM_SLOT_DATA_URL = "./rohm_slot_data.json?v=20260506-rohm-slot3";
+const ROHM_SLOT_DATA_URL = "./rohm_slot_data.json?v=20260506-rohm-slot4";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 let ccDataMeta = null;
 const METRICS = [
@@ -1987,7 +1987,7 @@ function renderSlotDetailSourceSwitch() {
   return `
     <div class="slot-detail-source-switch slot-top-sort-switch" role="group" aria-label="Slot detail source">
       <button type="button" class="slot-top-sort-btn${slotDetailSourceMode === "cc" ? " is-on" : ""}" data-slot-detail-source="cc">CC</button>
-      <button type="button" class="slot-top-sort-btn${slotDetailSourceMode === "rohm" ? " is-on" : ""}" data-slot-detail-source="rohm">Rohm</button>
+      <button type="button" class="slot-top-sort-btn${slotDetailSourceMode === "rohm" ? " is-on" : ""}" data-slot-detail-source="rohm">Rohm (League-A)</button>
     </div>
   `;
 }
@@ -2037,11 +2037,14 @@ function renderRohmSlotDetail(slot) {
   if (!rows.length) {
     return `<p class="dim">No Rohm slot data.</p>`;
   }
+  const statHeaders = slotTopSortMode === "avg"
+    ? "<th>Avg</th><th>Games</th>"
+    : "<th>Games</th><th>Avg</th>";
   return `
     <div class="slot-table-wrap">
       <table class="slot-table rohm-slot-table">
         <thead>
-          <tr><th>#</th><th>Player</th><th>Cat</th><th>Games</th><th>Avg</th><th>Goals</th><th>Ast</th></tr>
+          <tr><th>#</th><th>Player</th><th>Cat</th>${statHeaders}<th>Goals</th><th>Ast</th></tr>
         </thead>
         <tbody>
           ${rows
@@ -2049,13 +2052,15 @@ function renderRohmSlotDetail(slot) {
               const playerId = Number(r?.localPlayerId || 0);
               const isLinked = Number.isInteger(playerId) && playerId > 0;
               const playerName = isLinked ? (playersById.get(playerId)?.name || r.playerName) : r.playerName;
+              const statCells = slotTopSortMode === "avg"
+                ? `<td>${avg(r?.avgPts)}</td><td>${Number(r?.uses || 0).toLocaleString()}</td>`
+                : `<td>${Number(r?.uses || 0).toLocaleString()}</td><td>${avg(r?.avgPts)}</td>`;
               return `
                 <tr class="${isLinked ? "slot-player-row" : "rohm-unlinked-row"}" ${isLinked ? `data-player-id="${playerId}"` : ""}>
                   <td>${idx + 1}</td>
                   <td>${escapeHtml(playerName)}</td>
                   <td>${rohmCategoryBadgeHtml(r)}</td>
-                  <td>${Number(r?.uses || 0).toLocaleString()}</td>
-                  <td>${avg(r?.avgPts)}</td>
+                  ${statCells}
                   <td>${r?.goals == null ? "-" : Number(r.goals).toFixed(2)}</td>
                   <td>${r?.assists == null ? "-" : Number(r.assists).toFixed(2)}</td>
                 </tr>
