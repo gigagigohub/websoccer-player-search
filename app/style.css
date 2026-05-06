@@ -188,7 +188,7 @@ body.myteam-page::before {
   transform: translate(-50%, -50%);
   width: min(980px, calc(100vw - 24px));
   max-height: calc(100vh - 24px);
-  overflow: hidden;
+  overflow: visible;
   padding-top: 0;
 }
 
@@ -201,15 +201,6 @@ body.myteam-page::before {
 #playerCardHost .card {
   margin: 0;
   width: 100%;
-}
-
-.myteam-page .player-card-wrap {
-  overflow: auto;
-}
-
-.myteam-page #playerCardHost {
-  max-height: none;
-  overflow: visible;
 }
 
 .player-card-actions {
@@ -1883,13 +1874,15 @@ button.ghost {
   top: 50%;
   transform: translate(-50%, -50%);
   width: min(920px, calc(100vw - 24px));
-  max-height: calc(100vh - 24px);
-  overflow: auto;
+  max-height: calc(100vh - 40px);
+  overflow: visible;
   border: 1px solid #2f4365;
   border-radius: 12px;
   background: linear-gradient(180deg, #161f31 0%, #10192a 100%);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
   padding: 10px;
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
 }
 
 .lineup-head {
@@ -1928,10 +1921,10 @@ button.ghost {
 }
 
 .lineup-close {
-  width: 34px;
-  height: 30px;
-  border-radius: 8px;
-  padding: 0;
+  position: absolute;
+  top: -11px;
+  right: -7px;
+  z-index: 3;
 }
 
 .lineup-target {
@@ -1949,6 +1942,8 @@ button.ghost {
   display: grid;
   grid-template-columns: 1fr;
   gap: 6px;
+  min-height: 0;
+  overflow: auto;
 }
 
 .myteam-formation-wrap {
@@ -2296,6 +2291,7 @@ button.ghost {
   background: linear-gradient(180deg, #161f31 0%, #10192a 100%);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
   padding: 10px;
+  overflow: visible;
 }
 
 #slotModal .season-dialog {
@@ -2327,10 +2323,36 @@ button.ghost {
 }
 
 .season-close {
+  position: absolute;
+  top: -11px;
+  right: -7px;
+  z-index: 3;
+}
+
+.season-close,
+.lineup-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 34px;
-  height: 30px;
-  border-radius: 8px;
+  height: 34px;
+  border: 1px solid rgba(116, 145, 191, 0.56);
+  border-radius: 50%;
+  background: linear-gradient(180deg, #20395e 0%, #13233d 100%);
+  box-shadow: 0 9px 22px rgba(0, 0, 0, 0.42);
+  color: #f5f8ff;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
   padding: 0;
+  margin: 0;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.48);
+}
+
+.season-close:hover,
+.lineup-close:hover {
+  border-color: rgba(139, 169, 217, 0.72);
+  background: linear-gradient(180deg, #2a4772 0%, #172a49 100%);
 }
 
 .season-target {
@@ -2683,7 +2705,7 @@ button.ghost {
 .formation-dialog {
   width: min(960px, calc(100vw - 24px));
   max-height: calc(100vh - 32px);
-  overflow: auto;
+  overflow: visible;
   border-radius: 12px;
   border: 1px solid var(--line-soft);
   background: #0f1729;
@@ -2694,6 +2716,8 @@ button.ghost {
   top: 50%;
   transform: translate(-50%, -50%);
   z-index: 2;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .formation-dialog .season-head {
@@ -2702,6 +2726,11 @@ button.ghost {
 
 .formation-dialog .season-head h2 {
   font-size: 1.18rem;
+}
+
+.formation-dialog .formation-detail {
+  min-height: 0;
+  overflow: auto;
 }
 
 .formation-detail-grid {
