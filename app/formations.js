@@ -5,6 +5,7 @@ const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
 const APP_UPDATED_AT_JST = "2026-03-30 23:10 JST";
 const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-player-search/commits/main";
+const ROHM_SLOT_DATA_URL = "./rohm_slot_data.json?v=20260506-rohm-slot2";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 let ccDataMeta = null;
 const METRICS = [
@@ -245,6 +246,27 @@ function sortSlotRows(rows, mode) {
     || Number(b?.avgPts || 0) - Number(a?.avgPts || 0)
     || Number(a?.playerId || 0) - Number(b?.playerId || 0)
   );
+  return list;
+}
+
+function sortRohmSlotRows(rows, mode) {
+  const list = Array.isArray(rows) ? rows.slice() : [];
+  if (mode === "usage") {
+    list.sort((a, b) =>
+      Number(b?.uses || 0) - Number(a?.uses || 0)
+      || Number(b?.avgPts || 0) - Number(a?.avgPts || 0)
+      || Number(a?.rank || 0) - Number(b?.rank || 0)
+    );
+    return list;
+  }
+  if (mode === "avg") {
+    list.sort((a, b) =>
+      Number(b?.avgPts || 0) - Number(a?.avgPts || 0)
+      || Number(b?.uses || 0) - Number(a?.uses || 0)
+      || Number(a?.rank || 0) - Number(b?.rank || 0)
+    );
+    return list;
+  }
   return list;
 }
 
@@ -956,9 +978,9 @@ function renderSlotTop(slotStats, mode = "usage") {
 function rohmCategoryClass(category) {
   const c = String(category || "");
   if (c === "無") return "cat-rohm-none";
-  if (c === "銅" || c === "引退(銅)" || c === "CP銅") return "cat-rohm-bronze";
-  if (c === "銀" || c === "引退(銀)" || c === "CP銀") return "cat-rohm-silver";
-  if (c === "金" || c === "引退(金)" || c === "CP金") return "cat-rohm-gold";
+  if (c === "銅") return "cat-rohm-bronze";
+  if (c === "銀") return "cat-rohm-silver";
+  if (c === "金") return "cat-rohm-gold";
   if (c === "PS") return "cat-ss";
   if (c === "CM") return "cat-cm";
   if (c === "CC") return "cat-cc";
@@ -971,7 +993,8 @@ function rohmCategoryBadgeHtml(row) {
     return categoryBadgeHtmlByPlayerId(playerId);
   }
   const category = String(row?.rohmCategory || "-");
-  return `<span class="badge type-badge rohm-category-badge ${rohmCategoryClass(category)}">${escapeHtml(category)}</span>`;
+  const label = category === "PS" ? "SS" : category;
+  return `<span class="badge type-badge rohm-category-badge ${rohmCategoryClass(category)}">${escapeHtml(label)}</span>`;
 }
 
 function getRohmSlotData(formation, slot) {
@@ -984,7 +1007,7 @@ function loadRohmSlotData() {
   if (rohmSlotData) return Promise.resolve(rohmSlotData);
   if (rohmSlotDataPromise) return rohmSlotDataPromise;
   rohmSlotDataError = "";
-  rohmSlotDataPromise = fetch("./rohm_slot_data.json")
+  rohmSlotDataPromise = fetch(ROHM_SLOT_DATA_URL)
     .then((res) => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
@@ -2002,7 +2025,7 @@ function renderRohmSlotDetail(slot) {
     return `<p class="dim">Loading Rohm data...</p>`;
   }
   const rohm = getRohmSlotData(currentFormation, slot);
-  const rows = (rohm?.rows || []).slice(0, 20);
+  const rows = sortRohmSlotRows(rohm?.rows || [], slotTopSortMode).slice(0, 100);
   if (!rows.length) {
     return `<p class="dim">No Rohm slot data.</p>`;
   }
@@ -2018,7 +2041,7 @@ function renderRohmSlotDetail(slot) {
     <div class="slot-table-wrap">
       <table class="slot-table rohm-slot-table">
         <thead>
-          <tr><th>#</th><th>Player</th><th>Cat</th><th>Games</th><th>Avg</th><th>Dev</th><th>Goals</th><th>Ast</th></tr>
+          <tr><th>#</th><th>Player</th><th>Cat</th><th>Games</th><th>Avg</th><th>Goals</th><th>Ast</th></tr>
         </thead>
         <tbody>
           ${rows
@@ -2026,15 +2049,14 @@ function renderRohmSlotDetail(slot) {
               const playerId = Number(r?.localPlayerId || 0);
               const isLinked = Number.isInteger(playerId) && playerId > 0;
               const playerName = isLinked ? (playersById.get(playerId)?.name || r.playerName) : r.playerName;
-              const note = isLinked ? "" : `<span class="rohm-unlinked-note">${escapeHtml(r.matchStatus || "unlinked")}</span>`;
+              const note = isLinked ? "" : `<span class="rohm-unlinked-note">No linked</span>`;
               return `
                 <tr class="${isLinked ? "slot-player-row" : "rohm-unlinked-row"}" ${isLinked ? `data-player-id="${playerId}"` : ""}>
-                  <td>${Number(r?.rank || idx + 1)}</td>
+                  <td>${idx + 1}</td>
                   <td>${escapeHtml(playerName)}${note}</td>
                   <td>${rohmCategoryBadgeHtml(r)}</td>
                   <td>${Number(r?.uses || 0).toLocaleString()}</td>
                   <td>${avg(r?.avgPts)}</td>
-                  <td>${r?.deviation == null ? "-" : Number(r.deviation).toFixed(2)}</td>
                   <td>${r?.goals == null ? "-" : Number(r.goals).toFixed(2)}</td>
                   <td>${r?.assists == null ? "-" : Number(r.assists).toFixed(2)}</td>
                 </tr>

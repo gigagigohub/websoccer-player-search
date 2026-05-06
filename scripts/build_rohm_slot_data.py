@@ -29,7 +29,8 @@ NR_RATE_BY_ROHM_CATEGORY = {
     "金": {7},
 }
 LINKABLE_CATEGORIES = {"無", "銅", "銀", "金", "PS", "CM", "CC"}
-IMAGE_MSE_THRESHOLD = 60.0
+IMAGE_MSE_THRESHOLD = 1500.0
+ROHM_SLOT_ROW_LIMIT = 100
 
 
 def parse_args() -> argparse.Namespace:
@@ -204,11 +205,10 @@ def candidate_players(rohm_name: str, rohm_category: str, name_index: dict[str, 
 
 
 def extract_current_player_image_url(fetcher: Fetcher, rohm_player_id: int) -> str:
-    soup = BeautifulSoup(fetcher.text(f"{BASE_URL}/player/{rohm_player_id}"), "html.parser")
-    for img in soup.find_all("img"):
-        src = img.get("src") or ""
-        if "/images/player/static/" in src:
-            return urljoin(BASE_URL, src)
+    html = fetcher.text(f"{BASE_URL}/player/{rohm_player_id}")
+    m = re.search(r'''src=["']([^"']*/images/player/static/[^"']+)["']''', html)
+    if m:
+        return urljoin(BASE_URL, m.group(1))
     return ""
 
 
@@ -248,6 +248,7 @@ class PlayerMatcher:
         self.rohm_image_url_cache: dict[int, str] = {}
         self.rohm_image_cache: dict[int, Image.Image | None] = {}
         self.local_image_cache: dict[int, Image.Image | None] = {}
+        self.match_cache: dict[tuple[str, str, int], dict] = {}
 
     def _rohm_image(self, rohm_player_id: int) -> tuple[str, Image.Image | None]:
         if rohm_player_id not in self.rohm_image_url_cache:
@@ -263,11 +264,18 @@ class PlayerMatcher:
         return self.local_image_cache[player_id]
 
     def match(self, rohm_name: str, rohm_category: str, rohm_player_id: int) -> dict:
+        cache_key = (rohm_name, rohm_category, rohm_player_id)
+        if cache_key in self.match_cache:
+            return self.match_cache[cache_key]
         candidates = candidate_players(rohm_name, rohm_category, self.name_index)
         if not candidates:
-            return {"localPlayerId": None, "matchMethod": "unlinked", "matchStatus": "external" if rohm_category not in LINKABLE_CATEGORIES else "no_candidate"}
+            result = {"localPlayerId": None, "matchMethod": "unlinked", "matchStatus": "external" if rohm_category not in LINKABLE_CATEGORIES else "no_candidate"}
+            self.match_cache[cache_key] = result
+            return result
         if len(candidates) == 1:
-            return {"localPlayerId": int(candidates[0]["id"]), "matchMethod": "name_category", "matchStatus": "linked"}
+            result = {"localPlayerId": int(candidates[0]["id"]), "matchMethod": "name_category", "matchStatus": "linked"}
+            self.match_cache[cache_key] = result
+            return result
 
         rohm_url, rohm_image = self._rohm_image(rohm_player_id)
         scores = []
@@ -282,14 +290,16 @@ class PlayerMatcher:
             scores.sort(key=lambda item: item[0])
             mse, best = scores[0]
             if mse <= IMAGE_MSE_THRESHOLD:
-                return {
+                result = {
                     "localPlayerId": int(best["id"]),
                     "matchMethod": "name_category_image",
                     "matchStatus": "linked",
                     "imageMse": round(mse, 2),
                     "rohmImageUrl": rohm_url,
                 }
-            return {
+                self.match_cache[cache_key] = result
+                return result
+            result = {
                 "localPlayerId": None,
                 "matchMethod": "name_category_image",
                 "matchStatus": "image_low_confidence",
@@ -297,12 +307,16 @@ class PlayerMatcher:
                 "rohmImageUrl": rohm_url,
                 "candidatePlayerIds": [int(p["id"]) for p in candidates],
             }
-        return {
+            self.match_cache[cache_key] = result
+            return result
+        result = {
             "localPlayerId": None,
             "matchMethod": "name_category",
             "matchStatus": "ambiguous",
             "candidatePlayerIds": [int(p["id"]) for p in candidates],
         }
+        self.match_cache[cache_key] = result
+        return result
 
 
 def parse_position_page(fetcher: Fetcher, matcher: PlayerMatcher, rohm_formation_id: int, slot: int) -> dict:
@@ -348,18 +362,13 @@ def parse_position_page(fetcher: Fetcher, matcher: PlayerMatcher, rohm_formation
                 "rank": int(rank_match.group(1)),
                 "playerName": name,
                 "rohmCategory": category,
-                "rohmPlayerId": rohm_player_id,
                 "uses": to_int(cells[3]),
                 "avgPts": to_float(cells[4]),
-                "deviation": to_float(cells[5]),
                 "goals": to_float(cells[6]),
                 "assists": to_float(cells[7]),
-                "fouls": to_float(cells[8]),
-                "yellow": to_float(cells[9]),
-                "red": to_float(cells[10]),
-                **match,
+                "localPlayerId": match.get("localPlayerId"),
             })
-            if len(rows) >= 20:
+            if len(rows) >= ROHM_SLOT_ROW_LIMIT:
                 break
     return {
         "url": url,

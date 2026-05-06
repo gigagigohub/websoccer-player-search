@@ -2298,6 +2298,22 @@ button.ghost {
   padding: 10px;
 }
 
+#slotModal .season-dialog {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: min(78vh, 640px);
+}
+
+#slotDetail {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+}
+
+#slotDetail .slot-table-wrap {
+  min-height: 0;
+}
+
 .season-head {
   display: flex;
   align-items: center;
@@ -3042,8 +3058,8 @@ button.ghost {
 }
 
 .rohm-unlinked-note {
-  display: block;
-  margin-top: 2px;
+  display: inline;
+  margin-left: 6px;
   color: #8d9ebd;
   font-size: 0.72rem;
   line-height: 1.2;
