@@ -10,6 +10,7 @@ const RESERVE_LINEUP_SIZE = 5;
 const LINEUP_SIZE = STARTING_LINEUP_SIZE + RESERVE_LINEUP_SIZE;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
+const MYTEAM_COACH_STORAGE_KEY = "ws_myteam_coach_v1";
 const CORE_METRICS = ["スピ", "テク", "パワ"];
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
@@ -98,8 +99,15 @@ const els = {
   coachCardModal: document.querySelector("#coachCardModal"),
   coachCardBackdrop: document.querySelector("#coachCardBackdrop"),
   coachCardClose: document.querySelector("#coachCardClose"),
+  coachCardTitle: document.querySelector("#coachCardTitle"),
   coachCardHost: document.querySelector("#coachCardHost"),
-  coachDeleteBtn: document.querySelector("#coachDeleteBtn"),
+  coachReplaceBtn: document.querySelector("#coachReplaceBtn"),
+  coachReplacePanel: document.querySelector("#coachReplacePanel"),
+  coachReplaceSearch: document.querySelector("#coachReplaceSearch"),
+  coachReplaceResults: document.querySelector("#coachReplaceResults"),
+  coachReplaceSeason: document.querySelector("#coachReplaceSeason"),
+  coachReplaceApply: document.querySelector("#coachReplaceApply"),
+  coachReplaceCancel: document.querySelector("#coachReplaceCancel"),
   myteamSettingModal: document.querySelector("#myteamSettingModal"),
   myteamSettingBackdrop: document.querySelector("#myteamSettingBackdrop"),
   myteamSettingClose: document.querySelector("#myteamSettingClose"),
@@ -115,6 +123,7 @@ let selectedSlotIndex = null;
 let selectedPlayerId = null;
 let selectedPlayerMode = "starter";
 let replacementPlayerId = null;
+let replacementCoachId = null;
 let lifecycleModeEnabled = false;
 const cardViewModeById = new Map();
 let formations = [];
@@ -343,6 +352,24 @@ function saveSelectedFormationId() {
   const key = cloudConfig?.lineupKey ? `${MYTEAM_FORMATION_STORAGE_KEY}:${cloudConfig.lineupKey}` : MYTEAM_FORMATION_STORAGE_KEY;
   if (Number.isInteger(selectedFormationId) && selectedFormationId > 0) {
     localStorage.setItem(key, String(selectedFormationId));
+  } else {
+    localStorage.removeItem(key);
+  }
+}
+
+function loadSelectedCoach() {
+  const key = cloudConfig?.lineupKey ? `${MYTEAM_COACH_STORAGE_KEY}:${cloudConfig.lineupKey}` : MYTEAM_COACH_STORAGE_KEY;
+  try {
+    selectedCoach = normalizeCoach(JSON.parse(localStorage.getItem(key) || "null"));
+  } catch (_) {
+    selectedCoach = null;
+  }
+}
+
+function saveSelectedCoach() {
+  const key = cloudConfig?.lineupKey ? `${MYTEAM_COACH_STORAGE_KEY}:${cloudConfig.lineupKey}` : MYTEAM_COACH_STORAGE_KEY;
+  if (selectedCoach && Number.isInteger(Number(selectedCoach.coachId))) {
+    localStorage.setItem(key, JSON.stringify(selectedCoach));
   } else {
     localStorage.removeItem(key);
   }
@@ -840,6 +867,7 @@ async function loadCloudLineup() {
   });
   if (!Array.isArray(rows) || !rows.length) {
     selectedCoach = null;
+    saveSelectedCoach();
     return false;
   }
   const remote = rows[0]?.lineup_json;
@@ -865,6 +893,7 @@ async function loadCloudFormationId() {
   selectedFormationId = normalizeFormationId(remote?.formationId);
   selectedCoach = normalizeCoach(remote?.coach);
   saveSelectedFormationId();
+  saveSelectedCoach();
   return selectedFormationId != null;
 }
 
@@ -1300,6 +1329,7 @@ async function shiftAllLineupSeasons(delta) {
 
   if (!changed) return false;
   saveLineupLocal();
+  saveSelectedCoach();
   if (hasCloudConfig()) {
     try {
       await saveCloudLineup();
@@ -1518,6 +1548,14 @@ function renderCoachSection() {
       </div>
     </button>
   `;
+}
+
+function handleMyTeamCoachClick() {
+  if (!selectedCoach || !Number.isInteger(Number(selectedCoach.coachId))) {
+    openEmptyCoachCardModal();
+    return;
+  }
+  openCoachCardModal();
 }
 
 function openEmptySlotModal() {
@@ -2056,8 +2094,146 @@ async function removeSelectedSuccessorFromTeam() {
   closePlayerCardModal();
 }
 
+function coachReplacementScore(coach, rawQuery, query) {
+  const idText = String(coach?.id || "");
+  const name = toHiragana(coach?.name || "");
+  if (idText === rawQuery) return 0;
+  if (name === query) return 1;
+  if (idText.startsWith(rawQuery)) return 2;
+  if (name.startsWith(query)) return 3;
+  if (name.includes(query)) return 4;
+  return 9;
+}
+
+function coachReplacementCandidates(rawQuery) {
+  const raw = String(rawQuery || "").trim();
+  const query = toHiragana(raw);
+  if (!raw || !query) return [];
+  return (Array.isArray(coaches) ? coaches : [])
+    .filter((coach) => {
+      if (!coach) return false;
+      const score = coachReplacementScore(coach, raw, query);
+      return score < 9;
+    })
+    .sort((a, b) => {
+      const sa = coachReplacementScore(a, raw, query);
+      const sb = coachReplacementScore(b, raw, query);
+      if (sa !== sb) return sa - sb;
+      const nameOrder = String(a?.name || "").localeCompare(String(b?.name || ""), "ja");
+      if (nameOrder !== 0) return nameOrder;
+      return Number(a?.id || 0) - Number(b?.id || 0);
+    })
+    .slice(0, 12);
+}
+
+function coachSeasonOptions(coach) {
+  const count = Math.max(1, Array.isArray(coach?.leadershipBySeason) ? coach.leadershipBySeason.length : 1);
+  return Array.from({ length: count }, (_, i) => `${i + 1}期目`);
+}
+
+function renderCoachReplaceResults() {
+  if (!els.coachReplaceResults) return;
+  replacementCoachId = null;
+  if (els.coachReplaceSeason) els.coachReplaceSeason.innerHTML = "";
+  if (els.coachReplaceApply) els.coachReplaceApply.disabled = true;
+  const list = coachReplacementCandidates(els.coachReplaceSearch?.value || "");
+  if (!list.length) {
+    els.coachReplaceResults.innerHTML = `<div class="player-replace-empty">No candidates</div>`;
+    return;
+  }
+  els.coachReplaceResults.innerHTML = list.map((coach) => {
+    const coachId = Number(coach?.id || 0);
+    const typeLabel = coachTypeLabel(coach?.type);
+    return `
+      <button type="button" class="player-replace-option coach-replace-option" data-coach-id="${coachId}">
+        <span class="player-replace-thumb coach-replace-thumb">
+          <img loading="lazy" src="./images/chara/headcoaches/static/${coachId}@2x.gif" alt="${escapeHtml(coach?.name || `Coach ${coachId}`)}" />
+        </span>
+        <span class="player-replace-meta">
+          <span class="player-replace-name">${escapeHtml(coach?.name || `Coach ${coachId}`)}</span>
+          <span class="player-replace-sub">
+            <span class="badge pos-badge hc-badge">HC</span>
+            ${escapeHtml(typeLabel)} / ID: ${coachId}
+          </span>
+        </span>
+      </button>
+    `;
+  }).join("");
+}
+
+function selectReplacementCoach(coachId) {
+  const id = Number(coachId);
+  const coach = (Array.isArray(coaches) ? coaches : []).find((c) => Number(c?.id) === id);
+  if (!coach || !els.coachReplaceSeason) return;
+  replacementCoachId = id;
+  const currentSeason = selectedCoach && Number(selectedCoach.coachId) === id
+    ? coachSeasonLabel(selectedCoach.season || "1期目")
+    : "1期目";
+  const seasons = coachSeasonOptions(coach);
+  els.coachReplaceSeason.innerHTML = seasons
+    .map((season) => `<option value="${escapeHtml(season)}"${season === currentSeason ? " selected" : ""}>${escapeHtml(season)}</option>`)
+    .join("");
+  if (els.coachReplaceResults) {
+    els.coachReplaceResults.querySelectorAll(".coach-replace-option").forEach((btn) => {
+      btn.classList.toggle("is-selected", Number(btn.dataset.coachId) === id);
+    });
+  }
+  if (els.coachReplaceApply) els.coachReplaceApply.disabled = !seasons.length;
+}
+
+function openCoachReplacePanel(mode = "replace") {
+  if (!els.coachReplacePanel) return;
+  replacementCoachId = null;
+  els.coachReplacePanel.hidden = false;
+  if (els.coachReplaceApply) {
+    els.coachReplaceApply.textContent = mode === "add" ? "Add" : "Replace";
+    els.coachReplaceApply.disabled = true;
+  }
+  if (els.coachReplaceSearch) {
+    els.coachReplaceSearch.value = "";
+    els.coachReplaceSearch.focus();
+  }
+  if (els.coachReplaceResults) {
+    els.coachReplaceResults.innerHTML = `<div class="player-replace-empty">Search coach name or ID</div>`;
+  }
+  if (els.coachReplaceSeason) els.coachReplaceSeason.innerHTML = "";
+}
+
+function closeCoachReplacePanel() {
+  replacementCoachId = null;
+  if (els.coachReplacePanel) els.coachReplacePanel.hidden = true;
+  if (els.coachReplaceSearch) els.coachReplaceSearch.value = "";
+  if (els.coachReplaceResults) els.coachReplaceResults.innerHTML = "";
+  if (els.coachReplaceSeason) els.coachReplaceSeason.innerHTML = "";
+  if (els.coachReplaceApply) els.coachReplaceApply.disabled = true;
+}
+
+async function applySelectedCoachReplacement() {
+  const coachId = Number(replacementCoachId);
+  const season = coachSeasonLabel(els.coachReplaceSeason?.value || "1期目");
+  if (!Number.isInteger(coachId) || coachId <= 0) return;
+  selectedCoach = { coachId, season };
+  saveSelectedCoach();
+  if (hasCloudConfig()) {
+    try {
+      await saveCloudFormationId();
+    } catch (e) {
+      window.alert("監督情報のクラウド保存に失敗しました。");
+    }
+  }
+  renderCoachSection();
+  renderLineup();
+  closeCoachReplacePanel();
+  renderCoachCardModal();
+}
+
 function renderCoachCardModal() {
   if (!els.coachCardHost) return;
+  if (els.coachCardTitle) els.coachCardTitle.textContent = "Coach";
+  if (els.coachReplaceBtn) {
+    els.coachReplaceBtn.textContent = "Replace Coach";
+    els.coachReplaceBtn.hidden = false;
+  }
   if (!selectedCoach || !Number.isInteger(Number(selectedCoach.coachId))) {
     els.coachCardHost.innerHTML = `<p class="dim">Coach not registered.</p>`;
     return;
@@ -2116,22 +2292,28 @@ function openCoachCardModal() {
   if (els.coachCardModal) els.coachCardModal.hidden = false;
 }
 
-function closeCoachCardModal() {
-  if (els.coachCardModal) els.coachCardModal.hidden = true;
+function openEmptyCoachCardModal() {
+  if (!els.coachCardModal || !els.coachCardHost) return;
+  coachCardTabMode = "lead";
+  if (els.coachCardTitle) els.coachCardTitle.textContent = "Add Coach";
+  els.coachCardHost.innerHTML = `
+    <div class="player-replace-empty-slot">
+      <div class="lineup-empty-thumb"></div>
+      <div>
+        <div class="player-replace-empty-title">未登録</div>
+        <div class="player-replace-empty-text">検索して監督と期を選択してください。</div>
+      </div>
+    </div>
+  `;
+  if (els.coachReplaceBtn) els.coachReplaceBtn.hidden = true;
+  els.coachCardModal.hidden = false;
+  openCoachReplacePanel("add");
 }
 
-async function removeCoachFromTeam() {
-  selectedCoach = null;
-  if (hasCloudConfig()) {
-    try {
-      await saveCloudFormationId();
-    } catch (e) {
-      window.alert("監督情報のクラウド保存に失敗しました。");
-      return;
-    }
-  }
-  renderCoachSection();
-  closeCoachCardModal();
+function closeCoachCardModal() {
+  closeCoachReplacePanel();
+  if (els.coachCardModal) els.coachCardModal.hidden = true;
+  if (els.coachReplaceBtn) els.coachReplaceBtn.hidden = false;
 }
 
 async function init() {
@@ -2141,6 +2323,7 @@ async function init() {
   window.addEventListener("resize", syncMenuButtonSize);
   loadLifecycleMode();
   loadSelectedFormationId();
+  loadSelectedCoach();
   renderLifecycleControls();
   if (els.myteamMenuButton) {
     els.myteamMenuButton.addEventListener("click", () => {
@@ -2232,6 +2415,9 @@ async function init() {
       }
     });
   }
+  if (els.myTeamCoachWrap) {
+    els.myTeamCoachWrap.addEventListener("click", handleMyTeamCoachClick);
+  }
   document.addEventListener("click", (e) => {
     if (!els.myteamMenuPanel || !els.myteamMenuButton) return;
     if (!els.myteamMenuPanel.classList.contains("is-open")) return;
@@ -2313,12 +2499,33 @@ async function init() {
   }
   if (els.coachCardBackdrop) els.coachCardBackdrop.addEventListener("click", closeCoachCardModal);
   if (els.coachCardClose) els.coachCardClose.addEventListener("click", closeCoachCardModal);
-  if (els.coachDeleteBtn) {
-    els.coachDeleteBtn.addEventListener("click", async () => {
-      const ok = window.confirm("この監督をチームから外します。よろしいですか？");
-      if (!ok) return;
-      await removeCoachFromTeam();
+  if (els.coachReplaceBtn) {
+    els.coachReplaceBtn.addEventListener("click", () => {
+      openCoachReplacePanel();
     });
+  }
+  if (els.coachReplaceSearch) {
+    els.coachReplaceSearch.addEventListener("input", renderCoachReplaceResults);
+    els.coachReplaceSearch.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return;
+      const first = els.coachReplaceResults?.querySelector(".coach-replace-option");
+      if (!first) return;
+      e.preventDefault();
+      selectReplacementCoach(first.dataset.coachId);
+    });
+  }
+  if (els.coachReplaceResults) {
+    els.coachReplaceResults.addEventListener("click", (e) => {
+      const btn = e.target.closest(".coach-replace-option");
+      if (!btn) return;
+      selectReplacementCoach(btn.dataset.coachId);
+    });
+  }
+  if (els.coachReplaceCancel) {
+    els.coachReplaceCancel.addEventListener("click", closeCoachReplacePanel);
+  }
+  if (els.coachReplaceApply) {
+    els.coachReplaceApply.addEventListener("click", applySelectedCoachReplacement);
   }
   if (els.coachCardHost) {
     els.coachCardHost.addEventListener("click", (e) => {
@@ -2499,16 +2706,6 @@ async function init() {
   }
   if (els.myTeamReserveSlots) {
     els.myTeamReserveSlots.addEventListener("click", handleMyTeamSlotClick);
-  }
-  if (els.myTeamCoachWrap) {
-    els.myTeamCoachWrap.addEventListener("click", () => {
-      if (!selectedCoach || !Number.isInteger(Number(selectedCoach.coachId))) {
-        window.alert("CoachesからAddボタンで監督を登録してください。");
-        window.location.href = "./coaches.html";
-        return;
-      }
-      openCoachCardModal();
-    });
   }
 }
 

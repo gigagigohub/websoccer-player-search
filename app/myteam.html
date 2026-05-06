@@ -9,7 +9,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=20260324-013653" />
   <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png?v=20260324-013653" />
   <link rel="shortcut icon" href="./favicon.ico?v=20260324-013653" />
-  <link rel="stylesheet" href="./style.css?v=20260507-floating-close" />
+  <link rel="stylesheet" href="./style.css?v=20260507-coach-replace" />
 </head>
 <body class="myteam-page">
   <main class="container">
@@ -160,7 +160,18 @@
       </div>
       <div id="coachCardHost"></div>
       <div class="player-card-actions">
-        <button id="coachDeleteBtn" type="button" class="player-delete-btn">Remove Coach</button>
+        <button id="coachReplaceBtn" type="button" class="player-replace-btn">Replace Coach</button>
+      </div>
+      <div id="coachReplacePanel" class="player-replace-panel" hidden>
+        <label class="label" for="coachReplaceSearch">Replace with</label>
+        <input id="coachReplaceSearch" type="search" autocomplete="off" placeholder="Search coach name / ID" />
+        <div id="coachReplaceResults" class="player-replace-results"></div>
+        <label class="label" for="coachReplaceSeason">Season</label>
+        <select id="coachReplaceSeason"></select>
+        <div class="season-actions player-replace-actions">
+          <button id="coachReplaceApply" type="button">Replace</button>
+          <button id="coachReplaceCancel" type="button" class="ghost">Cancel</button>
+        </div>
       </div>
     </div>
   </div>
@@ -182,6 +193,6 @@
     </div>
   </div>
 
-  <script src="./myteam.js?v=20260505-ccdata2"></script>
+  <script src="./myteam.js?v=20260507-coach-replace"></script>
 </body>
 </html>

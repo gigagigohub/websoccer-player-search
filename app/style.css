@@ -311,6 +311,12 @@ body.myteam-page::before {
   transform: translateY(31px);
 }
 
+.coach-replace-thumb img {
+  width: 42px;
+  height: 42px;
+  transform: none;
+}
+
 .player-replace-meta {
   min-width: 0;
   display: flex;
@@ -2724,6 +2730,11 @@ button.ghost {
   margin-bottom: 10px;
 }
 
+body.formations-page .season-close {
+  top: 6px;
+  right: 6px;
+}
+
 .formation-dialog .season-head h2 {
   font-size: 1.18rem;
 }
@@ -3039,7 +3050,7 @@ button.ghost {
 
 .slot-detail-source-switch {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-bottom: 10px;
+  margin: 8px 0 10px;
 }
 
 .rohm-category-badge.cat-rohm-other {
