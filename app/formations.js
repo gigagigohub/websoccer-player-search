@@ -1831,7 +1831,7 @@ function openFormationModal(formation, options = {}) {
         <div class="formation-block formation-cc-block">
           <h3>CC Stats</h3>
           <p>Usage: ${pct(formation.cc.usageRate)} (${formation.cc.uses})</p>
-          <p>Win: ${pct(formation.cc.winRate)} (${formation.cc.wins}/${formation.cc.uses || 0})</p>
+          <p>Win Rate: ${pct(formation.cc.winRate)}</p>
           <button type="button" class="formation-matchups-btn" data-open-matchups="${formation.id}">View Formation Matchups</button>
         </div>
       </div>
