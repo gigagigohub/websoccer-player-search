@@ -2730,7 +2730,7 @@ button.ghost {
   margin-bottom: 10px;
 }
 
-body.formations-page .season-close {
+#formationModal .season-close {
   top: 6px;
   right: 6px;
 }
@@ -3051,6 +3051,35 @@ body.formations-page .season-close {
 .slot-detail-source-switch {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   margin: 8px 0 10px;
+}
+
+.slot-table-sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  background: transparent;
+  color: #dce8ff;
+  font: inherit;
+  font-weight: 800;
+  padding: 0;
+  cursor: pointer;
+}
+
+.slot-table-sort-btn::after {
+  content: "↕";
+  color: #88a9e6;
+  font-size: 0.72em;
+  line-height: 1;
+}
+
+.slot-table-sort-btn.is-active {
+  color: #ffffff;
+}
+
+.slot-table-sort-btn.is-active::after {
+  content: "↓";
+  color: #b9d2ff;
 }
 
 .rohm-category-badge.cat-rohm-other {

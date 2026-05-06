@@ -1992,6 +1992,10 @@ function renderSlotDetailSourceSwitch() {
   `;
 }
 
+function slotDetailSortButton(label, mode) {
+  return `<button type="button" class="slot-table-sort-btn${slotTopSortMode === mode ? " is-active" : ""}" data-slot-detail-sort="${mode}" aria-label="${label}順に並び替え">${label}</button>`;
+}
+
 function renderCcSlotDetail(slot) {
   const allRows = currentFormation.slotStats?.[String(slot)] || [];
   const rows = sortSlotRows(allRows, slotTopSortMode).slice(0, 20);
@@ -2002,7 +2006,7 @@ function renderCcSlotDetail(slot) {
     <div class="slot-table-wrap">
       <table class="slot-table">
         <thead>
-          <tr><th>#</th><th>Player</th><th>Cat</th><th>Usage</th><th>Avg</th><th>Goals</th></tr>
+          <tr><th>#</th><th>Player</th><th>Cat</th><th>${slotDetailSortButton("Usage", "usage")}</th><th>${slotDetailSortButton("Avg", "avg")}</th><th>Goals</th></tr>
         </thead>
         <tbody>
           ${rows
@@ -2037,14 +2041,11 @@ function renderRohmSlotDetail(slot) {
   if (!rows.length) {
     return `<p class="dim">No Rohm slot data.</p>`;
   }
-  const statHeaders = slotTopSortMode === "avg"
-    ? "<th>Avg</th><th>Games</th>"
-    : "<th>Games</th><th>Avg</th>";
   return `
     <div class="slot-table-wrap">
       <table class="slot-table rohm-slot-table">
         <thead>
-          <tr><th>#</th><th>Player</th><th>Cat</th>${statHeaders}<th>Goals</th><th>Ast</th></tr>
+          <tr><th>#</th><th>Player</th><th>Cat</th><th>${slotDetailSortButton("Games", "usage")}</th><th>${slotDetailSortButton("Avg", "avg")}</th><th>Goals</th><th>Ast</th></tr>
         </thead>
         <tbody>
           ${rows
@@ -2052,15 +2053,13 @@ function renderRohmSlotDetail(slot) {
               const playerId = Number(r?.localPlayerId || 0);
               const isLinked = Number.isInteger(playerId) && playerId > 0;
               const playerName = isLinked ? (playersById.get(playerId)?.name || r.playerName) : r.playerName;
-              const statCells = slotTopSortMode === "avg"
-                ? `<td>${avg(r?.avgPts)}</td><td>${Number(r?.uses || 0).toLocaleString()}</td>`
-                : `<td>${Number(r?.uses || 0).toLocaleString()}</td><td>${avg(r?.avgPts)}</td>`;
               return `
                 <tr class="${isLinked ? "slot-player-row" : "rohm-unlinked-row"}" ${isLinked ? `data-player-id="${playerId}"` : ""}>
                   <td>${idx + 1}</td>
                   <td>${escapeHtml(playerName)}</td>
                   <td>${rohmCategoryBadgeHtml(r)}</td>
-                  ${statCells}
+                  <td>${Number(r?.uses || 0).toLocaleString()}</td>
+                  <td>${avg(r?.avgPts)}</td>
                   <td>${r?.goals == null ? "-" : Number(r.goals).toFixed(2)}</td>
                   <td>${r?.assists == null ? "-" : Number(r.assists).toFixed(2)}</td>
                 </tr>
@@ -2331,6 +2330,15 @@ function bindEvents() {
                 }
               });
           }
+        }
+        return;
+      }
+      const sortBtn = e.target.closest("[data-slot-detail-sort]");
+      if (sortBtn) {
+        const mode = String(sortBtn.dataset.slotDetailSort || "");
+        if ((mode === "usage" || mode === "avg") && currentSlotDetailSlot != null) {
+          slotTopSortMode = mode;
+          renderSlotModalContent(currentSlotDetailSlot);
         }
         return;
       }
