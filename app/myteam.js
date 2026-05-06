@@ -559,7 +559,7 @@ function closeMenuPanel() {
 
 function syncMenuButtonSize() {
   if (!els.myteamMenuButton) return;
-  document.documentElement.style.setProperty("--menu-button-size", "40px");
+  document.documentElement.style.setProperty("--menu-button-size", "60px");
 }
 
 function openMyteamSettingModal() {

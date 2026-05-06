@@ -231,7 +231,7 @@ async function refreshUpdatedAtFromGitHub() {
 
 function syncMenuButtonSize() {
   if (!els.menuButton) return;
-  document.documentElement.style.setProperty("--menu-button-size", "40px");
+  document.documentElement.style.setProperty("--menu-button-size", "60px");
 }
 
 function closeMenuPanel() {

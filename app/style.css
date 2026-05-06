@@ -8,7 +8,7 @@
   --brand-soft: #1b2436;
   --danger: #c24a64;
   --profile-side-width: 168px;
-  --menu-button-size: 40px;
+  --menu-button-size: 60px;
   --sticky-header-space: 86px;
   --header-action-right: max(8px, calc((100vw - 980px) / 2 + 22px));
 }
@@ -95,8 +95,8 @@ body.modal-scroll-lock .hero {
   right: var(--header-action-right);
   top: 50%;
   transform: translateY(-50%);
-  width: var(--menu-button-size, 40px);
-  height: var(--menu-button-size, 40px);
+  width: var(--menu-button-size, 60px);
+  height: var(--menu-button-size, 60px);
   border-radius: 8px;
   border: 1px solid #3a4e74;
   background: #16253f;
@@ -109,7 +109,7 @@ body.modal-scroll-lock .hero {
 .menu-panel {
   position: absolute;
   right: var(--header-action-right);
-  top: calc(50% + var(--menu-button-size, 40px) / 2 + 6px);
+  top: calc(50% + var(--menu-button-size, 60px) / 2 + 6px);
   width: min(220px, calc(100vw - 20px));
   border: 1px solid #314767;
   border-radius: 10px;
