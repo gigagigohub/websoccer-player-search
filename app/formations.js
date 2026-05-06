@@ -312,6 +312,7 @@ function renderMeta() {
     ? `<span class="meta-line">CC Data: ${ccDataMeta.seasonStart}-${ccDataMeta.seasonEnd} / ${ccDataMeta.games} games</span>`
     : "";
   els.metaText.innerHTML = `<span class="meta-line">Updated: ${appUpdatedAtJst}</span>${ccLine}`;
+  requestAnimationFrame(syncMenuButtonSize);
 }
 
 async function loadSiteMeta() {
@@ -371,6 +372,7 @@ function syncMenuButtonSize() {
   const heroHeight = heroEl ? Math.round(heroEl.getBoundingClientRect().height) : 40;
   const size = Math.max(30, Math.round(heroHeight * 0.72));
   document.documentElement.style.setProperty("--menu-button-size", `${size}px`);
+  document.documentElement.style.setProperty("--sticky-header-space", `${heroHeight + 18}px`);
 }
 
 function updateMenuState() {

@@ -8,6 +8,7 @@
   --brand-soft: #1b2436;
   --danger: #c24a64;
   --profile-side-width: 168px;
+  --sticky-header-space: 86px;
 }
 
 * { box-sizing: border-box; }
@@ -62,9 +63,12 @@ body.myteam-page::before {
 }
 
 .hero {
-  position: relative;
+  position: sticky;
+  top: 8px;
+  z-index: 120;
   overflow: visible;
   margin-right: 0;
+  margin-bottom: 10px;
   padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: 14px;
@@ -2280,6 +2284,10 @@ button.ghost {
   z-index: 95;
 }
 
+#formationModal {
+  top: var(--sticky-header-space);
+}
+
 .season-backdrop {
   position: absolute;
   inset: 0;
@@ -2724,6 +2732,10 @@ button.ghost {
   z-index: 2;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
+}
+
+#formationModal .formation-dialog {
+  max-height: calc(100vh - var(--sticky-header-space) - 16px);
 }
 
 .formation-dialog .season-head {
