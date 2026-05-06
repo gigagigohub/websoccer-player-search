@@ -151,6 +151,12 @@ const els = {
   scoutListClose: document.querySelector("#scoutListClose"),
   scoutListTarget: document.querySelector("#scoutListTarget"),
   scoutListItems: document.querySelector("#scoutListItems"),
+  usageModal: document.querySelector("#usageModal"),
+  usageBackdrop: document.querySelector("#usageBackdrop"),
+  usageClose: document.querySelector("#usageClose"),
+  usageTitle: document.querySelector("#usageTitle"),
+  usageTarget: document.querySelector("#usageTarget"),
+  usageItems: document.querySelector("#usageItems"),
   successorSourceModal: document.querySelector("#successorSourceModal"),
   successorSourceBackdrop: document.querySelector("#successorSourceBackdrop"),
   successorSourceClose: document.querySelector("#successorSourceClose"),
@@ -166,6 +172,8 @@ const els = {
 };
 
 let players = [];
+let formations = [];
+const playerUsageById = new Map();
 let scouts = [];
 const scoutsByEventId = new Map();
 let cmEvents = [];
@@ -1083,6 +1091,18 @@ function categoryBadgesHtmlByPlayer(player) {
   return `<span class="badge type-badge ${typeClass}">${typeLabel}</span>`;
 }
 
+function usagePct(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return "-";
+  return `${(n * 100).toFixed(1)}%`;
+}
+
+function usageAvg(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return "-";
+  return n.toFixed(2);
+}
+
 function retiredBadgeHtml(player) {
   return player?.retired ? `<span class="badge retired-badge">Retired</span>` : "";
 }
@@ -1155,6 +1175,152 @@ function renderListResultsByEvent(eventId, source) {
   };
   scrollToResultsTop();
   setTimeout(scrollToResultsTop, 120);
+}
+
+function closeUsageModal() {
+  if (!els.usageModal) return;
+  els.usageModal.hidden = true;
+}
+
+function formationYearLabel(formation) {
+  const year = Number(formation?.year || 0);
+  const stride = Number(formation?.stride || 0);
+  if (!year) return "";
+  if (stride === 1) return `${year}-${String((year + 1) % 100).padStart(2, "0")}`;
+  return String(year);
+}
+
+function formationDisplayName(formation) {
+  if (!formation) return "-";
+  return `${formation.name || "-"} ${formationYearLabel(formation)}`.trim();
+}
+
+function sortUsageRows(rows, mode) {
+  const list = Array.isArray(rows) ? [...rows] : [];
+  if (mode === "avg") {
+    return list.sort((a, b) =>
+      Number(b?.avgPts || 0) - Number(a?.avgPts || 0)
+      || Number(b?.uses || 0) - Number(a?.uses || 0)
+      || Number(a?.playerId || 0) - Number(b?.playerId || 0)
+    );
+  }
+  return list.sort((a, b) =>
+    Number(b?.uses || 0) - Number(a?.uses || 0)
+    || Number(b?.avgPts || 0) - Number(a?.avgPts || 0)
+    || Number(a?.playerId || 0) - Number(b?.playerId || 0)
+  );
+}
+
+function rankedUsageRows(rows, mode) {
+  return sortUsageRows(rows, mode).map((row, index) => ({
+    playerId: Number(row?.playerId || 0),
+    rank: index + 1,
+  }));
+}
+
+function buildPlayerUsageIndex(formationRows) {
+  playerUsageById.clear();
+  (Array.isArray(formationRows) ? formationRows : []).forEach((formation) => {
+    const slotStats = formation?.slotStats || {};
+    Object.keys(slotStats).forEach((slotKey) => {
+      const slot = Number(slotKey);
+      if (!Number.isInteger(slot) || slot <= 0) return;
+      const rows = Array.isArray(slotStats[slotKey]) ? slotStats[slotKey] : [];
+      if (!rows.length) return;
+      const usageRanks = new Map(rankedUsageRows(rows, "usage").map((r) => [r.playerId, r.rank]));
+      const avgRanks = new Map(rankedUsageRows(rows, "avg").map((r) => [r.playerId, r.rank]));
+      rows.forEach((row) => {
+        const playerId = Number(row?.playerId || 0);
+        if (!Number.isInteger(playerId) || playerId <= 0) return;
+        const usageRank = usageRanks.get(playerId) || 0;
+        const avgRank = avgRanks.get(playerId) || 0;
+        const record = {
+          formationId: Number(formation.id || 0),
+          formationName: formationDisplayName(formation),
+          slot,
+          uses: Number(row?.uses || 0),
+          usageRate: Number(row?.usageRate || 0),
+          avgPts: Number(row?.avgPts || 0),
+          usageRank,
+          avgRank,
+          bestRank: Math.min(usageRank || 9999, avgRank || 9999),
+          formation,
+        };
+        if (!playerUsageById.has(playerId)) playerUsageById.set(playerId, []);
+        playerUsageById.get(playerId).push(record);
+      });
+    });
+  });
+  playerUsageById.forEach((records) => {
+    records.sort((a, b) =>
+      Number(a.bestRank || 9999) - Number(b.bestRank || 9999)
+      || (Number(a.usageRank || 9999) + Number(a.avgRank || 9999)) - (Number(b.usageRank || 9999) + Number(b.avgRank || 9999))
+      || Number(b.uses || 0) - Number(a.uses || 0)
+      || Number(b.avgPts || 0) - Number(a.avgPts || 0)
+      || Number(a.formationId || 0) - Number(b.formationId || 0)
+      || Number(a.slot || 0) - Number(b.slot || 0)
+    );
+  });
+}
+
+function compactUsagePitch(formation, highlightedSlot) {
+  const positions = Array.isArray(formation?.positions) ? formation.positions : [];
+  if (!positions.length) return `<div class="usage-pitch usage-pitch-empty">No pitch</div>`;
+  const minX = 1;
+  const maxX = 321;
+  const minY = 2;
+  const maxY = 337;
+  const padLeft = 14;
+  const padRight = 14;
+  const padTop = 16;
+  const padBottom = 10;
+  return `
+    <div class="usage-pitch" aria-label="Slot ${highlightedSlot}">
+      ${positions.map((p) => {
+        const slot = Number(p?.slot || 0);
+        const nx = (Number(p?.x || 0) - minX) / (maxX - minX);
+        const ny = (Number(p?.y || 0) - minY) / (maxY - minY);
+        const left = padLeft + nx * (100 - padLeft - padRight);
+        const top = padTop + ny * (100 - padTop - padBottom);
+        const isTarget = slot === Number(highlightedSlot);
+        return `<span class="usage-pitch-slot${isTarget ? " is-target" : ""}" style="left:${left.toFixed(2)}%;top:${top.toFixed(2)}%">${isTarget ? slot : ""}</span>`;
+      }).join("")}
+    </div>
+  `;
+}
+
+function usageRecordHtml(record) {
+  return `
+    <div class="usage-record">
+      <div class="usage-record-pitch">${compactUsagePitch(record.formation, record.slot)}</div>
+      <div class="usage-record-main">
+        <div class="usage-record-title">${record.formationName}</div>
+        <div class="usage-record-meta">Slot ${record.slot} / Rank U#${record.usageRank || "-"} A#${record.avgRank || "-"}</div>
+        <div class="usage-record-stats">
+          <span>Uses ${record.uses}</span>
+          <span>Usage ${usagePct(record.usageRate)}</span>
+          <span>Avg ${usageAvg(record.avgPts)}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function openUsageModal(playerId) {
+  if (!els.usageModal || !els.usageItems) return;
+  const player = players.find((p) => Number(p?.id) === Number(playerId));
+  if (!player) return;
+  const records = playerUsageById.get(Number(playerId)) || [];
+  if (els.usageTitle) els.usageTitle.textContent = "Usage";
+  if (els.usageTarget) {
+    els.usageTarget.textContent = `${player.name} / CC slot usage`;
+  }
+  if (!records.length) {
+    els.usageItems.innerHTML = `<div class="usage-empty">CC使用実績がありません</div>`;
+  } else {
+    els.usageItems.innerHTML = records.map(usageRecordHtml).join("");
+  }
+  els.usageModal.hidden = false;
 }
 
 function openScoutListModal(playerId) {
@@ -1915,6 +2081,7 @@ function cardHtml(player) {
       <div class="card-top">
         ${cardTabsHtml(player.id, viewMode)}
         ${showScoutButton ? `<button type="button" class="scout-list-toggle" data-player-id="${player.id}" aria-label="履歴" ${hasAnyListHistory ? "" : "disabled"}>List</button>` : ""}
+        <button type="button" class="usage-toggle" data-player-id="${player.id}" aria-label="CC使用実績">Usage</button>
         <span class="card-id">ID: ${player.id}</span>
         <div class="card-head-main">
           <h3 class="card-name">
@@ -2214,6 +2381,14 @@ async function init() {
     hideNameSuggest();
   });
   els.results.addEventListener("click", (e) => {
+    const usageBtn = e.target.closest(".usage-toggle");
+    if (usageBtn) {
+      const usageId = Number(usageBtn.dataset.playerId);
+      if (Number.isInteger(usageId)) {
+        openUsageModal(usageId);
+      }
+      return;
+    }
     const scoutBtn = e.target.closest(".scout-list-toggle");
     if (scoutBtn) {
       const scoutId = Number(scoutBtn.dataset.playerId);
@@ -2431,6 +2606,12 @@ async function init() {
   if (els.scoutListClose) {
     els.scoutListClose.addEventListener("click", closeScoutListModal);
   }
+  if (els.usageBackdrop) {
+    els.usageBackdrop.addEventListener("click", closeUsageModal);
+  }
+  if (els.usageClose) {
+    els.usageClose.addEventListener("click", closeUsageModal);
+  }
   if (els.scoutListItems) {
     els.scoutListItems.addEventListener("click", (e) => {
       const btn = e.target.closest(".scout-list-item");
@@ -2586,17 +2767,25 @@ async function init() {
       closeScoutListModal();
       return;
     }
+    if (e.key === "Escape" && els.usageModal && !els.usageModal.hidden) {
+      closeUsageModal();
+      return;
+    }
     if (e.key === "Escape" && els.nameSuggest && !els.nameSuggest.hidden) {
       hideNameSuggest();
     }
   });
 
-  const [res] = await Promise.all([
+  const [res, formationsRes] = await Promise.all([
     fetch("./data.json?v=20260507-id908-cm"),
+    fetch("./formations_data.json?v=20260507-player-usage").catch(() => null),
     loadSiteMeta(),
   ]);
   const data = await res.json();
+  const formationData = formationsRes ? await formationsRes.json().catch(() => ({})) : {};
   players = data.players || [];
+  formations = Array.isArray(formationData.formations) ? formationData.formations : [];
+  buildPlayerUsageIndex(formations);
   syncProfileSideWidthFromPlayers(players);
   scouts = Array.isArray(data.scouts) ? data.scouts : [];
   cmEvents = Array.isArray(data.cmEvents) ? data.cmEvents : [];

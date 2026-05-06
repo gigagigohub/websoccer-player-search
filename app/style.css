@@ -1070,6 +1070,22 @@ button.ghost {
   padding: 0;
 }
 
+.usage-toggle {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 54px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1px solid #3b6798;
+  background: linear-gradient(180deg, #24547f 0%, #183a61 100%);
+  color: #eaf5ff;
+  font-size: 0.66rem;
+  font-weight: 800;
+  line-height: 1;
+  padding: 0;
+}
+
 .coach-add-btn {
   position: static;
   width: 48px;
@@ -1081,7 +1097,7 @@ button.ghost {
 .scout-list-toggle {
   position: absolute;
   top: 6px;
-  right: 60px;
+  right: 68px;
   width: 48px;
   height: 22px;
   border-radius: 6px;
@@ -2326,6 +2342,13 @@ body.modal-scroll-lock #formationModal {
   overflow: visible;
 }
 
+.usage-dialog {
+  width: min(520px, calc(100vw - 24px));
+  max-height: min(78vh, 720px);
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
 #slotModal .season-dialog {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
@@ -2391,6 +2414,119 @@ body.modal-scroll-lock #formationModal {
   margin: 8px 0;
   font-size: 0.88rem;
   color: #d4e0fa;
+}
+
+.usage-items {
+  min-height: 0;
+  overflow: auto;
+  display: grid;
+  gap: 8px;
+  padding-right: 2px;
+}
+
+.usage-empty {
+  border: 1px solid #2d4369;
+  border-radius: 8px;
+  background: #121d31;
+  color: var(--sub);
+  padding: 12px;
+  font-size: 0.85rem;
+}
+
+.usage-record {
+  display: grid;
+  grid-template-columns: 98px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  border: 1px solid #2f466d;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #16233a 0%, #111c2f 100%);
+  padding: 7px;
+}
+
+.usage-record-pitch {
+  width: 98px;
+  display: flex;
+  justify-content: center;
+}
+
+.usage-pitch {
+  position: relative;
+  width: 88px;
+  aspect-ratio: 0.95;
+  border-radius: 7px;
+  background: url("./images/formation/formation_bg@2x.png") center / cover no-repeat;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.10);
+}
+
+.usage-pitch-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sub);
+  font-size: 0.66rem;
+  text-align: center;
+}
+
+.usage-pitch-slot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(210, 224, 248, 0.45);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+}
+
+.usage-pitch-slot.is-target {
+  width: 19px;
+  height: 19px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 241, 143, 0.9);
+  background: radial-gradient(circle, #fff176 0%, #f8a927 58%, #b76b07 100%);
+  color: #101520;
+  font-size: 0.68rem;
+  font-weight: 900;
+  line-height: 1;
+  z-index: 2;
+}
+
+.usage-record-main {
+  min-width: 0;
+}
+
+.usage-record-title {
+  font-size: 0.84rem;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.usage-record-meta {
+  margin-top: 2px;
+  color: #a9bad5;
+  font-size: 0.72rem;
+}
+
+.usage-record-stats {
+  margin-top: 5px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.usage-record-stats span {
+  border: 1px solid #2c456d;
+  border-radius: 6px;
+  background: #101a2c;
+  color: #dce8ff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 5px;
 }
 
 .season-actions {

@@ -12,7 +12,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=20260324-013653" />
   <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png?v=20260324-013653" />
   <link rel="shortcut icon" href="./favicon.ico?v=20260324-013653" />
-  <link rel="stylesheet" href="./style.css?v=20260507-myteam-add-flow" />
+  <link rel="stylesheet" href="./style.css?v=20260507-player-usage" />
 </head>
 <body>
   <main class="container">
@@ -249,6 +249,18 @@
     </div>
   </div>
 
+  <div id="usageModal" class="season-modal" hidden>
+    <div id="usageBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog usage-dialog" role="dialog" aria-modal="true" aria-labelledby="usageTitle">
+      <div class="season-head">
+        <h2 id="usageTitle">Usage</h2>
+        <button id="usageClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <p id="usageTarget" class="season-target"></p>
+      <div id="usageItems" class="usage-items"></div>
+    </div>
+  </div>
+
   <template id="conditionTemplate">
     <div class="condition-row">
       <select class="metric"></select>
@@ -265,6 +277,6 @@
     </div>
   </template>
 
-  <script src="./app.js?v=20260507-myteam-add-flow"></script>
+  <script src="./app.js?v=20260507-player-usage"></script>
 </body>
 </html>
