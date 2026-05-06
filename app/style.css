@@ -1679,7 +1679,7 @@ button.ghost {
   background-color: #5d2cc0;
   background-image:
     linear-gradient(180deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.03) 22%, rgba(0, 0, 0, 0) 48%, rgba(0, 0, 0, 0.14) 100%),
-    url("./images/badges/ss-category-badge-bg.png?v=20260504-ssbadge6");
+    url("./images/badges/ss-category-badge-bg.png?v=20260506-ssbadge-lines");
   background-position: center;
   background-repeat: no-repeat;
   background-size: 100% 100%;
