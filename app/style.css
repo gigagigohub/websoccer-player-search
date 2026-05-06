@@ -9,6 +9,7 @@
   --danger: #c24a64;
   --profile-side-width: 168px;
   --sticky-header-space: 86px;
+  --header-action-right: max(8px, calc((100vw - 980px) / 2 + 22px));
 }
 
 * { box-sizing: border-box; }
@@ -59,28 +60,36 @@ body.myteam-page::before {
   position: relative;
   width: min(980px, 100%);
   margin: 0 auto;
-  padding: 14px;
+  padding: 0 14px 14px;
 }
 
 .hero {
   position: sticky;
-  top: 8px;
+  top: 0;
   z-index: 120;
   overflow: visible;
-  margin-right: 0;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
   margin-bottom: 10px;
-  padding: 10px 12px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
+  padding:
+    8px
+    max(64px, calc((100vw - 980px) / 2 + 64px))
+    8px
+    max(14px, calc((100vw - 980px) / 2 + 14px));
+  border: 0;
+  border-bottom: 1px solid rgba(65, 84, 124, 0.72);
+  border-radius: 0;
   background:
-    linear-gradient(180deg, #151d2d 0%, #101827 100%);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+    linear-gradient(180deg, rgba(20, 29, 46, 0.98) 0%, rgba(14, 22, 37, 0.98) 100%);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(10px);
 }
 
 .menu-button {
   position: absolute;
-  right: 8px;
-  top: 8px;
+  right: var(--header-action-right);
+  top: 50%;
+  transform: translateY(-50%);
   width: var(--menu-button-size, 40px);
   height: var(--menu-button-size, 40px);
   border-radius: 8px;
@@ -94,9 +103,9 @@ body.myteam-page::before {
 
 .menu-panel {
   position: absolute;
-  right: 8px;
-  top: calc(8px + var(--menu-button-size, 40px) + 4px);
-  width: min(220px, calc(100% - 20px));
+  right: var(--header-action-right);
+  top: calc(50% + var(--menu-button-size, 40px) / 2 + 6px);
+  width: min(220px, calc(100vw - 20px));
   border: 1px solid #314767;
   border-radius: 10px;
   background: #111b2d;
