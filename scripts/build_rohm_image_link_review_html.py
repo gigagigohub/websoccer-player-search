@@ -31,6 +31,13 @@ def candidate_sort_key(candidate: dict) -> tuple:
     )
 
 
+def public_image_path(path: str) -> str:
+    value = str(path or "")
+    if value.startswith("../images/"):
+        return "./images/" + value[len("../images/"):]
+    return value
+
+
 def aggregate_by_rohm_image(row_payload: dict) -> list[dict]:
     by_image: dict[str, dict] = {}
     for group in row_payload.get("groups") or []:
@@ -80,7 +87,12 @@ def aggregate_by_rohm_image(row_payload: dict) -> list[dict]:
 
     result = []
     for item in by_image.values():
-        candidates = sorted(item["candidates"].values(), key=candidate_sort_key)
+        candidates = []
+        for candidate in sorted(item["candidates"].values(), key=candidate_sort_key):
+            normalized = dict(candidate)
+            normalized["staticImage"] = public_image_path(normalized.get("staticImage") or "")
+            normalized["actionImage"] = public_image_path(normalized.get("actionImage") or "")
+            candidates.append(normalized)
         result.append({
             "imageKey": item["imageKey"],
             "sourceImageUrl": item["sourceImageUrl"],
