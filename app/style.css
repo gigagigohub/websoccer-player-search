@@ -421,10 +421,10 @@ body.myteam-page::before {
 }
 
 .meta {
-  margin: 4px 0 0;
-  font-size: 0.88rem;
-  line-height: 1.35;
-  min-height: calc(0.88rem * 1.35 * 2);
+  margin: 3px 0 0;
+  font-size: 0.78rem;
+  line-height: 1.28;
+  min-height: calc(0.78rem * 1.28 * 2);
   color: var(--sub);
 }
 
