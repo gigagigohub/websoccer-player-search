@@ -126,9 +126,14 @@ let cloudMeta = { formationId: null, ownedFormationIds: [], coach: null };
 let filteredAndSorted = [];
 let currentFormation = null;
 let slotTopSortMode = "usage";
+let slotDetailSourceMode = "cc";
+let currentSlotDetailSlot = null;
 let coachRankingMode = "usage";
 const bestTeamIndexByFormation = new Map();
 let selectedPlayerId = null;
+let rohmSlotData = null;
+let rohmSlotDataPromise = null;
+let rohmSlotDataError = "";
 const coachTabModeById = new Map();
 const cardViewModeById = new Map();
 let modalScrollLockY = 0;
@@ -946,6 +951,56 @@ function renderSlotTop(slotStats, mode = "usage") {
         .join("")}
     </div>
   `;
+}
+
+function rohmCategoryClass(category) {
+  const c = String(category || "");
+  if (c === "無") return "cat-rohm-none";
+  if (c === "銅" || c === "引退(銅)" || c === "CP銅") return "cat-rohm-bronze";
+  if (c === "銀" || c === "引退(銀)" || c === "CP銀") return "cat-rohm-silver";
+  if (c === "金" || c === "引退(金)" || c === "CP金") return "cat-rohm-gold";
+  if (c === "PS") return "cat-ss";
+  if (c === "CM") return "cat-cm";
+  if (c === "CC") return "cat-cc";
+  return "cat-rohm-other";
+}
+
+function rohmCategoryBadgeHtml(row) {
+  const playerId = Number(row?.localPlayerId || 0);
+  if (Number.isInteger(playerId) && playerId > 0) {
+    return categoryBadgeHtmlByPlayerId(playerId);
+  }
+  const category = String(row?.rohmCategory || "-");
+  return `<span class="badge type-badge rohm-category-badge ${rohmCategoryClass(category)}">${escapeHtml(category)}</span>`;
+}
+
+function getRohmSlotData(formation, slot) {
+  const fid = String(Number(formation?.id || 0));
+  const sid = String(Number(slot || 0));
+  return rohmSlotData?.formations?.[fid]?.slots?.[sid] || null;
+}
+
+function loadRohmSlotData() {
+  if (rohmSlotData) return Promise.resolve(rohmSlotData);
+  if (rohmSlotDataPromise) return rohmSlotDataPromise;
+  rohmSlotDataError = "";
+  rohmSlotDataPromise = fetch("./rohm_slot_data.json")
+    .then((res) => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    })
+    .then((data) => {
+      rohmSlotData = data;
+      return data;
+    })
+    .catch((err) => {
+      rohmSlotDataError = err?.message || "failed";
+      throw err;
+    })
+    .finally(() => {
+      rohmSlotDataPromise = null;
+    });
+  return rohmSlotDataPromise;
 }
 
 function renderModelSlots(formation) {
@@ -1897,41 +1952,116 @@ function tryOpenFormationFromQuery() {
   openFormationModal(f);
 }
 
-function openSlotModal(slot) {
-  if (!currentFormation || !els.slotModal || !els.slotTitle || !els.slotDetail) return;
+function renderSlotDetailSourceSwitch() {
+  return `
+    <div class="slot-detail-source-switch slot-top-sort-switch" role="group" aria-label="Slot detail source">
+      <button type="button" class="slot-top-sort-btn${slotDetailSourceMode === "cc" ? " is-on" : ""}" data-slot-detail-source="cc">CC</button>
+      <button type="button" class="slot-top-sort-btn${slotDetailSourceMode === "rohm" ? " is-on" : ""}" data-slot-detail-source="rohm">Rohm</button>
+    </div>
+  `;
+}
+
+function renderCcSlotDetail(slot) {
   const allRows = currentFormation.slotStats?.[String(slot)] || [];
   const rows = sortSlotRows(allRows, slotTopSortMode).slice(0, 20);
+  if (!rows.length) {
+    return `<p class="dim">No CC slot data.</p>`;
+  }
+  return `
+    <div class="slot-table-wrap">
+      <table class="slot-table">
+        <thead>
+          <tr><th>#</th><th>Player</th><th>Cat</th><th>Usage</th><th>Avg</th><th>Goals</th></tr>
+        </thead>
+        <tbody>
+          ${rows
+            .map(
+              (r, idx) => `
+                <tr class="slot-player-row" data-player-id="${r.playerId}">
+                  <td>${idx + 1}</td>
+                  <td>${r.playerName}</td>
+                  <td>${categoryBadgeHtmlByPlayerId(r.playerId)}</td>
+                  <td>${pct(r.usageRate)} (${r.uses})</td>
+                  <td>${avg(r.avgPts)}</td>
+                  <td>${goalsPer7(r.goalsPer7)}</td>
+                </tr>
+              `
+            )
+            .join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderRohmSlotDetail(slot) {
+  if (!rohmSlotData) {
+    if (rohmSlotDataError) {
+      return `<p class="dim">No Rohm slot data. (${escapeHtml(rohmSlotDataError)})</p>`;
+    }
+    return `<p class="dim">Loading Rohm data...</p>`;
+  }
+  const rohm = getRohmSlotData(currentFormation, slot);
+  const rows = (rohm?.rows || []).slice(0, 20);
+  if (!rows.length) {
+    return `<p class="dim">No Rohm slot data.</p>`;
+  }
+  const sourceLine = `
+    <p class="slot-detail-source-note">
+      Rohm: ${escapeHtml(rohm?.title || "")}
+      ${rohm?.updatedAt ? `<span>Updated ${escapeHtml(rohm.updatedAt)}</span>` : ""}
+      ${rohm?.url ? `<a href="${rohm.url}" target="_blank" rel="noopener">Source</a>` : ""}
+    </p>
+  `;
+  return `
+    ${sourceLine}
+    <div class="slot-table-wrap">
+      <table class="slot-table rohm-slot-table">
+        <thead>
+          <tr><th>#</th><th>Player</th><th>Cat</th><th>Games</th><th>Avg</th><th>Dev</th><th>Goals</th><th>Ast</th></tr>
+        </thead>
+        <tbody>
+          ${rows
+            .map((r, idx) => {
+              const playerId = Number(r?.localPlayerId || 0);
+              const isLinked = Number.isInteger(playerId) && playerId > 0;
+              const playerName = isLinked ? (playersById.get(playerId)?.name || r.playerName) : r.playerName;
+              const note = isLinked ? "" : `<span class="rohm-unlinked-note">${escapeHtml(r.matchStatus || "unlinked")}</span>`;
+              return `
+                <tr class="${isLinked ? "slot-player-row" : "rohm-unlinked-row"}" ${isLinked ? `data-player-id="${playerId}"` : ""}>
+                  <td>${Number(r?.rank || idx + 1)}</td>
+                  <td>${escapeHtml(playerName)}${note}</td>
+                  <td>${rohmCategoryBadgeHtml(r)}</td>
+                  <td>${Number(r?.uses || 0).toLocaleString()}</td>
+                  <td>${avg(r?.avgPts)}</td>
+                  <td>${r?.deviation == null ? "-" : Number(r.deviation).toFixed(2)}</td>
+                  <td>${r?.goals == null ? "-" : Number(r.goals).toFixed(2)}</td>
+                  <td>${r?.assists == null ? "-" : Number(r.assists).toFixed(2)}</td>
+                </tr>
+              `;
+            })
+            .join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderSlotModalContent(slot) {
+  if (!els.slotDetail) return;
+  els.slotDetail.innerHTML = `
+    ${renderSlotDetailSourceSwitch()}
+    ${slotDetailSourceMode === "rohm" ? renderRohmSlotDetail(slot) : renderCcSlotDetail(slot)}
+  `;
+}
+
+function openSlotModal(slot) {
+  if (!currentFormation || !els.slotModal || !els.slotTitle || !els.slotDetail) return;
+  currentSlotDetailSlot = slot;
+  slotDetailSourceMode = "cc";
   const yearLabel = formatFormationYearLabel(currentFormation.year, currentFormation.stride);
   els.slotTitle.textContent = `${currentFormation.name}${yearLabel ? ` ${yearLabel}` : ""} / Slot ${slot}`;
-  if (!rows.length) {
-    els.slotDetail.innerHTML = `<p class="dim">No CC slot data.</p>`;
-  } else {
-    els.slotDetail.innerHTML = `
-      <div class="slot-table-wrap">
-        <table class="slot-table">
-          <thead>
-            <tr><th>#</th><th>Player</th><th>Cat</th><th>Usage</th><th>Avg</th><th>Goals</th></tr>
-          </thead>
-          <tbody>
-            ${rows
-              .map(
-                (r, idx) => `
-                  <tr class="slot-player-row" data-player-id="${r.playerId}">
-                    <td>${idx + 1}</td>
-                    <td>${r.playerName}</td>
-                    <td>${categoryBadgeHtmlByPlayerId(r.playerId)}</td>
-                    <td>${pct(r.usageRate)} (${r.uses})</td>
-                    <td>${avg(r.avgPts)}</td>
-                    <td>${goalsPer7(r.goalsPer7)}</td>
-                  </tr>
-                `
-              )
-              .join("")}
-          </tbody>
-        </table>
-      </div>
-    `;
-  }
+  renderSlotModalContent(slot);
   els.slotModal.hidden = false;
 }
 
@@ -2156,6 +2286,28 @@ function bindEvents() {
 
   if (els.slotDetail) {
     els.slotDetail.addEventListener("click", (e) => {
+      const sourceBtn = e.target.closest("[data-slot-detail-source]");
+      if (sourceBtn) {
+        const mode = String(sourceBtn.dataset.slotDetailSource || "");
+        if ((mode === "cc" || mode === "rohm") && currentSlotDetailSlot != null) {
+          slotDetailSourceMode = mode;
+          renderSlotModalContent(currentSlotDetailSlot);
+          if (mode === "rohm" && !rohmSlotData && !rohmSlotDataPromise) {
+            loadRohmSlotData()
+              .then(() => {
+                if (slotDetailSourceMode === "rohm" && currentSlotDetailSlot != null) {
+                  renderSlotModalContent(currentSlotDetailSlot);
+                }
+              })
+              .catch(() => {
+                if (slotDetailSourceMode === "rohm" && currentSlotDetailSlot != null) {
+                  renderSlotModalContent(currentSlotDetailSlot);
+                }
+              });
+          }
+        }
+        return;
+      }
       const row = e.target.closest("tr[data-player-id]");
       if (!row) return;
       const id = Number(row.dataset.playerId);

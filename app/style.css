@@ -2992,6 +2992,63 @@ button.ghost {
   color: #f2f7ff;
 }
 
+.slot-detail-source-switch {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 10px;
+}
+
+.slot-detail-source-note {
+  display: grid;
+  gap: 2px;
+  margin: 0 0 8px;
+  color: #8ea5c8;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.slot-detail-source-note a {
+  color: #9ec8ff;
+  text-decoration: none;
+}
+
+.rohm-category-badge.cat-rohm-none {
+  color: #202b3a;
+  text-shadow: none;
+  background: linear-gradient(180deg, #dbe2ec 0%, #bcc8d8 100%);
+  box-shadow: 0 0 0 1px rgba(108, 123, 145, 0.42);
+}
+
+.rohm-category-badge.cat-rohm-bronze {
+  color: #2f1f12;
+  text-shadow: none;
+  background: linear-gradient(180deg, #e4ae7c 0%, #c47d3c 48%, #7f4418 100%);
+}
+
+.rohm-category-badge.cat-rohm-silver {
+  color: #1b2332;
+  text-shadow: none;
+  background: linear-gradient(180deg, #dce4f1 0%, #9ba7bb 50%, #5b677c 100%);
+}
+
+.rohm-category-badge.cat-rohm-gold {
+  color: #3e2f0e;
+  text-shadow: none;
+  background: linear-gradient(180deg, #ffeaa4 0%, #e5bc45 48%, #bb8920 100%);
+}
+
+.rohm-category-badge.cat-rohm-other {
+  color: #edf3ff;
+  background: linear-gradient(180deg, #68738b 0%, #38445d 100%);
+}
+
+.rohm-unlinked-note {
+  display: block;
+  margin-top: 2px;
+  color: #8d9ebd;
+  font-size: 0.72rem;
+  line-height: 1.2;
+}
+
 .best-team-summary {
   display: grid;
   gap: 8px;
