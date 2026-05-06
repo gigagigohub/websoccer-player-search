@@ -10,7 +10,7 @@
   --profile-side-width: 168px;
   --menu-button-size: 60px;
   --sticky-header-space: 86px;
-  --header-action-right: max(8px, calc((100vw - 980px) / 2 + 22px));
+  --header-action-right: max(20px, calc((100vw - 980px) / 2 + 20px));
 }
 
 * { box-sizing: border-box; }
@@ -74,9 +74,9 @@ body.myteam-page::before {
   margin-bottom: 10px;
   padding:
     8px
-    max(64px, calc((100vw - 980px) / 2 + 64px))
+    max(92px, calc((100vw - 980px) / 2 + 92px))
     8px
-    max(14px, calc((100vw - 980px) / 2 + 14px));
+    max(20px, calc((100vw - 980px) / 2 + 20px));
   border: 0;
   border-bottom: 1px solid rgba(65, 84, 124, 0.72);
   border-radius: 0;
