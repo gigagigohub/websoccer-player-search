@@ -85,6 +85,10 @@ body.myteam-page::before {
   backdrop-filter: blur(10px);
 }
 
+body.modal-scroll-lock .hero {
+  display: none;
+}
+
 .menu-button {
   position: absolute;
   right: var(--header-action-right);
@@ -2297,6 +2301,10 @@ button.ghost {
   top: var(--sticky-header-space);
 }
 
+body.modal-scroll-lock #formationModal {
+  top: 0;
+}
+
 .season-backdrop {
   position: absolute;
   inset: 0;
@@ -2745,6 +2753,10 @@ button.ghost {
 
 #formationModal .formation-dialog {
   max-height: calc(100vh - var(--sticky-header-space) - 16px);
+}
+
+body.modal-scroll-lock #formationModal .formation-dialog {
+  max-height: calc(100vh - 32px);
 }
 
 .formation-dialog .season-head {
