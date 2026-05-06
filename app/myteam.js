@@ -2638,7 +2638,7 @@ async function init() {
   }
 
   const [dataRes, formationsRes, coachesMetaRes] = await Promise.all([
-    fetch("./data.json"),
+    fetch("./data.json?v=20260507-id908-cm"),
     fetch("./formations_data.json").catch(() => null),
     fetch("./coaches_data.json").catch(() => null),
     loadSiteMeta(),

@@ -2593,7 +2593,7 @@ async function init() {
   });
 
   const [res] = await Promise.all([
-    fetch("./data.json"),
+    fetch("./data.json?v=20260507-id908-cm"),
     loadSiteMeta(),
   ]);
   const data = await res.json();
