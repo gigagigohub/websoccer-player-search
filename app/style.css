@@ -1156,23 +1156,28 @@ button.ghost {
   position: absolute;
   bottom: 8px;
   right: 8px;
-  display: flex;
-  gap: 4px;
+  display: grid;
+  grid-template-columns: repeat(3, 46px);
+  gap: 3px;
+  border: 1px solid #263a59;
+  border-radius: 9px;
+  background: #0d1728;
+  padding: 3px;
   z-index: 6;
 }
 
 .card-tab {
-  min-width: 50px;
-  height: 22px;
-  min-height: 22px;
-  border-radius: var(--btn-radius-sm);
-  border: 1px solid #36507e;
-  background: linear-gradient(180deg, #18243a 0%, #111a2a 100%);
-  color: #cfe0ff;
-  font-size: 0.62rem;
+  min-width: 0;
+  height: 24px;
+  min-height: 24px;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #9fb0cd;
+  font-size: 0.6rem;
   font-weight: 800;
   line-height: 1;
-  padding: 0 8px;
+  padding: 0 2px;
   box-shadow: none;
 }
 
@@ -3933,7 +3938,7 @@ body.modal-scroll-lock #formationModal .formation-dialog {
   min-width: 32px;
 }
 
-/* Keep SCR right-side profile block inside player detail modal bounds. */
+/* Keep INFO right-side profile block inside player detail modal bounds. */
 #playerCardHost .profile-view .profile-side {
   width: min(var(--profile-side-width, 168px), calc(100% - 124px));
   min-width: 0;
