@@ -2466,6 +2466,15 @@ body.modal-scroll-lock #formationModal {
   border-radius: 8px;
   background: linear-gradient(180deg, #16233a 0%, #111c2f 100%);
   padding: 7px;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.usage-record:active {
+  border-color: #547dad;
+  background: linear-gradient(180deg, #1a2a44 0%, #132238 100%);
 }
 
 .usage-record-pitch {

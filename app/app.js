@@ -1349,8 +1349,8 @@ function sortPlayerUsageRecords(records) {
   const list = Array.isArray(records) ? [...records] : [];
   return list.sort((a, b) =>
     Number(a.avgRank || 9999) - Number(b.avgRank || 9999)
-    || Number(b.avgPts || 0) - Number(a.avgPts || 0)
     || Number(b.uses || 0) - Number(a.uses || 0)
+    || Number(b.avgPts || 0) - Number(a.avgPts || 0)
     || Number(a.formationId || 0) - Number(b.formationId || 0)
     || Number(a.slot || 0) - Number(b.slot || 0)
   );
@@ -1365,8 +1365,12 @@ function renderUsageSourceSwitch() {
 }
 
 function usageRecordHtml(record) {
+  const formationId = Number(record.formationId || 0);
+  const href = Number.isInteger(formationId) && formationId > 0
+    ? `./formations.html?openFormationId=${formationId}`
+    : "./formations.html";
   return `
-    <div class="usage-record">
+    <a class="usage-record" href="${href}">
       <div class="usage-record-pitch">${compactUsagePitch(record.formation, record.slot)}</div>
       <div class="usage-record-main">
         <div class="usage-record-title">${record.formationName}</div>
@@ -1376,7 +1380,7 @@ function usageRecordHtml(record) {
           <span>Avg ${usageAvg(record.avgPts)}</span>
         </div>
       </div>
-    </div>
+    </a>
   `;
 }
 
