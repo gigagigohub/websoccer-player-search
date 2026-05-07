@@ -1696,9 +1696,9 @@ function getCardViewMode(playerId) {
 
 function cardTabsHtml(playerId, viewMode) {
   const tabs = [
-    { mode: 0, label: "PRM" },
-    { mode: 1, label: "DTL" },
-    { mode: 2, label: "SCR" },
+    { mode: 0, label: "STAT" },
+    { mode: 1, label: "SZN" },
+    { mode: 2, label: "INFO" },
   ];
   return `
     <div class="card-tabs" role="tablist" aria-label="Card View Tabs">
