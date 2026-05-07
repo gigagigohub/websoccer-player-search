@@ -1048,7 +1048,7 @@ button.ghost {
   min-height: 0;
   overflow: auto;
   padding-right: 2px;
-  padding-bottom: 46px;
+  padding-bottom: 50px;
 }
 
 .card.is-collapsed .card-body {
