@@ -1074,13 +1074,13 @@ button.ghost {
   position: absolute;
   top: 6px;
   right: 8px;
-  width: 54px;
+  width: 72px;
   height: 22px;
   border-radius: 6px;
   border: 1px solid #3b6798;
   background: linear-gradient(180deg, #24547f 0%, #183a61 100%);
   color: #eaf5ff;
-  font-size: 0.66rem;
+  font-size: 0.61rem;
   font-weight: 800;
   line-height: 1;
   padding: 0;
@@ -1097,7 +1097,7 @@ button.ghost {
 .scout-list-toggle {
   position: absolute;
   top: 6px;
-  right: 68px;
+  right: 88px;
   width: 48px;
   height: 22px;
   border-radius: 6px;
@@ -2346,7 +2346,7 @@ body.modal-scroll-lock #formationModal {
   width: min(520px, calc(100vw - 24px));
   max-height: min(78vh, 720px);
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto auto minmax(0, 1fr);
 }
 
 #slotModal .season-dialog {
@@ -2414,6 +2414,30 @@ body.modal-scroll-lock #formationModal {
   margin: 8px 0;
   font-size: 0.88rem;
   color: #d4e0fa;
+}
+
+.usage-sort-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin: 0 0 8px;
+}
+
+.usage-sort-btn {
+  min-height: 30px;
+  border: 1px solid #304a73;
+  border-radius: 7px;
+  background: #111d30;
+  color: #aebfda;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.usage-sort-btn.is-on {
+  border-color: #5c8fca;
+  background: linear-gradient(180deg, #25537e 0%, #183a61 100%);
+  color: #f0f7ff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .usage-items {

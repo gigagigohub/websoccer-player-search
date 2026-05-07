@@ -156,6 +156,7 @@ const els = {
   usageClose: document.querySelector("#usageClose"),
   usageTitle: document.querySelector("#usageTitle"),
   usageTarget: document.querySelector("#usageTarget"),
+  usageSort: document.querySelector("#usageSort"),
   usageItems: document.querySelector("#usageItems"),
   successorSourceModal: document.querySelector("#successorSourceModal"),
   successorSourceBackdrop: document.querySelector("#successorSourceBackdrop"),
@@ -174,6 +175,8 @@ const els = {
 let players = [];
 let formations = [];
 const playerUsageById = new Map();
+let currentUsagePlayerId = 0;
+let currentUsageSortMode = "usage";
 let scouts = [];
 const scoutsByEventId = new Map();
 let cmEvents = [];
@@ -1180,6 +1183,7 @@ function renderListResultsByEvent(eventId, source) {
 function closeUsageModal() {
   if (!els.usageModal) return;
   els.usageModal.hidden = true;
+  currentUsagePlayerId = 0;
 }
 
 function formationYearLabel(formation) {
@@ -1289,6 +1293,36 @@ function compactUsagePitch(formation, highlightedSlot) {
   `;
 }
 
+function sortPlayerUsageRecords(records, mode) {
+  const list = Array.isArray(records) ? [...records] : [];
+  if (mode === "avg") {
+    return list.sort((a, b) =>
+      Number(a.avgRank || 9999) - Number(b.avgRank || 9999)
+      || Number(b.avgPts || 0) - Number(a.avgPts || 0)
+      || Number(b.uses || 0) - Number(a.uses || 0)
+      || Number(a.usageRank || 9999) - Number(b.usageRank || 9999)
+      || Number(a.formationId || 0) - Number(b.formationId || 0)
+      || Number(a.slot || 0) - Number(b.slot || 0)
+    );
+  }
+  return list.sort((a, b) =>
+    Number(a.usageRank || 9999) - Number(b.usageRank || 9999)
+    || Number(b.uses || 0) - Number(a.uses || 0)
+    || Number(b.avgPts || 0) - Number(a.avgPts || 0)
+    || Number(a.avgRank || 9999) - Number(b.avgRank || 9999)
+    || Number(a.formationId || 0) - Number(b.formationId || 0)
+    || Number(a.slot || 0) - Number(b.slot || 0)
+  );
+}
+
+function renderUsageSortSwitch() {
+  if (!els.usageSort) return;
+  els.usageSort.innerHTML = `
+    <button type="button" class="usage-sort-btn${currentUsageSortMode === "usage" ? " is-on" : ""}" data-usage-sort="usage">Usage</button>
+    <button type="button" class="usage-sort-btn${currentUsageSortMode === "avg" ? " is-on" : ""}" data-usage-sort="avg">Avg</button>
+  `;
+}
+
 function usageRecordHtml(record) {
   return `
     <div class="usage-record">
@@ -1306,20 +1340,30 @@ function usageRecordHtml(record) {
   `;
 }
 
-function openUsageModal(playerId) {
+function renderUsageModalContent() {
   if (!els.usageModal || !els.usageItems) return;
-  const player = players.find((p) => Number(p?.id) === Number(playerId));
+  const player = players.find((p) => Number(p?.id) === Number(currentUsagePlayerId));
   if (!player) return;
-  const records = playerUsageById.get(Number(playerId)) || [];
-  if (els.usageTitle) els.usageTitle.textContent = "Usage";
+  const records = sortPlayerUsageRecords(playerUsageById.get(Number(currentUsagePlayerId)) || [], currentUsageSortMode);
+  if (els.usageTitle) els.usageTitle.textContent = "Used Rank";
   if (els.usageTarget) {
-    els.usageTarget.textContent = `${player.name} / CC slot usage`;
+    els.usageTarget.textContent = `${player.name} / CC slot used rank`;
   }
+  renderUsageSortSwitch();
   if (!records.length) {
     els.usageItems.innerHTML = `<div class="usage-empty">CC使用実績がありません</div>`;
   } else {
     els.usageItems.innerHTML = records.map(usageRecordHtml).join("");
   }
+}
+
+function openUsageModal(playerId) {
+  if (!els.usageModal || !els.usageItems) return;
+  const player = players.find((p) => Number(p?.id) === Number(playerId));
+  if (!player) return;
+  currentUsagePlayerId = Number(playerId);
+  currentUsageSortMode = "usage";
+  renderUsageModalContent();
   els.usageModal.hidden = false;
 }
 
@@ -2081,7 +2125,7 @@ function cardHtml(player) {
       <div class="card-top">
         ${cardTabsHtml(player.id, viewMode)}
         ${showScoutButton ? `<button type="button" class="scout-list-toggle" data-player-id="${player.id}" aria-label="履歴" ${hasAnyListHistory ? "" : "disabled"}>List</button>` : ""}
-        <button type="button" class="usage-toggle" data-player-id="${player.id}" aria-label="CC使用実績">Usage</button>
+        <button type="button" class="usage-toggle" data-player-id="${player.id}" aria-label="CC使用順位">Used Rank</button>
         <span class="card-id">ID: ${player.id}</span>
         <div class="card-head-main">
           <h3 class="card-name">
@@ -2611,6 +2655,16 @@ async function init() {
   }
   if (els.usageClose) {
     els.usageClose.addEventListener("click", closeUsageModal);
+  }
+  if (els.usageSort) {
+    els.usageSort.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-usage-sort]");
+      if (!btn) return;
+      const mode = String(btn.dataset.usageSort || "usage");
+      if (!["usage", "avg"].includes(mode)) return;
+      currentUsageSortMode = mode;
+      renderUsageModalContent();
+    });
   }
   if (els.scoutListItems) {
     els.scoutListItems.addEventListener("click", (e) => {
