@@ -45,6 +45,7 @@ const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOi
 const APP_UPDATED_AT_ISO = "2026-03-26T21:53:00+09:00";
 const APP_UPDATED_AT_JST = "2026-03-30 23:10 JST";
 const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-player-search/commits/main";
+const ROHM_SLOT_DATA_URL = "./rohm_slot_data.json?v=20260507-rohm-link-choices";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 let ccDataMeta = null;
 
@@ -175,8 +176,9 @@ const els = {
 let players = [];
 let formations = [];
 const playerUsageById = new Map();
+const playerRohmUsageById = new Map();
 let currentUsagePlayerId = 0;
-let currentUsageSortMode = "usage";
+let currentUsageSourceMode = "cc";
 let scouts = [];
 const scoutsByEventId = new Map();
 let cmEvents = [];
@@ -1184,6 +1186,7 @@ function closeUsageModal() {
   if (!els.usageModal) return;
   els.usageModal.hidden = true;
   currentUsagePlayerId = 0;
+  currentUsageSourceMode = "cc";
 }
 
 function formationYearLabel(formation) {
@@ -1231,12 +1234,10 @@ function buildPlayerUsageIndex(formationRows) {
       if (!Number.isInteger(slot) || slot <= 0) return;
       const rows = Array.isArray(slotStats[slotKey]) ? slotStats[slotKey] : [];
       if (!rows.length) return;
-      const usageRanks = new Map(rankedUsageRows(rows, "usage").map((r) => [r.playerId, r.rank]));
       const avgRanks = new Map(rankedUsageRows(rows, "avg").map((r) => [r.playerId, r.rank]));
       rows.forEach((row) => {
         const playerId = Number(row?.playerId || 0);
         if (!Number.isInteger(playerId) || playerId <= 0) return;
-        const usageRank = usageRanks.get(playerId) || 0;
         const avgRank = avgRanks.get(playerId) || 0;
         const record = {
           formationId: Number(formation.id || 0),
@@ -1245,9 +1246,7 @@ function buildPlayerUsageIndex(formationRows) {
           uses: Number(row?.uses || 0),
           usageRate: Number(row?.usageRate || 0),
           avgPts: Number(row?.avgPts || 0),
-          usageRank,
           avgRank,
-          bestRank: Math.min(usageRank || 9999, avgRank || 9999),
           formation,
         };
         if (!playerUsageById.has(playerId)) playerUsageById.set(playerId, []);
@@ -1257,10 +1256,63 @@ function buildPlayerUsageIndex(formationRows) {
   });
   playerUsageById.forEach((records) => {
     records.sort((a, b) =>
-      Number(a.bestRank || 9999) - Number(b.bestRank || 9999)
-      || (Number(a.usageRank || 9999) + Number(a.avgRank || 9999)) - (Number(b.usageRank || 9999) + Number(b.avgRank || 9999))
-      || Number(b.uses || 0) - Number(a.uses || 0)
+      Number(a.avgRank || 9999) - Number(b.avgRank || 9999)
       || Number(b.avgPts || 0) - Number(a.avgPts || 0)
+      || Number(b.uses || 0) - Number(a.uses || 0)
+      || Number(a.formationId || 0) - Number(b.formationId || 0)
+      || Number(a.slot || 0) - Number(b.slot || 0)
+    );
+  });
+}
+
+function buildPlayerRohmUsageIndex(rohmData, formationRows) {
+  playerRohmUsageById.clear();
+  const formationById = new Map(
+    (Array.isArray(formationRows) ? formationRows : [])
+      .map((formation) => [Number(formation?.id || 0), formation])
+      .filter(([id]) => Number.isInteger(id) && id > 0)
+  );
+  Object.entries(rohmData?.formations || {}).forEach(([formationKey, formation]) => {
+    const formationId = Number(formation?.localFormationId || formationKey || 0);
+    if (!Number.isInteger(formationId) || formationId <= 0) return;
+    const localFormation = formationById.get(formationId) || {
+      id: formationId,
+      name: formation?.localFormationLabel || formation?.localFormationName || `Formation ${formationId}`,
+      year: 0,
+      stride: 0,
+      positions: [],
+    };
+    const formationName = formationDisplayName(localFormation);
+    Object.entries(formation?.slots || {}).forEach(([slotKey, slotData]) => {
+      const slot = Number(slotKey);
+      if (!Number.isInteger(slot) || slot <= 0) return;
+      const rows = Array.isArray(slotData?.rows) ? slotData.rows : [];
+      const totalUses = rows.reduce((sum, row) => sum + Number(row?.uses || 0), 0);
+      rows.forEach((row) => {
+        const playerId = Number(row?.localPlayerId || 0);
+        if (!Number.isInteger(playerId) || playerId <= 0) return;
+        const uses = Number(row?.uses || 0);
+        const record = {
+          formationId,
+          formationName,
+          slot,
+          uses,
+          usageRate: totalUses > 0 ? uses / totalUses : 0,
+          avgPts: Number(row?.avgPts || 0),
+          avgRank: Number(row?.rank || 0),
+          formation: localFormation,
+          source: "rohm",
+        };
+        if (!playerRohmUsageById.has(playerId)) playerRohmUsageById.set(playerId, []);
+        playerRohmUsageById.get(playerId).push(record);
+      });
+    });
+  });
+  playerRohmUsageById.forEach((records) => {
+    records.sort((a, b) =>
+      Number(a.avgRank || 9999) - Number(b.avgRank || 9999)
+      || Number(b.avgPts || 0) - Number(a.avgPts || 0)
+      || Number(b.uses || 0) - Number(a.uses || 0)
       || Number(a.formationId || 0) - Number(b.formationId || 0)
       || Number(a.slot || 0) - Number(b.slot || 0)
     );
@@ -1293,46 +1345,35 @@ function compactUsagePitch(formation, highlightedSlot) {
   `;
 }
 
-function sortPlayerUsageRecords(records, mode) {
+function sortPlayerUsageRecords(records) {
   const list = Array.isArray(records) ? [...records] : [];
-  if (mode === "avg") {
-    return list.sort((a, b) =>
-      Number(a.avgRank || 9999) - Number(b.avgRank || 9999)
-      || Number(b.avgPts || 0) - Number(a.avgPts || 0)
-      || Number(b.uses || 0) - Number(a.uses || 0)
-      || Number(a.usageRank || 9999) - Number(b.usageRank || 9999)
-      || Number(a.formationId || 0) - Number(b.formationId || 0)
-      || Number(a.slot || 0) - Number(b.slot || 0)
-    );
-  }
   return list.sort((a, b) =>
-    Number(a.usageRank || 9999) - Number(b.usageRank || 9999)
-    || Number(b.uses || 0) - Number(a.uses || 0)
+    Number(a.avgRank || 9999) - Number(b.avgRank || 9999)
     || Number(b.avgPts || 0) - Number(a.avgPts || 0)
-    || Number(a.avgRank || 9999) - Number(b.avgRank || 9999)
+    || Number(b.uses || 0) - Number(a.uses || 0)
     || Number(a.formationId || 0) - Number(b.formationId || 0)
     || Number(a.slot || 0) - Number(b.slot || 0)
   );
 }
 
-function renderUsageSortSwitch() {
+function renderUsageSourceSwitch() {
   if (!els.usageSort) return;
   els.usageSort.innerHTML = `
-    <button type="button" class="usage-sort-btn${currentUsageSortMode === "usage" ? " is-on" : ""}" data-usage-sort="usage">Usage</button>
-    <button type="button" class="usage-sort-btn${currentUsageSortMode === "avg" ? " is-on" : ""}" data-usage-sort="avg">Avg</button>
+    <button type="button" class="usage-sort-btn${currentUsageSourceMode === "cc" ? " is-on" : ""}" data-usage-source="cc">CC</button>
+    <button type="button" class="usage-sort-btn${currentUsageSourceMode === "rohm" ? " is-on" : ""}" data-usage-source="rohm">Rohm</button>
   `;
 }
 
 function usageRecordHtml(record) {
+  const usageText = `${Number(record.uses || 0).toLocaleString()}/${usagePct(record.usageRate)}`;
   return `
     <div class="usage-record">
       <div class="usage-record-pitch">${compactUsagePitch(record.formation, record.slot)}</div>
       <div class="usage-record-main">
         <div class="usage-record-title">${record.formationName}</div>
-        <div class="usage-record-meta">Slot ${record.slot} / Rank U#${record.usageRank || "-"} A#${record.avgRank || "-"}</div>
+        <div class="usage-record-meta">Slot ${record.slot} / Rank #${record.avgRank || "-"}</div>
         <div class="usage-record-stats">
-          <span>Uses ${record.uses}</span>
-          <span>Usage ${usagePct(record.usageRate)}</span>
+          <span>Usage ${usageText}</span>
           <span>Avg ${usageAvg(record.avgPts)}</span>
         </div>
       </div>
@@ -1344,14 +1385,16 @@ function renderUsageModalContent() {
   if (!els.usageModal || !els.usageItems) return;
   const player = players.find((p) => Number(p?.id) === Number(currentUsagePlayerId));
   if (!player) return;
-  const records = sortPlayerUsageRecords(playerUsageById.get(Number(currentUsagePlayerId)) || [], currentUsageSortMode);
+  const sourceLabel = currentUsageSourceMode === "rohm" ? "Rohm" : "CC";
+  const sourceMap = currentUsageSourceMode === "rohm" ? playerRohmUsageById : playerUsageById;
+  const records = sortPlayerUsageRecords(sourceMap.get(Number(currentUsagePlayerId)) || []);
   if (els.usageTitle) els.usageTitle.textContent = "Used Rank";
   if (els.usageTarget) {
-    els.usageTarget.textContent = `${player.name} / CC slot used rank`;
+    els.usageTarget.textContent = `${player.name} / ${sourceLabel} slot used rank`;
   }
-  renderUsageSortSwitch();
+  renderUsageSourceSwitch();
   if (!records.length) {
-    els.usageItems.innerHTML = `<div class="usage-empty">CC使用実績がありません</div>`;
+    els.usageItems.innerHTML = `<div class="usage-empty">${sourceLabel}使用実績がありません</div>`;
   } else {
     els.usageItems.innerHTML = records.map(usageRecordHtml).join("");
   }
@@ -1362,7 +1405,7 @@ function openUsageModal(playerId) {
   const player = players.find((p) => Number(p?.id) === Number(playerId));
   if (!player) return;
   currentUsagePlayerId = Number(playerId);
-  currentUsageSortMode = "usage";
+  currentUsageSourceMode = "cc";
   renderUsageModalContent();
   els.usageModal.hidden = false;
 }
@@ -2658,11 +2701,11 @@ async function init() {
   }
   if (els.usageSort) {
     els.usageSort.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-usage-sort]");
+      const btn = e.target.closest("[data-usage-source]");
       if (!btn) return;
-      const mode = String(btn.dataset.usageSort || "usage");
-      if (!["usage", "avg"].includes(mode)) return;
-      currentUsageSortMode = mode;
+      const mode = String(btn.dataset.usageSource || "cc");
+      if (!["cc", "rohm"].includes(mode)) return;
+      currentUsageSourceMode = mode;
       renderUsageModalContent();
     });
   }
@@ -2830,16 +2873,19 @@ async function init() {
     }
   });
 
-  const [res, formationsRes] = await Promise.all([
+  const [res, formationsRes, rohmRes] = await Promise.all([
     fetch("./data.json?v=20260507-id908-cm"),
     fetch("./formations_data.json?v=20260507-player-usage").catch(() => null),
+    fetch(ROHM_SLOT_DATA_URL).catch(() => null),
     loadSiteMeta(),
   ]);
   const data = await res.json();
   const formationData = formationsRes ? await formationsRes.json().catch(() => ({})) : {};
+  const rohmData = rohmRes ? await rohmRes.json().catch(() => ({})) : {};
   players = data.players || [];
   formations = Array.isArray(formationData.formations) ? formationData.formations : [];
   buildPlayerUsageIndex(formations);
+  buildPlayerRohmUsageIndex(rohmData, formations);
   syncProfileSideWidthFromPlayers(players);
   scouts = Array.isArray(data.scouts) ? data.scouts : [];
   cmEvents = Array.isArray(data.cmEvents) ? data.cmEvents : [];
