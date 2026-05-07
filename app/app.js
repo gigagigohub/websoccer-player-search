@@ -181,7 +181,6 @@ const playerRohmUsageById = new Map();
 const playerRohmUsageByPersonId = new Map();
 let currentUsagePlayerId = 0;
 let currentUsageSourceMode = "cc";
-let currentUsageRohmUnit = "card";
 let scouts = [];
 const scoutsByEventId = new Map();
 let cmEvents = [];
@@ -1190,7 +1189,6 @@ function closeUsageModal() {
   els.usageModal.hidden = true;
   currentUsagePlayerId = 0;
   currentUsageSourceMode = "cc";
-  currentUsageRohmUnit = "card";
 }
 
 function formationYearLabel(formation) {
@@ -1437,16 +1435,9 @@ function sortPlayerUsageRecords(records) {
 function renderUsageSourceSwitch() {
   if (!els.usageSort) return;
   els.usageSort.innerHTML = `
-    <div class="usage-sort-row">
-      <button type="button" class="usage-sort-btn${currentUsageSourceMode === "cc" ? " is-on" : ""}" data-usage-source="cc">CC</button>
-      <button type="button" class="usage-sort-btn${currentUsageSourceMode === "rohm" ? " is-on" : ""}" data-usage-source="rohm">Rohm</button>
-    </div>
-    ${currentUsageSourceMode === "rohm" ? `
-      <div class="usage-sort-row">
-        <button type="button" class="usage-sort-btn${currentUsageRohmUnit === "card" ? " is-on" : ""}" data-usage-rohm-unit="card">Card ID</button>
-        <button type="button" class="usage-sort-btn${currentUsageRohmUnit === "person" ? " is-on" : ""}" data-usage-rohm-unit="person">PersonID</button>
-      </div>
-    ` : ""}
+    <button type="button" class="usage-sort-btn${currentUsageSourceMode === "cc" ? " is-on" : ""}" data-usage-source="cc">CC</button>
+    <button type="button" class="usage-sort-btn${currentUsageSourceMode === "rohm" ? " is-on" : ""}" data-usage-source="rohm">Rohm</button>
+    <button type="button" class="usage-sort-btn${currentUsageSourceMode === "rohm-person" ? " is-on" : ""}" data-usage-source="rohm-person">Rohm(PersonID)</button>
   `;
 }
 
@@ -1474,9 +1465,9 @@ function renderUsageModalContent() {
   if (!els.usageModal || !els.usageItems) return;
   const player = players.find((p) => Number(p?.id) === Number(currentUsagePlayerId));
   if (!player) return;
-  const isRohm = currentUsageSourceMode === "rohm";
-  const isRohmPerson = isRohm && currentUsageRohmUnit === "person";
-  const sourceLabel = isRohm ? (isRohmPerson ? "Rohm PersonID" : "Rohm Card ID") : "CC";
+  const isRohmPerson = currentUsageSourceMode === "rohm-person";
+  const isRohm = currentUsageSourceMode === "rohm" || isRohmPerson;
+  const sourceLabel = isRohmPerson ? "Rohm(PersonID)" : (isRohm ? "Rohm" : "CC");
   const sourceMap = isRohm ? (isRohmPerson ? playerRohmUsageByPersonId : playerRohmUsageById) : playerUsageById;
   const sourceKey = isRohmPerson ? playerPersonIdForPlayerId(currentUsagePlayerId) : Number(currentUsagePlayerId);
   const records = sortPlayerUsageRecords(sourceMap.get(sourceKey) || []);
@@ -1498,7 +1489,6 @@ function openUsageModal(playerId) {
   if (!player) return;
   currentUsagePlayerId = Number(playerId);
   currentUsageSourceMode = "cc";
-  currentUsageRohmUnit = "card";
   renderUsageModalContent();
   els.usageModal.hidden = false;
 }
@@ -2795,18 +2785,10 @@ async function init() {
   if (els.usageSort) {
     els.usageSort.addEventListener("click", (e) => {
       const sourceBtn = e.target.closest("[data-usage-source]");
-      if (sourceBtn) {
-        const mode = String(sourceBtn.dataset.usageSource || "cc");
-        if (!["cc", "rohm"].includes(mode)) return;
-        currentUsageSourceMode = mode;
-        renderUsageModalContent();
-        return;
-      }
-      const unitBtn = e.target.closest("[data-usage-rohm-unit]");
-      if (!unitBtn) return;
-      const unit = String(unitBtn.dataset.usageRohmUnit || "card");
-      if (!["card", "person"].includes(unit)) return;
-      currentUsageRohmUnit = unit;
+      if (!sourceBtn) return;
+      const mode = String(sourceBtn.dataset.usageSource || "cc");
+      if (!["cc", "rohm", "rohm-person"].includes(mode)) return;
+      currentUsageSourceMode = mode;
       renderUsageModalContent();
     });
   }
