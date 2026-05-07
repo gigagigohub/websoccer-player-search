@@ -2418,19 +2418,27 @@ body.modal-scroll-lock #formationModal {
 
 .usage-sort-switch {
   display: grid;
-  grid-template-columns: 0.8fr 0.9fr 1.5fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
   margin: 0 0 8px;
 }
 
 .usage-sort-btn {
-  min-height: 30px;
+  min-width: 0;
+  min-height: 34px;
   border: 1px solid #304a73;
   border-radius: 7px;
   background: #111d30;
   color: #aebfda;
-  font-size: 0.76rem;
+  font-size: 0.74rem;
   font-weight: 800;
+  line-height: 1.05;
+  padding: 4px 3px;
+}
+
+.usage-sort-btn span {
+  display: block;
+  font-size: 0.64rem;
 }
 
 .usage-sort-btn.is-on {

@@ -1437,7 +1437,7 @@ function renderUsageSourceSwitch() {
   els.usageSort.innerHTML = `
     <button type="button" class="usage-sort-btn${currentUsageSourceMode === "cc" ? " is-on" : ""}" data-usage-source="cc">CC</button>
     <button type="button" class="usage-sort-btn${currentUsageSourceMode === "rohm" ? " is-on" : ""}" data-usage-source="rohm">Rohm</button>
-    <button type="button" class="usage-sort-btn${currentUsageSourceMode === "rohm-person" ? " is-on" : ""}" data-usage-source="rohm-person">Rohm(PersonID)</button>
+    <button type="button" class="usage-sort-btn${currentUsageSourceMode === "rohm-person" ? " is-on" : ""}" data-usage-source="rohm-person">Rohm<br><span>PersonID</span></button>
   `;
 }
 
