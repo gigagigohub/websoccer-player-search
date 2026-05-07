@@ -2438,7 +2438,15 @@ body.modal-scroll-lock #formationModal {
 
 .usage-sort-btn span {
   display: block;
-  font-size: 0.64rem;
+  color: #8797ad;
+  font-size: 0.58rem;
+  font-weight: 650;
+  opacity: 0.68;
+}
+
+.usage-sort-btn.is-on span {
+  color: #c1d0e4;
+  opacity: 0.74;
 }
 
 .usage-sort-btn.is-on {

@@ -1329,46 +1329,44 @@ function buildPlayerRohmUsageIndex(rohmData, formationRows) {
 
         const personId = playerPersonIdForPlayerId(playerId);
         if (!personId) return;
-        if (!personGroups.has(personId)) {
-          personGroups.set(personId, {
-            formationId,
-            formationName,
-            slot,
-            uses: 0,
-            weightedPts: 0,
-            fallbackPts: 0,
-            cardIds: new Set(),
-            formation: localFormation,
-            source: "rohm-person",
-            personId,
-          });
+        const personRecord = {
+          formationId,
+          formationName,
+          slot,
+          uses,
+          usageRate: totalUses > 0 ? uses / totalUses : 0,
+          avgPts,
+          avgRank: Number(row?.rank || 0),
+          formation: localFormation,
+          source: "rohm-person",
+          personId,
+          representativePlayerId: playerId,
+        };
+        const current = personGroups.get(personId);
+        if (
+          !current
+          || Number(personRecord.avgRank || 9999) < Number(current.avgRank || 9999)
+          || (
+            Number(personRecord.avgRank || 9999) === Number(current.avgRank || 9999)
+            && (
+              Number(personRecord.uses || 0) > Number(current.uses || 0)
+              || (
+                Number(personRecord.uses || 0) === Number(current.uses || 0)
+                && Number(personRecord.avgPts || 0) > Number(current.avgPts || 0)
+              )
+            )
+          )
+        ) {
+          personGroups.set(personId, personRecord);
         }
-        const group = personGroups.get(personId);
-        group.uses += uses;
-        group.weightedPts += avgPts * uses;
-        group.fallbackPts = Math.max(group.fallbackPts, avgPts);
-        group.cardIds.add(playerId);
       });
       const personRecords = Array.from(personGroups.values())
-        .map((group) => ({
-          formationId: group.formationId,
-          formationName: group.formationName,
-          slot: group.slot,
-          uses: group.uses,
-          usageRate: totalUses > 0 ? group.uses / totalUses : 0,
-          avgPts: group.uses > 0 ? group.weightedPts / group.uses : group.fallbackPts,
-          avgRank: 0,
-          formation: group.formation,
-          source: group.source,
-          personId: group.personId,
-          cardCount: group.cardIds.size,
-        }))
         .sort((a, b) =>
-          Number(b.avgPts || 0) - Number(a.avgPts || 0)
+          Number(a.avgRank || 9999) - Number(b.avgRank || 9999)
           || Number(b.uses || 0) - Number(a.uses || 0)
+          || Number(b.avgPts || 0) - Number(a.avgPts || 0)
           || Number(a.personId || 0) - Number(b.personId || 0)
-        )
-        .map((record, index) => ({ ...record, avgRank: index + 1 }));
+        );
       personRecords.forEach((record) => {
         if (!playerRohmUsageByPersonId.has(record.personId)) playerRohmUsageByPersonId.set(record.personId, []);
         playerRohmUsageByPersonId.get(record.personId).push(record);
