@@ -1108,9 +1108,10 @@ button.ghost {
   position: absolute;
   top: 6px;
   right: 8px;
-  width: 48px;
-  height: 22px;
-  min-height: 22px;
+  width: 50px;
+  min-width: 50px;
+  height: 24px;
+  min-height: 24px;
   border-radius: var(--btn-radius-sm);
   border: 1px solid #3b6798;
   background: linear-gradient(180deg, var(--btn-info-top) 0%, var(--btn-info-bottom) 100%);
@@ -1132,10 +1133,11 @@ button.ghost {
 .scout-list-toggle {
   position: absolute;
   top: 6px;
-  right: 68px;
-  width: 48px;
-  height: 22px;
-  min-height: 22px;
+  right: 62px;
+  width: 50px;
+  min-width: 50px;
+  height: 24px;
+  min-height: 24px;
   border-radius: var(--btn-radius-sm);
   border: 1px solid #7d6abc;
   background: linear-gradient(180deg, var(--btn-purple-top) 0%, var(--btn-purple-bottom) 100%);
