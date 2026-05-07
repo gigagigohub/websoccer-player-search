@@ -2418,9 +2418,14 @@ body.modal-scroll-lock #formationModal {
 
 .usage-sort-switch {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 6px;
   margin: 0 0 8px;
+}
+
+.usage-sort-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
 }
 
 .usage-sort-btn {

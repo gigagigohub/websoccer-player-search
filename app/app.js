@@ -175,10 +175,13 @@ const els = {
 
 let players = [];
 let formations = [];
+const playerById = new Map();
 const playerUsageById = new Map();
 const playerRohmUsageById = new Map();
+const playerRohmUsageByPersonId = new Map();
 let currentUsagePlayerId = 0;
 let currentUsageSourceMode = "cc";
+let currentUsageRohmUnit = "card";
 let scouts = [];
 const scoutsByEventId = new Map();
 let cmEvents = [];
@@ -1187,6 +1190,7 @@ function closeUsageModal() {
   els.usageModal.hidden = true;
   currentUsagePlayerId = 0;
   currentUsageSourceMode = "cc";
+  currentUsageRohmUnit = "card";
 }
 
 function formationYearLabel(formation) {
@@ -1200,6 +1204,22 @@ function formationYearLabel(formation) {
 function formationDisplayName(formation) {
   if (!formation) return "-";
   return `${formation.name || "-"} ${formationYearLabel(formation)}`.trim();
+}
+
+function rebuildPlayerByIdIndex() {
+  playerById.clear();
+  (Array.isArray(players) ? players : []).forEach((player) => {
+    const playerId = Number(player?.id || 0);
+    if (Number.isInteger(playerId) && playerId > 0) playerById.set(playerId, player);
+  });
+}
+
+function playerPersonIdForPlayerId(playerId) {
+  const normalizedPlayerId = Number(playerId || 0);
+  const player = playerById.get(normalizedPlayerId);
+  const personId = Number(player?.personId || 0);
+  if (Number.isInteger(personId) && personId > 0) return personId;
+  return Number.isInteger(normalizedPlayerId) && normalizedPlayerId > 0 ? normalizedPlayerId : 0;
 }
 
 function sortUsageRows(rows, mode) {
@@ -1267,6 +1287,7 @@ function buildPlayerUsageIndex(formationRows) {
 
 function buildPlayerRohmUsageIndex(rohmData, formationRows) {
   playerRohmUsageById.clear();
+  playerRohmUsageByPersonId.clear();
   const formationById = new Map(
     (Array.isArray(formationRows) ? formationRows : [])
       .map((formation) => [Number(formation?.id || 0), formation])
@@ -1288,23 +1309,71 @@ function buildPlayerRohmUsageIndex(rohmData, formationRows) {
       if (!Number.isInteger(slot) || slot <= 0) return;
       const rows = Array.isArray(slotData?.rows) ? slotData.rows : [];
       const totalUses = rows.reduce((sum, row) => sum + Number(row?.uses || 0), 0);
+      const personGroups = new Map();
       rows.forEach((row) => {
         const playerId = Number(row?.localPlayerId || 0);
         if (!Number.isInteger(playerId) || playerId <= 0) return;
         const uses = Number(row?.uses || 0);
+        const avgPts = Number(row?.avgPts || 0);
         const record = {
           formationId,
           formationName,
           slot,
           uses,
           usageRate: totalUses > 0 ? uses / totalUses : 0,
-          avgPts: Number(row?.avgPts || 0),
+          avgPts,
           avgRank: Number(row?.rank || 0),
           formation: localFormation,
           source: "rohm",
         };
         if (!playerRohmUsageById.has(playerId)) playerRohmUsageById.set(playerId, []);
         playerRohmUsageById.get(playerId).push(record);
+
+        const personId = playerPersonIdForPlayerId(playerId);
+        if (!personId) return;
+        if (!personGroups.has(personId)) {
+          personGroups.set(personId, {
+            formationId,
+            formationName,
+            slot,
+            uses: 0,
+            weightedPts: 0,
+            fallbackPts: 0,
+            cardIds: new Set(),
+            formation: localFormation,
+            source: "rohm-person",
+            personId,
+          });
+        }
+        const group = personGroups.get(personId);
+        group.uses += uses;
+        group.weightedPts += avgPts * uses;
+        group.fallbackPts = Math.max(group.fallbackPts, avgPts);
+        group.cardIds.add(playerId);
+      });
+      const personRecords = Array.from(personGroups.values())
+        .map((group) => ({
+          formationId: group.formationId,
+          formationName: group.formationName,
+          slot: group.slot,
+          uses: group.uses,
+          usageRate: totalUses > 0 ? group.uses / totalUses : 0,
+          avgPts: group.uses > 0 ? group.weightedPts / group.uses : group.fallbackPts,
+          avgRank: 0,
+          formation: group.formation,
+          source: group.source,
+          personId: group.personId,
+          cardCount: group.cardIds.size,
+        }))
+        .sort((a, b) =>
+          Number(b.avgPts || 0) - Number(a.avgPts || 0)
+          || Number(b.uses || 0) - Number(a.uses || 0)
+          || Number(a.personId || 0) - Number(b.personId || 0)
+        )
+        .map((record, index) => ({ ...record, avgRank: index + 1 }));
+      personRecords.forEach((record) => {
+        if (!playerRohmUsageByPersonId.has(record.personId)) playerRohmUsageByPersonId.set(record.personId, []);
+        playerRohmUsageByPersonId.get(record.personId).push(record);
       });
     });
   });
@@ -1313,6 +1382,15 @@ function buildPlayerRohmUsageIndex(rohmData, formationRows) {
       Number(a.avgRank || 9999) - Number(b.avgRank || 9999)
       || Number(b.avgPts || 0) - Number(a.avgPts || 0)
       || Number(b.uses || 0) - Number(a.uses || 0)
+      || Number(a.formationId || 0) - Number(b.formationId || 0)
+      || Number(a.slot || 0) - Number(b.slot || 0)
+    );
+  });
+  playerRohmUsageByPersonId.forEach((records) => {
+    records.sort((a, b) =>
+      Number(a.avgRank || 9999) - Number(b.avgRank || 9999)
+      || Number(b.uses || 0) - Number(a.uses || 0)
+      || Number(b.avgPts || 0) - Number(a.avgPts || 0)
       || Number(a.formationId || 0) - Number(b.formationId || 0)
       || Number(a.slot || 0) - Number(b.slot || 0)
     );
@@ -1359,8 +1437,16 @@ function sortPlayerUsageRecords(records) {
 function renderUsageSourceSwitch() {
   if (!els.usageSort) return;
   els.usageSort.innerHTML = `
-    <button type="button" class="usage-sort-btn${currentUsageSourceMode === "cc" ? " is-on" : ""}" data-usage-source="cc">CC</button>
-    <button type="button" class="usage-sort-btn${currentUsageSourceMode === "rohm" ? " is-on" : ""}" data-usage-source="rohm">Rohm</button>
+    <div class="usage-sort-row">
+      <button type="button" class="usage-sort-btn${currentUsageSourceMode === "cc" ? " is-on" : ""}" data-usage-source="cc">CC</button>
+      <button type="button" class="usage-sort-btn${currentUsageSourceMode === "rohm" ? " is-on" : ""}" data-usage-source="rohm">Rohm</button>
+    </div>
+    ${currentUsageSourceMode === "rohm" ? `
+      <div class="usage-sort-row">
+        <button type="button" class="usage-sort-btn${currentUsageRohmUnit === "card" ? " is-on" : ""}" data-usage-rohm-unit="card">Card ID</button>
+        <button type="button" class="usage-sort-btn${currentUsageRohmUnit === "person" ? " is-on" : ""}" data-usage-rohm-unit="person">PersonID</button>
+      </div>
+    ` : ""}
   `;
 }
 
@@ -1388,12 +1474,15 @@ function renderUsageModalContent() {
   if (!els.usageModal || !els.usageItems) return;
   const player = players.find((p) => Number(p?.id) === Number(currentUsagePlayerId));
   if (!player) return;
-  const sourceLabel = currentUsageSourceMode === "rohm" ? "Rohm" : "CC";
-  const sourceMap = currentUsageSourceMode === "rohm" ? playerRohmUsageById : playerUsageById;
-  const records = sortPlayerUsageRecords(sourceMap.get(Number(currentUsagePlayerId)) || []);
+  const isRohm = currentUsageSourceMode === "rohm";
+  const isRohmPerson = isRohm && currentUsageRohmUnit === "person";
+  const sourceLabel = isRohm ? (isRohmPerson ? "Rohm PersonID" : "Rohm Card ID") : "CC";
+  const sourceMap = isRohm ? (isRohmPerson ? playerRohmUsageByPersonId : playerRohmUsageById) : playerUsageById;
+  const sourceKey = isRohmPerson ? playerPersonIdForPlayerId(currentUsagePlayerId) : Number(currentUsagePlayerId);
+  const records = sortPlayerUsageRecords(sourceMap.get(sourceKey) || []);
   if (els.usageTitle) els.usageTitle.textContent = "Rank";
   if (els.usageTarget) {
-    els.usageTarget.textContent = `${player.name} / ${sourceLabel} slot used rank`;
+    els.usageTarget.textContent = `${player.name} / ${sourceLabel} slot rank`;
   }
   renderUsageSourceSwitch();
   if (!records.length) {
@@ -1409,6 +1498,7 @@ function openUsageModal(playerId) {
   if (!player) return;
   currentUsagePlayerId = Number(playerId);
   currentUsageSourceMode = "cc";
+  currentUsageRohmUnit = "card";
   renderUsageModalContent();
   els.usageModal.hidden = false;
 }
@@ -2704,11 +2794,19 @@ async function init() {
   }
   if (els.usageSort) {
     els.usageSort.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-usage-source]");
-      if (!btn) return;
-      const mode = String(btn.dataset.usageSource || "cc");
-      if (!["cc", "rohm"].includes(mode)) return;
-      currentUsageSourceMode = mode;
+      const sourceBtn = e.target.closest("[data-usage-source]");
+      if (sourceBtn) {
+        const mode = String(sourceBtn.dataset.usageSource || "cc");
+        if (!["cc", "rohm"].includes(mode)) return;
+        currentUsageSourceMode = mode;
+        renderUsageModalContent();
+        return;
+      }
+      const unitBtn = e.target.closest("[data-usage-rohm-unit]");
+      if (!unitBtn) return;
+      const unit = String(unitBtn.dataset.usageRohmUnit || "card");
+      if (!["card", "person"].includes(unit)) return;
+      currentUsageRohmUnit = unit;
       renderUsageModalContent();
     });
   }
@@ -2886,6 +2984,7 @@ async function init() {
   const formationData = formationsRes ? await formationsRes.json().catch(() => ({})) : {};
   const rohmData = rohmRes ? await rohmRes.json().catch(() => ({})) : {};
   players = data.players || [];
+  rebuildPlayerByIdIndex();
   formations = Array.isArray(formationData.formations) ? formationData.formations : [];
   buildPlayerUsageIndex(formations);
   buildPlayerRohmUsageIndex(rohmData, formations);
