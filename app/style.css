@@ -1309,6 +1309,12 @@ button.ghost {
   grid-template-rows: auto 1fr;
 }
 
+.card.mode-2 .profile-description-wrap {
+  height: 138px;
+  min-height: 138px;
+  max-height: 138px;
+}
+
 .profile-description-title {
   font-size: 0.66rem;
   color: #9bb4de;
@@ -1455,6 +1461,11 @@ button.ghost {
   background: #0f1728;
   flex: 1 1 auto;
   min-height: 0;
+}
+
+.card.mode-1 .periods-scroll {
+  height: 138px;
+  max-height: 138px;
 }
 
 .periods-table {
