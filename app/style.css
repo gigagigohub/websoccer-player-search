@@ -1062,6 +1062,11 @@ button.ghost {
   overflow: hidden;
 }
 
+.card.mode-1 .card-body,
+.card.mode-2 .card-body {
+  padding-bottom: 54px;
+}
+
 .card-id {
   position: absolute;
   left: 10px;
@@ -1320,6 +1325,20 @@ button.ghost {
   overflow: auto;
 }
 
+.card.mode-2 .profile-view {
+  gap: 5px;
+}
+
+.card.mode-2 .profile-view .media-row {
+  margin-top: 6px;
+}
+
+.card.mode-2 .profile-description-wrap {
+  height: 132px;
+  min-height: 132px;
+  max-height: 132px;
+}
+
 .expanded-media {
   display: flex;
   align-items: flex-start;
@@ -1327,6 +1346,11 @@ button.ghost {
   gap: 10px;
   margin-top: 8px;
   margin-bottom: 8px;
+}
+
+.card.mode-1 .expanded-media {
+  margin-top: 6px;
+  margin-bottom: 6px;
 }
 
 .pos-heatmaps-scroll {
@@ -1450,6 +1474,11 @@ button.ghost {
   background: #0f1728;
   flex: 1 1 auto;
   min-height: 0;
+}
+
+.card.mode-1 .periods-scroll {
+  height: 132px;
+  max-height: 132px;
 }
 
 .periods-table {
