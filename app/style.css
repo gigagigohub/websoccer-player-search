@@ -1074,13 +1074,13 @@ button.ghost {
   position: absolute;
   top: 6px;
   right: 8px;
-  width: 72px;
+  width: 48px;
   height: 22px;
   border-radius: 6px;
   border: 1px solid #3b6798;
   background: linear-gradient(180deg, #24547f 0%, #183a61 100%);
   color: #eaf5ff;
-  font-size: 0.61rem;
+  font-size: 0.68rem;
   font-weight: 800;
   line-height: 1;
   padding: 0;
@@ -1097,7 +1097,7 @@ button.ghost {
 .scout-list-toggle {
   position: absolute;
   top: 6px;
-  right: 88px;
+  right: 68px;
   width: 48px;
   height: 22px;
   border-radius: 6px;

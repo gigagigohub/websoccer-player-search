@@ -1365,7 +1365,6 @@ function renderUsageSourceSwitch() {
 }
 
 function usageRecordHtml(record) {
-  const usageText = `${Number(record.uses || 0).toLocaleString()}/${usagePct(record.usageRate)}`;
   return `
     <div class="usage-record">
       <div class="usage-record-pitch">${compactUsagePitch(record.formation, record.slot)}</div>
@@ -1373,7 +1372,7 @@ function usageRecordHtml(record) {
         <div class="usage-record-title">${record.formationName}</div>
         <div class="usage-record-meta">Slot ${record.slot} / Rank #${record.avgRank || "-"}</div>
         <div class="usage-record-stats">
-          <span>Usage ${usageText}</span>
+          <span>Uses ${Number(record.uses || 0).toLocaleString()}</span>
           <span>Avg ${usageAvg(record.avgPts)}</span>
         </div>
       </div>
@@ -1388,7 +1387,7 @@ function renderUsageModalContent() {
   const sourceLabel = currentUsageSourceMode === "rohm" ? "Rohm" : "CC";
   const sourceMap = currentUsageSourceMode === "rohm" ? playerRohmUsageById : playerUsageById;
   const records = sortPlayerUsageRecords(sourceMap.get(Number(currentUsagePlayerId)) || []);
-  if (els.usageTitle) els.usageTitle.textContent = "Used Rank";
+  if (els.usageTitle) els.usageTitle.textContent = "Rank";
   if (els.usageTarget) {
     els.usageTarget.textContent = `${player.name} / ${sourceLabel} slot used rank`;
   }
@@ -2168,7 +2167,7 @@ function cardHtml(player) {
       <div class="card-top">
         ${cardTabsHtml(player.id, viewMode)}
         ${showScoutButton ? `<button type="button" class="scout-list-toggle" data-player-id="${player.id}" aria-label="履歴" ${hasAnyListHistory ? "" : "disabled"}>List</button>` : ""}
-        <button type="button" class="usage-toggle" data-player-id="${player.id}" aria-label="CC使用順位">Used Rank</button>
+        <button type="button" class="usage-toggle" data-player-id="${player.id}" aria-label="使用順位">Rank</button>
         <span class="card-id">ID: ${player.id}</span>
         <div class="card-head-main">
           <h3 class="card-name">
