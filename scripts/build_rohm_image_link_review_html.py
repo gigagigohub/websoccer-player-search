@@ -124,7 +124,7 @@ def write_csv(path: Path, items: list[dict]) -> None:
             "formation_slots",
             "candidate_ids",
             "source_image_url",
-        ])
+        ], lineterminator="\n")
         writer.writeheader()
         for item in items:
             writer.writerow({

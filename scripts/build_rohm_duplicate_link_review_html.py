@@ -246,7 +246,7 @@ def write_csv(path: Path, rows: list[dict]) -> None:
         "candidate_ids",
     ]
     with path.open("w", encoding="utf-8", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer = csv.DictWriter(f, fieldnames=fieldnames, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
