@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CC World Strength Ranking</title>
+  <style>
+    :root { color-scheme: dark; --bg:#07111f; --panel:#0e1a2c; --line:#243653; --text:#eaf1ff; --muted:#92a5c5; --accent:#67d3ff; --strong:#ffe27a; }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:var(--bg); color:var(--text); }
+    header { position:sticky; top:0; z-index:5; padding:14px 16px; background:rgba(7,17,31,.95); border-bottom:1px solid var(--line); backdrop-filter:blur(10px); }
+    h1 { margin:0; font-size:18px; }
+    .meta { margin-top:6px; color:var(--muted); font-size:12px; line-height:1.45; }
+    main { padding:16px; max-width:1180px; margin:0 auto; }
+    section { margin:0 0 20px; }
+    h2 { font-size:15px; margin:0 0 10px; }
+    .note { color:var(--muted); font-size:13px; line-height:1.6; margin-bottom:14px; }
+    .table-wrap { overflow:auto; border:1px solid var(--line); border-radius:10px; background:var(--panel); }
+    table { border-collapse:collapse; width:100%; min-width:900px; }
+    th,td { padding:9px 10px; border-bottom:1px solid rgba(255,255,255,.07); font-size:13px; text-align:left; vertical-align:top; }
+    th { position:sticky; top:0; background:#13213a; color:#cfe1ff; font-size:12px; white-space:nowrap; }
+    tr:last-child td { border-bottom:0; }
+    .strong { color:var(--strong); font-weight:800; }
+    .top { color:#c8d5ed; min-width:260px; }
+    .pill { display:inline-block; border:1px solid var(--line); border-radius:999px; padding:3px 8px; margin:2px 4px 2px 0; color:#cfe1ff; background:#0b1525; font-size:12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>CC World Strength Ranking</h1>
+    <div class="meta">Source: /Users/k.nishimura/work/coding/wsc_data/websoccer_master_db/wsm_2605042226.sqlite3<br>
+    Strong cutoff: 58.90 / Elite cutoff: 63.24</div>
+  </header>
+  <main>
+    <section>
+      <div class="note">
+        チーム力は、過去CCデータから算出した slot別選手適合度、フォーメーション実績、監督評価を合成した簡易スコアです。
+        ランキングは平均値ではなく、全チーム中上位20%に入るチームの割合を主指標にしています。
+        Gachi Indexは「全体平均の上位20%比率」を100とした指数です。
+      </div>
+      <div>
+        <span class="pill">Unit: season + world + team</span>
+        <span class="pill">Primary: top 20% share</span>
+        <span class="pill">Tie-break: elite share / p90</span>
+      </div>
+    </section>
+    <section>
+      <h2>World Ranking</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>World</th><th>Seasons</th><th>Teams</th><th>Strong Share</th><th>Elite Share</th><th>Gachi Index</th><th>P90</th><th>Median</th><th>Top Team Samples</th></tr>
+          </thead>
+          <tbody><tr><td>1</td><td>World 21</td><td>2616-2623</td><td>256</td><td class='strong'>28.5%</td><td>12.5%</td><td>143</td><td>64.5</td><td>52.5</td><td class='top'>ファンタジア(2620, 73.2); ファンタジア(2621, 73.2); ファンタジア(2617, 72.5); ファンタジア(2616, 72.5); ファンタジア(2618, 72.5)</td></tr>
+<tr><td>2</td><td>World 9</td><td>2616-2623</td><td>256</td><td class='strong'>26.2%</td><td>12.1%</td><td>131</td><td>64.3</td><td>52.6</td><td class='top'>ジデンFC(2621, 72.0); ペニさんFC(2622, 71.6); ペニさんFC(2623, 70.4); ふきげんぱんだ(2617, 70.4); ふきげんぱんだ(2619, 70.4)</td></tr>
+<tr><td>3</td><td>World 16</td><td>2616-2623</td><td>256</td><td class='strong'>25.0%</td><td>13.3%</td><td>125</td><td>64.4</td><td>51.0</td><td class='top'>ウォッカ(2616, 72.5); ライ　(2620, 69.3); チョコポメ(2622, 69.0); ラツィオ 99-00(2620, 68.9); FCバルサミコ(2622, 68.4)</td></tr>
+<tr><td>4</td><td>World 17</td><td>2616-2623</td><td>256</td><td class='strong'>24.2%</td><td>14.8%</td><td>121</td><td>65.5</td><td>49.6</td><td class='top'>東京C エスペリオン(2621, 85.5); 東京C エスペリオン(2623, 84.8); 東京C エスペリオン(2620, 82.2); 東京C エスペリオン(2619, 82.2); 東京C エスペリオン(2622, 80.1)</td></tr>
+<tr><td>5</td><td>World 4</td><td>2616-2623</td><td>256</td><td class='strong'>24.2%</td><td>9.4%</td><td>121</td><td>62.7</td><td>49.7</td><td class='top'>ポテチ(2618, 75.1); ポテチ(2617, 74.1); コルホーズ(2616, 70.6); ポテチ(2621, 70.4); ざみーとす(2622, 68.8)</td></tr>
+<tr><td>6</td><td>World 1</td><td>2616-2623</td><td>256</td><td class='strong'>23.0%</td><td>13.7%</td><td>115</td><td>64.7</td><td>48.6</td><td class='top'>颯FC(2622, 72.3); 颯FC(2617, 71.0); 颯FC(2619, 70.8); 颯FC(2618, 70.4); 颯FC(2620, 70.1)</td></tr>
+<tr><td>7</td><td>World 8</td><td>2616-2623</td><td>256</td><td class='strong'>21.1%</td><td>9.8%</td><td>105</td><td>62.0</td><td>48.9</td><td class='top'>爽やかナ・デ・シココ(2618, 73.3); 爽やかナ・デ・シココ(2620, 72.0); 爽やかナ・デ・シココ(2619, 71.9); みゃおFC(2621, 67.7); 象潟食堂(2619, 67.1)</td></tr>
+<tr><td>8</td><td>World 14</td><td>2616-2623</td><td>256</td><td class='strong'>20.7%</td><td>12.1%</td><td>104</td><td>64.1</td><td>50.7</td><td class='top'>ニコン(2618, 74.2); 7990301(2616, 72.2); FC目黒(2618, 71.6); FC目黒(2619, 71.6); FC目黒(2617, 71.6)</td></tr>
+<tr><td>9</td><td>World 13</td><td>2616-2623</td><td>256</td><td class='strong'>20.7%</td><td>11.3%</td><td>104</td><td>64.1</td><td>47.5</td><td class='top'>バナントンガラグ(2616, 78.5); バナントンガラグ(2617, 74.5); FC  ぐでたま(2623, 71.6); FC  ぐでたま(2619, 71.6); FC  ぐでたま(2622, 70.3)</td></tr>
+<tr><td>10</td><td>World 6</td><td>2616-2623</td><td>256</td><td class='strong'>20.3%</td><td>13.3%</td><td>102</td><td>65.7</td><td>48.4</td><td class='top'>CFC(2616, 72.4); イワキリ(2616, 71.6); イワキリ(2617, 71.6); イワキリ(2618, 71.6); イワキリ(2619, 71.6)</td></tr>
+<tr><td>11</td><td>World 2</td><td>2616-2623</td><td>256</td><td class='strong'>19.5%</td><td>11.7%</td><td>98</td><td>65.2</td><td>50.8</td><td class='top'>FC皇帝ペンギン(2623, 72.5); 湘南マイティー(2621, 72.5); 湘南マイティー(2619, 72.5); 湘南マイティー(2620, 72.5); 湘南マイティー(2622, 71.7)</td></tr>
+<tr><td>12</td><td>World 3</td><td>2616-2623</td><td>256</td><td class='strong'>19.5%</td><td>9.4%</td><td>98</td><td>62.5</td><td>46.8</td><td class='top'>ゆるりん(2618, 72.1); ゆるりん(2621, 71.4); ゆるりん(2619, 70.0); ビッセルバイエルン(2620, 69.8); ジュフユナイテッド(2622, 69.5)</td></tr>
+<tr><td>13</td><td>World 10</td><td>2616-2623</td><td>256</td><td class='strong'>18.8%</td><td>7.8%</td><td>94</td><td>62.1</td><td>50.4</td><td class='top'>FC.OGAWA(2619, 70.3); FC.OGAWA(2620, 70.3); FC.OGAWA(2621, 70.0); 矢野貴章(2622, 69.6); 矢野貴章(2621, 68.2)</td></tr>
+<tr><td>14</td><td>World 15</td><td>2616-2623</td><td>256</td><td class='strong'>18.4%</td><td>7.4%</td><td>92</td><td>62.3</td><td>50.1</td><td class='top'>ForzaInter(2616, 73.5); みゆうしんFC(2618, 69.8); ForzaInter(2617, 69.8); ForzaInter(2618, 68.2); 幻燈 (2617, 67.9)</td></tr>
+<tr><td>15</td><td>World 5</td><td>2616-2623</td><td>256</td><td class='strong'>18.0%</td><td>7.8%</td><td>90</td><td>62.4</td><td>50.6</td><td class='top'>MARS(2622, 71.6); MARS(2621, 70.1); MARS(2623, 69.5); MARS(2617, 66.7); ビーグル(2620, 66.7)</td></tr>
+<tr><td>16</td><td>World 19</td><td>2616-2623</td><td>256</td><td class='strong'>16.4%</td><td>8.2%</td><td>82</td><td>62.4</td><td>50.0</td><td class='top'>FCフォルテ(2621, 74.8); FCフォルテ(2623, 73.2); Ēlysion(2620, 72.1); FCフォルテ(2622, 72.0); Ēlysion(2618, 71.5)</td></tr>
+<tr><td>17</td><td>World 11</td><td>2616-2623</td><td>256</td><td class='strong'>16.4%</td><td>5.1%</td><td>82</td><td>60.3</td><td>49.9</td><td class='top'>ガウディ(2617, 80.3); D-kichi(2622, 77.5); ガウディ(2616, 75.7); ガウディ(2618, 74.3); D-kichi(2621, 70.9)</td></tr>
+<tr><td>18</td><td>World 12</td><td>2616-2623</td><td>256</td><td class='strong'>16.0%</td><td>8.2%</td><td>80</td><td>61.1</td><td>49.9</td><td class='top'>twistAS(2622, 72.3); まるちゃんFC(2619, 72.0); まるちゃんFC(2620, 72.0); まるちゃんFC(2621, 72.0); まるちゃんFC(2622, 72.0)</td></tr>
+<tr><td>19</td><td>World 18</td><td>2616-2623</td><td>256</td><td class='strong'>16.0%</td><td>7.4%</td><td>80</td><td>60.9</td><td>49.4</td><td class='top'>俺か俺以外か(2623, 78.1); 最初と最後やでっせ(2621, 72.2); 最初と最後やでっせ(2616, 70.4); 最初と最後やでっせ(2620, 70.4); 黒の衝動(2622, 70.3)</td></tr>
+<tr><td>20</td><td>World 20</td><td>2616-2623</td><td>256</td><td class='strong'>15.2%</td><td>12.1%</td><td>76</td><td>64.3</td><td>47.5</td><td class='top'>イタリアンサンドF(2623, 83.5); イタリアンサンドF(2622, 74.5); 木津川シティ•FC(2621, 71.0); 木津川シティ•FC(2620, 71.0); 木津川シティ•FC(2622, 71.0)</td></tr>
+<tr><td>21</td><td>World 7</td><td>2616-2623</td><td>256</td><td class='strong'>12.1%</td><td>2.7%</td><td>61</td><td>59.5</td><td>50.4</td><td class='top'>えーしーみら(2623, 73.4); 雪山特攻隊(2622, 66.2); 雪山特攻隊(2621, 66.2); おからにあん(2617, 65.6); ダークフォース(2619, 65.1)</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+    <section>
+      <h2>World Season Ranking</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Season</th><th>World</th><th>Teams</th><th>Strong Share</th><th>Elite Share</th><th>Gachi Index</th><th>P90</th><th>Top Team Samples</th></tr>
+          </thead>
+          <tbody><tr><td>1</td><td>2620</td><td>World 4</td><td>32</td><td class='strong'>37.5%</td><td>12.5%</td><td>188</td><td>65.2</td><td class='top'>ポテチ(2620, 67.0); 翼神竜(2620, 66.5); ざみーとす(2620, 65.6); コルホーズ(2620, 65.4); ひまじん(2620, 63.0)</td></tr>
+<tr><td>2</td><td>2620</td><td>World 21</td><td>32</td><td class='strong'>37.5%</td><td>12.5%</td><td>188</td><td>63.5</td><td class='top'>ファンタジア(2620, 73.2); 舞浜レンガパン(2620, 65.7); FCもうふぶき(2620, 65.1); FC.URAWA(2620, 63.6); はにわ(2620, 62.5)</td></tr>
+<tr><td>3</td><td>2623</td><td>World 9</td><td>32</td><td class='strong'>34.4%</td><td>9.4%</td><td>172</td><td>62.6</td><td class='top'>ペニさんFC(2623, 70.4); ジデンFC(2623, 68.6); ぴーやろ(2623, 65.1); F.C.ちびら(2623, 62.6); FC コレナンデ商会(2623, 62.6)</td></tr>
+<tr><td>4</td><td>2616</td><td>World 16</td><td>32</td><td class='strong'>31.2%</td><td>21.9%</td><td>156</td><td>65.4</td><td class='top'>ウォッカ(2616, 72.5); パンサラッサ(2616, 66.8); 猫1匹(2616, 65.5); ピエモンテ(2616, 65.4); チョコポメ(2616, 64.7)</td></tr>
+<tr><td>5</td><td>2618</td><td>World 9</td><td>32</td><td class='strong'>31.2%</td><td>12.5%</td><td>156</td><td>64.3</td><td class='top'>ふきげんぱんだ(2618, 70.4); FCモンテレイ(2618, 65.9); ノリアFC(2618, 65.4); ジデンFC(2618, 64.5); 倶楽部賭郎(2618, 62.8)</td></tr>
+<tr><td>6</td><td>2621</td><td>World 21</td><td>32</td><td class='strong'>31.2%</td><td>12.5%</td><td>156</td><td>63.2</td><td class='top'>ファンタジア(2621, 73.2); FC.URAWA(2621, 69.4); FCもうふぶき(2621, 65.1); 舞浜レンガパン(2621, 63.3); チーム謀(2621, 62.1)</td></tr>
+<tr><td>7</td><td>2618</td><td>World 16</td><td>32</td><td class='strong'>31.2%</td><td>9.4%</td><td>156</td><td>62.6</td><td class='top'>ウォッカ(2618, 65.0); 　いか(2618, 64.4); 猫1匹(2618, 63.5); チョコポメ(2618, 62.7); タニヤ(2618, 61.7)</td></tr>
+<tr><td>8</td><td>2622</td><td>World 4</td><td>32</td><td class='strong'>31.2%</td><td>6.2%</td><td>156</td><td>61.1</td><td class='top'>ざみーとす(2622, 68.8); ひまじん(2622, 63.3); コルホーズ(2622, 61.5); キタくんFC(2622, 61.1); ポテチ(2622, 61.0)</td></tr>
+<tr><td>9</td><td>2619</td><td>World 9</td><td>32</td><td class='strong'>28.1%</td><td>21.9%</td><td>141</td><td>65.7</td><td class='top'>ふきげんぱんだ(2619, 70.4); ペニさんFC(2619, 68.9); ジデンFC(2619, 67.9); チョココロネーロ(2619, 65.8); FCモンテレイ(2619, 64.9)</td></tr>
+<tr><td>10</td><td>2619</td><td>World 17</td><td>32</td><td class='strong'>28.1%</td><td>18.8%</td><td>141</td><td>67.1</td><td class='top'>東京C エスペリオン(2619, 82.2); パッカーーん(2619, 68.4); 04LS(2619, 67.7); マジョリティ(2619, 67.2); クライフ(2619, 65.4)</td></tr>
+<tr><td>11</td><td>2623</td><td>World 1</td><td>32</td><td class='strong'>28.1%</td><td>18.8%</td><td>141</td><td>65.0</td><td class='top'>Rコンシェルジュ(2623, 67.1); はたのっちFC 99(2623, 67.1); 颯FC(2623, 65.1); メガネパンサー(2623, 65.1); ACミラン(2623, 63.8)</td></tr>
+<tr><td>12</td><td>2618</td><td>World 17</td><td>32</td><td class='strong'>28.1%</td><td>15.6%</td><td>141</td><td>65.5</td><td class='top'>マジョリティ(2618, 72.0); パッカーーん(2618, 68.0); 04LS(2618, 66.5); クライフ(2618, 65.6); 東京C エスペリオン(2618, 64.1)</td></tr>
+<tr><td>13</td><td>2617</td><td>World 15</td><td>32</td><td class='strong'>28.1%</td><td>12.5%</td><td>141</td><td>66.8</td><td class='top'>ForzaInter(2617, 69.8); 幻燈 (2617, 67.9); みゆうしんFC(2617, 67.8); CHARM(2617, 67.3); ケントデリカッターズ(2617, 62.1)</td></tr>
+<tr><td>14</td><td>2616</td><td>World 9</td><td>32</td><td class='strong'>28.1%</td><td>12.5%</td><td>141</td><td>64.2</td><td class='top'>ペニさんFC(2616, 65.2); ローションＦＣ(2616, 64.9); ジデンFC(2616, 64.5); 倶楽部賭郎(2616, 64.4); セレッソ蒼天掘(2616, 62.7)</td></tr>
+<tr><td>15</td><td>2617</td><td>World 21</td><td>32</td><td class='strong'>28.1%</td><td>12.5%</td><td>141</td><td>64.0</td><td class='top'>ファンタジア(2617, 72.5); FC.URAWA(2617, 66.1); 舞浜レンガパン(2617, 65.7); せーのがさんはい(2617, 64.1); ペッツ(2617, 62.8)</td></tr>
+<tr><td>16</td><td>2618</td><td>World 8</td><td>32</td><td class='strong'>28.1%</td><td>12.5%</td><td>141</td><td>63.9</td><td class='top'>爽やかナ・デ・シココ(2618, 73.3); ガンバル部(2618, 67.1); みゃおFC(2618, 65.3); ゾンビ軍団(2618, 64.2); SSFMalice(2618, 61.0)</td></tr>
+<tr><td>17</td><td>2617</td><td>World 9</td><td>32</td><td class='strong'>28.1%</td><td>12.5%</td><td>141</td><td>63.7</td><td class='top'>ふきげんぱんだ(2617, 70.4); FCモンテレイ(2617, 66.5); ジデンFC(2617, 64.5); インテル(2617, 63.9); ノリアFC(2617, 62.6)</td></tr>
+<tr><td>18</td><td>2619</td><td>World 16</td><td>32</td><td class='strong'>28.1%</td><td>12.5%</td><td>141</td><td>63.5</td><td class='top'>ラツィオ 99-00(2619, 67.2); ピエモンテ(2619, 65.0); 　いか(2619, 64.4); チョッコリ(2619, 63.7); タニヤ(2619, 61.7)</td></tr>
+<tr><td>19</td><td>2619</td><td>World 21</td><td>32</td><td class='strong'>28.1%</td><td>12.5%</td><td>141</td><td>63.2</td><td class='top'>ファンタジア(2619, 72.5); 舞浜レンガパン(2619, 65.7); はにわ(2619, 64.5); FCもうふぶき(2619, 63.3); せーのがさんはい(2619, 61.7)</td></tr>
+<tr><td>20</td><td>2616</td><td>World 21</td><td>32</td><td class='strong'>28.1%</td><td>9.4%</td><td>141</td><td>63.0</td><td class='top'>ファンタジア(2616, 72.5); 舞浜レンガパン(2616, 69.2); FC.URAWA(2616, 65.6); ペッツ(2616, 63.1); チーム謀(2616, 62.5)</td></tr>
+<tr><td>21</td><td>2620</td><td>World 11</td><td>32</td><td class='strong'>28.1%</td><td>6.2%</td><td>141</td><td>60.3</td><td class='top'>anna(2620, 68.2); D-kichi(2620, 66.1); バナナサブその２(2620, 60.8); NCルン(2620, 60.3); こそっと(2620, 60.1)</td></tr>
+<tr><td>22</td><td>2623</td><td>World 13</td><td>32</td><td class='strong'>25.0%</td><td>18.8%</td><td>125</td><td>64.9</td><td class='top'>FC  ぐでたま(2623, 71.6); たびお(2623, 67.1); ア テ ム(2623, 66.1); サムライドッピエッタ(2623, 65.0); バナントンガラグ(2623, 64.4)</td></tr>
+<tr><td>23</td><td>2620</td><td>World 17</td><td>32</td><td class='strong'>25.0%</td><td>18.8%</td><td>125</td><td>64.8</td><td class='top'>東京C エスペリオン(2620, 82.2); 04LS(2620, 67.9); フォールデン(2620, 65.0); マジョリティ(2620, 64.8); ペタグー(2620, 64.2)</td></tr>
+<tr><td>24</td><td>2622</td><td>World 21</td><td>32</td><td class='strong'>25.0%</td><td>15.6%</td><td>125</td><td>65.5</td><td class='top'>ファンタジア(2622, 72.5); FC.URAWA(2622, 67.5); エマ;ワトソン(2622, 66.0); 舞浜レンガパン(2622, 65.7); FC Zume(2622, 63.7)</td></tr>
+<tr><td>25</td><td>2623</td><td>World 14</td><td>32</td><td class='strong'>25.0%</td><td>15.6%</td><td>125</td><td>64.0</td><td class='top'>FC下松(2623, 67.1); FC目黒(2623, 65.2); イタリアンサンドR(2623, 64.6); ちわわFC(2623, 64.0); ウスバカゲロウ(2623, 63.9)</td></tr>
+<tr><td>26</td><td>2618</td><td>World 1</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>66.7</td><td class='top'>颯FC(2618, 70.4); ACミラン(2618, 68.5); Juve0203(2618, 67.3); Rコンシェルジュ(2618, 67.1); マクノシタU(2618, 62.7)</td></tr>
+<tr><td>27</td><td>2623</td><td>World 17</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>65.0</td><td class='top'>東京C エスペリオン(2623, 84.8); パッカーーん(2623, 66.6); フォールデン(2623, 65.6); とらまる(2623, 65.3); マジョリティ(2623, 62.5)</td></tr>
+<tr><td>28</td><td>2616</td><td>World 14</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>64.8</td><td class='top'>7990301(2616, 72.2); FC PONTA(2616, 66.9); €°アルカンタラFC(2616, 66.1); FC目黒(2616, 65.2); ちわわFC(2616, 61.2)</td></tr>
+<tr><td>29</td><td>2618</td><td>World 21</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>64.4</td><td class='top'>ファンタジア(2618, 72.5); 舞浜レンガパン(2618, 65.7); FC.URAWA(2618, 65.6); はにわ(2618, 64.5); ヤマロク(2618, 63.1)</td></tr>
+<tr><td>30</td><td>2623</td><td>World 21</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>64.3</td><td class='top'>ファンタジア(2623, 72.5); FC.URAWA(2623, 67.1); 舞浜レンガパン(2623, 65.7); エマ;ワトソン(2623, 64.5); はにわ(2623, 63.1)</td></tr>
+<tr><td>31</td><td>2622</td><td>World 16</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>64.2</td><td class='top'>チョコポメ(2622, 69.0); FCバルサミコ(2622, 68.4); Cataluña(2622, 65.5); 猫1匹(2622, 64.3); 　いか(2622, 62.4)</td></tr>
+<tr><td>32</td><td>2621</td><td>World 13</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>64.2</td><td class='top'>バナントンガラグ(2621, 66.3); 長崎ちゃんぽんず(2621, 66.1); 松阪牛FC(2621, 65.4); FC富士急(2621, 64.4); 三元豚FC⭐︎(2621, 62.0)</td></tr>
+<tr><td>33</td><td>2616</td><td>World 17</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>64.1</td><td class='top'>東京C エスペリオン(2616, 74.5); マジョリティ(2616, 70.9); フォールデン(2616, 69.7); サンケイスワローズ(2616, 64.2); 04LS(2616, 63.0)</td></tr>
+<tr><td>34</td><td>2620</td><td>World 1</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>63.8</td><td class='top'>颯FC(2620, 70.1); Rコンシェルジュ(2620, 67.1); -Horiz-(2620, 65.1); ACミラン(2620, 64.0); リバプールFC(2620, 62.4)</td></tr>
+<tr><td>35</td><td>2616</td><td>World 15</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>63.2</td><td class='top'>ForzaInter(2616, 73.5); CHARM(2616, 67.3); スキスキスー(2616, 64.0); 幻燈 (2616, 63.3); みゆうしんFC(2616, 62.5)</td></tr>
+<tr><td>36</td><td>2616</td><td>World 8</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>63.1</td><td class='top'>ゾンビ軍団(2616, 66.2); みゃおFC(2616, 66.1); 爽やかナ・デ・シココ(2616, 63.7); ガンバル部(2616, 63.3); HITACHI(2616, 61.6)</td></tr>
+<tr><td>37</td><td>2618</td><td>World 15</td><td>32</td><td class='strong'>25.0%</td><td>9.4%</td><td>125</td><td>62.9</td><td class='top'>みゆうしんFC(2618, 69.8); ForzaInter(2618, 68.2); CHARM(2618, 64.0); 幻燈 (2618, 62.9); FCロナウド(2618, 62.7)</td></tr>
+<tr><td>38</td><td>2622</td><td>World 5</td><td>32</td><td class='strong'>25.0%</td><td>9.4%</td><td>125</td><td>62.7</td><td class='top'>MARS(2622, 71.6); REAL ONO(2622, 65.4); Mambo(2622, 64.7); いちご(2622, 62.9); アズリ(2622, 61.0)</td></tr>
+<tr><td>39</td><td>2618</td><td>World 4</td><td>32</td><td class='strong'>25.0%</td><td>9.4%</td><td>125</td><td>62.6</td><td class='top'>ポテチ(2618, 75.1); 翼神竜(2618, 66.5); デマ長万部(2618, 66.4); FC ONOFF(2618, 62.7); 新宿キャッツアイ(2618, 61.0)</td></tr>
+<tr><td>40</td><td>2621</td><td>World 4</td><td>32</td><td class='strong'>25.0%</td><td>9.4%</td><td>125</td><td>62.3</td><td class='top'>ポテチ(2621, 70.4); 翼神竜(2621, 66.5); ざみーとす(2621, 66.0); コルホーズ(2621, 62.3); ひまじん(2621, 62.2)</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
