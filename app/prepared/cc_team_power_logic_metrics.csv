@@ -1,0 +1,7 @@
+name,weightsText,logLoss,accuracy,goalDiffCorr,scale
+Player only,1*playerOverall,0.5892459256625152,0.6879672897196262,0.4447214369296565,1.0
+Slot only,1*slotRank,0.6004829879258411,0.6824766355140187,0.4190303024080555,1.0
+Player + Formation,1*playerOverall + 0.3*formation,0.5843817233514901,0.6920560747663551,0.45681517773149377,1.0
+Player + Slot + Formation,1*playerOverall + 0.3*slotRank + 0.3*formation,0.5758355028775584,0.7011682242990654,0.4763178258710966,0.7
+Recommended TeamPower,1*playerOverall + 0.5*slotRank + 0.2*slotFloor + 0.3*formation,0.5704719599193705,0.7059579439252337,0.4797974593998755,0.7
+Recommended + Coach,1*playerOverall + 0.5*slotRank + 0.3*formation + 0.1*coach,0.5711145082800521,0.7042056074766355,0.48124266308017616,0.7
