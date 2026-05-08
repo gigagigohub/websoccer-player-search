@@ -13,33 +13,56 @@
     main { padding:16px; max-width:1180px; margin:0 auto; }
     section { margin:0 0 20px; }
     h2 { font-size:15px; margin:0 0 10px; }
+    h3 { font-size:13px; margin:14px 0 8px; color:#cfe1ff; }
     .note { color:var(--muted); font-size:13px; line-height:1.6; margin-bottom:14px; }
     .table-wrap { overflow:auto; border:1px solid var(--line); border-radius:10px; background:var(--panel); }
+    .table-wrap.compact { max-height:360px; }
     table { border-collapse:collapse; width:100%; min-width:900px; }
+    .compact table { min-width:760px; }
     th,td { padding:9px 10px; border-bottom:1px solid rgba(255,255,255,.07); font-size:13px; text-align:left; vertical-align:top; }
     th { position:sticky; top:0; background:#13213a; color:#cfe1ff; font-size:12px; white-space:nowrap; }
     tr:last-child td { border-bottom:0; }
     .strong { color:var(--strong); font-weight:800; }
     .top { color:#c8d5ed; min-width:260px; }
     .pill { display:inline-block; border:1px solid var(--line); border-radius:999px; padding:3px 8px; margin:2px 4px 2px 0; color:#cfe1ff; background:#0b1525; font-size:12px; }
+    .muted { color:var(--muted); }
+    .detail-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:10px; }
+    .meta-line { color:var(--muted); font-size:12px; }
+    .score-card { min-width:116px; border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:8px 10px; background:#101f36; text-align:right; }
+    .score-card span,.metric-grid span { display:block; color:var(--muted); font-size:11px; }
+    .score-card b { display:block; color:var(--strong); font-size:20px; }
+    .metric-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; margin:10px 0; }
+    .metric-grid div { border:1px solid rgba(255,255,255,.1); border-radius:10px; background:#0b1728; padding:8px; }
+    .metric-grid b { display:block; font-size:15px; margin-top:3px; }
+    .mix { margin:8px 0 10px; }
+    .split { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .world-detail { border:1px solid var(--line); border-radius:12px; padding:14px; background:rgba(14,26,44,.58); }
+    @media (max-width: 860px) {
+      .metric-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .split { grid-template-columns:1fr; }
+      table { min-width:780px; }
+      .detail-head { align-items:stretch; }
+    }
   </style>
 </head>
 <body>
   <header>
     <h1>CC World Strength Ranking</h1>
     <div class="meta">Source: /Users/k.nishimura/work/coding/wsc_data/websoccer_master_db/wsm_2605042226.sqlite3<br>
-    Strong cutoff: 58.90 / Elite cutoff: 63.24</div>
+    Strong cutoff: 58.93 / Elite cutoff: 63.30</div>
   </header>
   <main>
     <section>
       <div class="note">
-        チーム力は、過去CCデータから算出した slot別選手適合度、フォーメーション実績、監督評価を合成した簡易スコアです。
+        チーム力は、過去CCデータから算出した slot別選手適合度とフォーメーション実績を合成した簡易スコアです。
+        監督評価はフォーメーションとセットになりやすいため、今回のスコア計算から外しています。
         ランキングは平均値ではなく、全チーム中上位20%に入るチームの割合を主指標にしています。
         Gachi Indexは「全体平均の上位20%比率」を100とした指数です。
       </div>
       <div>
         <span class="pill">Unit: season + world + team</span>
         <span class="pill">Primary: top 20% share</span>
+        <span class="pill">Score: slot fit 70% / formation 30%</span>
         <span class="pill">Tie-break: elite share / p90</span>
       </div>
     </section>
@@ -48,29 +71,29 @@
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>#</th><th>World</th><th>Seasons</th><th>Teams</th><th>Strong Share</th><th>Elite Share</th><th>Gachi Index</th><th>P90</th><th>Median</th><th>Top Team Samples</th></tr>
+            <tr><th>#</th><th>World</th><th>Seasons</th><th>Teams</th><th>Strong Share</th><th>Elite Share</th><th>Gachi Index</th><th>P90</th><th>Median</th><th>Avg Slot</th><th>Avg Form</th><th>Strong Formation Mix</th></tr>
           </thead>
-          <tbody><tr><td>1</td><td>World 21</td><td>2616-2623</td><td>256</td><td class='strong'>28.5%</td><td>12.5%</td><td>143</td><td>64.5</td><td>52.5</td><td class='top'>ファンタジア(2620, 73.2); ファンタジア(2621, 73.2); ファンタジア(2617, 72.5); ファンタジア(2616, 72.5); ファンタジア(2618, 72.5)</td></tr>
-<tr><td>2</td><td>World 9</td><td>2616-2623</td><td>256</td><td class='strong'>26.2%</td><td>12.1%</td><td>131</td><td>64.3</td><td>52.6</td><td class='top'>ジデンFC(2621, 72.0); ペニさんFC(2622, 71.6); ペニさんFC(2623, 70.4); ふきげんぱんだ(2617, 70.4); ふきげんぱんだ(2619, 70.4)</td></tr>
-<tr><td>3</td><td>World 16</td><td>2616-2623</td><td>256</td><td class='strong'>25.0%</td><td>13.3%</td><td>125</td><td>64.4</td><td>51.0</td><td class='top'>ウォッカ(2616, 72.5); ライ　(2620, 69.3); チョコポメ(2622, 69.0); ラツィオ 99-00(2620, 68.9); FCバルサミコ(2622, 68.4)</td></tr>
-<tr><td>4</td><td>World 17</td><td>2616-2623</td><td>256</td><td class='strong'>24.2%</td><td>14.8%</td><td>121</td><td>65.5</td><td>49.6</td><td class='top'>東京C エスペリオン(2621, 85.5); 東京C エスペリオン(2623, 84.8); 東京C エスペリオン(2620, 82.2); 東京C エスペリオン(2619, 82.2); 東京C エスペリオン(2622, 80.1)</td></tr>
-<tr><td>5</td><td>World 4</td><td>2616-2623</td><td>256</td><td class='strong'>24.2%</td><td>9.4%</td><td>121</td><td>62.7</td><td>49.7</td><td class='top'>ポテチ(2618, 75.1); ポテチ(2617, 74.1); コルホーズ(2616, 70.6); ポテチ(2621, 70.4); ざみーとす(2622, 68.8)</td></tr>
-<tr><td>6</td><td>World 1</td><td>2616-2623</td><td>256</td><td class='strong'>23.0%</td><td>13.7%</td><td>115</td><td>64.7</td><td>48.6</td><td class='top'>颯FC(2622, 72.3); 颯FC(2617, 71.0); 颯FC(2619, 70.8); 颯FC(2618, 70.4); 颯FC(2620, 70.1)</td></tr>
-<tr><td>7</td><td>World 8</td><td>2616-2623</td><td>256</td><td class='strong'>21.1%</td><td>9.8%</td><td>105</td><td>62.0</td><td>48.9</td><td class='top'>爽やかナ・デ・シココ(2618, 73.3); 爽やかナ・デ・シココ(2620, 72.0); 爽やかナ・デ・シココ(2619, 71.9); みゃおFC(2621, 67.7); 象潟食堂(2619, 67.1)</td></tr>
-<tr><td>8</td><td>World 14</td><td>2616-2623</td><td>256</td><td class='strong'>20.7%</td><td>12.1%</td><td>104</td><td>64.1</td><td>50.7</td><td class='top'>ニコン(2618, 74.2); 7990301(2616, 72.2); FC目黒(2618, 71.6); FC目黒(2619, 71.6); FC目黒(2617, 71.6)</td></tr>
-<tr><td>9</td><td>World 13</td><td>2616-2623</td><td>256</td><td class='strong'>20.7%</td><td>11.3%</td><td>104</td><td>64.1</td><td>47.5</td><td class='top'>バナントンガラグ(2616, 78.5); バナントンガラグ(2617, 74.5); FC  ぐでたま(2623, 71.6); FC  ぐでたま(2619, 71.6); FC  ぐでたま(2622, 70.3)</td></tr>
-<tr><td>10</td><td>World 6</td><td>2616-2623</td><td>256</td><td class='strong'>20.3%</td><td>13.3%</td><td>102</td><td>65.7</td><td>48.4</td><td class='top'>CFC(2616, 72.4); イワキリ(2616, 71.6); イワキリ(2617, 71.6); イワキリ(2618, 71.6); イワキリ(2619, 71.6)</td></tr>
-<tr><td>11</td><td>World 2</td><td>2616-2623</td><td>256</td><td class='strong'>19.5%</td><td>11.7%</td><td>98</td><td>65.2</td><td>50.8</td><td class='top'>FC皇帝ペンギン(2623, 72.5); 湘南マイティー(2621, 72.5); 湘南マイティー(2619, 72.5); 湘南マイティー(2620, 72.5); 湘南マイティー(2622, 71.7)</td></tr>
-<tr><td>12</td><td>World 3</td><td>2616-2623</td><td>256</td><td class='strong'>19.5%</td><td>9.4%</td><td>98</td><td>62.5</td><td>46.8</td><td class='top'>ゆるりん(2618, 72.1); ゆるりん(2621, 71.4); ゆるりん(2619, 70.0); ビッセルバイエルン(2620, 69.8); ジュフユナイテッド(2622, 69.5)</td></tr>
-<tr><td>13</td><td>World 10</td><td>2616-2623</td><td>256</td><td class='strong'>18.8%</td><td>7.8%</td><td>94</td><td>62.1</td><td>50.4</td><td class='top'>FC.OGAWA(2619, 70.3); FC.OGAWA(2620, 70.3); FC.OGAWA(2621, 70.0); 矢野貴章(2622, 69.6); 矢野貴章(2621, 68.2)</td></tr>
-<tr><td>14</td><td>World 15</td><td>2616-2623</td><td>256</td><td class='strong'>18.4%</td><td>7.4%</td><td>92</td><td>62.3</td><td>50.1</td><td class='top'>ForzaInter(2616, 73.5); みゆうしんFC(2618, 69.8); ForzaInter(2617, 69.8); ForzaInter(2618, 68.2); 幻燈 (2617, 67.9)</td></tr>
-<tr><td>15</td><td>World 5</td><td>2616-2623</td><td>256</td><td class='strong'>18.0%</td><td>7.8%</td><td>90</td><td>62.4</td><td>50.6</td><td class='top'>MARS(2622, 71.6); MARS(2621, 70.1); MARS(2623, 69.5); MARS(2617, 66.7); ビーグル(2620, 66.7)</td></tr>
-<tr><td>16</td><td>World 19</td><td>2616-2623</td><td>256</td><td class='strong'>16.4%</td><td>8.2%</td><td>82</td><td>62.4</td><td>50.0</td><td class='top'>FCフォルテ(2621, 74.8); FCフォルテ(2623, 73.2); Ēlysion(2620, 72.1); FCフォルテ(2622, 72.0); Ēlysion(2618, 71.5)</td></tr>
-<tr><td>17</td><td>World 11</td><td>2616-2623</td><td>256</td><td class='strong'>16.4%</td><td>5.1%</td><td>82</td><td>60.3</td><td>49.9</td><td class='top'>ガウディ(2617, 80.3); D-kichi(2622, 77.5); ガウディ(2616, 75.7); ガウディ(2618, 74.3); D-kichi(2621, 70.9)</td></tr>
-<tr><td>18</td><td>World 12</td><td>2616-2623</td><td>256</td><td class='strong'>16.0%</td><td>8.2%</td><td>80</td><td>61.1</td><td>49.9</td><td class='top'>twistAS(2622, 72.3); まるちゃんFC(2619, 72.0); まるちゃんFC(2620, 72.0); まるちゃんFC(2621, 72.0); まるちゃんFC(2622, 72.0)</td></tr>
-<tr><td>19</td><td>World 18</td><td>2616-2623</td><td>256</td><td class='strong'>16.0%</td><td>7.4%</td><td>80</td><td>60.9</td><td>49.4</td><td class='top'>俺か俺以外か(2623, 78.1); 最初と最後やでっせ(2621, 72.2); 最初と最後やでっせ(2616, 70.4); 最初と最後やでっせ(2620, 70.4); 黒の衝動(2622, 70.3)</td></tr>
-<tr><td>20</td><td>World 20</td><td>2616-2623</td><td>256</td><td class='strong'>15.2%</td><td>12.1%</td><td>76</td><td>64.3</td><td>47.5</td><td class='top'>イタリアンサンドF(2623, 83.5); イタリアンサンドF(2622, 74.5); 木津川シティ•FC(2621, 71.0); 木津川シティ•FC(2620, 71.0); 木津川シティ•FC(2622, 71.0)</td></tr>
-<tr><td>21</td><td>World 7</td><td>2616-2623</td><td>256</td><td class='strong'>12.1%</td><td>2.7%</td><td>61</td><td>59.5</td><td>50.4</td><td class='top'>えーしーみら(2623, 73.4); 雪山特攻隊(2622, 66.2); 雪山特攻隊(2621, 66.2); おからにあん(2617, 65.6); ダークフォース(2619, 65.1)</td></tr></tbody>
+          <tbody><tr><td>1</td><td>21 ダック</td><td>2616-2623</td><td>256</td><td class='strong'>30.1%</td><td>14.5%</td><td>150</td><td>65.0</td><td>52.6</td><td>0.035</td><td>1.042</td><td class='top'>ヴァレンシア 2003-04(21); バイエルン 2000-01(10); バルセロナ 1999-2000(8); パルマ 1998-99(8); イタリア 2012(6)</td></tr>
+<tr><td>2</td><td>17 ディッパー</td><td>2616-2623</td><td>256</td><td class='strong'>26.2%</td><td>13.7%</td><td>131</td><td>65.8</td><td>49.7</td><td>0.023</td><td>0.633</td><td class='top'>オランダ 2014(11); アルゼンチン 2001(8); マンチェスターU 1998-99(8); バイエルン 2000-01(7); ウルグアイ 2014(7)</td></tr>
+<tr><td>3</td><td>16 フィンチ</td><td>2616-2623</td><td>256</td><td class='strong'>24.6%</td><td>12.5%</td><td>123</td><td>64.5</td><td>51.0</td><td>0.040</td><td>0.382</td><td class='top'>オランダ 2014(13); ブラジル 2014(12); イタリア 2012(7); ラツィオ 1999-2000(7); ビアンコネーロ 2002-03(4)</td></tr>
+<tr><td>4</td><td>9 ハリアー</td><td>2616-2623</td><td>256</td><td class='strong'>23.8%</td><td>13.3%</td><td>119</td><td>64.6</td><td>52.7</td><td>0.046</td><td>0.655</td><td class='top'>バイエルン 2000-01(10); チェルシー 2004-05(9); ドルトムント 2011-12(7); ビアンコネーロ 2002-03(6); ヴァレンシア 2003-04(4)</td></tr>
+<tr><td>5</td><td>4 カナード</td><td>2616-2623</td><td>256</td><td class='strong'>21.9%</td><td>8.6%</td><td>109</td><td>62.4</td><td>49.1</td><td>0.027</td><td>0.400</td><td class='top'>ウルグアイ 2014(9); ブラジル 2006(7); ベルギー 2013(6); ヴァレンシア 2003-04(6); イタリア 2012(5)</td></tr>
+<tr><td>6</td><td>1 アウル</td><td>2616-2623</td><td>256</td><td class='strong'>21.5%</td><td>12.9%</td><td>107</td><td>64.4</td><td>48.9</td><td>0.024</td><td>0.452</td><td class='top'>バイエルン 2000-01(8); クリスマス・ツリー(8); ヴァレンシア 2003-04(7); ビアンコネーロ 2002-03(7); イタリア 2012(7)</td></tr>
+<tr><td>7</td><td>13 クート</td><td>2616-2623</td><td>256</td><td class='strong'>21.1%</td><td>11.3%</td><td>105</td><td>64.5</td><td>46.2</td><td>0.009</td><td>0.380</td><td class='top'>バイエルン 2000-01(8); ビアンコネーロ 2002-03(8); イタリア 2012(7); チェルシー 2004-05(7); ヴァレンシア 2003-04(5)</td></tr>
+<tr><td>8</td><td>14 アイビス</td><td>2616-2623</td><td>256</td><td class='strong'>21.1%</td><td>10.9%</td><td>105</td><td>64.8</td><td>49.9</td><td>0.028</td><td>0.536</td><td class='top'>オランダ 2014(16); ビアンコネーロ 2002-03(8); チェルシー 2004-05(8); バイエルン 2000-01(5); パルマ 1998-99(5)</td></tr>
+<tr><td>9</td><td>2 ウッドコック</td><td>2616-2623</td><td>256</td><td class='strong'>20.7%</td><td>12.1%</td><td>104</td><td>65.3</td><td>51.0</td><td>0.028</td><td>0.708</td><td class='top'>チェルシー 2004-05(12); バイエルン 2000-01(10); イングランド 2020(7); ブラジル 2014(6); マドリードA 2013-14(3)</td></tr>
+<tr><td>10</td><td>6 スラッシュ</td><td>2616-2623</td><td>256</td><td class='strong'>19.9%</td><td>12.1%</td><td>100</td><td>65.9</td><td>48.1</td><td>0.010</td><td>0.315</td><td class='top'>ネラッズーロ 2009-10(8); バイエルン 2000-01(8); チェルシー 2004-05(8); ビアンコネーロ 2002-03(7); ドイツ 2014(5)</td></tr>
+<tr><td>11</td><td>3 スナイプ</td><td>2616-2623</td><td>256</td><td class='strong'>19.1%</td><td>9.0%</td><td>96</td><td>62.8</td><td>47.2</td><td>0.008</td><td>0.256</td><td class='top'>ウルグアイ 2014(8); ドルトムント 2011-12(8); ビアンコネーロ 2002-03(8); バイエルン 2013-14(6); ビアンコネーロ 1995-96(6)</td></tr>
+<tr><td>12</td><td>8 グース</td><td>2616-2623</td><td>256</td><td class='strong'>19.1%</td><td>8.2%</td><td>96</td><td>61.4</td><td>49.2</td><td>0.021</td><td>0.426</td><td class='top'>バイエルン 2000-01(8); アルゼンチン 2022(7); チェルシー 2004-05(7); ビアンコネーロ 2002-03(6); クリスマス・ツリー(5)</td></tr>
+<tr><td>13</td><td>5 クレイク</td><td>2616-2623</td><td>256</td><td class='strong'>18.8%</td><td>9.0%</td><td>94</td><td>62.9</td><td>49.9</td><td>0.013</td><td>0.661</td><td class='top'>ウルグアイ 2014(14); ブラジル 2014(13); チェルシー 2004-05(8); クリスマス・ツリー(5); バイエルン 2015-16(2)</td></tr>
+<tr><td>14</td><td>10 バザード</td><td>2616-2623</td><td>256</td><td class='strong'>18.8%</td><td>7.0%</td><td>94</td><td>61.9</td><td>50.1</td><td>0.031</td><td>0.387</td><td class='top'>ブラジル 2014(8); バイエルン 2013-14(7); トッテナム 2018-19(7); ビアンコネーロ 2002-03(6); イタリア 2012(5)</td></tr>
+<tr><td>15</td><td>18 ワックスウィング</td><td>2616-2623</td><td>256</td><td class='strong'>18.4%</td><td>7.0%</td><td>92</td><td>61.8</td><td>49.5</td><td>0.010</td><td>0.562</td><td class='top'>バイエルン 2000-01(8); マンチェスターU 1998-99(6); オランダ 2014(5); チェルシー 2004-05(4); トッテナム 2018-19(4)</td></tr>
+<tr><td>16</td><td>15 スターリング</td><td>2616-2623</td><td>256</td><td class='strong'>17.6%</td><td>9.4%</td><td>88</td><td>63.0</td><td>49.7</td><td>0.020</td><td>0.507</td><td class='top'>ベルギー 2013(6); ビアンコネーロ 2002-03(6); ブラジル 2002(6); バイエルン 2000-01(5); ドルトムント 2011-12(5)</td></tr>
+<tr><td>17</td><td>20 ホーク</td><td>2616-2623</td><td>256</td><td class='strong'>17.2%</td><td>11.7%</td><td>86</td><td>63.8</td><td>48.5</td><td>0.019</td><td>0.368</td><td class='top'>マンチェスターU 2007-08(11); イタリア 2012(8); ウルグアイ 2014(6); バイエルン 2000-01(6); ブラジル 2014(4)</td></tr>
+<tr><td>18</td><td>19 スウィフト</td><td>2616-2623</td><td>256</td><td class='strong'>16.8%</td><td>9.8%</td><td>84</td><td>63.0</td><td>49.0</td><td>0.024</td><td>0.427</td><td class='top'>チェルシー 2004-05(8); チェルシー 2014-15(8); バイエルン 2013-14(3); 日本 1996(3); ユーゴスラビア 1994(3)</td></tr>
+<tr><td>19</td><td>12 パートリッジ</td><td>2616-2623</td><td>256</td><td class='strong'>16.0%</td><td>7.4%</td><td>80</td><td>61.6</td><td>49.6</td><td>0.016</td><td>0.578</td><td class='top'>ウルグアイ 2014(8); バイエルン 2000-01(8); アルゼンチン 2001(6); ブラジル 2014(5); オランダ 2014(5)</td></tr>
+<tr><td>20</td><td>7 オークレット</td><td>2616-2623</td><td>256</td><td class='strong'>14.5%</td><td>3.1%</td><td>72</td><td>60.1</td><td>49.9</td><td>0.024</td><td>0.199</td><td class='top'>ブラジル 2014(6); ヴァレンシア 2003-04(5); バイエルン 2013-14(4); イタリア 2020(4); アルゼンチン 2022(3)</td></tr>
+<tr><td>21</td><td>11 ピピット</td><td>2616-2623</td><td>256</td><td class='strong'>13.3%</td><td>6.6%</td><td>66</td><td>60.4</td><td>50.4</td><td>0.030</td><td>0.350</td><td class='top'>ブラジル 2014(9); アルゼンチン 2001(4); トッテナム 2018-19(4); バイエルン 2000-01(4); ブラジル 2006(3)</td></tr></tbody>
         </table>
       </div>
     </section>
@@ -81,49 +104,1405 @@
           <thead>
             <tr><th>#</th><th>Season</th><th>World</th><th>Teams</th><th>Strong Share</th><th>Elite Share</th><th>Gachi Index</th><th>P90</th><th>Top Team Samples</th></tr>
           </thead>
-          <tbody><tr><td>1</td><td>2620</td><td>World 4</td><td>32</td><td class='strong'>37.5%</td><td>12.5%</td><td>188</td><td>65.2</td><td class='top'>ポテチ(2620, 67.0); 翼神竜(2620, 66.5); ざみーとす(2620, 65.6); コルホーズ(2620, 65.4); ひまじん(2620, 63.0)</td></tr>
-<tr><td>2</td><td>2620</td><td>World 21</td><td>32</td><td class='strong'>37.5%</td><td>12.5%</td><td>188</td><td>63.5</td><td class='top'>ファンタジア(2620, 73.2); 舞浜レンガパン(2620, 65.7); FCもうふぶき(2620, 65.1); FC.URAWA(2620, 63.6); はにわ(2620, 62.5)</td></tr>
-<tr><td>3</td><td>2623</td><td>World 9</td><td>32</td><td class='strong'>34.4%</td><td>9.4%</td><td>172</td><td>62.6</td><td class='top'>ペニさんFC(2623, 70.4); ジデンFC(2623, 68.6); ぴーやろ(2623, 65.1); F.C.ちびら(2623, 62.6); FC コレナンデ商会(2623, 62.6)</td></tr>
-<tr><td>4</td><td>2616</td><td>World 16</td><td>32</td><td class='strong'>31.2%</td><td>21.9%</td><td>156</td><td>65.4</td><td class='top'>ウォッカ(2616, 72.5); パンサラッサ(2616, 66.8); 猫1匹(2616, 65.5); ピエモンテ(2616, 65.4); チョコポメ(2616, 64.7)</td></tr>
-<tr><td>5</td><td>2618</td><td>World 9</td><td>32</td><td class='strong'>31.2%</td><td>12.5%</td><td>156</td><td>64.3</td><td class='top'>ふきげんぱんだ(2618, 70.4); FCモンテレイ(2618, 65.9); ノリアFC(2618, 65.4); ジデンFC(2618, 64.5); 倶楽部賭郎(2618, 62.8)</td></tr>
-<tr><td>6</td><td>2621</td><td>World 21</td><td>32</td><td class='strong'>31.2%</td><td>12.5%</td><td>156</td><td>63.2</td><td class='top'>ファンタジア(2621, 73.2); FC.URAWA(2621, 69.4); FCもうふぶき(2621, 65.1); 舞浜レンガパン(2621, 63.3); チーム謀(2621, 62.1)</td></tr>
-<tr><td>7</td><td>2618</td><td>World 16</td><td>32</td><td class='strong'>31.2%</td><td>9.4%</td><td>156</td><td>62.6</td><td class='top'>ウォッカ(2618, 65.0); 　いか(2618, 64.4); 猫1匹(2618, 63.5); チョコポメ(2618, 62.7); タニヤ(2618, 61.7)</td></tr>
-<tr><td>8</td><td>2622</td><td>World 4</td><td>32</td><td class='strong'>31.2%</td><td>6.2%</td><td>156</td><td>61.1</td><td class='top'>ざみーとす(2622, 68.8); ひまじん(2622, 63.3); コルホーズ(2622, 61.5); キタくんFC(2622, 61.1); ポテチ(2622, 61.0)</td></tr>
-<tr><td>9</td><td>2619</td><td>World 9</td><td>32</td><td class='strong'>28.1%</td><td>21.9%</td><td>141</td><td>65.7</td><td class='top'>ふきげんぱんだ(2619, 70.4); ペニさんFC(2619, 68.9); ジデンFC(2619, 67.9); チョココロネーロ(2619, 65.8); FCモンテレイ(2619, 64.9)</td></tr>
-<tr><td>10</td><td>2619</td><td>World 17</td><td>32</td><td class='strong'>28.1%</td><td>18.8%</td><td>141</td><td>67.1</td><td class='top'>東京C エスペリオン(2619, 82.2); パッカーーん(2619, 68.4); 04LS(2619, 67.7); マジョリティ(2619, 67.2); クライフ(2619, 65.4)</td></tr>
-<tr><td>11</td><td>2623</td><td>World 1</td><td>32</td><td class='strong'>28.1%</td><td>18.8%</td><td>141</td><td>65.0</td><td class='top'>Rコンシェルジュ(2623, 67.1); はたのっちFC 99(2623, 67.1); 颯FC(2623, 65.1); メガネパンサー(2623, 65.1); ACミラン(2623, 63.8)</td></tr>
-<tr><td>12</td><td>2618</td><td>World 17</td><td>32</td><td class='strong'>28.1%</td><td>15.6%</td><td>141</td><td>65.5</td><td class='top'>マジョリティ(2618, 72.0); パッカーーん(2618, 68.0); 04LS(2618, 66.5); クライフ(2618, 65.6); 東京C エスペリオン(2618, 64.1)</td></tr>
-<tr><td>13</td><td>2617</td><td>World 15</td><td>32</td><td class='strong'>28.1%</td><td>12.5%</td><td>141</td><td>66.8</td><td class='top'>ForzaInter(2617, 69.8); 幻燈 (2617, 67.9); みゆうしんFC(2617, 67.8); CHARM(2617, 67.3); ケントデリカッターズ(2617, 62.1)</td></tr>
-<tr><td>14</td><td>2616</td><td>World 9</td><td>32</td><td class='strong'>28.1%</td><td>12.5%</td><td>141</td><td>64.2</td><td class='top'>ペニさんFC(2616, 65.2); ローションＦＣ(2616, 64.9); ジデンFC(2616, 64.5); 倶楽部賭郎(2616, 64.4); セレッソ蒼天掘(2616, 62.7)</td></tr>
-<tr><td>15</td><td>2617</td><td>World 21</td><td>32</td><td class='strong'>28.1%</td><td>12.5%</td><td>141</td><td>64.0</td><td class='top'>ファンタジア(2617, 72.5); FC.URAWA(2617, 66.1); 舞浜レンガパン(2617, 65.7); せーのがさんはい(2617, 64.1); ペッツ(2617, 62.8)</td></tr>
-<tr><td>16</td><td>2618</td><td>World 8</td><td>32</td><td class='strong'>28.1%</td><td>12.5%</td><td>141</td><td>63.9</td><td class='top'>爽やかナ・デ・シココ(2618, 73.3); ガンバル部(2618, 67.1); みゃおFC(2618, 65.3); ゾンビ軍団(2618, 64.2); SSFMalice(2618, 61.0)</td></tr>
-<tr><td>17</td><td>2617</td><td>World 9</td><td>32</td><td class='strong'>28.1%</td><td>12.5%</td><td>141</td><td>63.7</td><td class='top'>ふきげんぱんだ(2617, 70.4); FCモンテレイ(2617, 66.5); ジデンFC(2617, 64.5); インテル(2617, 63.9); ノリアFC(2617, 62.6)</td></tr>
-<tr><td>18</td><td>2619</td><td>World 16</td><td>32</td><td class='strong'>28.1%</td><td>12.5%</td><td>141</td><td>63.5</td><td class='top'>ラツィオ 99-00(2619, 67.2); ピエモンテ(2619, 65.0); 　いか(2619, 64.4); チョッコリ(2619, 63.7); タニヤ(2619, 61.7)</td></tr>
-<tr><td>19</td><td>2619</td><td>World 21</td><td>32</td><td class='strong'>28.1%</td><td>12.5%</td><td>141</td><td>63.2</td><td class='top'>ファンタジア(2619, 72.5); 舞浜レンガパン(2619, 65.7); はにわ(2619, 64.5); FCもうふぶき(2619, 63.3); せーのがさんはい(2619, 61.7)</td></tr>
-<tr><td>20</td><td>2616</td><td>World 21</td><td>32</td><td class='strong'>28.1%</td><td>9.4%</td><td>141</td><td>63.0</td><td class='top'>ファンタジア(2616, 72.5); 舞浜レンガパン(2616, 69.2); FC.URAWA(2616, 65.6); ペッツ(2616, 63.1); チーム謀(2616, 62.5)</td></tr>
-<tr><td>21</td><td>2620</td><td>World 11</td><td>32</td><td class='strong'>28.1%</td><td>6.2%</td><td>141</td><td>60.3</td><td class='top'>anna(2620, 68.2); D-kichi(2620, 66.1); バナナサブその２(2620, 60.8); NCルン(2620, 60.3); こそっと(2620, 60.1)</td></tr>
-<tr><td>22</td><td>2623</td><td>World 13</td><td>32</td><td class='strong'>25.0%</td><td>18.8%</td><td>125</td><td>64.9</td><td class='top'>FC  ぐでたま(2623, 71.6); たびお(2623, 67.1); ア テ ム(2623, 66.1); サムライドッピエッタ(2623, 65.0); バナントンガラグ(2623, 64.4)</td></tr>
-<tr><td>23</td><td>2620</td><td>World 17</td><td>32</td><td class='strong'>25.0%</td><td>18.8%</td><td>125</td><td>64.8</td><td class='top'>東京C エスペリオン(2620, 82.2); 04LS(2620, 67.9); フォールデン(2620, 65.0); マジョリティ(2620, 64.8); ペタグー(2620, 64.2)</td></tr>
-<tr><td>24</td><td>2622</td><td>World 21</td><td>32</td><td class='strong'>25.0%</td><td>15.6%</td><td>125</td><td>65.5</td><td class='top'>ファンタジア(2622, 72.5); FC.URAWA(2622, 67.5); エマ;ワトソン(2622, 66.0); 舞浜レンガパン(2622, 65.7); FC Zume(2622, 63.7)</td></tr>
-<tr><td>25</td><td>2623</td><td>World 14</td><td>32</td><td class='strong'>25.0%</td><td>15.6%</td><td>125</td><td>64.0</td><td class='top'>FC下松(2623, 67.1); FC目黒(2623, 65.2); イタリアンサンドR(2623, 64.6); ちわわFC(2623, 64.0); ウスバカゲロウ(2623, 63.9)</td></tr>
-<tr><td>26</td><td>2618</td><td>World 1</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>66.7</td><td class='top'>颯FC(2618, 70.4); ACミラン(2618, 68.5); Juve0203(2618, 67.3); Rコンシェルジュ(2618, 67.1); マクノシタU(2618, 62.7)</td></tr>
-<tr><td>27</td><td>2623</td><td>World 17</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>65.0</td><td class='top'>東京C エスペリオン(2623, 84.8); パッカーーん(2623, 66.6); フォールデン(2623, 65.6); とらまる(2623, 65.3); マジョリティ(2623, 62.5)</td></tr>
-<tr><td>28</td><td>2616</td><td>World 14</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>64.8</td><td class='top'>7990301(2616, 72.2); FC PONTA(2616, 66.9); €°アルカンタラFC(2616, 66.1); FC目黒(2616, 65.2); ちわわFC(2616, 61.2)</td></tr>
-<tr><td>29</td><td>2618</td><td>World 21</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>64.4</td><td class='top'>ファンタジア(2618, 72.5); 舞浜レンガパン(2618, 65.7); FC.URAWA(2618, 65.6); はにわ(2618, 64.5); ヤマロク(2618, 63.1)</td></tr>
-<tr><td>30</td><td>2623</td><td>World 21</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>64.3</td><td class='top'>ファンタジア(2623, 72.5); FC.URAWA(2623, 67.1); 舞浜レンガパン(2623, 65.7); エマ;ワトソン(2623, 64.5); はにわ(2623, 63.1)</td></tr>
-<tr><td>31</td><td>2622</td><td>World 16</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>64.2</td><td class='top'>チョコポメ(2622, 69.0); FCバルサミコ(2622, 68.4); Cataluña(2622, 65.5); 猫1匹(2622, 64.3); 　いか(2622, 62.4)</td></tr>
-<tr><td>32</td><td>2621</td><td>World 13</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>64.2</td><td class='top'>バナントンガラグ(2621, 66.3); 長崎ちゃんぽんず(2621, 66.1); 松阪牛FC(2621, 65.4); FC富士急(2621, 64.4); 三元豚FC⭐︎(2621, 62.0)</td></tr>
-<tr><td>33</td><td>2616</td><td>World 17</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>64.1</td><td class='top'>東京C エスペリオン(2616, 74.5); マジョリティ(2616, 70.9); フォールデン(2616, 69.7); サンケイスワローズ(2616, 64.2); 04LS(2616, 63.0)</td></tr>
-<tr><td>34</td><td>2620</td><td>World 1</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>63.8</td><td class='top'>颯FC(2620, 70.1); Rコンシェルジュ(2620, 67.1); -Horiz-(2620, 65.1); ACミラン(2620, 64.0); リバプールFC(2620, 62.4)</td></tr>
-<tr><td>35</td><td>2616</td><td>World 15</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>63.2</td><td class='top'>ForzaInter(2616, 73.5); CHARM(2616, 67.3); スキスキスー(2616, 64.0); 幻燈 (2616, 63.3); みゆうしんFC(2616, 62.5)</td></tr>
-<tr><td>36</td><td>2616</td><td>World 8</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>63.1</td><td class='top'>ゾンビ軍団(2616, 66.2); みゃおFC(2616, 66.1); 爽やかナ・デ・シココ(2616, 63.7); ガンバル部(2616, 63.3); HITACHI(2616, 61.6)</td></tr>
-<tr><td>37</td><td>2618</td><td>World 15</td><td>32</td><td class='strong'>25.0%</td><td>9.4%</td><td>125</td><td>62.9</td><td class='top'>みゆうしんFC(2618, 69.8); ForzaInter(2618, 68.2); CHARM(2618, 64.0); 幻燈 (2618, 62.9); FCロナウド(2618, 62.7)</td></tr>
-<tr><td>38</td><td>2622</td><td>World 5</td><td>32</td><td class='strong'>25.0%</td><td>9.4%</td><td>125</td><td>62.7</td><td class='top'>MARS(2622, 71.6); REAL ONO(2622, 65.4); Mambo(2622, 64.7); いちご(2622, 62.9); アズリ(2622, 61.0)</td></tr>
-<tr><td>39</td><td>2618</td><td>World 4</td><td>32</td><td class='strong'>25.0%</td><td>9.4%</td><td>125</td><td>62.6</td><td class='top'>ポテチ(2618, 75.1); 翼神竜(2618, 66.5); デマ長万部(2618, 66.4); FC ONOFF(2618, 62.7); 新宿キャッツアイ(2618, 61.0)</td></tr>
-<tr><td>40</td><td>2621</td><td>World 4</td><td>32</td><td class='strong'>25.0%</td><td>9.4%</td><td>125</td><td>62.3</td><td class='top'>ポテチ(2621, 70.4); 翼神竜(2621, 66.5); ざみーとす(2621, 66.0); コルホーズ(2621, 62.3); ひまじん(2621, 62.2)</td></tr></tbody>
+          <tbody><tr><td>1</td><td>2620</td><td>21 ダック</td><td>32</td><td class='strong'>34.4%</td><td>18.8%</td><td>172</td><td>65.3</td><td class='top'>ファンタジア(2620, 72.4); 舞浜レンガパン(2620, 65.9); FCもうふぶき(2620, 65.6); ヤマロク(2620, 65.4); FC.URAWA(2620, 65.1)</td></tr>
+<tr><td>2</td><td>2622</td><td>21 ダック</td><td>32</td><td class='strong'>34.4%</td><td>18.8%</td><td>172</td><td>65.3</td><td class='top'>ファンタジア(2622, 71.6); エマ;ワトソン(2622, 66.2); 舞浜レンガパン(2622, 65.9); FC Zume(2622, 65.3); FC.URAWA(2622, 65.2)</td></tr>
+<tr><td>3</td><td>2617</td><td>9 ハリアー</td><td>32</td><td class='strong'>34.4%</td><td>15.6%</td><td>172</td><td>64.5</td><td class='top'>ふきげんぱんだ(2617, 69.3); FCモンテレイ(2617, 68.4); ジデンFC(2617, 64.6); インテル(2617, 64.6); 一夫多妻(2617, 64.0)</td></tr>
+<tr><td>4</td><td>2617</td><td>21 ダック</td><td>32</td><td class='strong'>34.4%</td><td>15.6%</td><td>172</td><td>64.1</td><td class='top'>ファンタジア(2617, 71.6); 舞浜レンガパン(2617, 65.9); せーのがさんはい(2617, 65.7); ペッツ(2617, 64.2); FC.URAWA(2617, 63.8)</td></tr>
+<tr><td>5</td><td>2620</td><td>4 カナード</td><td>32</td><td class='strong'>34.4%</td><td>12.5%</td><td>172</td><td>64.1</td><td class='top'>ざみーとす(2620, 69.1); ポテチ(2620, 65.6); 翼神竜(2620, 65.4); コルホーズ(2620, 64.3); 新宿キャッツアイ(2620, 61.7)</td></tr>
+<tr><td>6</td><td>2619</td><td>9 ハリアー</td><td>32</td><td class='strong'>31.2%</td><td>21.9%</td><td>156</td><td>66.6</td><td class='top'>ペニさんFC(2619, 69.7); ふきげんぱんだ(2619, 69.3); ジデンFC(2619, 68.4); FCモンテレイ(2619, 66.7); 一夫多妻(2619, 65.9)</td></tr>
+<tr><td>7</td><td>2616</td><td>16 フィンチ</td><td>32</td><td class='strong'>31.2%</td><td>18.8%</td><td>156</td><td>64.7</td><td class='top'>ウォッカ(2616, 74.8); パンサラッサ(2616, 68.3); ピエモンテ(2616, 66.3); 猫1匹(2616, 64.7); 　いか(2616, 64.5)</td></tr>
+<tr><td>8</td><td>2619</td><td>17 ディッパー</td><td>32</td><td class='strong'>31.2%</td><td>15.6%</td><td>156</td><td>67.1</td><td class='top'>東京C エスペリオン(2619, 72.1); パッカーーん(2619, 69.5); 04LS(2619, 68.1); マジョリティ(2619, 67.4); サンケイスワローズ(2619, 64.5)</td></tr>
+<tr><td>9</td><td>2622</td><td>16 フィンチ</td><td>32</td><td class='strong'>31.2%</td><td>15.6%</td><td>156</td><td>64.6</td><td class='top'>チョコポメ(2622, 67.8); FCバルサミコ(2622, 66.9); 猫1匹(2622, 65.7); Cataluña(2622, 64.7); ラツィオ 99-00(2622, 63.9)</td></tr>
+<tr><td>10</td><td>2618</td><td>9 ハリアー</td><td>32</td><td class='strong'>31.2%</td><td>15.6%</td><td>156</td><td>64.2</td><td class='top'>ふきげんぱんだ(2618, 69.3); FCモンテレイ(2618, 67.7); ジデンFC(2618, 64.6); ノリアFC(2618, 64.3); 倶楽部賭郎(2618, 63.4)</td></tr>
+<tr><td>11</td><td>2619</td><td>21 ダック</td><td>32</td><td class='strong'>31.2%</td><td>12.5%</td><td>156</td><td>63.6</td><td class='top'>ファンタジア(2619, 71.6); 舞浜レンガパン(2619, 65.9); せーのがさんはい(2619, 63.9); FCもうふぶき(2619, 63.7); はにわ(2619, 63.3)</td></tr>
+<tr><td>12</td><td>2621</td><td>21 ダック</td><td>32</td><td class='strong'>28.1%</td><td>15.6%</td><td>141</td><td>65.4</td><td class='top'>ファンタジア(2621, 72.4); FC.URAWA(2621, 67.3); ヤマロク(2621, 66.2); FCもうふぶき(2621, 65.6); 舞浜レンガパン(2621, 63.3)</td></tr>
+<tr><td>13</td><td>2618</td><td>17 ディッパー</td><td>32</td><td class='strong'>28.1%</td><td>12.5%</td><td>141</td><td>65.7</td><td class='top'>マジョリティ(2618, 72.6); パッカーーん(2618, 68.9); 04LS(2618, 66.8); 東京C エスペリオン(2618, 66.1); サンケイスワローズ(2618, 62.5)</td></tr>
+<tr><td>14</td><td>2623</td><td>21 ダック</td><td>32</td><td class='strong'>28.1%</td><td>12.5%</td><td>141</td><td>64.4</td><td class='top'>ファンタジア(2623, 71.6); 舞浜レンガパン(2623, 65.9); FC.URAWA(2623, 64.9); エマ;ワトソン(2623, 64.6); FCもうふぶき(2623, 63.2)</td></tr>
+<tr><td>15</td><td>2616</td><td>17 ディッパー</td><td>32</td><td class='strong'>28.1%</td><td>12.5%</td><td>141</td><td>64.4</td><td class='top'>フォールデン(2616, 72.2); 東京C エスペリオン(2616, 72.0); マジョリティ(2616, 71.3); サンケイスワローズ(2616, 64.6); 琥珀ヱビス1890(2616, 63.2)</td></tr>
+<tr><td>16</td><td>2623</td><td>9 ハリアー</td><td>32</td><td class='strong'>28.1%</td><td>12.5%</td><td>141</td><td>63.4</td><td class='top'>ペニさんFC(2623, 71.3); ジデンFC(2623, 69.0); F.C.ちびら(2623, 64.1); ぴーやろ(2623, 63.5); らむくんず(2623, 62.8)</td></tr>
+<tr><td>17</td><td>2618</td><td>21 ダック</td><td>32</td><td class='strong'>28.1%</td><td>9.4%</td><td>141</td><td>63.3</td><td class='top'>ファンタジア(2618, 71.6); 舞浜レンガパン(2618, 65.9); ヤマロク(2618, 63.8); はにわ(2618, 63.3); FC.URAWA(2618, 63.1)</td></tr>
+<tr><td>18</td><td>2619</td><td>16 フィンチ</td><td>32</td><td class='strong'>28.1%</td><td>9.4%</td><td>141</td><td>62.2</td><td class='top'>ピエモンテ(2619, 65.8); 　いか(2619, 64.5); ラツィオ 99-00(2619, 64.4); タニヤ(2619, 62.3); ライ　(2619, 61.1)</td></tr>
+<tr><td>19</td><td>2623</td><td>10 バザード</td><td>32</td><td class='strong'>28.1%</td><td>6.2%</td><td>141</td><td>62.3</td><td class='top'>矢野貴章(2623, 68.1); ピリッと粒胡椒(2623, 66.6); FCB(2623, 62.5); エネゴリFC(2623, 62.3); ままま(2623, 62.3)</td></tr>
+<tr><td>20</td><td>2616</td><td>13 クート</td><td>32</td><td class='strong'>28.1%</td><td>3.1%</td><td>141</td><td>61.5</td><td class='top'>バナントンガラグ(2616, 78.1); ナラントンガラグ(2616, 62.4); 長崎ちゃんぽんず(2616, 62.2); 松阪牛FC(2616, 61.6); FC  ぐでたま(2616, 61.4)</td></tr>
+<tr><td>21</td><td>2623</td><td>13 クート</td><td>32</td><td class='strong'>25.0%</td><td>21.9%</td><td>125</td><td>65.0</td><td class='top'>FC  ぐでたま(2623, 72.6); たびお(2623, 67.7); サムライドッピエッタ(2623, 66.8); 長崎ちゃんぽんず(2623, 65.0); ア テ ム(2623, 64.6)</td></tr>
+<tr><td>22</td><td>2623</td><td>1 アウル</td><td>32</td><td class='strong'>25.0%</td><td>18.8%</td><td>125</td><td>64.4</td><td class='top'>Rコンシェルジュ(2623, 67.5); はたのっちFC 99(2623, 67.0); ビンタンユナイテッド(2623, 64.5); ACミラン(2623, 64.4); メガネパンサー(2623, 64.4)</td></tr>
+<tr><td>23</td><td>2620</td><td>17 ディッパー</td><td>32</td><td class='strong'>25.0%</td><td>15.6%</td><td>125</td><td>64.7</td><td class='top'>東京C エスペリオン(2620, 72.1); 04LS(2620, 68.4); フォールデン(2620, 65.6); マジョリティ(2620, 64.7); パッカーーん(2620, 64.2)</td></tr>
+<tr><td>24</td><td>2622</td><td>1 アウル</td><td>32</td><td class='strong'>25.0%</td><td>15.6%</td><td>125</td><td>64.6</td><td class='top'>颯FC(2622, 71.3); Rコンシェルジュ(2622, 67.5); ACミラン(2622, 64.7); ビンタンユナイテッド(2622, 64.7); -Horiz-(2622, 63.6)</td></tr>
+<tr><td>25</td><td>2621</td><td>17 ディッパー</td><td>32</td><td class='strong'>25.0%</td><td>15.6%</td><td>125</td><td>64.6</td><td class='top'>東京C エスペリオン(2621, 82.6); パッカーーん(2621, 71.4); フォールデン(2621, 66.8); 04LS(2621, 64.6); マジョリティ(2621, 64.3)</td></tr>
+<tr><td>26</td><td>2617</td><td>15 スターリング</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>66.8</td><td class='top'>ForzaInter(2617, 71.0); みゆうしんFC(2617, 69.0); 幻燈 (2617, 68.3); CHARM(2617, 67.3); スキスキスー(2617, 63.0)</td></tr>
+<tr><td>27</td><td>2622</td><td>6 スラッシュ</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>65.7</td><td class='top'>CFC(2622, 70.6); イワキリ(2622, 68.9); チップスター(2622, 66.1); Rユース(2622, 65.9); ジョイボーイ(2622, 63.1)</td></tr>
+<tr><td>28</td><td>2623</td><td>19 スウィフト</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>65.0</td><td class='top'>FCフォルテ(2623, 70.0); Ēlysion(2623, 66.6); ぽりふぇのーる(2623, 65.6); 屁こき軍団(2623, 65.4); さらだ(2623, 61.9)</td></tr>
+<tr><td>29</td><td>2617</td><td>2 ウッドコック</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>64.9</td><td class='top'>湘南マイティー(2617, 72.6); タツノオトシゴ(2617, 72.6); ハマーズ(2617, 65.8); ASピジョン(2617, 65.3); 鬼ヶ島(2617, 61.3)</td></tr>
+<tr><td>30</td><td>2616</td><td>14 アイビス</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>64.4</td><td class='top'>FC PONTA(2616, 68.7); 7990301(2616, 67.7); FC目黒(2616, 65.7); €°アルカンタラFC(2616, 64.6); ちわわFC(2616, 62.5)</td></tr>
+<tr><td>31</td><td>2621</td><td>13 クート</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>64.3</td><td class='top'>長崎ちゃんぽんず(2621, 66.0); 松阪牛FC(2621, 65.6); バナントンガラグ(2621, 64.8); FC富士急(2621, 64.5); 三元豚FC⭐︎(2621, 62.6)</td></tr>
+<tr><td>32</td><td>2623</td><td>17 ディッパー</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>64.2</td><td class='top'>東京C エスペリオン(2623, 81.7); パッカーーん(2623, 67.6); フォールデン(2623, 66.2); とらまる(2623, 64.4); マジョリティ(2623, 62.7)</td></tr>
+<tr><td>33</td><td>2622</td><td>17 ディッパー</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>63.8</td><td class='top'>東京C エスペリオン(2622, 77.5); パッカーーん(2622, 69.8); フォールデン(2622, 67.9); マジョリティ(2622, 64.0); centrale(2622, 62.2)</td></tr>
+<tr><td>34</td><td>2616</td><td>15 スターリング</td><td>32</td><td class='strong'>25.0%</td><td>12.5%</td><td>125</td><td>63.3</td><td class='top'>ForzaInter(2616, 75.0); CHARM(2616, 67.3); スキスキスー(2616, 66.2); 幻燈 (2616, 63.4); みゆうしんFC(2616, 63.2)</td></tr>
+<tr><td>35</td><td>2623</td><td>16 フィンチ</td><td>32</td><td class='strong'>25.0%</td><td>9.4%</td><td>125</td><td>63.0</td><td class='top'>ラツィオ 99-00(2623, 66.6); 猫1匹(2623, 64.7); Cataluña(2623, 64.7); FCバルサミコ(2623, 63.0); 　いか(2623, 63.0)</td></tr>
+<tr><td>36</td><td>2618</td><td>16 フィンチ</td><td>32</td><td class='strong'>25.0%</td><td>9.4%</td><td>125</td><td>62.4</td><td class='top'>ウォッカ(2618, 67.2); 猫1匹(2618, 64.7); 　いか(2618, 64.5); ヤマト・インダスト(2618, 62.4); タニヤ(2618, 62.3)</td></tr>
+<tr><td>37</td><td>2622</td><td>10 バザード</td><td>32</td><td class='strong'>25.0%</td><td>9.4%</td><td>125</td><td>62.4</td><td class='top'>矢野貴章(2622, 71.3); エネゴリFC(2622, 64.9); ままま(2622, 63.5); FC.OGAWA(2622, 62.5); キャットオールスター(2622, 61.9)</td></tr>
+<tr><td>38</td><td>2618</td><td>14 アイビス</td><td>32</td><td class='strong'>25.0%</td><td>9.4%</td><td>125</td><td>62.3</td><td class='top'>FC目黒(2618, 72.6); ニコン(2618, 71.7); 7990301(2618, 65.0); グリーンラベル(2618, 62.4); スコールズくん(2618, 61.2)</td></tr>
+<tr><td>39</td><td>2618</td><td>4 カナード</td><td>32</td><td class='strong'>25.0%</td><td>9.4%</td><td>125</td><td>62.3</td><td class='top'>ポテチ(2618, 74.4); 翼神竜(2618, 65.4); デマ長万部(2618, 65.3); 新宿キャッツアイ(2618, 62.4); FC ONOFF(2618, 60.9)</td></tr>
+<tr><td>40</td><td>2622</td><td>4 カナード</td><td>32</td><td class='strong'>25.0%</td><td>3.1%</td><td>125</td><td>60.8</td><td class='top'>ざみーとす(2622, 69.7); ポテチ(2622, 62.3); 新宿キャッツアイ(2622, 61.8); グランアレグリア(2622, 60.8); キタくんFC(2622, 60.6)</td></tr>
+<tr><td>41</td><td>2619</td><td>1 アウル</td><td>32</td><td class='strong'>21.9%</td><td>15.6%</td><td>109</td><td>67.2</td><td class='top'>颯FC(2619, 69.7); ACミラン(2619, 69.6); Juve0203(2619, 68.5); Rコンシェルジュ(2619, 67.5); PITスティーラーズ(2619, 64.9)</td></tr>
+<tr><td>42</td><td>2618</td><td>2 ウッドコック</td><td>32</td><td class='strong'>21.9%</td><td>15.6%</td><td>109</td><td>66.2</td><td class='top'>湘南マイティー(2618, 72.6); タツノオトシゴ(2618, 72.6); ハマーズ(2618, 66.3); アストラ(2618, 66.2); 休止中。(2618, 65.9)</td></tr>
+<tr><td>43</td><td>2620</td><td>6 スラッシュ</td><td>32</td><td class='strong'>21.9%</td><td>15.6%</td><td>109</td><td>66.2</td><td class='top'>イワキリ(2620, 72.6); なんくるないさぁ(2620, 67.8); チップスター(2620, 67.0); CFC(2620, 66.2); Rユース(2620, 65.9)</td></tr>
+<tr><td>44</td><td>2618</td><td>15 スターリング</td><td>32</td><td class='strong'>21.9%</td><td>15.6%</td><td>109</td><td>64.1</td><td class='top'>みゆうしんFC(2618, 71.2); ForzaInter(2618, 69.2); FCロナウド(2618, 64.4); スキスキスー(2618, 64.1); CHARM(2618, 63.7)</td></tr>
+<tr><td>45</td><td>2617</td><td>20 ホーク</td><td>32</td><td class='strong'>21.9%</td><td>15.6%</td><td>109</td><td>63.9</td><td class='top'>イタリアンサンドF(2617, 68.3); 木津川シティ•FC(2617, 67.7); はしばっちFC 99(2617, 64.7); めぼむぎ(2617, 63.9); MSHY(2617, 63.7)</td></tr>
+<tr><td>46</td><td>2620</td><td>2 ウッドコック</td><td>32</td><td class='strong'>21.9%</td><td>15.6%</td><td>109</td><td>63.4</td><td class='top'>湘南マイティー(2620, 73.6); FC皇帝ペンギン(2620, 68.4); タツノオトシゴ(2620, 65.5); ハマーズ(2620, 63.4); アストラ(2620, 63.4)</td></tr>
+<tr><td>47</td><td>2622</td><td>19 スウィフト</td><td>32</td><td class='strong'>21.9%</td><td>12.5%</td><td>109</td><td>65.9</td><td class='top'>FCフォルテ(2622, 68.7); バラガーズFC(2622, 67.6); Ēlysion(2622, 66.2); ぽりふぇのーる(2622, 66.2); 屁こき軍団(2622, 62.8)</td></tr>
+<tr><td>48</td><td>2617</td><td>17 ディッパー</td><td>32</td><td class='strong'>21.9%</td><td>12.5%</td><td>109</td><td>65.8</td><td class='top'>マジョリティ(2617, 72.0); フォールデン(2617, 69.7); パッカーーん(2617, 69.0); 東京C エスペリオン(2617, 66.1); 04LS(2617, 63.0)</td></tr>
+<tr><td>49</td><td>2621</td><td>6 スラッシュ</td><td>32</td><td class='strong'>21.9%</td><td>12.5%</td><td>109</td><td>65.5</td><td class='top'>イワキリ(2621, 72.6); CFC(2621, 68.6); チップスター(2621, 67.0); Rユース(2621, 65.9); ジョイボーイ(2621, 61.7)</td></tr>
+<tr><td>50</td><td>2623</td><td>14 アイビス</td><td>32</td><td class='strong'>21.9%</td><td>12.5%</td><td>109</td><td>65.2</td><td class='top'>ちわわFC(2623, 66.4); FC下松(2623, 66.2); FC目黒(2623, 65.7); イタリアンサンドR(2623, 65.4); ウスバカゲロウ(2623, 63.1)</td></tr></tbody>
         </table>
       </div>
     </section>
+    <section>
+      <h2>World Details</h2>
+    </section>
+<section class="world-detail" id="world-21">
+      <div class="detail-head">
+        <div>
+          <h2>1. 21 ダック</h2>
+          <div class="meta-line">Teams 256 / Strong 77 / Elite 37</div>
+        </div>
+        <div class="score-card">
+          <span>Strong Share</span>
+          <b>30.1%</b>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div><span>Gachi Index</span><b>150</b></div>
+        <div><span>Elite Share</span><b>14.5%</b></div>
+        <div><span>P90</span><b>65.0</b></div>
+        <div><span>Median</span><b>52.6</b></div>
+        <div><span>Avg Slot Fit</span><b>0.035</b></div>
+        <div><span>Avg Formation</span><b>1.042</b></div>
+      </div>
+      <div class="mix"><span class='pill'>ヴァレンシア 2003-04 <b>21</b></span><span class='pill'>バイエルン 2000-01 <b>10</b></span><span class='pill'>バルセロナ 1999-2000 <b>8</b></span><span class='pill'>パルマ 1998-99 <b>8</b></span><span class='pill'>イタリア 2012 <b>6</b></span><span class='pill'>チェルシー 2004-05 <b>5</b></span><span class='pill'>ウルグアイ 2014 <b>4</b></span><span class='pill'>ビアンコネーロ 2002-03 <b>3</b></span></div>
+      <div class="split">
+        <div>
+          <h3>Season Trend</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Season</th><th>Strong</th><th>Elite</th><th>P90</th><th>Median</th><th>Top Samples</th></tr></thead>
+              <tbody><tr><td>2616</td><td>21.9%</td><td>12.5%</td><td>63.4</td><td>49.7</td><td>ファンタジア(2616, 71.6); 舞浜レンガパン(2616, 69.7); FC.URAWA(2616, 67.3); ペッツ(2616, 63.5); ヤマロク(2616, 62.5)</td></tr>
+<tr><td>2617</td><td>34.4%</td><td>15.6%</td><td>64.1</td><td>52.6</td><td>ファンタジア(2617, 71.6); 舞浜レンガパン(2617, 65.9); せーのがさんはい(2617, 65.7); ペッツ(2617, 64.2); FC.URAWA(2617, 63.8)</td></tr>
+<tr><td>2618</td><td>28.1%</td><td>9.4%</td><td>63.3</td><td>50.9</td><td>ファンタジア(2618, 71.6); 舞浜レンガパン(2618, 65.9); ヤマロク(2618, 63.8); はにわ(2618, 63.3); FC.URAWA(2618, 63.1)</td></tr>
+<tr><td>2619</td><td>31.2%</td><td>12.5%</td><td>63.6</td><td>51.1</td><td>ファンタジア(2619, 71.6); 舞浜レンガパン(2619, 65.9); せーのがさんはい(2619, 63.9); FCもうふぶき(2619, 63.7); はにわ(2619, 63.3)</td></tr>
+<tr><td>2620</td><td>34.4%</td><td>18.8%</td><td>65.3</td><td>52.2</td><td>ファンタジア(2620, 72.4); 舞浜レンガパン(2620, 65.9); FCもうふぶき(2620, 65.6); ヤマロク(2620, 65.4); FC.URAWA(2620, 65.1)</td></tr>
+<tr><td>2621</td><td>28.1%</td><td>15.6%</td><td>65.4</td><td>54.6</td><td>ファンタジア(2621, 72.4); FC.URAWA(2621, 67.3); ヤマロク(2621, 66.2); FCもうふぶき(2621, 65.6); 舞浜レンガパン(2621, 63.3)</td></tr>
+<tr><td>2622</td><td>34.4%</td><td>18.8%</td><td>65.3</td><td>56.1</td><td>ファンタジア(2622, 71.6); エマ;ワトソン(2622, 66.2); 舞浜レンガパン(2622, 65.9); FC Zume(2622, 65.3); FC.URAWA(2622, 65.2)</td></tr>
+<tr><td>2623</td><td>28.1%</td><td>12.5%</td><td>64.4</td><td>54.6</td><td>ファンタジア(2623, 71.6); 舞浜レンガパン(2623, 65.9); FC.URAWA(2623, 64.9); エマ;ワトソン(2623, 64.6); FCもうふぶき(2623, 63.2)</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Top Team Samples</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>Slot</th><th>Form</th></tr></thead>
+              <tbody><tr><td>1</td><td>2620</td><td>ファンタジア</td><td class='strong'>72.4</td><td>7</td><td>ヴァレンシア 2003-04</td><td>アクエル</td><td>0.244</td><td>1.129</td></tr>
+<tr><td>2</td><td>2621</td><td>ファンタジア</td><td class='strong'>72.4</td><td>4</td><td>ヴァレンシア 2003-04</td><td>アクエル</td><td>0.244</td><td>1.129</td></tr>
+<tr><td>3</td><td>2617</td><td>ファンタジア</td><td class='strong'>71.6</td><td>7</td><td>ヴァレンシア 2003-04</td><td>アクエル</td><td>0.236</td><td>1.129</td></tr>
+<tr><td>4</td><td>2616</td><td>ファンタジア</td><td class='strong'>71.6</td><td>4</td><td>ヴァレンシア 2003-04</td><td>アクエル</td><td>0.236</td><td>1.129</td></tr>
+<tr><td>5</td><td>2618</td><td>ファンタジア</td><td class='strong'>71.6</td><td>4</td><td>ヴァレンシア 2003-04</td><td>アクエル</td><td>0.236</td><td>1.129</td></tr>
+<tr><td>6</td><td>2619</td><td>ファンタジア</td><td class='strong'>71.6</td><td>4</td><td>ヴァレンシア 2003-04</td><td>アクエル</td><td>0.236</td><td>1.129</td></tr>
+<tr><td>7</td><td>2622</td><td>ファンタジア</td><td class='strong'>71.6</td><td>4</td><td>ヴァレンシア 2003-04</td><td>アクエル</td><td>0.236</td><td>1.129</td></tr>
+<tr><td>8</td><td>2623</td><td>ファンタジア</td><td class='strong'>71.6</td><td>4</td><td>ヴァレンシア 2003-04</td><td>アクエル</td><td>0.236</td><td>1.129</td></tr>
+<tr><td>9</td><td>2616</td><td>舞浜レンガパン</td><td class='strong'>69.7</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.158</td><td>2.860</td></tr>
+<tr><td>10</td><td>2621</td><td>FC.URAWA</td><td class='strong'>67.3</td><td>7</td><td>バルセロナ 1999-2000</td><td>ダビーサス</td><td>0.191</td><td>1.062</td></tr>
+<tr><td>11</td><td>2616</td><td>FC.URAWA</td><td class='strong'>67.3</td><td>6</td><td>バルセロナ 1999-2000</td><td>ホッベル</td><td>0.191</td><td>1.062</td></tr>
+<tr><td>12</td><td>2622</td><td>エマ;ワトソン</td><td class='strong'>66.2</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.120</td><td>2.860</td></tr>
+<tr><td>13</td><td>2621</td><td>ヤマロク</td><td class='strong'>66.2</td><td>5</td><td>イタリア 2012</td><td>Ｊ・フィルマーニ</td><td>0.157</td><td>1.730</td></tr>
+<tr><td>14</td><td>2618</td><td>舞浜レンガパン</td><td class='strong'>65.9</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.117</td><td>2.860</td></tr>
+<tr><td>15</td><td>2623</td><td>舞浜レンガパン</td><td class='strong'>65.9</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.117</td><td>2.860</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="world-detail" id="world-17">
+      <div class="detail-head">
+        <div>
+          <h2>2. 17 ディッパー</h2>
+          <div class="meta-line">Teams 256 / Strong 67 / Elite 35</div>
+        </div>
+        <div class="score-card">
+          <span>Strong Share</span>
+          <b>26.2%</b>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div><span>Gachi Index</span><b>131</b></div>
+        <div><span>Elite Share</span><b>13.7%</b></div>
+        <div><span>P90</span><b>65.8</b></div>
+        <div><span>Median</span><b>49.7</b></div>
+        <div><span>Avg Slot Fit</span><b>0.023</b></div>
+        <div><span>Avg Formation</span><b>0.633</b></div>
+      </div>
+      <div class="mix"><span class='pill'>オランダ 2014 <b>11</b></span><span class='pill'>マンチェスターU 1998-99 <b>8</b></span><span class='pill'>アルゼンチン 2001 <b>8</b></span><span class='pill'>バイエルン 2000-01 <b>7</b></span><span class='pill'>ウルグアイ 2014 <b>7</b></span><span class='pill'>チェルシー 2004-05 <b>6</b></span><span class='pill'>リバプール 2004-05 <b>5</b></span><span class='pill'>ビアンコネーロ 2002-03 <b>3</b></span></div>
+      <div class="split">
+        <div>
+          <h3>Season Trend</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Season</th><th>Strong</th><th>Elite</th><th>P90</th><th>Median</th><th>Top Samples</th></tr></thead>
+              <tbody><tr><td>2616</td><td>28.1%</td><td>12.5%</td><td>64.4</td><td>48.2</td><td>フォールデン(2616, 72.2); 東京C エスペリオン(2616, 72.0); マジョリティ(2616, 71.3); サンケイスワローズ(2616, 64.6); 琥珀ヱビス1890(2616, 63.2)</td></tr>
+<tr><td>2617</td><td>21.9%</td><td>12.5%</td><td>65.8</td><td>49.1</td><td>マジョリティ(2617, 72.0); フォールデン(2617, 69.7); パッカーーん(2617, 69.0); 東京C エスペリオン(2617, 66.1); 04LS(2617, 63.0)</td></tr>
+<tr><td>2618</td><td>28.1%</td><td>12.5%</td><td>65.7</td><td>48.9</td><td>マジョリティ(2618, 72.6); パッカーーん(2618, 68.9); 04LS(2618, 66.8); 東京C エスペリオン(2618, 66.1); サンケイスワローズ(2618, 62.5)</td></tr>
+<tr><td>2619</td><td>31.2%</td><td>15.6%</td><td>67.1</td><td>49.7</td><td>東京C エスペリオン(2619, 72.1); パッカーーん(2619, 69.5); 04LS(2619, 68.1); マジョリティ(2619, 67.4); サンケイスワローズ(2619, 64.5)</td></tr>
+<tr><td>2620</td><td>25.0%</td><td>15.6%</td><td>64.7</td><td>51.7</td><td>東京C エスペリオン(2620, 72.1); 04LS(2620, 68.4); フォールデン(2620, 65.6); マジョリティ(2620, 64.7); パッカーーん(2620, 64.2)</td></tr>
+<tr><td>2621</td><td>25.0%</td><td>15.6%</td><td>64.6</td><td>52.0</td><td>東京C エスペリオン(2621, 82.6); パッカーーん(2621, 71.4); フォールデン(2621, 66.8); 04LS(2621, 64.6); マジョリティ(2621, 64.3)</td></tr>
+<tr><td>2622</td><td>25.0%</td><td>12.5%</td><td>63.8</td><td>49.9</td><td>東京C エスペリオン(2622, 77.5); パッカーーん(2622, 69.8); フォールデン(2622, 67.9); マジョリティ(2622, 64.0); centrale(2622, 62.2)</td></tr>
+<tr><td>2623</td><td>25.0%</td><td>12.5%</td><td>64.2</td><td>49.1</td><td>東京C エスペリオン(2623, 81.7); パッカーーん(2623, 67.6); フォールデン(2623, 66.2); とらまる(2623, 64.4); マジョリティ(2623, 62.7)</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Top Team Samples</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>Slot</th><th>Form</th></tr></thead>
+              <tbody><tr><td>1</td><td>2621</td><td>東京C エスペリオン</td><td class='strong'>82.6</td><td>6</td><td>リバプール 2004-05</td><td>タウンゼント</td><td>0.345</td><td>1.399</td></tr>
+<tr><td>2</td><td>2623</td><td>東京C エスペリオン</td><td class='strong'>81.7</td><td>7</td><td>リバプール 2004-05</td><td>タウンゼント</td><td>0.336</td><td>1.399</td></tr>
+<tr><td>3</td><td>2622</td><td>東京C エスペリオン</td><td class='strong'>77.5</td><td>7</td><td>リバプール 2004-05</td><td>タウンゼント</td><td>0.291</td><td>1.399</td></tr>
+<tr><td>4</td><td>2618</td><td>マジョリティ</td><td class='strong'>72.6</td><td>5</td><td>マンチェスターU 1998-99</td><td>シモンズ</td><td>0.270</td><td>0.417</td></tr>
+<tr><td>5</td><td>2616</td><td>フォールデン</td><td class='strong'>72.2</td><td>5</td><td>アルゼンチン 2001</td><td>ガウルテリオ</td><td>0.249</td><td>0.926</td></tr>
+<tr><td>6</td><td>2620</td><td>東京C エスペリオン</td><td class='strong'>72.1</td><td>7</td><td>リバプール 2004-05</td><td>Ｍ・フィルマーニ</td><td>0.232</td><td>1.399</td></tr>
+<tr><td>7</td><td>2619</td><td>東京C エスペリオン</td><td class='strong'>72.1</td><td>6</td><td>リバプール 2004-05</td><td>Ｍ・フィルマーニ</td><td>0.232</td><td>1.399</td></tr>
+<tr><td>8</td><td>2617</td><td>マジョリティ</td><td class='strong'>72.0</td><td>4</td><td>マンチェスターU 1998-99</td><td>シモンズ</td><td>0.264</td><td>0.417</td></tr>
+<tr><td>9</td><td>2616</td><td>東京C エスペリオン</td><td class='strong'>72.0</td><td>7</td><td>ビアンコネーロ 2002-03</td><td>千波　公一</td><td>0.192</td><td>2.563</td></tr>
+<tr><td>10</td><td>2621</td><td>パッカーーん</td><td class='strong'>71.4</td><td>7</td><td>オランダ 2014</td><td>シモンズ</td><td>0.207</td><td>1.915</td></tr>
+<tr><td>11</td><td>2616</td><td>マジョリティ</td><td class='strong'>71.3</td><td>4</td><td>マンチェスターU 1998-99</td><td>シモンズ</td><td>0.256</td><td>0.417</td></tr>
+<tr><td>12</td><td>2622</td><td>パッカーーん</td><td class='strong'>69.8</td><td>3</td><td>オランダ 2014</td><td>シモンズ</td><td>0.190</td><td>1.915</td></tr>
+<tr><td>13</td><td>2617</td><td>フォールデン</td><td class='strong'>69.7</td><td>6</td><td>アルゼンチン 2001</td><td>ベルナール</td><td>0.222</td><td>0.926</td></tr>
+<tr><td>14</td><td>2619</td><td>パッカーーん</td><td class='strong'>69.5</td><td>5</td><td>オランダ 2014</td><td>シモンズ</td><td>0.187</td><td>1.915</td></tr>
+<tr><td>15</td><td>2617</td><td>パッカーーん</td><td class='strong'>69.0</td><td>7</td><td>オランダ 2014</td><td>シモンズ</td><td>0.181</td><td>1.915</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="world-detail" id="world-16">
+      <div class="detail-head">
+        <div>
+          <h2>3. 16 フィンチ</h2>
+          <div class="meta-line">Teams 256 / Strong 63 / Elite 32</div>
+        </div>
+        <div class="score-card">
+          <span>Strong Share</span>
+          <b>24.6%</b>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div><span>Gachi Index</span><b>123</b></div>
+        <div><span>Elite Share</span><b>12.5%</b></div>
+        <div><span>P90</span><b>64.5</b></div>
+        <div><span>Median</span><b>51.0</b></div>
+        <div><span>Avg Slot Fit</span><b>0.040</b></div>
+        <div><span>Avg Formation</span><b>0.382</b></div>
+      </div>
+      <div class="mix"><span class='pill'>オランダ 2014 <b>13</b></span><span class='pill'>ブラジル 2014 <b>12</b></span><span class='pill'>イタリア 2012 <b>7</b></span><span class='pill'>ラツィオ 1999-2000 <b>7</b></span><span class='pill'>ビアンコネーロ 2002-03 <b>4</b></span><span class='pill'>バイエルン 2015-16 <b>4</b></span><span class='pill'>ドルトムント 2011-12 <b>4</b></span><span class='pill'>ブラジル 2002 <b>3</b></span></div>
+      <div class="split">
+        <div>
+          <h3>Season Trend</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Season</th><th>Strong</th><th>Elite</th><th>P90</th><th>Median</th><th>Top Samples</th></tr></thead>
+              <tbody><tr><td>2616</td><td>31.2%</td><td>18.8%</td><td>64.7</td><td>49.0</td><td>ウォッカ(2616, 74.8); パンサラッサ(2616, 68.3); ピエモンテ(2616, 66.3); 猫1匹(2616, 64.7); 　いか(2616, 64.5)</td></tr>
+<tr><td>2617</td><td>18.8%</td><td>12.5%</td><td>63.9</td><td>50.2</td><td>ウォッカ(2617, 68.0); 猫1匹(2617, 65.7); 　いか(2617, 64.5); チョコポメ(2617, 64.2); ラツィオ 99-00(2617, 61.3)</td></tr>
+<tr><td>2618</td><td>25.0%</td><td>9.4%</td><td>62.4</td><td>50.9</td><td>ウォッカ(2618, 67.2); 猫1匹(2618, 64.7); 　いか(2618, 64.5); ヤマト・インダスト(2618, 62.4); タニヤ(2618, 62.3)</td></tr>
+<tr><td>2619</td><td>28.1%</td><td>9.4%</td><td>62.2</td><td>51.6</td><td>ピエモンテ(2619, 65.8); 　いか(2619, 64.5); ラツィオ 99-00(2619, 64.4); タニヤ(2619, 62.3); ライ　(2619, 61.1)</td></tr>
+<tr><td>2620</td><td>18.8%</td><td>12.5%</td><td>64.1</td><td>51.2</td><td>ラツィオ 99-00(2620, 66.3); チョコポメ(2620, 66.0); Cataluña(2620, 64.3); 猫1匹(2620, 64.2); ライ　(2620, 62.4)</td></tr>
+<tr><td>2621</td><td>18.8%</td><td>12.5%</td><td>64.5</td><td>51.0</td><td>チョコポメ(2621, 67.8); ラツィオ 99-00(2621, 65.4); Cataluña(2621, 64.8); 猫1匹(2621, 64.7); ピエモンテ(2621, 62.5)</td></tr>
+<tr><td>2622</td><td>31.2%</td><td>15.6%</td><td>64.6</td><td>51.0</td><td>チョコポメ(2622, 67.8); FCバルサミコ(2622, 66.9); 猫1匹(2622, 65.7); Cataluña(2622, 64.7); ラツィオ 99-00(2622, 63.9)</td></tr>
+<tr><td>2623</td><td>25.0%</td><td>9.4%</td><td>63.0</td><td>53.1</td><td>ラツィオ 99-00(2623, 66.6); 猫1匹(2623, 64.7); Cataluña(2623, 64.7); FCバルサミコ(2623, 63.0); 　いか(2623, 63.0)</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Top Team Samples</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>Slot</th><th>Form</th></tr></thead>
+              <tbody><tr><td>1</td><td>2616</td><td>ウォッカ</td><td class='strong'>74.8</td><td>7</td><td>ビアンコネーロ 2002-03</td><td>ブリッジス</td><td>0.223</td><td>2.563</td></tr>
+<tr><td>2</td><td>2616</td><td>パンサラッサ</td><td class='strong'>68.3</td><td>7</td><td>マンチェスターU 2007-08</td><td>ブリッジス</td><td>0.235</td><td>0.071</td></tr>
+<tr><td>3</td><td>2617</td><td>ウォッカ</td><td class='strong'>68.0</td><td>5</td><td>ビアンコネーロ 2002-03</td><td>ブリッジス</td><td>0.149</td><td>2.563</td></tr>
+<tr><td>4</td><td>2621</td><td>チョコポメ</td><td class='strong'>67.8</td><td>5</td><td>イタリア 2012</td><td>イエーガー</td><td>0.174</td><td>1.730</td></tr>
+<tr><td>5</td><td>2622</td><td>チョコポメ</td><td class='strong'>67.8</td><td>4</td><td>イタリア 2012</td><td>敏林　浩</td><td>0.174</td><td>1.730</td></tr>
+<tr><td>6</td><td>2618</td><td>ウォッカ</td><td class='strong'>67.2</td><td>3</td><td>マドリード 2013-14</td><td>ブリッジス</td><td>0.254</td><td>-0.862</td></tr>
+<tr><td>7</td><td>2622</td><td>FCバルサミコ</td><td class='strong'>66.9</td><td>6</td><td>N-BOX</td><td>敏林　浩</td><td>0.231</td><td>-0.293</td></tr>
+<tr><td>8</td><td>2623</td><td>ラツィオ 99-00</td><td class='strong'>66.6</td><td>6</td><td>ラツィオ 1999-2000</td><td>リッター</td><td>0.196</td><td>0.701</td></tr>
+<tr><td>9</td><td>2616</td><td>ピエモンテ</td><td class='strong'>66.3</td><td>4</td><td>オランダ 2014</td><td>シモンズ</td><td>0.152</td><td>1.915</td></tr>
+<tr><td>10</td><td>2620</td><td>ラツィオ 99-00</td><td class='strong'>66.3</td><td>7</td><td>ラツィオ 1999-2000</td><td>コンティ</td><td>0.192</td><td>0.701</td></tr>
+<tr><td>11</td><td>2620</td><td>チョコポメ</td><td class='strong'>66.0</td><td>6</td><td>イタリア 2012</td><td>イエーガー</td><td>0.155</td><td>1.730</td></tr>
+<tr><td>12</td><td>2619</td><td>ピエモンテ</td><td class='strong'>65.8</td><td>5</td><td>オランダ 2014</td><td>シモンズ</td><td>0.146</td><td>1.915</td></tr>
+<tr><td>13</td><td>2622</td><td>猫1匹</td><td class='strong'>65.7</td><td>7</td><td>ブラジル 2014</td><td>敏林　浩</td><td>0.156</td><td>1.576</td></tr>
+<tr><td>14</td><td>2617</td><td>猫1匹</td><td class='strong'>65.7</td><td>6</td><td>ブラジル 2014</td><td>敏林　浩</td><td>0.156</td><td>1.576</td></tr>
+<tr><td>15</td><td>2621</td><td>ラツィオ 99-00</td><td class='strong'>65.4</td><td>4</td><td>ラツィオ 1999-2000</td><td>コンティ</td><td>0.183</td><td>0.701</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="world-detail" id="world-9">
+      <div class="detail-head">
+        <div>
+          <h2>4. 9 ハリアー</h2>
+          <div class="meta-line">Teams 256 / Strong 61 / Elite 34</div>
+        </div>
+        <div class="score-card">
+          <span>Strong Share</span>
+          <b>23.8%</b>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div><span>Gachi Index</span><b>119</b></div>
+        <div><span>Elite Share</span><b>13.3%</b></div>
+        <div><span>P90</span><b>64.6</b></div>
+        <div><span>Median</span><b>52.7</b></div>
+        <div><span>Avg Slot Fit</span><b>0.046</b></div>
+        <div><span>Avg Formation</span><b>0.655</b></div>
+      </div>
+      <div class="mix"><span class='pill'>バイエルン 2000-01 <b>10</b></span><span class='pill'>チェルシー 2004-05 <b>9</b></span><span class='pill'>ドルトムント 2011-12 <b>7</b></span><span class='pill'>ビアンコネーロ 2002-03 <b>6</b></span><span class='pill'>ヴァレンシア 2003-04 <b>4</b></span><span class='pill'>ウルグアイ 2014 <b>4</b></span><span class='pill'>ベルギー 2013 <b>3</b></span><span class='pill'>オランダ 2014 <b>3</b></span></div>
+      <div class="split">
+        <div>
+          <h3>Season Trend</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Season</th><th>Strong</th><th>Elite</th><th>P90</th><th>Median</th><th>Top Samples</th></tr></thead>
+              <tbody><tr><td>2616</td><td>18.8%</td><td>12.5%</td><td>64.2</td><td>52.7</td><td>ペニさんFC(2616, 65.7); 倶楽部賭郎(2616, 65.1); ジデンFC(2616, 64.6); ローションＦＣ(2616, 64.5); セレッソ蒼天掘(2616, 61.6)</td></tr>
+<tr><td>2617</td><td>34.4%</td><td>15.6%</td><td>64.5</td><td>50.9</td><td>ふきげんぱんだ(2617, 69.3); FCモンテレイ(2617, 68.4); ジデンFC(2617, 64.6); インテル(2617, 64.6); 一夫多妻(2617, 64.0)</td></tr>
+<tr><td>2618</td><td>31.2%</td><td>15.6%</td><td>64.2</td><td>55.1</td><td>ふきげんぱんだ(2618, 69.3); FCモンテレイ(2618, 67.7); ジデンFC(2618, 64.6); ノリアFC(2618, 64.3); 倶楽部賭郎(2618, 63.4)</td></tr>
+<tr><td>2619</td><td>31.2%</td><td>21.9%</td><td>66.6</td><td>53.0</td><td>ペニさんFC(2619, 69.7); ふきげんぱんだ(2619, 69.3); ジデンFC(2619, 68.4); FCモンテレイ(2619, 66.7); 一夫多妻(2619, 65.9)</td></tr>
+<tr><td>2620</td><td>18.8%</td><td>12.5%</td><td>63.7</td><td>52.7</td><td>ペニさんFC(2620, 69.7); ジデンFC(2620, 68.4); ノリアFC(2620, 65.5); チョココロネーロ(2620, 63.9); バルサミコ瀬戸(2620, 61.3)</td></tr>
+<tr><td>2621</td><td>12.5%</td><td>9.4%</td><td>59.0</td><td>53.2</td><td>ジデンFC(2621, 72.8); ペニさんFC(2621, 69.7); 倶楽部賭郎(2621, 64.7); バルサミコ瀬戸(2621, 59.0); チョココロネーロ(2621, 58.8)</td></tr>
+<tr><td>2622</td><td>15.6%</td><td>6.2%</td><td>61.1</td><td>51.8</td><td>ペニさんFC(2622, 72.6); ジデンFC(2622, 69.0); 倶楽部賭郎(2622, 61.4); ローションＦＣ(2622, 61.2); FC コレナンデ商会(2622, 59.9)</td></tr>
+<tr><td>2623</td><td>28.1%</td><td>12.5%</td><td>63.4</td><td>53.3</td><td>ペニさんFC(2623, 71.3); ジデンFC(2623, 69.0); F.C.ちびら(2623, 64.1); ぴーやろ(2623, 63.5); らむくんず(2623, 62.8)</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Top Team Samples</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>Slot</th><th>Form</th></tr></thead>
+              <tbody><tr><td>1</td><td>2621</td><td>ジデンFC</td><td class='strong'>72.8</td><td>6</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.191</td><td>2.860</td></tr>
+<tr><td>2</td><td>2622</td><td>ペニさんFC</td><td class='strong'>72.6</td><td>6</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>3</td><td>2623</td><td>ペニさんFC</td><td class='strong'>71.3</td><td>4</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.222</td><td>1.451</td></tr>
+<tr><td>4</td><td>2621</td><td>ペニさんFC</td><td class='strong'>69.7</td><td>7</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.204</td><td>1.451</td></tr>
+<tr><td>5</td><td>2620</td><td>ペニさんFC</td><td class='strong'>69.7</td><td>5</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.204</td><td>1.451</td></tr>
+<tr><td>6</td><td>2619</td><td>ペニさんFC</td><td class='strong'>69.7</td><td>4</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.204</td><td>1.451</td></tr>
+<tr><td>7</td><td>2617</td><td>ふきげんぱんだ</td><td class='strong'>69.3</td><td>6</td><td>ヴァレンシア 2003-04</td><td>アクエル</td><td>0.211</td><td>1.129</td></tr>
+<tr><td>8</td><td>2618</td><td>ふきげんぱんだ</td><td class='strong'>69.3</td><td>5</td><td>ヴァレンシア 2003-04</td><td>アクエル</td><td>0.211</td><td>1.129</td></tr>
+<tr><td>9</td><td>2619</td><td>ふきげんぱんだ</td><td class='strong'>69.3</td><td>4</td><td>ヴァレンシア 2003-04</td><td>アクエル</td><td>0.211</td><td>1.129</td></tr>
+<tr><td>10</td><td>2622</td><td>ジデンFC</td><td class='strong'>69.0</td><td>4</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.150</td><td>2.860</td></tr>
+<tr><td>11</td><td>2623</td><td>ジデンFC</td><td class='strong'>69.0</td><td>3</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.150</td><td>2.860</td></tr>
+<tr><td>12</td><td>2619</td><td>ジデンFC</td><td class='strong'>68.4</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.143</td><td>2.860</td></tr>
+<tr><td>13</td><td>2620</td><td>ジデンFC</td><td class='strong'>68.4</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.143</td><td>2.860</td></tr>
+<tr><td>14</td><td>2617</td><td>FCモンテレイ</td><td class='strong'>68.4</td><td>4</td><td>ベルギー 2013</td><td>シモンズ</td><td>0.241</td><td>-0.084</td></tr>
+<tr><td>15</td><td>2618</td><td>FCモンテレイ</td><td class='strong'>67.7</td><td>4</td><td>ベルギー 2013</td><td>シモンズ</td><td>0.234</td><td>-0.084</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="world-detail" id="world-4">
+      <div class="detail-head">
+        <div>
+          <h2>5. 4 カナード</h2>
+          <div class="meta-line">Teams 256 / Strong 56 / Elite 22</div>
+        </div>
+        <div class="score-card">
+          <span>Strong Share</span>
+          <b>21.9%</b>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div><span>Gachi Index</span><b>109</b></div>
+        <div><span>Elite Share</span><b>8.6%</b></div>
+        <div><span>P90</span><b>62.4</b></div>
+        <div><span>Median</span><b>49.1</b></div>
+        <div><span>Avg Slot Fit</span><b>0.027</b></div>
+        <div><span>Avg Formation</span><b>0.400</b></div>
+      </div>
+      <div class="mix"><span class='pill'>ウルグアイ 2014 <b>9</b></span><span class='pill'>ブラジル 2006 <b>7</b></span><span class='pill'>ベルギー 2013 <b>6</b></span><span class='pill'>ヴァレンシア 2003-04 <b>6</b></span><span class='pill'>イタリア 2012 <b>5</b></span><span class='pill'>オランダ 2014 <b>5</b></span><span class='pill'>パルマ 1998-99 <b>4</b></span><span class='pill'>クリスマス・ツリー <b>3</b></span></div>
+      <div class="split">
+        <div>
+          <h3>Season Trend</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Season</th><th>Strong</th><th>Elite</th><th>P90</th><th>Median</th><th>Top Samples</th></tr></thead>
+              <tbody><tr><td>2616</td><td>9.4%</td><td>9.4%</td><td>58.7</td><td>47.9</td><td>コルホーズ(2616, 69.9); 翼神竜(2616, 64.7); デマ長万部(2616, 64.1); ポテチ(2616, 58.7); SE SA(2616, 58.5)</td></tr>
+<tr><td>2617</td><td>18.8%</td><td>15.6%</td><td>64.6</td><td>48.9</td><td>ポテチ(2617, 73.3); コルホーズ(2617, 66.2); デマ長万部(2617, 65.2); 翼神竜(2617, 64.7); まりい(2617, 64.1)</td></tr>
+<tr><td>2618</td><td>25.0%</td><td>9.4%</td><td>62.3</td><td>50.3</td><td>ポテチ(2618, 74.4); 翼神竜(2618, 65.4); デマ長万部(2618, 65.3); 新宿キャッツアイ(2618, 62.4); FC ONOFF(2618, 60.9)</td></tr>
+<tr><td>2619</td><td>18.8%</td><td>9.4%</td><td>60.8</td><td>50.7</td><td>翼神竜(2619, 65.4); ざみーとす(2619, 64.8); コルホーズ(2619, 63.5); ポテチ(2619, 60.9); なかやまきんにくん(2619, 59.6)</td></tr>
+<tr><td>2620</td><td>34.4%</td><td>12.5%</td><td>64.1</td><td>48.8</td><td>ざみーとす(2620, 69.1); ポテチ(2620, 65.6); 翼神竜(2620, 65.4); コルホーズ(2620, 64.3); 新宿キャッツアイ(2620, 61.7)</td></tr>
+<tr><td>2621</td><td>21.9%</td><td>9.4%</td><td>63.0</td><td>48.4</td><td>ざみーとす(2621, 69.5); ポテチ(2621, 69.3); 翼神竜(2621, 65.4); ひまじん(2621, 63.2); 新宿キャッツアイ(2621, 61.7)</td></tr>
+<tr><td>2622</td><td>25.0%</td><td>3.1%</td><td>60.8</td><td>49.1</td><td>ざみーとす(2622, 69.7); ポテチ(2622, 62.3); 新宿キャッツアイ(2622, 61.8); グランアレグリア(2622, 60.8); キタくんFC(2622, 60.6)</td></tr>
+<tr><td>2623</td><td>21.9%</td><td>0.0%</td><td>60.0</td><td>52.2</td><td>ひまじん(2623, 62.9); ぴたごらす(2623, 60.9); ポテチ(2623, 60.8); cobalt-B(2623, 60.0); 新宿キャッツアイ(2623, 59.9)</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Top Team Samples</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>Slot</th><th>Form</th></tr></thead>
+              <tbody><tr><td>1</td><td>2618</td><td>ポテチ</td><td class='strong'>74.4</td><td>7</td><td>イタリア 2012</td><td>敏林　浩</td><td>0.246</td><td>1.730</td></tr>
+<tr><td>2</td><td>2617</td><td>ポテチ</td><td class='strong'>73.3</td><td>4</td><td>イタリア 2012</td><td>敏林　浩</td><td>0.234</td><td>1.730</td></tr>
+<tr><td>3</td><td>2616</td><td>コルホーズ</td><td class='strong'>69.9</td><td>7</td><td>ブラジル 2006</td><td>敏林　浩</td><td>0.238</td><td>0.504</td></tr>
+<tr><td>4</td><td>2622</td><td>ざみーとす</td><td class='strong'>69.7</td><td>4</td><td>パルマ 1998-99</td><td>ラクテオノフ</td><td>0.199</td><td>1.619</td></tr>
+<tr><td>5</td><td>2621</td><td>ざみーとす</td><td class='strong'>69.5</td><td>7</td><td>パルマ 1998-99</td><td>ザイド・ファタラ</td><td>0.196</td><td>1.619</td></tr>
+<tr><td>6</td><td>2621</td><td>ポテチ</td><td class='strong'>69.3</td><td>3</td><td>イタリア 2012</td><td>敏林　浩</td><td>0.191</td><td>1.730</td></tr>
+<tr><td>7</td><td>2620</td><td>ざみーとす</td><td class='strong'>69.1</td><td>4</td><td>パルマ 1998-99</td><td>ザイド・ファタラ</td><td>0.192</td><td>1.619</td></tr>
+<tr><td>8</td><td>2617</td><td>コルホーズ</td><td class='strong'>66.2</td><td>3</td><td>ブラジル 2006</td><td>敏林　浩</td><td>0.197</td><td>0.504</td></tr>
+<tr><td>9</td><td>2620</td><td>ポテチ</td><td class='strong'>65.6</td><td>7</td><td>イタリア 2012</td><td>敏林　浩</td><td>0.150</td><td>1.730</td></tr>
+<tr><td>10</td><td>2619</td><td>翼神竜</td><td class='strong'>65.4</td><td>7</td><td>ウルグアイ 2014</td><td>敏林　浩</td><td>0.114</td><td>2.759</td></tr>
+<tr><td>11</td><td>2620</td><td>翼神竜</td><td class='strong'>65.4</td><td>4</td><td>ウルグアイ 2014</td><td>敏林　浩</td><td>0.114</td><td>2.759</td></tr>
+<tr><td>12</td><td>2621</td><td>翼神竜</td><td class='strong'>65.4</td><td>4</td><td>ウルグアイ 2014</td><td>敏林　浩</td><td>0.114</td><td>2.759</td></tr>
+<tr><td>13</td><td>2618</td><td>翼神竜</td><td class='strong'>65.4</td><td>3</td><td>ウルグアイ 2014</td><td>敏林　浩</td><td>0.114</td><td>2.759</td></tr>
+<tr><td>14</td><td>2618</td><td>デマ長万部</td><td class='strong'>65.3</td><td>3</td><td>ウルグアイ 2014</td><td>敏林　浩</td><td>0.113</td><td>2.759</td></tr>
+<tr><td>15</td><td>2617</td><td>デマ長万部</td><td class='strong'>65.2</td><td>7</td><td>ウルグアイ 2014</td><td>敏林　浩</td><td>0.112</td><td>2.759</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="world-detail" id="world-1">
+      <div class="detail-head">
+        <div>
+          <h2>6. 1 アウル</h2>
+          <div class="meta-line">Teams 256 / Strong 55 / Elite 33</div>
+        </div>
+        <div class="score-card">
+          <span>Strong Share</span>
+          <b>21.5%</b>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div><span>Gachi Index</span><b>107</b></div>
+        <div><span>Elite Share</span><b>12.9%</b></div>
+        <div><span>P90</span><b>64.4</b></div>
+        <div><span>Median</span><b>48.9</b></div>
+        <div><span>Avg Slot Fit</span><b>0.024</b></div>
+        <div><span>Avg Formation</span><b>0.452</b></div>
+      </div>
+      <div class="mix"><span class='pill'>クリスマス・ツリー <b>8</b></span><span class='pill'>バイエルン 2000-01 <b>8</b></span><span class='pill'>イタリア 2012 <b>7</b></span><span class='pill'>ビアンコネーロ 2002-03 <b>7</b></span><span class='pill'>ヴァレンシア 2003-04 <b>7</b></span><span class='pill'>ポルトガル 2014 <b>6</b></span><span class='pill'>N-BOX <b>4</b></span><span class='pill'>ドルトムント 2011-12 <b>4</b></span></div>
+      <div class="split">
+        <div>
+          <h3>Season Trend</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Season</th><th>Strong</th><th>Elite</th><th>P90</th><th>Median</th><th>Top Samples</th></tr></thead>
+              <tbody><tr><td>2616</td><td>18.8%</td><td>6.2%</td><td>62.4</td><td>48.8</td><td>-Horiz-(2616, 64.5); 先バレエゴイスト(2616, 63.8); PITスティーラーズ(2616, 62.6); Rコンシェルジュ(2616, 62.6); あーゆん(2616, 60.7)</td></tr>
+<tr><td>2617</td><td>21.9%</td><td>6.2%</td><td>61.2</td><td>49.5</td><td>颯FC(2617, 69.9); ACミラン(2617, 69.3); Juve0203(2617, 61.6); PITスティーラーズ(2617, 61.2); -Horiz-(2617, 61.2)</td></tr>
+<tr><td>2618</td><td>18.8%</td><td>12.5%</td><td>66.8</td><td>49.9</td><td>ACミラン(2618, 69.6); 颯FC(2618, 69.3); Rコンシェルジュ(2618, 67.5); Juve0203(2618, 67.3); マクノシタU(2618, 61.8)</td></tr>
+<tr><td>2619</td><td>21.9%</td><td>15.6%</td><td>67.2</td><td>48.3</td><td>颯FC(2619, 69.7); ACミラン(2619, 69.6); Juve0203(2619, 68.5); Rコンシェルジュ(2619, 67.5); PITスティーラーズ(2619, 64.9)</td></tr>
+<tr><td>2620</td><td>21.9%</td><td>12.5%</td><td>63.4</td><td>47.8</td><td>颯FC(2620, 69.0); Rコンシェルジュ(2620, 67.5); ACミラン(2620, 64.6); -Horiz-(2620, 63.6); ビンタンユナイテッド(2620, 61.5)</td></tr>
+<tr><td>2621</td><td>18.8%</td><td>15.6%</td><td>63.9</td><td>46.8</td><td>Rコンシェルジュ(2621, 67.5); 颯FC(2621, 66.8); ACミラン(2621, 65.0); -Horiz-(2621, 63.9); ビンタンユナイテッド(2621, 63.9)</td></tr>
+<tr><td>2622</td><td>25.0%</td><td>15.6%</td><td>64.6</td><td>50.2</td><td>颯FC(2622, 71.3); Rコンシェルジュ(2622, 67.5); ACミラン(2622, 64.7); ビンタンユナイテッド(2622, 64.7); -Horiz-(2622, 63.6)</td></tr>
+<tr><td>2623</td><td>25.0%</td><td>18.8%</td><td>64.4</td><td>49.2</td><td>Rコンシェルジュ(2623, 67.5); はたのっちFC 99(2623, 67.0); ビンタンユナイテッド(2623, 64.5); ACミラン(2623, 64.4); メガネパンサー(2623, 64.4)</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Top Team Samples</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>Slot</th><th>Form</th></tr></thead>
+              <tbody><tr><td>1</td><td>2622</td><td>颯FC</td><td class='strong'>71.3</td><td>7</td><td>イタリア 2012</td><td>敏林　浩</td><td>0.213</td><td>1.730</td></tr>
+<tr><td>2</td><td>2617</td><td>颯FC</td><td class='strong'>69.9</td><td>7</td><td>イタリア 2012</td><td>敏林　浩</td><td>0.197</td><td>1.730</td></tr>
+<tr><td>3</td><td>2619</td><td>颯FC</td><td class='strong'>69.7</td><td>6</td><td>イタリア 2012</td><td>敏林　浩</td><td>0.195</td><td>1.730</td></tr>
+<tr><td>4</td><td>2619</td><td>ACミラン</td><td class='strong'>69.6</td><td>7</td><td>クリスマス・ツリー</td><td>リッター</td><td>0.251</td><td>-0.017</td></tr>
+<tr><td>5</td><td>2618</td><td>ACミラン</td><td class='strong'>69.6</td><td>4</td><td>クリスマス・ツリー</td><td>リッター</td><td>0.251</td><td>-0.017</td></tr>
+<tr><td>6</td><td>2618</td><td>颯FC</td><td class='strong'>69.3</td><td>5</td><td>イタリア 2012</td><td>敏林　浩</td><td>0.191</td><td>1.730</td></tr>
+<tr><td>7</td><td>2617</td><td>ACミラン</td><td class='strong'>69.3</td><td>5</td><td>クリスマス・ツリー</td><td>リッター</td><td>0.248</td><td>-0.017</td></tr>
+<tr><td>8</td><td>2620</td><td>颯FC</td><td class='strong'>69.0</td><td>5</td><td>イタリア 2012</td><td>敏林　浩</td><td>0.187</td><td>1.730</td></tr>
+<tr><td>9</td><td>2619</td><td>Juve0203</td><td class='strong'>68.5</td><td>4</td><td>ビアンコネーロ 2002-03</td><td>コンティ</td><td>0.155</td><td>2.563</td></tr>
+<tr><td>10</td><td>2621</td><td>Rコンシェルジュ</td><td class='strong'>67.5</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.134</td><td>2.860</td></tr>
+<tr><td>11</td><td>2622</td><td>Rコンシェルジュ</td><td class='strong'>67.5</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.134</td><td>2.860</td></tr>
+<tr><td>12</td><td>2618</td><td>Rコンシェルジュ</td><td class='strong'>67.5</td><td>6</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.134</td><td>2.860</td></tr>
+<tr><td>13</td><td>2620</td><td>Rコンシェルジュ</td><td class='strong'>67.5</td><td>6</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.134</td><td>2.860</td></tr>
+<tr><td>14</td><td>2623</td><td>Rコンシェルジュ</td><td class='strong'>67.5</td><td>5</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.134</td><td>2.860</td></tr>
+<tr><td>15</td><td>2619</td><td>Rコンシェルジュ</td><td class='strong'>67.5</td><td>3</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.134</td><td>2.860</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="world-detail" id="world-13">
+      <div class="detail-head">
+        <div>
+          <h2>7. 13 クート</h2>
+          <div class="meta-line">Teams 256 / Strong 54 / Elite 29</div>
+        </div>
+        <div class="score-card">
+          <span>Strong Share</span>
+          <b>21.1%</b>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div><span>Gachi Index</span><b>105</b></div>
+        <div><span>Elite Share</span><b>11.3%</b></div>
+        <div><span>P90</span><b>64.5</b></div>
+        <div><span>Median</span><b>46.2</b></div>
+        <div><span>Avg Slot Fit</span><b>0.009</b></div>
+        <div><span>Avg Formation</span><b>0.380</b></div>
+      </div>
+      <div class="mix"><span class='pill'>バイエルン 2000-01 <b>8</b></span><span class='pill'>ビアンコネーロ 2002-03 <b>8</b></span><span class='pill'>イタリア 2012 <b>7</b></span><span class='pill'>チェルシー 2004-05 <b>7</b></span><span class='pill'>ヴァレンシア 2003-04 <b>5</b></span><span class='pill'>オランダ 2014 <b>5</b></span><span class='pill'>日本 1996 <b>4</b></span><span class='pill'>ドルトムント 2011-12 <b>3</b></span></div>
+      <div class="split">
+        <div>
+          <h3>Season Trend</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Season</th><th>Strong</th><th>Elite</th><th>P90</th><th>Median</th><th>Top Samples</th></tr></thead>
+              <tbody><tr><td>2616</td><td>28.1%</td><td>3.1%</td><td>61.5</td><td>48.0</td><td>バナントンガラグ(2616, 78.1); ナラントンガラグ(2616, 62.4); 長崎ちゃんぽんず(2616, 62.2); 松阪牛FC(2616, 61.6); FC  ぐでたま(2616, 61.4)</td></tr>
+<tr><td>2617</td><td>15.6%</td><td>9.4%</td><td>62.0</td><td>46.9</td><td>バナントンガラグ(2617, 73.7); FC  ぐでたま(2617, 68.4); 松阪牛FC(2617, 68.1); FC富士急(2617, 62.1); 所沢ポカーンズ(2617, 60.8)</td></tr>
+<tr><td>2618</td><td>12.5%</td><td>9.4%</td><td>61.1</td><td>48.1</td><td>FC  ぐでたま(2618, 69.6); 松阪牛FC(2618, 68.3); てりりん⭐︎(2618, 64.8); 鹿島りたい柏(2618, 61.4); ナラントンガラグ✴︎(2618, 58.9)</td></tr>
+<tr><td>2619</td><td>18.8%</td><td>9.4%</td><td>61.7</td><td>45.4</td><td>FC  ぐでたま(2619, 72.6); バナントンガラグ(2619, 65.2); 所沢ポカーンズ(2619, 65.1); 松阪牛FC(2619, 61.8); 長崎ちゃんぽんず(2619, 60.2)</td></tr>
+<tr><td>2620</td><td>21.9%</td><td>12.5%</td><td>65.0</td><td>44.6</td><td>バナントンガラグ(2620, 69.0); 三元豚FC⭐︎(2620, 66.3); FC  ぐでたま(2620, 65.7); 長崎ちゃんぽんず(2620, 65.2); 松阪牛FC(2620, 62.8)</td></tr>
+<tr><td>2621</td><td>25.0%</td><td>12.5%</td><td>64.3</td><td>47.3</td><td>長崎ちゃんぽんず(2621, 66.0); 松阪牛FC(2621, 65.6); バナントンガラグ(2621, 64.8); FC富士急(2621, 64.5); 三元豚FC⭐︎(2621, 62.6)</td></tr>
+<tr><td>2622</td><td>21.9%</td><td>12.5%</td><td>64.4</td><td>46.1</td><td>FC  ぐでたま(2622, 71.2); FC富士急(2622, 67.0); 松阪牛FC(2622, 66.4); 長崎ちゃんぽんず(2622, 64.7); バナントンガラグ(2622, 62.3)</td></tr>
+<tr><td>2623</td><td>25.0%</td><td>21.9%</td><td>65.0</td><td>46.7</td><td>FC  ぐでたま(2623, 72.6); たびお(2623, 67.7); サムライドッピエッタ(2623, 66.8); 長崎ちゃんぽんず(2623, 65.0); ア テ ム(2623, 64.6)</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Top Team Samples</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>Slot</th><th>Form</th></tr></thead>
+              <tbody><tr><td>1</td><td>2616</td><td>バナントンガラグ</td><td class='strong'>78.1</td><td>4</td><td>イタリア 2012</td><td>敏林　浩</td><td>0.286</td><td>1.730</td></tr>
+<tr><td>2</td><td>2617</td><td>バナントンガラグ</td><td class='strong'>73.7</td><td>5</td><td>イタリア 2012</td><td>敏林　浩</td><td>0.239</td><td>1.730</td></tr>
+<tr><td>3</td><td>2623</td><td>FC  ぐでたま</td><td class='strong'>72.6</td><td>7</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>4</td><td>2619</td><td>FC  ぐでたま</td><td class='strong'>72.6</td><td>6</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.235</td><td>1.451</td></tr>
+<tr><td>5</td><td>2622</td><td>FC  ぐでたま</td><td class='strong'>71.2</td><td>5</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.221</td><td>1.451</td></tr>
+<tr><td>6</td><td>2618</td><td>FC  ぐでたま</td><td class='strong'>69.6</td><td>6</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.203</td><td>1.451</td></tr>
+<tr><td>7</td><td>2620</td><td>バナントンガラグ</td><td class='strong'>69.0</td><td>6</td><td>イタリア 2012</td><td>敏林　浩</td><td>0.187</td><td>1.730</td></tr>
+<tr><td>8</td><td>2617</td><td>FC  ぐでたま</td><td class='strong'>68.4</td><td>6</td><td>ドルトムント 2011-12</td><td>敏林　浩</td><td>0.187</td><td>1.549</td></tr>
+<tr><td>9</td><td>2618</td><td>松阪牛FC</td><td class='strong'>68.3</td><td>5</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.143</td><td>2.860</td></tr>
+<tr><td>10</td><td>2617</td><td>松阪牛FC</td><td class='strong'>68.1</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.141</td><td>2.860</td></tr>
+<tr><td>11</td><td>2623</td><td>たびお</td><td class='strong'>67.7</td><td>7</td><td>ポルトガル 2016</td><td>シモンズ</td><td>0.288</td><td>-1.735</td></tr>
+<tr><td>12</td><td>2622</td><td>FC富士急</td><td class='strong'>67.0</td><td>3</td><td>ヴァレンシア 2003-04</td><td>ラクテオノフ</td><td>0.186</td><td>1.129</td></tr>
+<tr><td>13</td><td>2623</td><td>サムライドッピエッタ</td><td class='strong'>66.8</td><td>6</td><td>スペイン 2012</td><td>ガウルテリオ</td><td>0.201</td><td>0.584</td></tr>
+<tr><td>14</td><td>2622</td><td>松阪牛FC</td><td class='strong'>66.4</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.122</td><td>2.860</td></tr>
+<tr><td>15</td><td>2620</td><td>三元豚FC⭐︎</td><td class='strong'>66.3</td><td>7</td><td>オランダ 2014</td><td>シモンズ</td><td>0.152</td><td>1.915</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="world-detail" id="world-14">
+      <div class="detail-head">
+        <div>
+          <h2>8. 14 アイビス</h2>
+          <div class="meta-line">Teams 256 / Strong 54 / Elite 28</div>
+        </div>
+        <div class="score-card">
+          <span>Strong Share</span>
+          <b>21.1%</b>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div><span>Gachi Index</span><b>105</b></div>
+        <div><span>Elite Share</span><b>10.9%</b></div>
+        <div><span>P90</span><b>64.8</b></div>
+        <div><span>Median</span><b>49.9</b></div>
+        <div><span>Avg Slot Fit</span><b>0.028</b></div>
+        <div><span>Avg Formation</span><b>0.536</b></div>
+      </div>
+      <div class="mix"><span class='pill'>オランダ 2014 <b>16</b></span><span class='pill'>チェルシー 2004-05 <b>8</b></span><span class='pill'>ビアンコネーロ 2002-03 <b>8</b></span><span class='pill'>マンチェスターU 2007-08 <b>5</b></span><span class='pill'>パルマ 1998-99 <b>5</b></span><span class='pill'>バイエルン 2000-01 <b>5</b></span><span class='pill'>ブラジル 2014 <b>2</b></span><span class='pill'>ブラジル 2006 <b>2</b></span></div>
+      <div class="split">
+        <div>
+          <h3>Season Trend</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Season</th><th>Strong</th><th>Elite</th><th>P90</th><th>Median</th><th>Top Samples</th></tr></thead>
+              <tbody><tr><td>2616</td><td>25.0%</td><td>12.5%</td><td>64.4</td><td>52.2</td><td>FC PONTA(2616, 68.7); 7990301(2616, 67.7); FC目黒(2616, 65.7); €°アルカンタラFC(2616, 64.6); ちわわFC(2616, 62.5)</td></tr>
+<tr><td>2617</td><td>18.8%</td><td>3.1%</td><td>60.9</td><td>50.4</td><td>FC目黒(2617, 72.6); FC PONTA(2617, 63.2); ちわわFC(2617, 61.0); 7990301(2617, 61.0); グリーンラベル(2617, 60.1)</td></tr>
+<tr><td>2618</td><td>25.0%</td><td>9.4%</td><td>62.3</td><td>47.9</td><td>FC目黒(2618, 72.6); ニコン(2618, 71.7); 7990301(2618, 65.0); グリーンラベル(2618, 62.4); スコールズくん(2618, 61.2)</td></tr>
+<tr><td>2619</td><td>21.9%</td><td>12.5%</td><td>64.7</td><td>51.6</td><td>FC目黒(2619, 72.6); グリーンラベル(2619, 69.5); FC PONTA(2619, 65.6); 7990301(2619, 65.0); €°アルジャパ合衆国(2619, 61.9)</td></tr>
+<tr><td>2620</td><td>18.8%</td><td>15.6%</td><td>64.9</td><td>49.9</td><td>くるり(2620, 73.0); FC目黒(2620, 72.6); グリーンラベル(2620, 71.2); 7990301(2620, 65.0); スコールズくん(2620, 63.9)</td></tr>
+<tr><td>2621</td><td>18.8%</td><td>12.5%</td><td>65.2</td><td>49.2</td><td>FC目黒(2621, 72.6); くるり(2621, 69.0); グリーンラベル(2621, 67.4); ボナセーラ(2621, 65.5); スコールズくん(2621, 62.8)</td></tr>
+<tr><td>2622</td><td>18.8%</td><td>9.4%</td><td>62.9</td><td>48.8</td><td>FC目黒(2622, 72.6); くるり(2622, 69.0); ボナセーラ(2622, 68.1); ニコン(2622, 62.9); FC下松(2622, 62.2)</td></tr>
+<tr><td>2623</td><td>21.9%</td><td>12.5%</td><td>65.2</td><td>46.8</td><td>ちわわFC(2623, 66.4); FC下松(2623, 66.2); FC目黒(2623, 65.7); イタリアンサンドR(2623, 65.4); ウスバカゲロウ(2623, 63.1)</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Top Team Samples</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>Slot</th><th>Form</th></tr></thead>
+              <tbody><tr><td>1</td><td>2620</td><td>くるり</td><td class='strong'>73.0</td><td>3</td><td>マンチェスターU 2007-08</td><td>ラクテオノフ</td><td>0.285</td><td>0.071</td></tr>
+<tr><td>2</td><td>2618</td><td>FC目黒</td><td class='strong'>72.6</td><td>7</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>3</td><td>2619</td><td>FC目黒</td><td class='strong'>72.6</td><td>6</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>4</td><td>2617</td><td>FC目黒</td><td class='strong'>72.6</td><td>5</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>5</td><td>2622</td><td>FC目黒</td><td class='strong'>72.6</td><td>5</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>6</td><td>2621</td><td>FC目黒</td><td class='strong'>72.6</td><td>4</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>7</td><td>2620</td><td>FC目黒</td><td class='strong'>72.6</td><td>3</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>8</td><td>2618</td><td>ニコン</td><td class='strong'>71.7</td><td>4</td><td>オランダ 2014</td><td>ホッベル</td><td>0.211</td><td>1.915</td></tr>
+<tr><td>9</td><td>2620</td><td>グリーンラベル</td><td class='strong'>71.2</td><td>7</td><td>オランダ 2014</td><td>シモンズ</td><td>0.206</td><td>1.915</td></tr>
+<tr><td>10</td><td>2619</td><td>グリーンラベル</td><td class='strong'>69.5</td><td>4</td><td>オランダ 2014</td><td>シモンズ</td><td>0.186</td><td>1.915</td></tr>
+<tr><td>11</td><td>2621</td><td>くるり</td><td class='strong'>69.0</td><td>4</td><td>マンチェスターU 2007-08</td><td>フルニエ</td><td>0.243</td><td>0.071</td></tr>
+<tr><td>12</td><td>2622</td><td>くるり</td><td class='strong'>69.0</td><td>7</td><td>マンチェスターU 2007-08</td><td>フルニエ</td><td>0.242</td><td>0.071</td></tr>
+<tr><td>13</td><td>2616</td><td>FC PONTA</td><td class='strong'>68.7</td><td>3</td><td>ビアンコネーロ 2002-03</td><td>ブリッジス</td><td>0.157</td><td>2.563</td></tr>
+<tr><td>14</td><td>2622</td><td>ボナセーラ</td><td class='strong'>68.1</td><td>6</td><td>ブラジル 2014</td><td>ザイド・ファタラ</td><td>0.183</td><td>1.576</td></tr>
+<tr><td>15</td><td>2616</td><td>7990301</td><td class='strong'>67.7</td><td>4</td><td>パルマ 1998-99</td><td>コンティ</td><td>0.177</td><td>1.619</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="world-detail" id="world-2">
+      <div class="detail-head">
+        <div>
+          <h2>9. 2 ウッドコック</h2>
+          <div class="meta-line">Teams 256 / Strong 53 / Elite 31</div>
+        </div>
+        <div class="score-card">
+          <span>Strong Share</span>
+          <b>20.7%</b>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div><span>Gachi Index</span><b>104</b></div>
+        <div><span>Elite Share</span><b>12.1%</b></div>
+        <div><span>P90</span><b>65.3</b></div>
+        <div><span>Median</span><b>51.0</b></div>
+        <div><span>Avg Slot Fit</span><b>0.028</b></div>
+        <div><span>Avg Formation</span><b>0.708</b></div>
+      </div>
+      <div class="mix"><span class='pill'>チェルシー 2004-05 <b>12</b></span><span class='pill'>バイエルン 2000-01 <b>10</b></span><span class='pill'>イングランド 2020 <b>7</b></span><span class='pill'>ブラジル 2014 <b>6</b></span><span class='pill'>イタリア 2006 <b>3</b></span><span class='pill'>マドリードA 2013-14 <b>3</b></span><span class='pill'>アルゼンチン 2001 <b>3</b></span><span class='pill'>オランダ 2014 <b>2</b></span></div>
+      <div class="split">
+        <div>
+          <h3>Season Trend</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Season</th><th>Strong</th><th>Elite</th><th>P90</th><th>Median</th><th>Top Samples</th></tr></thead>
+              <tbody><tr><td>2616</td><td>21.9%</td><td>9.4%</td><td>63.1</td><td>51.6</td><td>タツノオトシゴ(2616, 72.6); 湘南マイティー(2616, 71.8); ハマーズ(2616, 65.2); ASピジョン(2616, 63.2); ミトシン(2616, 61.9)</td></tr>
+<tr><td>2617</td><td>25.0%</td><td>12.5%</td><td>64.9</td><td>50.3</td><td>湘南マイティー(2617, 72.6); タツノオトシゴ(2617, 72.6); ハマーズ(2617, 65.8); ASピジョン(2617, 65.3); 鬼ヶ島(2617, 61.3)</td></tr>
+<tr><td>2618</td><td>21.9%</td><td>15.6%</td><td>66.2</td><td>51.1</td><td>湘南マイティー(2618, 72.6); タツノオトシゴ(2618, 72.6); ハマーズ(2618, 66.3); アストラ(2618, 66.2); 休止中。(2618, 65.9)</td></tr>
+<tr><td>2619</td><td>18.8%</td><td>9.4%</td><td>62.9</td><td>53.0</td><td>湘南マイティー(2619, 73.6); タツノオトシゴ(2619, 72.6); 休止中。(2619, 65.9); アストラ(2619, 63.0); ハマーズ(2619, 62.1)</td></tr>
+<tr><td>2620</td><td>21.9%</td><td>15.6%</td><td>63.4</td><td>51.0</td><td>湘南マイティー(2620, 73.6); FC皇帝ペンギン(2620, 68.4); タツノオトシゴ(2620, 65.5); ハマーズ(2620, 63.4); アストラ(2620, 63.4)</td></tr>
+<tr><td>2621</td><td>15.6%</td><td>12.5%</td><td>63.9</td><td>47.3</td><td>湘南マイティー(2621, 73.6); タツノオトシゴ(2621, 66.9); FC皇帝ペンギン(2621, 66.7); アストラ(2621, 64.2); ミーゲン2nd(2621, 60.7)</td></tr>
+<tr><td>2622</td><td>18.8%</td><td>12.5%</td><td>63.9</td><td>51.3</td><td>湘南マイティー(2622, 72.8); FC皇帝ペンギン(2622, 66.7); タツノオトシゴ(2622, 65.9); ミトシン(2622, 64.0); ハマーズ(2622, 63.0)</td></tr>
+<tr><td>2623</td><td>21.9%</td><td>9.4%</td><td>62.0</td><td>50.4</td><td>湘南マイティー(2623, 72.6); FC皇帝ペンギン(2623, 68.0); ユーベニーズ(2623, 65.9); ハマーズ(2623, 62.1); 鬼ヶ島(2623, 60.7)</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Top Team Samples</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>Slot</th><th>Form</th></tr></thead>
+              <tbody><tr><td>1</td><td>2619</td><td>湘南マイティー</td><td class='strong'>73.6</td><td>7</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.247</td><td>1.451</td></tr>
+<tr><td>2</td><td>2620</td><td>湘南マイティー</td><td class='strong'>73.6</td><td>7</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.247</td><td>1.451</td></tr>
+<tr><td>3</td><td>2621</td><td>湘南マイティー</td><td class='strong'>73.6</td><td>5</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.247</td><td>1.451</td></tr>
+<tr><td>4</td><td>2622</td><td>湘南マイティー</td><td class='strong'>72.8</td><td>7</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.237</td><td>1.451</td></tr>
+<tr><td>5</td><td>2619</td><td>タツノオトシゴ</td><td class='strong'>72.6</td><td>7</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>6</td><td>2618</td><td>湘南マイティー</td><td class='strong'>72.6</td><td>7</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>7</td><td>2623</td><td>湘南マイティー</td><td class='strong'>72.6</td><td>7</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>8</td><td>2618</td><td>タツノオトシゴ</td><td class='strong'>72.6</td><td>6</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>9</td><td>2617</td><td>湘南マイティー</td><td class='strong'>72.6</td><td>6</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>10</td><td>2617</td><td>タツノオトシゴ</td><td class='strong'>72.6</td><td>4</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>11</td><td>2616</td><td>タツノオトシゴ</td><td class='strong'>72.6</td><td>3</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>12</td><td>2616</td><td>湘南マイティー</td><td class='strong'>71.8</td><td>6</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.227</td><td>1.451</td></tr>
+<tr><td>13</td><td>2620</td><td>FC皇帝ペンギン</td><td class='strong'>68.4</td><td>4</td><td>イタリア 2012</td><td>敏林　浩</td><td>0.181</td><td>1.730</td></tr>
+<tr><td>14</td><td>2623</td><td>FC皇帝ペンギン</td><td class='strong'>68.0</td><td>4</td><td>イタリア 2006</td><td>敏林　浩</td><td>0.228</td><td>0.186</td></tr>
+<tr><td>15</td><td>2621</td><td>タツノオトシゴ</td><td class='strong'>66.9</td><td>5</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.127</td><td>2.860</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="world-detail" id="world-6">
+      <div class="detail-head">
+        <div>
+          <h2>10. 6 スラッシュ</h2>
+          <div class="meta-line">Teams 256 / Strong 51 / Elite 31</div>
+        </div>
+        <div class="score-card">
+          <span>Strong Share</span>
+          <b>19.9%</b>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div><span>Gachi Index</span><b>100</b></div>
+        <div><span>Elite Share</span><b>12.1%</b></div>
+        <div><span>P90</span><b>65.9</b></div>
+        <div><span>Median</span><b>48.1</b></div>
+        <div><span>Avg Slot Fit</span><b>0.010</b></div>
+        <div><span>Avg Formation</span><b>0.315</b></div>
+      </div>
+      <div class="mix"><span class='pill'>チェルシー 2004-05 <b>8</b></span><span class='pill'>バイエルン 2000-01 <b>8</b></span><span class='pill'>ネラッズーロ 2009-10 <b>8</b></span><span class='pill'>ビアンコネーロ 2002-03 <b>7</b></span><span class='pill'>ドイツ 2014 <b>5</b></span><span class='pill'>リバプール 2004-05 <b>4</b></span><span class='pill'>マドリードA 2013-14 <b>3</b></span><span class='pill'>ドイツ 2000 <b>3</b></span></div>
+      <div class="split">
+        <div>
+          <h3>Season Trend</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Season</th><th>Strong</th><th>Elite</th><th>P90</th><th>Median</th><th>Top Samples</th></tr></thead>
+              <tbody><tr><td>2616</td><td>18.8%</td><td>12.5%</td><td>66.4</td><td>49.2</td><td>CFC(2616, 74.7); イワキリ(2616, 72.6); Rユース(2616, 67.5); チップスター(2616, 67.0); 吐露非狩古鬱(2616, 61.3)</td></tr>
+<tr><td>2617</td><td>18.8%</td><td>9.4%</td><td>60.5</td><td>47.5</td><td>イワキリ(2617, 72.6); チップスター(2617, 67.0); Rユース(2617, 65.9); なんくるないさぁ(2617, 60.5); CFC(2617, 60.2)</td></tr>
+<tr><td>2618</td><td>15.6%</td><td>12.5%</td><td>65.5</td><td>48.4</td><td>イワキリ(2618, 72.6); チップスター(2618, 67.0); Rユース(2618, 65.9); サムライチャンプル(2618, 65.8); CFC(2618, 62.3)</td></tr>
+<tr><td>2619</td><td>21.9%</td><td>12.5%</td><td>64.6</td><td>48.7</td><td>イワキリ(2619, 72.6); チップスター(2619, 67.0); Rユース(2619, 65.9); なんくるないさぁ(2619, 65.0); アバンギャルド(2619, 60.9)</td></tr>
+<tr><td>2620</td><td>21.9%</td><td>15.6%</td><td>66.2</td><td>49.0</td><td>イワキリ(2620, 72.6); なんくるないさぁ(2620, 67.8); チップスター(2620, 67.0); CFC(2620, 66.2); Rユース(2620, 65.9)</td></tr>
+<tr><td>2621</td><td>21.9%</td><td>12.5%</td><td>65.5</td><td>49.4</td><td>イワキリ(2621, 72.6); CFC(2621, 68.6); チップスター(2621, 67.0); Rユース(2621, 65.9); ジョイボーイ(2621, 61.7)</td></tr>
+<tr><td>2622</td><td>25.0%</td><td>12.5%</td><td>65.7</td><td>46.6</td><td>CFC(2622, 70.6); イワキリ(2622, 68.9); チップスター(2622, 66.1); Rユース(2622, 65.9); ジョイボーイ(2622, 63.1)</td></tr>
+<tr><td>2623</td><td>15.6%</td><td>9.4%</td><td>62.0</td><td>49.5</td><td>イワキリ(2623, 72.6); Rユース(2623, 69.7); FC JRA(2623, 66.9); チップスター(2623, 62.3); AC軽井沢(2623, 59.6)</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Top Team Samples</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>Slot</th><th>Form</th></tr></thead>
+              <tbody><tr><td>1</td><td>2616</td><td>CFC</td><td class='strong'>74.7</td><td>4</td><td>ビアンコネーロ 2002-03</td><td>ブリッジス</td><td>0.221</td><td>2.563</td></tr>
+<tr><td>2</td><td>2616</td><td>イワキリ</td><td class='strong'>72.6</td><td>7</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>3</td><td>2617</td><td>イワキリ</td><td class='strong'>72.6</td><td>7</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>4</td><td>2618</td><td>イワキリ</td><td class='strong'>72.6</td><td>6</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>5</td><td>2619</td><td>イワキリ</td><td class='strong'>72.6</td><td>5</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>6</td><td>2620</td><td>イワキリ</td><td class='strong'>72.6</td><td>5</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>7</td><td>2621</td><td>イワキリ</td><td class='strong'>72.6</td><td>4</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>8</td><td>2623</td><td>イワキリ</td><td class='strong'>72.6</td><td>4</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>9</td><td>2622</td><td>CFC</td><td class='strong'>70.6</td><td>6</td><td>ビアンコネーロ 2002-03</td><td>コンティ</td><td>0.177</td><td>2.563</td></tr>
+<tr><td>10</td><td>2623</td><td>Rユース</td><td class='strong'>69.7</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.158</td><td>2.860</td></tr>
+<tr><td>11</td><td>2622</td><td>イワキリ</td><td class='strong'>68.9</td><td>5</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.196</td><td>1.451</td></tr>
+<tr><td>12</td><td>2621</td><td>CFC</td><td class='strong'>68.6</td><td>4</td><td>ビアンコネーロ 2002-03</td><td>ブリッジス</td><td>0.155</td><td>2.563</td></tr>
+<tr><td>13</td><td>2620</td><td>なんくるないさぁ</td><td class='strong'>67.8</td><td>3</td><td>ドイツ 2014</td><td>敏林　浩</td><td>0.282</td><td>-1.491</td></tr>
+<tr><td>14</td><td>2616</td><td>Rユース</td><td class='strong'>67.5</td><td>3</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.134</td><td>2.860</td></tr>
+<tr><td>15</td><td>2616</td><td>チップスター</td><td class='strong'>67.0</td><td>6</td><td>ネラッズーロ 2009-10</td><td>ジョルジュ</td><td>0.276</td><td>-1.612</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="world-detail" id="world-3">
+      <div class="detail-head">
+        <div>
+          <h2>11. 3 スナイプ</h2>
+          <div class="meta-line">Teams 256 / Strong 49 / Elite 23</div>
+        </div>
+        <div class="score-card">
+          <span>Strong Share</span>
+          <b>19.1%</b>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div><span>Gachi Index</span><b>96</b></div>
+        <div><span>Elite Share</span><b>9.0%</b></div>
+        <div><span>P90</span><b>62.8</b></div>
+        <div><span>Median</span><b>47.2</b></div>
+        <div><span>Avg Slot Fit</span><b>0.008</b></div>
+        <div><span>Avg Formation</span><b>0.256</b></div>
+      </div>
+      <div class="mix"><span class='pill'>ビアンコネーロ 2002-03 <b>8</b></span><span class='pill'>ドルトムント 2011-12 <b>8</b></span><span class='pill'>ウルグアイ 2014 <b>8</b></span><span class='pill'>ビアンコネーロ 1995-96 <b>6</b></span><span class='pill'>バイエルン 2013-14 <b>6</b></span><span class='pill'>レバークーゼン 2001-02 <b>6</b></span><span class='pill'>マンチェスターU 2007-08 <b>4</b></span><span class='pill'>アルゼンチン 2001 <b>1</b></span></div>
+      <div class="split">
+        <div>
+          <h3>Season Trend</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Season</th><th>Strong</th><th>Elite</th><th>P90</th><th>Median</th><th>Top Samples</th></tr></thead>
+              <tbody><tr><td>2616</td><td>12.5%</td><td>3.1%</td><td>61.1</td><td>47.5</td><td>ゆるりん(2616, 69.9); 広島東洋カープ(2616, 62.3); つやつやアンドルフ2(2616, 61.5); アルビセレステ(2616, 61.3); ジュフユナイテッド(2616, 58.6)</td></tr>
+<tr><td>2617</td><td>18.8%</td><td>9.4%</td><td>61.3</td><td>51.3</td><td>ジュフユナイテッド(2617, 66.4); ゆるりん(2617, 65.4); 広島東洋カープ(2617, 64.8); つやつやアンドルフ2(2617, 61.3); FC92+(2617, 61.1)</td></tr>
+<tr><td>2618</td><td>21.9%</td><td>6.2%</td><td>62.1</td><td>46.1</td><td>ゆるりん(2618, 72.5); 広島東洋カープ(2618, 64.8); アルビセレステ(2618, 62.7); ジュフユナイテッド(2618, 62.1); つやつやアンドルフ2(2618, 62.1)</td></tr>
+<tr><td>2619</td><td>21.9%</td><td>12.5%</td><td>63.9</td><td>45.4</td><td>ゆるりん(2619, 70.2); ビッセルバイエルン(2619, 66.1); つやつやアンドルフ2(2619, 64.5); 広島東洋カープ(2619, 64.1); ジュフユナイテッド(2619, 62.8)</td></tr>
+<tr><td>2620</td><td>18.8%</td><td>12.5%</td><td>65.5</td><td>48.1</td><td>ゆるりん(2620, 70.1); ビッセルバイエルン(2620, 69.4); 広島東洋カープ(2620, 66.2); つやつやアンドルフ2(2620, 66.0); アルビセレステ(2620, 61.0)</td></tr>
+<tr><td>2621</td><td>18.8%</td><td>9.4%</td><td>62.2</td><td>47.3</td><td>ゆるりん(2621, 68.7); 広島東洋カープ(2621, 65.6); ビッセルバイエルン(2621, 64.9); ジュフユナイテッド(2621, 62.4); アルビセレステ(2621, 60.3)</td></tr>
+<tr><td>2622</td><td>21.9%</td><td>12.5%</td><td>63.4</td><td>46.5</td><td>ジュフユナイテッド(2622, 67.2); 広島東洋カープ(2622, 65.6); ゆるりん(2622, 64.3); つやつやアンドルフ2(2622, 63.5); ビッセルバイエルン(2622, 63.2)</td></tr>
+<tr><td>2623</td><td>18.8%</td><td>6.2%</td><td>61.2</td><td>46.6</td><td>広島東洋カープ(2623, 66.2); ゆるりん(2623, 65.6); ジュフユナイテッド(2623, 62.8); アルビセレステ(2623, 61.3); FC92+(2623, 60.3)</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Top Team Samples</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>Slot</th><th>Form</th></tr></thead>
+              <tbody><tr><td>1</td><td>2618</td><td>ゆるりん</td><td class='strong'>72.5</td><td>4</td><td>ビアンコネーロ 2002-03</td><td>コンティ</td><td>0.198</td><td>2.563</td></tr>
+<tr><td>2</td><td>2619</td><td>ゆるりん</td><td class='strong'>70.2</td><td>7</td><td>ビアンコネーロ 2002-03</td><td>コンティ</td><td>0.173</td><td>2.563</td></tr>
+<tr><td>3</td><td>2620</td><td>ゆるりん</td><td class='strong'>70.1</td><td>5</td><td>ビアンコネーロ 2002-03</td><td>シマク</td><td>0.172</td><td>2.563</td></tr>
+<tr><td>4</td><td>2616</td><td>ゆるりん</td><td class='strong'>69.9</td><td>7</td><td>ビアンコネーロ 2002-03</td><td>フルニエ</td><td>0.170</td><td>2.563</td></tr>
+<tr><td>5</td><td>2620</td><td>ビッセルバイエルン</td><td class='strong'>69.4</td><td>4</td><td>マンチェスターU 2007-08</td><td>敏林　浩</td><td>0.247</td><td>0.071</td></tr>
+<tr><td>6</td><td>2621</td><td>ゆるりん</td><td class='strong'>68.7</td><td>7</td><td>ビアンコネーロ 2002-03</td><td>千波　公一</td><td>0.156</td><td>2.563</td></tr>
+<tr><td>7</td><td>2622</td><td>ジュフユナイテッド</td><td class='strong'>67.2</td><td>7</td><td>ビアンコネーロ 1995-96</td><td>イエーガー</td><td>0.203</td><td>0.681</td></tr>
+<tr><td>8</td><td>2617</td><td>ジュフユナイテッド</td><td class='strong'>66.4</td><td>4</td><td>ビアンコネーロ 1995-96</td><td>イエーガー</td><td>0.194</td><td>0.681</td></tr>
+<tr><td>9</td><td>2623</td><td>広島東洋カープ</td><td class='strong'>66.2</td><td>7</td><td>ドルトムント 2011-12</td><td>敏林　浩</td><td>0.163</td><td>1.549</td></tr>
+<tr><td>10</td><td>2620</td><td>広島東洋カープ</td><td class='strong'>66.2</td><td>4</td><td>ドルトムント 2011-12</td><td>敏林　浩</td><td>0.163</td><td>1.549</td></tr>
+<tr><td>11</td><td>2619</td><td>ビッセルバイエルン</td><td class='strong'>66.1</td><td>4</td><td>マンチェスターU 2007-08</td><td>ホッベル</td><td>0.211</td><td>0.071</td></tr>
+<tr><td>12</td><td>2620</td><td>つやつやアンドルフ2</td><td class='strong'>66.0</td><td>3</td><td>バイエルン 2013-14</td><td>ブリッジス</td><td>0.187</td><td>0.743</td></tr>
+<tr><td>13</td><td>2622</td><td>広島東洋カープ</td><td class='strong'>65.6</td><td>6</td><td>ドルトムント 2011-12</td><td>敏林　浩</td><td>0.157</td><td>1.549</td></tr>
+<tr><td>14</td><td>2621</td><td>広島東洋カープ</td><td class='strong'>65.6</td><td>4</td><td>ドルトムント 2011-12</td><td>敏林　浩</td><td>0.157</td><td>1.549</td></tr>
+<tr><td>15</td><td>2623</td><td>ゆるりん</td><td class='strong'>65.6</td><td>7</td><td>ビアンコネーロ 2002-03</td><td>コンティ</td><td>0.123</td><td>2.563</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="world-detail" id="world-8">
+      <div class="detail-head">
+        <div>
+          <h2>12. 8 グース</h2>
+          <div class="meta-line">Teams 256 / Strong 49 / Elite 21</div>
+        </div>
+        <div class="score-card">
+          <span>Strong Share</span>
+          <b>19.1%</b>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div><span>Gachi Index</span><b>96</b></div>
+        <div><span>Elite Share</span><b>8.2%</b></div>
+        <div><span>P90</span><b>61.4</b></div>
+        <div><span>Median</span><b>49.2</b></div>
+        <div><span>Avg Slot Fit</span><b>0.021</b></div>
+        <div><span>Avg Formation</span><b>0.426</b></div>
+      </div>
+      <div class="mix"><span class='pill'>バイエルン 2000-01 <b>8</b></span><span class='pill'>チェルシー 2004-05 <b>7</b></span><span class='pill'>アルゼンチン 2022 <b>7</b></span><span class='pill'>ビアンコネーロ 2002-03 <b>6</b></span><span class='pill'>クリスマス・ツリー <b>5</b></span><span class='pill'>ベルギー 2013 <b>3</b></span><span class='pill'>マドリード 2013-14 <b>3</b></span><span class='pill'>ウルグアイ 2014 <b>2</b></span></div>
+      <div class="split">
+        <div>
+          <h3>Season Trend</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Season</th><th>Strong</th><th>Elite</th><th>P90</th><th>Median</th><th>Top Samples</th></tr></thead>
+              <tbody><tr><td>2616</td><td>21.9%</td><td>9.4%</td><td>62.6</td><td>49.5</td><td>ゾンビ軍団(2616, 65.6); みゃおFC(2616, 65.5); ガンバル部(2616, 63.3); 爽やかナ・デ・シココ(2616, 62.7); HITACHI(2616, 61.7)</td></tr>
+<tr><td>2617</td><td>18.8%</td><td>9.4%</td><td>59.2</td><td>49.6</td><td>ゾンビ軍団(2617, 65.6); 爽やかナ・デ・シココ(2617, 63.6); ガンバル部(2617, 63.3); HITACHI(2617, 59.2); エルサEXE(2617, 59.2)</td></tr>
+<tr><td>2618</td><td>21.9%</td><td>12.5%</td><td>64.6</td><td>50.2</td><td>爽やかナ・デ・シココ(2618, 72.8); ガンバル部(2618, 67.4); ゾンビ軍団(2618, 65.6); みゃおFC(2618, 65.1); エルサEXE(2618, 60.6)</td></tr>
+<tr><td>2619</td><td>15.6%</td><td>9.4%</td><td>62.2</td><td>47.5</td><td>爽やかナ・デ・シココ(2619, 71.3); みゃおFC(2619, 65.1); 象潟食堂(2619, 64.5); ガンバル部(2619, 62.4); ゾンビ軍団(2619, 60.5)</td></tr>
+<tr><td>2620</td><td>18.8%</td><td>9.4%</td><td>61.5</td><td>49.3</td><td>爽やかナ・デ・シココ(2620, 71.5); みゃおFC(2620, 64.9); エルサEXE(2620, 64.4); 象潟食堂(2620, 61.6); ガンバル部(2620, 60.8)</td></tr>
+<tr><td>2621</td><td>21.9%</td><td>3.1%</td><td>60.5</td><td>49.8</td><td>みゃおFC(2621, 67.8); 象潟食堂(2621, 62.4); ガンバル部(2621, 60.8); エルサEXE(2621, 60.6); 爽やかナ・デ・シココ(2621, 60.1)</td></tr>
+<tr><td>2622</td><td>18.8%</td><td>9.4%</td><td>60.6</td><td>49.3</td><td>ガンバル部(2622, 66.5); みゃおFC(2622, 65.8); ゾンビ軍団(2622, 63.8); SCKK(2622, 60.7); HikakinFC(2622, 59.8)</td></tr>
+<tr><td>2623</td><td>15.6%</td><td>3.1%</td><td>60.9</td><td>48.2</td><td>ガンバル部(2623, 66.3); ゾンビ軍団(2623, 61.3); エルサEXE(2623, 61.0); みゃおFC(2623, 61.0); マスカレードボール(2623, 59.4)</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Top Team Samples</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>Slot</th><th>Form</th></tr></thead>
+              <tbody><tr><td>1</td><td>2618</td><td>爽やかナ・デ・シココ</td><td class='strong'>72.8</td><td>5</td><td>チェルシー 2004-05</td><td>ザイド・ファタラ</td><td>0.238</td><td>1.451</td></tr>
+<tr><td>2</td><td>2620</td><td>爽やかナ・デ・シココ</td><td class='strong'>71.5</td><td>6</td><td>チェルシー 2004-05</td><td>ザイド・ファタラ</td><td>0.223</td><td>1.451</td></tr>
+<tr><td>3</td><td>2619</td><td>爽やかナ・デ・シココ</td><td class='strong'>71.3</td><td>5</td><td>チェルシー 2004-05</td><td>ザイド・ファタラ</td><td>0.222</td><td>1.451</td></tr>
+<tr><td>4</td><td>2621</td><td>みゃおFC</td><td class='strong'>67.8</td><td>7</td><td>ビアンコネーロ 2002-03</td><td>コンティ</td><td>0.146</td><td>2.563</td></tr>
+<tr><td>5</td><td>2618</td><td>ガンバル部</td><td class='strong'>67.4</td><td>4</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.133</td><td>2.860</td></tr>
+<tr><td>6</td><td>2622</td><td>ガンバル部</td><td class='strong'>66.5</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.123</td><td>2.860</td></tr>
+<tr><td>7</td><td>2623</td><td>ガンバル部</td><td class='strong'>66.3</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.121</td><td>2.860</td></tr>
+<tr><td>8</td><td>2622</td><td>みゃおFC</td><td class='strong'>65.8</td><td>6</td><td>ビアンコネーロ 2002-03</td><td>コンティ</td><td>0.125</td><td>2.563</td></tr>
+<tr><td>9</td><td>2617</td><td>ゾンビ軍団</td><td class='strong'>65.6</td><td>4</td><td>アルゼンチン 2022</td><td>ホッベル</td><td>0.191</td><td>0.498</td></tr>
+<tr><td>10</td><td>2618</td><td>ゾンビ軍団</td><td class='strong'>65.6</td><td>4</td><td>アルゼンチン 2022</td><td>ゴンザレス</td><td>0.191</td><td>0.498</td></tr>
+<tr><td>11</td><td>2616</td><td>ゾンビ軍団</td><td class='strong'>65.6</td><td>3</td><td>アルゼンチン 2022</td><td>ホッベル</td><td>0.191</td><td>0.498</td></tr>
+<tr><td>12</td><td>2616</td><td>みゃおFC</td><td class='strong'>65.5</td><td>4</td><td>マンチェスターU 2007-08</td><td>敏林　浩</td><td>0.205</td><td>0.071</td></tr>
+<tr><td>13</td><td>2618</td><td>みゃおFC</td><td class='strong'>65.1</td><td>7</td><td>ビアンコネーロ 2002-03</td><td>コンティ</td><td>0.117</td><td>2.563</td></tr>
+<tr><td>14</td><td>2619</td><td>みゃおFC</td><td class='strong'>65.1</td><td>6</td><td>ビアンコネーロ 2002-03</td><td>コンティ</td><td>0.117</td><td>2.563</td></tr>
+<tr><td>15</td><td>2620</td><td>みゃおFC</td><td class='strong'>64.9</td><td>7</td><td>ビアンコネーロ 2002-03</td><td>コンティ</td><td>0.115</td><td>2.563</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="world-detail" id="world-5">
+      <div class="detail-head">
+        <div>
+          <h2>13. 5 クレイク</h2>
+          <div class="meta-line">Teams 256 / Strong 48 / Elite 23</div>
+        </div>
+        <div class="score-card">
+          <span>Strong Share</span>
+          <b>18.8%</b>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div><span>Gachi Index</span><b>94</b></div>
+        <div><span>Elite Share</span><b>9.0%</b></div>
+        <div><span>P90</span><b>62.9</b></div>
+        <div><span>Median</span><b>49.9</b></div>
+        <div><span>Avg Slot Fit</span><b>0.013</b></div>
+        <div><span>Avg Formation</span><b>0.661</b></div>
+      </div>
+      <div class="mix"><span class='pill'>ウルグアイ 2014 <b>14</b></span><span class='pill'>ブラジル 2014 <b>13</b></span><span class='pill'>チェルシー 2004-05 <b>8</b></span><span class='pill'>クリスマス・ツリー <b>5</b></span><span class='pill'>バイエルン 2015-16 <b>2</b></span><span class='pill'>イタリア 2012 <b>1</b></span><span class='pill'>バイエルン 2000-01 <b>1</b></span><span class='pill'>ドルトムント 2011-12 <b>1</b></span></div>
+      <div class="split">
+        <div>
+          <h3>Season Trend</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Season</th><th>Strong</th><th>Elite</th><th>P90</th><th>Median</th><th>Top Samples</th></tr></thead>
+              <tbody><tr><td>2616</td><td>15.6%</td><td>6.2%</td><td>60.0</td><td>49.7</td><td>Mambo(2616, 66.9); MARS(2616, 65.7); REAL ONO(2616, 61.9); 名古屋サロンパス(2616, 60.1); アズリ(2616, 59.6)</td></tr>
+<tr><td>2617</td><td>12.5%</td><td>9.4%</td><td>61.0</td><td>48.8</td><td>Mambo(2617, 66.1); MARS(2617, 65.7); REAL ONO(2617, 64.4); ビーグル(2617, 61.3); 名古屋サロンパス(2617, 58.3)</td></tr>
+<tr><td>2618</td><td>18.8%</td><td>9.4%</td><td>63.1</td><td>49.8</td><td>Mambo(2618, 66.2); MARS(2618, 65.7); 名古屋サロンパス(2618, 64.4); REAL ONO(2618, 63.2); ビーグル(2618, 61.4)</td></tr>
+<tr><td>2619</td><td>18.8%</td><td>6.2%</td><td>62.9</td><td>50.4</td><td>Mambo(2619, 66.1); MARS(2619, 66.0); 名古屋サロンパス(2619, 62.9); ビーグル(2619, 62.9); REAL ONO(2619, 62.6)</td></tr>
+<tr><td>2620</td><td>18.8%</td><td>9.4%</td><td>61.4</td><td>49.5</td><td>ビーグル(2620, 68.1); REAL ONO(2620, 64.6); MARS(2620, 64.2); Mambo(2620, 61.4); いちご(2620, 61.0)</td></tr>
+<tr><td>2621</td><td>21.9%</td><td>9.4%</td><td>63.1</td><td>51.1</td><td>MARS(2621, 71.1); ビーグル(2621, 65.7); REAL ONO(2621, 64.9); いちご(2621, 63.3); Mambo(2621, 61.4)</td></tr>
+<tr><td>2622</td><td>21.9%</td><td>12.5%</td><td>63.4</td><td>51.2</td><td>MARS(2622, 72.6); REAL ONO(2622, 66.8); Mambo(2622, 66.2); アズリ(2622, 63.5); いちご(2622, 62.9)</td></tr>
+<tr><td>2623</td><td>21.9%</td><td>9.4%</td><td>61.0</td><td>49.8</td><td>MARS(2623, 72.6); アズリ(2623, 65.2); Mambo(2623, 65.1); 名古屋サロンパス(2623, 61.1); REAL ONO(2623, 60.4)</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Top Team Samples</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>Slot</th><th>Form</th></tr></thead>
+              <tbody><tr><td>1</td><td>2623</td><td>MARS</td><td class='strong'>72.6</td><td>7</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>2</td><td>2622</td><td>MARS</td><td class='strong'>72.6</td><td>4</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.236</td><td>1.451</td></tr>
+<tr><td>3</td><td>2621</td><td>MARS</td><td class='strong'>71.1</td><td>5</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.219</td><td>1.451</td></tr>
+<tr><td>4</td><td>2620</td><td>ビーグル</td><td class='strong'>68.1</td><td>5</td><td>ウルグアイ 2014</td><td>ダビーサス</td><td>0.144</td><td>2.759</td></tr>
+<tr><td>5</td><td>2616</td><td>Mambo</td><td class='strong'>66.9</td><td>7</td><td>ウルグアイ 2014</td><td>ダビーサス</td><td>0.130</td><td>2.759</td></tr>
+<tr><td>6</td><td>2622</td><td>REAL ONO</td><td class='strong'>66.8</td><td>6</td><td>ブラジル 2014</td><td>敏林　浩</td><td>0.169</td><td>1.576</td></tr>
+<tr><td>7</td><td>2618</td><td>Mambo</td><td class='strong'>66.2</td><td>7</td><td>ウルグアイ 2014</td><td>ダビーサス</td><td>0.123</td><td>2.759</td></tr>
+<tr><td>8</td><td>2622</td><td>Mambo</td><td class='strong'>66.2</td><td>7</td><td>ウルグアイ 2014</td><td>ダビーサス</td><td>0.123</td><td>2.759</td></tr>
+<tr><td>9</td><td>2617</td><td>Mambo</td><td class='strong'>66.1</td><td>6</td><td>ウルグアイ 2014</td><td>ダビーサス</td><td>0.122</td><td>2.759</td></tr>
+<tr><td>10</td><td>2619</td><td>Mambo</td><td class='strong'>66.1</td><td>5</td><td>ウルグアイ 2014</td><td>ダビーサス</td><td>0.122</td><td>2.759</td></tr>
+<tr><td>11</td><td>2619</td><td>MARS</td><td class='strong'>66.0</td><td>3</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.164</td><td>1.451</td></tr>
+<tr><td>12</td><td>2618</td><td>MARS</td><td class='strong'>65.7</td><td>6</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.161</td><td>1.451</td></tr>
+<tr><td>13</td><td>2616</td><td>MARS</td><td class='strong'>65.7</td><td>5</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.161</td><td>1.451</td></tr>
+<tr><td>14</td><td>2617</td><td>MARS</td><td class='strong'>65.7</td><td>4</td><td>チェルシー 2004-05</td><td>ザイド・ファタラ</td><td>0.161</td><td>1.451</td></tr>
+<tr><td>15</td><td>2621</td><td>ビーグル</td><td class='strong'>65.7</td><td>4</td><td>ウルグアイ 2014</td><td>ザイド・ファタラ</td><td>0.118</td><td>2.759</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="world-detail" id="world-10">
+      <div class="detail-head">
+        <div>
+          <h2>14. 10 バザード</h2>
+          <div class="meta-line">Teams 256 / Strong 48 / Elite 18</div>
+        </div>
+        <div class="score-card">
+          <span>Strong Share</span>
+          <b>18.8%</b>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div><span>Gachi Index</span><b>94</b></div>
+        <div><span>Elite Share</span><b>7.0%</b></div>
+        <div><span>P90</span><b>61.9</b></div>
+        <div><span>Median</span><b>50.1</b></div>
+        <div><span>Avg Slot Fit</span><b>0.031</b></div>
+        <div><span>Avg Formation</span><b>0.387</b></div>
+      </div>
+      <div class="mix"><span class='pill'>ブラジル 2014 <b>8</b></span><span class='pill'>トッテナム 2018-19 <b>7</b></span><span class='pill'>バイエルン 2013-14 <b>7</b></span><span class='pill'>ビアンコネーロ 2002-03 <b>6</b></span><span class='pill'>イタリア 2012 <b>5</b></span><span class='pill'>ウルグアイ 2014 <b>3</b></span><span class='pill'>アルゼンチン 2022 <b>3</b></span><span class='pill'>クリスマス・ツリー <b>2</b></span></div>
+      <div class="split">
+        <div>
+          <h3>Season Trend</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Season</th><th>Strong</th><th>Elite</th><th>P90</th><th>Median</th><th>Top Samples</th></tr></thead>
+              <tbody><tr><td>2616</td><td>21.9%</td><td>9.4%</td><td>62.8</td><td>51.4</td><td>FC.OGAWA(2616, 66.0); エネゴリFC(2616, 64.4); FCB(2616, 64.1); 矢野貴章(2616, 63.0); キャットオールスター(2616, 60.7)</td></tr>
+<tr><td>2617</td><td>18.8%</td><td>3.1%</td><td>60.7</td><td>50.4</td><td>エネゴリFC(2617, 64.3); FCB(2617, 62.5); ままま(2617, 61.6); FC.OGAWA(2617, 60.8); FC ROSE(2617, 59.6)</td></tr>
+<tr><td>2618</td><td>18.8%</td><td>6.2%</td><td>62.0</td><td>50.2</td><td>矢野貴章(2618, 66.6); FCB(2618, 65.5); FC.OGAWA(2618, 62.3); エネゴリFC(2618, 62.0); ザンギFC(2618, 61.4)</td></tr>
+<tr><td>2619</td><td>12.5%</td><td>9.4%</td><td>60.3</td><td>48.5</td><td>FC.OGAWA(2619, 69.9); FCB(2619, 67.8); 矢野貴章(2619, 66.5); ままま(2619, 60.7); CCS(2619, 56.9)</td></tr>
+<tr><td>2620</td><td>12.5%</td><td>6.2%</td><td>59.3</td><td>50.8</td><td>FC.OGAWA(2620, 69.9); 矢野貴章(2620, 64.0); エネゴリFC(2620, 59.6); FCB(2620, 59.4); ガキオールグランツェ(2620, 57.8)</td></tr>
+<tr><td>2621</td><td>12.5%</td><td>6.2%</td><td>59.6</td><td>50.2</td><td>矢野貴章(2621, 69.8); FC.OGAWA(2621, 69.6); ままま(2621, 61.2); ガキオールグランツェ(2621, 59.7); ver-milion(2621, 58.9)</td></tr>
+<tr><td>2622</td><td>25.0%</td><td>9.4%</td><td>62.4</td><td>50.0</td><td>矢野貴章(2622, 71.3); エネゴリFC(2622, 64.9); ままま(2622, 63.5); FC.OGAWA(2622, 62.5); キャットオールスター(2622, 61.9)</td></tr>
+<tr><td>2623</td><td>28.1%</td><td>6.2%</td><td>62.3</td><td>48.8</td><td>矢野貴章(2623, 68.1); ピリッと粒胡椒(2623, 66.6); FCB(2623, 62.5); エネゴリFC(2623, 62.3); ままま(2623, 62.3)</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Top Team Samples</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>Slot</th><th>Form</th></tr></thead>
+              <tbody><tr><td>1</td><td>2622</td><td>矢野貴章</td><td class='strong'>71.3</td><td>7</td><td>トッテナム 2018-19</td><td>シモンズ</td><td>0.290</td><td>-0.621</td></tr>
+<tr><td>2</td><td>2619</td><td>FC.OGAWA</td><td class='strong'>69.9</td><td>7</td><td>ブラジル 2014</td><td>ザイド・ファタラ</td><td>0.202</td><td>1.576</td></tr>
+<tr><td>3</td><td>2620</td><td>FC.OGAWA</td><td class='strong'>69.9</td><td>5</td><td>ブラジル 2014</td><td>ザイド・ファタラ</td><td>0.202</td><td>1.576</td></tr>
+<tr><td>4</td><td>2621</td><td>矢野貴章</td><td class='strong'>69.8</td><td>4</td><td>トッテナム 2018-19</td><td>シモンズ</td><td>0.274</td><td>-0.621</td></tr>
+<tr><td>5</td><td>2621</td><td>FC.OGAWA</td><td class='strong'>69.6</td><td>7</td><td>ブラジル 2014</td><td>ザイド・ファタラ</td><td>0.199</td><td>1.576</td></tr>
+<tr><td>6</td><td>2623</td><td>矢野貴章</td><td class='strong'>68.1</td><td>4</td><td>トッテナム 2018-19</td><td>シモンズ</td><td>0.256</td><td>-0.621</td></tr>
+<tr><td>7</td><td>2619</td><td>FCB</td><td class='strong'>67.8</td><td>4</td><td>ビアンコネーロ 2002-03</td><td>ブリッジス</td><td>0.147</td><td>2.563</td></tr>
+<tr><td>8</td><td>2623</td><td>ピリッと粒胡椒</td><td class='strong'>66.6</td><td>4</td><td>ポルトガル 2016</td><td>シモンズ</td><td>0.277</td><td>-1.735</td></tr>
+<tr><td>9</td><td>2618</td><td>矢野貴章</td><td class='strong'>66.6</td><td>7</td><td>トッテナム 2018-19</td><td>ラクテオノフ</td><td>0.240</td><td>-0.621</td></tr>
+<tr><td>10</td><td>2619</td><td>矢野貴章</td><td class='strong'>66.5</td><td>4</td><td>トッテナム 2018-19</td><td>シモンズ</td><td>0.238</td><td>-0.621</td></tr>
+<tr><td>11</td><td>2616</td><td>FC.OGAWA</td><td class='strong'>66.0</td><td>6</td><td>ブラジル 2014</td><td>フルニエ</td><td>0.160</td><td>1.576</td></tr>
+<tr><td>12</td><td>2618</td><td>FCB</td><td class='strong'>65.5</td><td>7</td><td>ビアンコネーロ 2002-03</td><td>ブリッジス</td><td>0.121</td><td>2.563</td></tr>
+<tr><td>13</td><td>2622</td><td>エネゴリFC</td><td class='strong'>64.9</td><td>4</td><td>イタリア 2012</td><td>敏林　浩</td><td>0.143</td><td>1.730</td></tr>
+<tr><td>14</td><td>2616</td><td>エネゴリFC</td><td class='strong'>64.4</td><td>4</td><td>イタリア 2012</td><td>敏林　浩</td><td>0.137</td><td>1.730</td></tr>
+<tr><td>15</td><td>2617</td><td>エネゴリFC</td><td class='strong'>64.3</td><td>6</td><td>イタリア 2012</td><td>敏林　浩</td><td>0.137</td><td>1.730</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="world-detail" id="world-18">
+      <div class="detail-head">
+        <div>
+          <h2>15. 18 ワックスウィング</h2>
+          <div class="meta-line">Teams 256 / Strong 47 / Elite 18</div>
+        </div>
+        <div class="score-card">
+          <span>Strong Share</span>
+          <b>18.4%</b>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div><span>Gachi Index</span><b>92</b></div>
+        <div><span>Elite Share</span><b>7.0%</b></div>
+        <div><span>P90</span><b>61.8</b></div>
+        <div><span>Median</span><b>49.5</b></div>
+        <div><span>Avg Slot Fit</span><b>0.010</b></div>
+        <div><span>Avg Formation</span><b>0.562</b></div>
+      </div>
+      <div class="mix"><span class='pill'>バイエルン 2000-01 <b>8</b></span><span class='pill'>マンチェスターU 1998-99 <b>6</b></span><span class='pill'>オランダ 2014 <b>5</b></span><span class='pill'>チェルシー 2004-05 <b>4</b></span><span class='pill'>トッテナム 2018-19 <b>4</b></span><span class='pill'>オランダ 1988 <b>3</b></span><span class='pill'>リバプール 2004-05 <b>2</b></span><span class='pill'>バイエルン 2019-20 <b>2</b></span></div>
+      <div class="split">
+        <div>
+          <h3>Season Trend</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Season</th><th>Strong</th><th>Elite</th><th>P90</th><th>Median</th><th>Top Samples</th></tr></thead>
+              <tbody><tr><td>2616</td><td>15.6%</td><td>9.4%</td><td>62.8</td><td>48.3</td><td>最初と最後やでっせ(2616, 70.8); 釜玉FC(2616, 64.9); FC FUEL(2616, 63.3); 6197404(2616, 63.2); OMG(2616, 59.4)</td></tr>
+<tr><td>2617</td><td>15.6%</td><td>6.2%</td><td>60.2</td><td>48.6</td><td>最初と最後やでっせ(2617, 70.5); FC FUEL(2617, 68.5); アタラクシア(2617, 61.6); しもたま軍団(2617, 60.3); FC Ne-Yo(2617, 59.4)</td></tr>
+<tr><td>2618</td><td>15.6%</td><td>6.2%</td><td>59.9</td><td>47.7</td><td>最初と最後やでっせ(2618, 68.7); FC FUEL(2618, 65.5); しもたま軍団(2618, 60.3); 黒の衝動(2618, 59.9); はらたま軍団(2618, 59.4)</td></tr>
+<tr><td>2619</td><td>15.6%</td><td>6.2%</td><td>59.2</td><td>50.2</td><td>最初と最後やでっせ(2619, 69.3); 黒の衝動(2619, 66.6); ステアウアワダ(2619, 59.7); 東京EG next(2619, 59.3); OMG(2619, 59.0)</td></tr>
+<tr><td>2620</td><td>21.9%</td><td>6.2%</td><td>62.0</td><td>51.3</td><td>最初と最後やでっせ(2620, 73.1); 黒の衝動(2620, 68.6); 東京EG next(2620, 62.4); OMG(2620, 62.0); FC・ミナヅキ(2620, 61.6)</td></tr>
+<tr><td>2621</td><td>21.9%</td><td>6.2%</td><td>62.7</td><td>50.1</td><td>最初と最後やでっせ(2621, 75.1); 黒の衝動(2621, 68.4); ステアウアワダ(2621, 63.2); 東京EG next(2621, 62.7); FC FUEL(2621, 62.5)</td></tr>
+<tr><td>2622</td><td>21.9%</td><td>6.2%</td><td>59.4</td><td>50.5</td><td>黒の衝動(2622, 72.0); 東京EG next(2622, 64.4); ステアウアワダ(2622, 62.2); 大須万松寺(2622, 59.4); 晴耕㐂六(2622, 59.3)</td></tr>
+<tr><td>2623</td><td>18.8%</td><td>9.4%</td><td>62.0</td><td>47.3</td><td>俺か俺以外か(2623, 74.5); FC FUEL(2623, 68.1); ステアウアワダ(2623, 65.9); 東京EG next(2623, 62.2); OMG(2623, 60.1)</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Top Team Samples</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>Slot</th><th>Form</th></tr></thead>
+              <tbody><tr><td>1</td><td>2621</td><td>最初と最後やでっせ</td><td class='strong'>75.1</td><td>7</td><td>マンチェスターU 1998-99</td><td>ブリッジス</td><td>0.297</td><td>0.417</td></tr>
+<tr><td>2</td><td>2623</td><td>俺か俺以外か</td><td class='strong'>74.5</td><td>7</td><td>リバプール 2004-05</td><td>タウンゼント</td><td>0.258</td><td>1.399</td></tr>
+<tr><td>3</td><td>2620</td><td>最初と最後やでっせ</td><td class='strong'>73.1</td><td>4</td><td>マンチェスターU 1998-99</td><td>ブリッジス</td><td>0.276</td><td>0.417</td></tr>
+<tr><td>4</td><td>2622</td><td>黒の衝動</td><td class='strong'>72.0</td><td>4</td><td>リバプール 2004-05</td><td>千波　公一</td><td>0.231</td><td>1.399</td></tr>
+<tr><td>5</td><td>2616</td><td>最初と最後やでっせ</td><td class='strong'>70.8</td><td>7</td><td>マンチェスターU 1998-99</td><td>シモンズ</td><td>0.251</td><td>0.417</td></tr>
+<tr><td>6</td><td>2617</td><td>最初と最後やでっせ</td><td class='strong'>70.5</td><td>7</td><td>マンチェスターU 1998-99</td><td>シモンズ</td><td>0.247</td><td>0.417</td></tr>
+<tr><td>7</td><td>2619</td><td>最初と最後やでっせ</td><td class='strong'>69.3</td><td>4</td><td>マンチェスターU 1998-99</td><td>シモンズ</td><td>0.234</td><td>0.417</td></tr>
+<tr><td>8</td><td>2618</td><td>最初と最後やでっせ</td><td class='strong'>68.7</td><td>3</td><td>マンチェスターU 1998-99</td><td>シモンズ</td><td>0.228</td><td>0.417</td></tr>
+<tr><td>9</td><td>2620</td><td>黒の衝動</td><td class='strong'>68.6</td><td>6</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.192</td><td>1.451</td></tr>
+<tr><td>10</td><td>2617</td><td>FC FUEL</td><td class='strong'>68.5</td><td>7</td><td>オランダ 1988</td><td>カラヴァン</td><td>0.204</td><td>1.044</td></tr>
+<tr><td>11</td><td>2621</td><td>黒の衝動</td><td class='strong'>68.4</td><td>7</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.190</td><td>1.451</td></tr>
+<tr><td>12</td><td>2623</td><td>FC FUEL</td><td class='strong'>68.1</td><td>6</td><td>スペイン 2012</td><td>ジョルジュ</td><td>0.216</td><td>0.584</td></tr>
+<tr><td>13</td><td>2619</td><td>黒の衝動</td><td class='strong'>66.6</td><td>5</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.171</td><td>1.451</td></tr>
+<tr><td>14</td><td>2623</td><td>ステアウアワダ</td><td class='strong'>65.9</td><td>6</td><td>トッテナム 2018-19</td><td>ブリッジス</td><td>0.232</td><td>-0.621</td></tr>
+<tr><td>15</td><td>2618</td><td>FC FUEL</td><td class='strong'>65.5</td><td>4</td><td>オランダ 1988</td><td>カラヴァン</td><td>0.172</td><td>1.044</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="world-detail" id="world-15">
+      <div class="detail-head">
+        <div>
+          <h2>16. 15 スターリング</h2>
+          <div class="meta-line">Teams 256 / Strong 45 / Elite 24</div>
+        </div>
+        <div class="score-card">
+          <span>Strong Share</span>
+          <b>17.6%</b>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div><span>Gachi Index</span><b>88</b></div>
+        <div><span>Elite Share</span><b>9.4%</b></div>
+        <div><span>P90</span><b>63.0</b></div>
+        <div><span>Median</span><b>49.7</b></div>
+        <div><span>Avg Slot Fit</span><b>0.020</b></div>
+        <div><span>Avg Formation</span><b>0.507</b></div>
+      </div>
+      <div class="mix"><span class='pill'>ブラジル 2002 <b>6</b></span><span class='pill'>ビアンコネーロ 2002-03 <b>6</b></span><span class='pill'>ベルギー 2013 <b>6</b></span><span class='pill'>バイエルン 2000-01 <b>5</b></span><span class='pill'>ドルトムント 2011-12 <b>5</b></span><span class='pill'>オランダ 2014 <b>4</b></span><span class='pill'>日本 2022 <b>4</b></span><span class='pill'>マドリード 2001-02 <b>3</b></span></div>
+      <div class="split">
+        <div>
+          <h3>Season Trend</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Season</th><th>Strong</th><th>Elite</th><th>P90</th><th>Median</th><th>Top Samples</th></tr></thead>
+              <tbody><tr><td>2616</td><td>25.0%</td><td>12.5%</td><td>63.3</td><td>47.1</td><td>ForzaInter(2616, 75.0); CHARM(2616, 67.3); スキスキスー(2616, 66.2); 幻燈 (2616, 63.4); みゆうしんFC(2616, 63.2)</td></tr>
+<tr><td>2617</td><td>25.0%</td><td>12.5%</td><td>66.8</td><td>49.2</td><td>ForzaInter(2617, 71.0); みゆうしんFC(2617, 69.0); 幻燈 (2617, 68.3); CHARM(2617, 67.3); スキスキスー(2617, 63.0)</td></tr>
+<tr><td>2618</td><td>21.9%</td><td>15.6%</td><td>64.1</td><td>49.0</td><td>みゆうしんFC(2618, 71.2); ForzaInter(2618, 69.2); FCロナウド(2618, 64.4); スキスキスー(2618, 64.1); CHARM(2618, 63.7)</td></tr>
+<tr><td>2619</td><td>12.5%</td><td>6.2%</td><td>58.8</td><td>48.9</td><td>みゆうしんFC(2619, 67.6); スキスキスー(2619, 65.6); ビゴーレ鶴見(2619, 59.2); みどりキッカーズ(2619, 59.0); CHARM(2619, 57.2)</td></tr>
+<tr><td>2620</td><td>15.6%</td><td>9.4%</td><td>62.1</td><td>50.5</td><td>スキスキスー(2620, 67.0); kon(2620, 64.0); みゆうしんFC(2620, 63.4); ビゴーレ鶴見(2620, 62.3); 幻燈 (2620, 61.1)</td></tr>
+<tr><td>2621</td><td>12.5%</td><td>6.2%</td><td>59.6</td><td>48.9</td><td>CHARM(2621, 65.1); ビゴーレ鶴見(2621, 64.0); kon(2621, 63.0); taras(2621, 59.7); ケントデリカッターズ(2621, 58.3)</td></tr>
+<tr><td>2622</td><td>18.8%</td><td>9.4%</td><td>60.6</td><td>53.9</td><td>CHARM(2622, 67.4); kon(2622, 65.3); ForzaInter(2622, 63.5); みゆうしんFC(2622, 60.6); からだすこやかちゃん(2622, 59.9)</td></tr>
+<tr><td>2623</td><td>9.4%</td><td>3.1%</td><td>58.6</td><td>50.7</td><td>NRK(kon)(2623, 64.0); スキスキスー(2623, 61.6); 田村イチゾク2(2623, 60.4); 幻燈 (2623, 58.6); ののねる(2623, 58.2)</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Top Team Samples</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>Slot</th><th>Form</th></tr></thead>
+              <tbody><tr><td>1</td><td>2616</td><td>ForzaInter</td><td class='strong'>75.0</td><td>4</td><td>オランダ 2014</td><td>シモンズ</td><td>0.246</td><td>1.915</td></tr>
+<tr><td>2</td><td>2618</td><td>みゆうしんFC</td><td class='strong'>71.2</td><td>6</td><td>ブラジル 2002</td><td>シモンズ</td><td>0.285</td><td>-0.497</td></tr>
+<tr><td>3</td><td>2617</td><td>ForzaInter</td><td class='strong'>71.0</td><td>5</td><td>オランダ 2014</td><td>シモンズ</td><td>0.202</td><td>1.915</td></tr>
+<tr><td>4</td><td>2618</td><td>ForzaInter</td><td class='strong'>69.2</td><td>3</td><td>オランダ 2014</td><td>シモンズ</td><td>0.184</td><td>1.915</td></tr>
+<tr><td>5</td><td>2617</td><td>みゆうしんFC</td><td class='strong'>69.0</td><td>5</td><td>ブラジル 2002</td><td>シモンズ</td><td>0.261</td><td>-0.497</td></tr>
+<tr><td>6</td><td>2617</td><td>幻燈 </td><td class='strong'>68.3</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.142</td><td>2.860</td></tr>
+<tr><td>7</td><td>2619</td><td>みゆうしんFC</td><td class='strong'>67.6</td><td>4</td><td>ブラジル 2002</td><td>シモンズ</td><td>0.246</td><td>-0.497</td></tr>
+<tr><td>8</td><td>2622</td><td>CHARM</td><td class='strong'>67.4</td><td>7</td><td>ビアンコネーロ 2002-03</td><td>シマク</td><td>0.142</td><td>2.563</td></tr>
+<tr><td>9</td><td>2616</td><td>CHARM</td><td class='strong'>67.3</td><td>4</td><td>ビアンコネーロ 2002-03</td><td>コンティ</td><td>0.141</td><td>2.563</td></tr>
+<tr><td>10</td><td>2617</td><td>CHARM</td><td class='strong'>67.3</td><td>6</td><td>ビアンコネーロ 2002-03</td><td>コンティ</td><td>0.141</td><td>2.563</td></tr>
+<tr><td>11</td><td>2620</td><td>スキスキスー</td><td class='strong'>67.0</td><td>6</td><td>ベルギー 2013</td><td>シモンズ</td><td>0.226</td><td>-0.084</td></tr>
+<tr><td>12</td><td>2616</td><td>スキスキスー</td><td class='strong'>66.2</td><td>6</td><td>ベルギー 2013</td><td>フィヨルトフト</td><td>0.217</td><td>-0.084</td></tr>
+<tr><td>13</td><td>2619</td><td>スキスキスー</td><td class='strong'>65.6</td><td>3</td><td>ベルギー 2013</td><td>シモンズ</td><td>0.211</td><td>-0.084</td></tr>
+<tr><td>14</td><td>2622</td><td>kon</td><td class='strong'>65.3</td><td>6</td><td>ドルトムント 2011-12</td><td>敏林　浩</td><td>0.154</td><td>1.549</td></tr>
+<tr><td>15</td><td>2621</td><td>CHARM</td><td class='strong'>65.1</td><td>7</td><td>ビアンコネーロ 2002-03</td><td>コンティ</td><td>0.118</td><td>2.563</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="world-detail" id="world-20">
+      <div class="detail-head">
+        <div>
+          <h2>17. 20 ホーク</h2>
+          <div class="meta-line">Teams 256 / Strong 44 / Elite 30</div>
+        </div>
+        <div class="score-card">
+          <span>Strong Share</span>
+          <b>17.2%</b>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div><span>Gachi Index</span><b>86</b></div>
+        <div><span>Elite Share</span><b>11.7%</b></div>
+        <div><span>P90</span><b>63.8</b></div>
+        <div><span>Median</span><b>48.5</b></div>
+        <div><span>Avg Slot Fit</span><b>0.019</b></div>
+        <div><span>Avg Formation</span><b>0.368</b></div>
+      </div>
+      <div class="mix"><span class='pill'>マンチェスターU 2007-08 <b>11</b></span><span class='pill'>イタリア 2012 <b>8</b></span><span class='pill'>バイエルン 2000-01 <b>6</b></span><span class='pill'>ウルグアイ 2014 <b>6</b></span><span class='pill'>ブラジル 2014 <b>4</b></span><span class='pill'>ビアンコネーロ 2002-03 <b>2</b></span><span class='pill'>日本 1996 <b>2</b></span><span class='pill'>マドリードA 2013-14 <b>2</b></span></div>
+      <div class="split">
+        <div>
+          <h3>Season Trend</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Season</th><th>Strong</th><th>Elite</th><th>P90</th><th>Median</th><th>Top Samples</th></tr></thead>
+              <tbody><tr><td>2616</td><td>18.8%</td><td>9.4%</td><td>60.8</td><td>50.9</td><td>イタリアンサンドF(2616, 65.9); はしばっちFC 99(2616, 64.1); MSHY(2616, 63.7); サブ垢(2616, 60.8); めぼむぎ(2616, 60.1)</td></tr>
+<tr><td>2617</td><td>21.9%</td><td>15.6%</td><td>63.9</td><td>49.0</td><td>イタリアンサンドF(2617, 68.3); 木津川シティ•FC(2617, 67.7); はしばっちFC 99(2617, 64.7); めぼむぎ(2617, 63.9); MSHY(2617, 63.7)</td></tr>
+<tr><td>2618</td><td>12.5%</td><td>9.4%</td><td>61.2</td><td>46.8</td><td>はしばっちFC 99(2618, 65.9); イタリアンサンドF(2618, 64.3); MSHY(2618, 63.7); 木津川シティ•FC(2618, 61.5); Black St.(2618, 58.4)</td></tr>
+<tr><td>2619</td><td>15.6%</td><td>15.6%</td><td>64.2</td><td>48.7</td><td>イタリアンサンドF(2619, 67.0); 木津川シティ•FC(2619, 65.9); MSHY(2619, 64.5); スヌーピー(2619, 64.3); はしばっちFC 99(2619, 63.6)</td></tr>
+<tr><td>2620</td><td>15.6%</td><td>12.5%</td><td>64.1</td><td>47.8</td><td>木津川シティ•FC(2620, 69.9); はしばっちFC 99(2620, 69.9); イタリアンサンドF(2620, 66.8); スヌーピー(2620, 64.6); Black St.(2620, 60.0)</td></tr>
+<tr><td>2621</td><td>18.8%</td><td>9.4%</td><td>60.5</td><td>48.4</td><td>木津川シティ•FC(2621, 69.9); はしばっちFC 99(2621, 69.9); イタリアンサンドF(2621, 67.6); スヌーピー(2621, 60.6); MSHY(2621, 59.6)</td></tr>
+<tr><td>2622</td><td>15.6%</td><td>12.5%</td><td>65.9</td><td>48.1</td><td>イタリアンサンドF(2622, 72.5); 木津川シティ•FC(2622, 69.9); はしばっちFC 99(2622, 68.1); Black St.(2622, 66.6); MSHY(2622, 59.6)</td></tr>
+<tr><td>2623</td><td>18.8%</td><td>9.4%</td><td>63.1</td><td>49.7</td><td>イタリアンサンドF(2623, 83.5); MSHY(2623, 67.4); はしばっちFC 99(2623, 64.8); スヌーピー(2623, 63.1); 木津川シティ•FC(2623, 63.1)</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Top Team Samples</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>Slot</th><th>Form</th></tr></thead>
+              <tbody><tr><td>1</td><td>2623</td><td>イタリアンサンドF</td><td class='strong'>83.5</td><td>6</td><td>イタリア 2012</td><td>敏林　浩</td><td>0.344</td><td>1.730</td></tr>
+<tr><td>2</td><td>2622</td><td>イタリアンサンドF</td><td class='strong'>72.5</td><td>7</td><td>ビアンコネーロ 2002-03</td><td>千波　公一</td><td>0.198</td><td>2.563</td></tr>
+<tr><td>3</td><td>2621</td><td>木津川シティ•FC</td><td class='strong'>69.9</td><td>7</td><td>イタリア 2012</td><td>敏林　浩</td><td>0.197</td><td>1.730</td></tr>
+<tr><td>4</td><td>2620</td><td>木津川シティ•FC</td><td class='strong'>69.9</td><td>4</td><td>イタリア 2012</td><td>敏林　浩</td><td>0.197</td><td>1.730</td></tr>
+<tr><td>5</td><td>2622</td><td>木津川シティ•FC</td><td class='strong'>69.9</td><td>4</td><td>イタリア 2012</td><td>敏林　浩</td><td>0.197</td><td>1.730</td></tr>
+<tr><td>6</td><td>2620</td><td>はしばっちFC 99</td><td class='strong'>69.9</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.159</td><td>2.860</td></tr>
+<tr><td>7</td><td>2621</td><td>はしばっちFC 99</td><td class='strong'>69.9</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.159</td><td>2.860</td></tr>
+<tr><td>8</td><td>2617</td><td>イタリアンサンドF</td><td class='strong'>68.3</td><td>4</td><td>ウルグアイ 2014</td><td>ダビーサス</td><td>0.146</td><td>2.759</td></tr>
+<tr><td>9</td><td>2622</td><td>はしばっちFC 99</td><td class='strong'>68.1</td><td>6</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.141</td><td>2.844</td></tr>
+<tr><td>10</td><td>2617</td><td>木津川シティ•FC</td><td class='strong'>67.7</td><td>7</td><td>イタリア 2012</td><td>敏林　浩</td><td>0.173</td><td>1.730</td></tr>
+<tr><td>11</td><td>2621</td><td>イタリアンサンドF</td><td class='strong'>67.6</td><td>5</td><td>ウルグアイ 2014</td><td>敏林　浩</td><td>0.138</td><td>2.759</td></tr>
+<tr><td>12</td><td>2623</td><td>MSHY</td><td class='strong'>67.4</td><td>7</td><td>マンチェスターU 2007-08</td><td>ブリッジス</td><td>0.225</td><td>0.071</td></tr>
+<tr><td>13</td><td>2619</td><td>イタリアンサンドF</td><td class='strong'>67.0</td><td>6</td><td>ウルグアイ 2014</td><td>敏林　浩</td><td>0.132</td><td>2.759</td></tr>
+<tr><td>14</td><td>2620</td><td>イタリアンサンドF</td><td class='strong'>66.8</td><td>7</td><td>ウルグアイ 2014</td><td>ダビーサス</td><td>0.129</td><td>2.759</td></tr>
+<tr><td>15</td><td>2622</td><td>Black St.</td><td class='strong'>66.6</td><td>4</td><td>マンチェスターU 2007-08</td><td>ラクテオノフ</td><td>0.216</td><td>0.071</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="world-detail" id="world-19">
+      <div class="detail-head">
+        <div>
+          <h2>18. 19 スウィフト</h2>
+          <div class="meta-line">Teams 256 / Strong 43 / Elite 25</div>
+        </div>
+        <div class="score-card">
+          <span>Strong Share</span>
+          <b>16.8%</b>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div><span>Gachi Index</span><b>84</b></div>
+        <div><span>Elite Share</span><b>9.8%</b></div>
+        <div><span>P90</span><b>63.0</b></div>
+        <div><span>Median</span><b>49.0</b></div>
+        <div><span>Avg Slot Fit</span><b>0.024</b></div>
+        <div><span>Avg Formation</span><b>0.427</b></div>
+      </div>
+      <div class="mix"><span class='pill'>チェルシー 2004-05 <b>8</b></span><span class='pill'>チェルシー 2014-15 <b>8</b></span><span class='pill'>マンチェスターU 2007-08 <b>3</b></span><span class='pill'>バイエルン 2013-14 <b>3</b></span><span class='pill'>日本 1996 <b>3</b></span><span class='pill'>ブラジル 2014 <b>3</b></span><span class='pill'>ユーゴスラビア 1994 <b>3</b></span><span class='pill'>イタリア 2012 <b>3</b></span></div>
+      <div class="split">
+        <div>
+          <h3>Season Trend</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Season</th><th>Strong</th><th>Elite</th><th>P90</th><th>Median</th><th>Top Samples</th></tr></thead>
+              <tbody><tr><td>2616</td><td>15.6%</td><td>6.2%</td><td>60.4</td><td>46.4</td><td>Ēlysion(2616, 70.7); FCフォルテ(2616, 69.0); コソっとだるまFC(2616, 61.2); アーゼガム(2616, 60.5); ジョンデ野朗(2616, 59.6)</td></tr>
+<tr><td>2617</td><td>21.9%</td><td>9.4%</td><td>60.9</td><td>49.0</td><td>FCフォルテ(2617, 73.1); Ēlysion(2617, 71.6); コソっとだるまFC(2617, 68.4); Acchi(2617, 61.0); ぽりふぇのーる(2617, 59.9)</td></tr>
+<tr><td>2618</td><td>9.4%</td><td>6.2%</td><td>57.9</td><td>50.6</td><td>FCフォルテ(2618, 73.1); Ēlysion(2618, 72.6); コソっと上り下りFC(2618, 62.3); アントン野朗(2618, 57.9); さらだ(2618, 57.9)</td></tr>
+<tr><td>2619</td><td>15.6%</td><td>12.5%</td><td>63.6</td><td>48.1</td><td>FCフォルテ(2619, 71.8); コソっと運び屋FC(2619, 67.8); Cannon(2619, 64.0); さらだ(2619, 63.9); アントン野朗(2619, 61.2)</td></tr>
+<tr><td>2620</td><td>15.6%</td><td>9.4%</td><td>62.9</td><td>48.8</td><td>Ēlysion(2620, 73.2); FCフォルテ(2620, 71.8); コソっと運び屋FC(2620, 65.3); さらだ(2620, 63.2); Cannon(2620, 60.3)</td></tr>
+<tr><td>2621</td><td>9.4%</td><td>9.4%</td><td>58.8</td><td>49.0</td><td>FCフォルテ(2621, 71.8); Ēlysion(2621, 67.5); Cannon(2621, 64.0); さらだ(2621, 58.9); コソっと運び屋FC(2621, 57.9)</td></tr>
+<tr><td>2622</td><td>21.9%</td><td>12.5%</td><td>65.9</td><td>51.3</td><td>FCフォルテ(2622, 68.7); バラガーズFC(2622, 67.6); Ēlysion(2622, 66.2); ぽりふぇのーる(2622, 66.2); 屁こき軍団(2622, 62.8)</td></tr>
+<tr><td>2623</td><td>25.0%</td><td>12.5%</td><td>65.0</td><td>50.3</td><td>FCフォルテ(2623, 70.0); Ēlysion(2623, 66.6); ぽりふぇのーる(2623, 65.6); 屁こき軍団(2623, 65.4); さらだ(2623, 61.9)</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Top Team Samples</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>Slot</th><th>Form</th></tr></thead>
+              <tbody><tr><td>1</td><td>2620</td><td>Ēlysion</td><td class='strong'>73.2</td><td>5</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.242</td><td>1.451</td></tr>
+<tr><td>2</td><td>2618</td><td>FCフォルテ</td><td class='strong'>73.1</td><td>7</td><td>チェルシー 2014-15</td><td>シモンズ</td><td>0.331</td><td>-1.248</td></tr>
+<tr><td>3</td><td>2617</td><td>FCフォルテ</td><td class='strong'>73.1</td><td>5</td><td>チェルシー 2014-15</td><td>シモンズ</td><td>0.331</td><td>-1.248</td></tr>
+<tr><td>4</td><td>2618</td><td>Ēlysion</td><td class='strong'>72.6</td><td>4</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.235</td><td>1.451</td></tr>
+<tr><td>5</td><td>2619</td><td>FCフォルテ</td><td class='strong'>71.8</td><td>4</td><td>チェルシー 2014-15</td><td>シモンズ</td><td>0.317</td><td>-1.248</td></tr>
+<tr><td>6</td><td>2620</td><td>FCフォルテ</td><td class='strong'>71.8</td><td>4</td><td>チェルシー 2014-15</td><td>シモンズ</td><td>0.317</td><td>-1.248</td></tr>
+<tr><td>7</td><td>2621</td><td>FCフォルテ</td><td class='strong'>71.8</td><td>4</td><td>チェルシー 2014-15</td><td>ザイド・ファタラ</td><td>0.317</td><td>-1.248</td></tr>
+<tr><td>8</td><td>2617</td><td>Ēlysion</td><td class='strong'>71.6</td><td>7</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.225</td><td>1.451</td></tr>
+<tr><td>9</td><td>2616</td><td>Ēlysion</td><td class='strong'>70.7</td><td>6</td><td>チェルシー 2004-05</td><td>フィヨルトフト</td><td>0.215</td><td>1.451</td></tr>
+<tr><td>10</td><td>2623</td><td>FCフォルテ</td><td class='strong'>70.0</td><td>6</td><td>チェルシー 2014-15</td><td>ザイド・ファタラ</td><td>0.297</td><td>-1.248</td></tr>
+<tr><td>11</td><td>2616</td><td>FCフォルテ</td><td class='strong'>69.0</td><td>3</td><td>チェルシー 2014-15</td><td>シモンズ</td><td>0.286</td><td>-1.248</td></tr>
+<tr><td>12</td><td>2622</td><td>FCフォルテ</td><td class='strong'>68.7</td><td>7</td><td>チェルシー 2014-15</td><td>ザイド・ファタラ</td><td>0.283</td><td>-1.248</td></tr>
+<tr><td>13</td><td>2617</td><td>コソっとだるまFC</td><td class='strong'>68.4</td><td>5</td><td>マドリード 2021-22</td><td>ホッベル</td><td>0.243</td><td>-0.143</td></tr>
+<tr><td>14</td><td>2619</td><td>コソっと運び屋FC</td><td class='strong'>67.8</td><td>7</td><td>マンチェスターU 2007-08</td><td>ホッベル</td><td>0.229</td><td>0.071</td></tr>
+<tr><td>15</td><td>2622</td><td>バラガーズFC</td><td class='strong'>67.6</td><td>3</td><td>バイエルン 2013-14</td><td>ブリッジス</td><td>0.205</td><td>0.743</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="world-detail" id="world-12">
+      <div class="detail-head">
+        <div>
+          <h2>19. 12 パートリッジ</h2>
+          <div class="meta-line">Teams 256 / Strong 41 / Elite 19</div>
+        </div>
+        <div class="score-card">
+          <span>Strong Share</span>
+          <b>16.0%</b>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div><span>Gachi Index</span><b>80</b></div>
+        <div><span>Elite Share</span><b>7.4%</b></div>
+        <div><span>P90</span><b>61.6</b></div>
+        <div><span>Median</span><b>49.6</b></div>
+        <div><span>Avg Slot Fit</span><b>0.016</b></div>
+        <div><span>Avg Formation</span><b>0.578</b></div>
+      </div>
+      <div class="mix"><span class='pill'>バイエルン 2000-01 <b>8</b></span><span class='pill'>ウルグアイ 2014 <b>8</b></span><span class='pill'>アルゼンチン 2001 <b>6</b></span><span class='pill'>オランダ 2014 <b>5</b></span><span class='pill'>ブラジル 2014 <b>5</b></span><span class='pill'>ブラジル 2002 <b>3</b></span><span class='pill'>イタリア 2006 <b>2</b></span><span class='pill'>チェルシー 2014-15 <b>1</b></span></div>
+      <div class="split">
+        <div>
+          <h3>Season Trend</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Season</th><th>Strong</th><th>Elite</th><th>P90</th><th>Median</th><th>Top Samples</th></tr></thead>
+              <tbody><tr><td>2616</td><td>21.9%</td><td>6.2%</td><td>61.0</td><td>50.4</td><td>まるちゃんFC(2616, 69.7); twistAS(2616, 66.1); オリーブ(2616, 62.5); テンペスト(2616, 61.0); りぃくんず(2616, 61.0)</td></tr>
+<tr><td>2617</td><td>15.6%</td><td>9.4%</td><td>59.7</td><td>48.9</td><td>まるちゃんFC(2617, 69.7); テンペスト(2617, 66.3); プッチョ(2617, 65.9); りぃくんず(2617, 59.7); HALlive(2617, 59.2)</td></tr>
+<tr><td>2618</td><td>18.8%</td><td>9.4%</td><td>62.6</td><td>48.1</td><td>まるちゃんFC(2618, 69.7); テンペスト(2618, 67.8); りぃくんず(2618, 66.5); プッチョ(2618, 62.6); オリーブ(2618, 62.1)</td></tr>
+<tr><td>2619</td><td>12.5%</td><td>6.2%</td><td>60.0</td><td>49.9</td><td>まるちゃんFC(2619, 72.8); テンペスト(2619, 67.7); りぃくんず(2619, 62.6); プッチョ(2619, 60.1); ハルキング(2619, 58.9)</td></tr>
+<tr><td>2620</td><td>18.8%</td><td>6.2%</td><td>61.1</td><td>48.8</td><td>まるちゃんFC(2620, 72.8); りぃくんず(2620, 69.1); テンペスト(2620, 62.3); twistAS(2620, 61.2); ハルキング(2620, 60.1)</td></tr>
+<tr><td>2621</td><td>15.6%</td><td>9.4%</td><td>61.7</td><td>47.0</td><td>まるちゃんFC(2621, 72.8); twistAS(2621, 68.7); テンペスト(2621, 64.0); ハルキング(2621, 62.0); セリエまたり村(2621, 59.2)</td></tr>
+<tr><td>2622</td><td>9.4%</td><td>6.2%</td><td>58.0</td><td>49.1</td><td>まるちゃんFC(2622, 72.8); twistAS(2622, 69.7); テンペスト(2622, 62.2); バンビシャス(2622, 58.1); りぃくんず(2622, 57.1)</td></tr>
+<tr><td>2623</td><td>15.6%</td><td>6.2%</td><td>60.7</td><td>51.2</td><td>まるちゃんFC(2623, 72.8); hiraku(2623, 63.6); テンペスト(2623, 61.2); twistAS(2623, 60.9); イナズマイレブン(2623, 58.9)</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Top Team Samples</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>Slot</th><th>Form</th></tr></thead>
+              <tbody><tr><td>1</td><td>2619</td><td>まるちゃんFC</td><td class='strong'>72.8</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.191</td><td>2.860</td></tr>
+<tr><td>2</td><td>2620</td><td>まるちゃんFC</td><td class='strong'>72.8</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.191</td><td>2.860</td></tr>
+<tr><td>3</td><td>2621</td><td>まるちゃんFC</td><td class='strong'>72.8</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.191</td><td>2.860</td></tr>
+<tr><td>4</td><td>2622</td><td>まるちゃんFC</td><td class='strong'>72.8</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.191</td><td>2.860</td></tr>
+<tr><td>5</td><td>2623</td><td>まるちゃんFC</td><td class='strong'>72.8</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.191</td><td>2.860</td></tr>
+<tr><td>6</td><td>2622</td><td>twistAS</td><td class='strong'>69.7</td><td>5</td><td>オランダ 2014</td><td>ホッベル</td><td>0.189</td><td>1.915</td></tr>
+<tr><td>7</td><td>2616</td><td>まるちゃんFC</td><td class='strong'>69.7</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.158</td><td>2.860</td></tr>
+<tr><td>8</td><td>2617</td><td>まるちゃんFC</td><td class='strong'>69.7</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.158</td><td>2.860</td></tr>
+<tr><td>9</td><td>2618</td><td>まるちゃんFC</td><td class='strong'>69.7</td><td>4</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.158</td><td>2.860</td></tr>
+<tr><td>10</td><td>2620</td><td>りぃくんず</td><td class='strong'>69.1</td><td>4</td><td>アルゼンチン 2001</td><td>ブリッジス</td><td>0.215</td><td>0.926</td></tr>
+<tr><td>11</td><td>2621</td><td>twistAS</td><td class='strong'>68.7</td><td>4</td><td>オランダ 2014</td><td>ホッベル</td><td>0.178</td><td>1.915</td></tr>
+<tr><td>12</td><td>2618</td><td>テンペスト</td><td class='strong'>67.8</td><td>5</td><td>ウルグアイ 2014</td><td>敏林　浩</td><td>0.140</td><td>2.759</td></tr>
+<tr><td>13</td><td>2619</td><td>テンペスト</td><td class='strong'>67.7</td><td>5</td><td>ウルグアイ 2014</td><td>ダビーサス</td><td>0.140</td><td>2.759</td></tr>
+<tr><td>14</td><td>2618</td><td>りぃくんず</td><td class='strong'>66.5</td><td>7</td><td>アルゼンチン 2001</td><td>ブリッジス</td><td>0.187</td><td>0.926</td></tr>
+<tr><td>15</td><td>2617</td><td>テンペスト</td><td class='strong'>66.3</td><td>7</td><td>ウルグアイ 2014</td><td>敏林　浩</td><td>0.124</td><td>2.759</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="world-detail" id="world-7">
+      <div class="detail-head">
+        <div>
+          <h2>20. 7 オークレット</h2>
+          <div class="meta-line">Teams 256 / Strong 37 / Elite 8</div>
+        </div>
+        <div class="score-card">
+          <span>Strong Share</span>
+          <b>14.5%</b>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div><span>Gachi Index</span><b>72</b></div>
+        <div><span>Elite Share</span><b>3.1%</b></div>
+        <div><span>P90</span><b>60.1</b></div>
+        <div><span>Median</span><b>49.9</b></div>
+        <div><span>Avg Slot Fit</span><b>0.024</b></div>
+        <div><span>Avg Formation</span><b>0.199</b></div>
+      </div>
+      <div class="mix"><span class='pill'>ブラジル 2014 <b>6</b></span><span class='pill'>ヴァレンシア 2003-04 <b>5</b></span><span class='pill'>イタリア 2020 <b>4</b></span><span class='pill'>バイエルン 2013-14 <b>4</b></span><span class='pill'>アルゼンチン 2022 <b>3</b></span><span class='pill'>ロッソネーロ 1988-89 <b>2</b></span><span class='pill'>ドルトムント 2011-12 <b>2</b></span><span class='pill'>クリスマス・ツリー <b>2</b></span></div>
+      <div class="split">
+        <div>
+          <h3>Season Trend</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Season</th><th>Strong</th><th>Elite</th><th>P90</th><th>Median</th><th>Top Samples</th></tr></thead>
+              <tbody><tr><td>2616</td><td>9.4%</td><td>0.0%</td><td>58.0</td><td>49.9</td><td>雪山特攻隊(2616, 62.4); 水上新人王(2616, 60.4); blacklabel(2616, 60.2); まりた、た(2616, 58.0); ダークフォース(2616, 57.6)</td></tr>
+<tr><td>2617</td><td>12.5%</td><td>3.1%</td><td>59.8</td><td>51.8</td><td>おからにあん(2617, 68.1); 麻原之中国　(2617, 61.6); 雪山特攻隊(2617, 60.5); たらたわ(2617, 60.0); まりた、た(2617, 58.0)</td></tr>
+<tr><td>2618</td><td>21.9%</td><td>3.1%</td><td>60.8</td><td>53.0</td><td>おからにあん(2618, 63.8); 雪山特攻隊(2618, 62.8); ダークフォース(2618, 62.6); コダックマドリード(2618, 60.9); 水上新人王(2618, 59.5)</td></tr>
+<tr><td>2619</td><td>18.8%</td><td>3.1%</td><td>59.4</td><td>50.8</td><td>ダークフォース(2619, 68.2); えーしーみら(2619, 61.4); スノークメイデン(2619, 60.1); 雪山特攻隊(2619, 59.4); にかやにや(2619, 59.3)</td></tr>
+<tr><td>2620</td><td>18.8%</td><td>6.2%</td><td>60.7</td><td>48.9</td><td>ダークフォース(2620, 64.8); 雪山特攻隊(2620, 63.7); えーしーみら(2620, 62.8); 武蔵家週3(2620, 60.7); 水上新人王(2620, 60.6)</td></tr>
+<tr><td>2621</td><td>9.4%</td><td>3.1%</td><td>57.2</td><td>49.6</td><td>雪山特攻隊(2621, 67.7); TDR(2621, 60.5); にかやにや(2621, 59.3); えーしーみら(2621, 57.2); カラムーチョ(2621, 57.1)</td></tr>
+<tr><td>2622</td><td>15.6%</td><td>3.1%</td><td>60.9</td><td>50.3</td><td>雪山特攻隊(2622, 67.7); ダークフォース(2622, 61.9); えーしーみら(2622, 61.2); カラムーチョ(2622, 61.1); にかやにや(2622, 59.3)</td></tr>
+<tr><td>2623</td><td>9.4%</td><td>3.1%</td><td>55.7</td><td>48.1</td><td>えーしーみら(2623, 69.3); シェイド(2623, 60.1); 雪山特攻隊(2623, 59.6); AC Hades(2623, 55.9); マリンフォード(2623, 53.5)</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Top Team Samples</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>Slot</th><th>Form</th></tr></thead>
+              <tbody><tr><td>1</td><td>2623</td><td>えーしーみら</td><td class='strong'>69.3</td><td>7</td><td>ロッソネーロ 1988-89</td><td>ジャンヌ</td><td>0.284</td><td>-1.081</td></tr>
+<tr><td>2</td><td>2619</td><td>ダークフォース</td><td class='strong'>68.2</td><td>6</td><td>イタリア 2020</td><td>リッター</td><td>0.254</td><td>-0.557</td></tr>
+<tr><td>3</td><td>2617</td><td>おからにあん</td><td class='strong'>68.1</td><td>5</td><td>ドルトムント 2011-12</td><td>アルメイダ</td><td>0.183</td><td>1.549</td></tr>
+<tr><td>4</td><td>2622</td><td>雪山特攻隊</td><td class='strong'>67.7</td><td>5</td><td>ブラジル 2014</td><td>敏林　浩</td><td>0.178</td><td>1.576</td></tr>
+<tr><td>5</td><td>2621</td><td>雪山特攻隊</td><td class='strong'>67.7</td><td>4</td><td>ブラジル 2014</td><td>ブリッジス</td><td>0.178</td><td>1.576</td></tr>
+<tr><td>6</td><td>2620</td><td>ダークフォース</td><td class='strong'>64.8</td><td>5</td><td>イタリア 2020</td><td>リッター</td><td>0.218</td><td>-0.557</td></tr>
+<tr><td>7</td><td>2618</td><td>おからにあん</td><td class='strong'>63.8</td><td>5</td><td>ドルトムント 2011-12</td><td>敏林　浩</td><td>0.137</td><td>1.549</td></tr>
+<tr><td>8</td><td>2620</td><td>雪山特攻隊</td><td class='strong'>63.7</td><td>4</td><td>ブラジル 2014</td><td>ブリッジス</td><td>0.135</td><td>1.576</td></tr>
+<tr><td>9</td><td>2620</td><td>えーしーみら</td><td class='strong'>62.8</td><td>4</td><td>クリスマス・ツリー</td><td>コンティ</td><td>0.178</td><td>-0.017</td></tr>
+<tr><td>10</td><td>2618</td><td>雪山特攻隊</td><td class='strong'>62.8</td><td>7</td><td>バイエルン 2013-14</td><td>ブリッジス</td><td>0.153</td><td>0.743</td></tr>
+<tr><td>11</td><td>2618</td><td>ダークフォース</td><td class='strong'>62.6</td><td>5</td><td>イタリア 2020</td><td>リッター</td><td>0.194</td><td>-0.557</td></tr>
+<tr><td>12</td><td>2616</td><td>雪山特攻隊</td><td class='strong'>62.4</td><td>5</td><td>バイエルン 2013-14</td><td>ブリッジス</td><td>0.148</td><td>0.743</td></tr>
+<tr><td>13</td><td>2622</td><td>ダークフォース</td><td class='strong'>61.9</td><td>3</td><td>イタリア 2020</td><td>リッター</td><td>0.187</td><td>-0.557</td></tr>
+<tr><td>14</td><td>2617</td><td>麻原之中国　</td><td class='strong'>61.6</td><td>7</td><td>トッテナム 2018-19</td><td>ラクテオノフ</td><td>0.186</td><td>-0.621</td></tr>
+<tr><td>15</td><td>2619</td><td>えーしーみら</td><td class='strong'>61.4</td><td>6</td><td>クリスマス・ツリー</td><td>リッター</td><td>0.163</td><td>-0.017</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="world-detail" id="world-11">
+      <div class="detail-head">
+        <div>
+          <h2>21. 11 ピピット</h2>
+          <div class="meta-line">Teams 256 / Strong 34 / Elite 17</div>
+        </div>
+        <div class="score-card">
+          <span>Strong Share</span>
+          <b>13.3%</b>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div><span>Gachi Index</span><b>66</b></div>
+        <div><span>Elite Share</span><b>6.6%</b></div>
+        <div><span>P90</span><b>60.4</b></div>
+        <div><span>Median</span><b>50.4</b></div>
+        <div><span>Avg Slot Fit</span><b>0.030</b></div>
+        <div><span>Avg Formation</span><b>0.350</b></div>
+      </div>
+      <div class="mix"><span class='pill'>ブラジル 2014 <b>9</b></span><span class='pill'>バイエルン 2000-01 <b>4</b></span><span class='pill'>アルゼンチン 2001 <b>4</b></span><span class='pill'>トッテナム 2018-19 <b>4</b></span><span class='pill'>ブラジル 2006 <b>3</b></span><span class='pill'>リバプール 2004-05 <b>3</b></span><span class='pill'>チェルシー 2004-05 <b>3</b></span><span class='pill'>ドルトムント 2011-12 <b>1</b></span></div>
+      <div class="split">
+        <div>
+          <h3>Season Trend</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Season</th><th>Strong</th><th>Elite</th><th>P90</th><th>Median</th><th>Top Samples</th></tr></thead>
+              <tbody><tr><td>2616</td><td>9.4%</td><td>6.2%</td><td>58.5</td><td>48.4</td><td>ガウディ(2616, 70.2); 登録されていません(2616, 64.3); レッドホース(2616, 59.0); こそっと(2616, 58.8); anna(2616, 55.8)</td></tr>
+<tr><td>2617</td><td>3.1%</td><td>3.1%</td><td>58.2</td><td>50.3</td><td>ガウディ(2617, 75.2); 登録されていません(2617, 58.8); レッドホース(2617, 58.6); こそっと(2617, 58.3); FCほんでぃ(2617, 57.6)</td></tr>
+<tr><td>2618</td><td>18.8%</td><td>6.2%</td><td>62.7</td><td>52.3</td><td>ガウディ(2618, 72.9); こそっと(2618, 65.4); 無敵艦隊北朝鮮(2618, 63.2); 登録されていません(2618, 63.0); 鳥取カニっこクラブ(2618, 60.0)</td></tr>
+<tr><td>2619</td><td>6.2%</td><td>0.0%</td><td>58.5</td><td>50.6</td><td>無敵艦隊北朝鮮(2619, 60.3); 鳥取カニっこクラブ(2619, 60.0); レッドホース(2619, 58.6); 神田プープリアンズ(2619, 58.5); こそっと(2619, 58.0)</td></tr>
+<tr><td>2620</td><td>21.9%</td><td>6.2%</td><td>60.6</td><td>51.0</td><td>anna(2620, 67.7); D-kichi(2620, 65.3); こそっと(2620, 61.0); 無敵艦隊北朝鮮(2620, 60.6); バナナサブその２(2620, 60.6)</td></tr>
+<tr><td>2621</td><td>12.5%</td><td>9.4%</td><td>60.6</td><td>50.1</td><td>D-kichi(2621, 66.7); バナナサブその２(2621, 66.4); anna(2621, 64.4); こそっと(2621, 60.8); FCほんでぃ(2621, 58.8)</td></tr>
+<tr><td>2622</td><td>18.8%</td><td>9.4%</td><td>62.6</td><td>51.0</td><td>D-kichi(2622, 73.8); anna(2622, 67.7); バナナサブその２(2622, 65.4); 無敵艦隊北朝鮮(2622, 62.9); NCルン(2622, 60.4)</td></tr>
+<tr><td>2623</td><td>15.6%</td><td>12.5%</td><td>63.1</td><td>49.3</td><td>バナナサブその２(2623, 66.4); anna(2623, 64.6); こそっと(2623, 63.5); D-kichi(2623, 63.4); NCルン(2623, 60.3)</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Top Team Samples</h3>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>Slot</th><th>Form</th></tr></thead>
+              <tbody><tr><td>1</td><td>2617</td><td>ガウディ</td><td class='strong'>75.2</td><td>4</td><td>ブラジル 2006</td><td>ルビーニョ</td><td>0.295</td><td>0.504</td></tr>
+<tr><td>2</td><td>2622</td><td>D-kichi</td><td class='strong'>73.8</td><td>5</td><td>リバプール 2004-05</td><td>タウンゼント</td><td>0.250</td><td>1.399</td></tr>
+<tr><td>3</td><td>2618</td><td>ガウディ</td><td class='strong'>72.9</td><td>4</td><td>ブラジル 2006</td><td>ホッベル</td><td>0.270</td><td>0.504</td></tr>
+<tr><td>4</td><td>2616</td><td>ガウディ</td><td class='strong'>70.2</td><td>4</td><td>ブラジル 2006</td><td>ルビーニョ</td><td>0.242</td><td>0.504</td></tr>
+<tr><td>5</td><td>2620</td><td>anna</td><td class='strong'>67.7</td><td>3</td><td>ブラジル 2014</td><td>ザイド・ファタラ</td><td>0.178</td><td>1.576</td></tr>
+<tr><td>6</td><td>2622</td><td>anna</td><td class='strong'>67.7</td><td>3</td><td>ブラジル 2014</td><td>敏林　浩</td><td>0.178</td><td>1.576</td></tr>
+<tr><td>7</td><td>2621</td><td>D-kichi</td><td class='strong'>66.7</td><td>5</td><td>リバプール 2004-05</td><td>タウンゼント</td><td>0.173</td><td>1.399</td></tr>
+<tr><td>8</td><td>2621</td><td>バナナサブその２</td><td class='strong'>66.4</td><td>3</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.122</td><td>2.860</td></tr>
+<tr><td>9</td><td>2623</td><td>バナナサブその２</td><td class='strong'>66.4</td><td>4</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.122</td><td>2.860</td></tr>
+<tr><td>10</td><td>2622</td><td>バナナサブその２</td><td class='strong'>65.4</td><td>7</td><td>バイエルン 2000-01</td><td>敏林　浩</td><td>0.111</td><td>2.860</td></tr>
+<tr><td>11</td><td>2618</td><td>こそっと</td><td class='strong'>65.4</td><td>3</td><td>ブラジル 2014</td><td>ザイド・ファタラ</td><td>0.154</td><td>1.576</td></tr>
+<tr><td>12</td><td>2620</td><td>D-kichi</td><td class='strong'>65.3</td><td>6</td><td>リバプール 2004-05</td><td>アクエル</td><td>0.158</td><td>1.399</td></tr>
+<tr><td>13</td><td>2623</td><td>anna</td><td class='strong'>64.6</td><td>5</td><td>ブラジル 2014</td><td>フルニエ</td><td>0.145</td><td>1.576</td></tr>
+<tr><td>14</td><td>2621</td><td>anna</td><td class='strong'>64.4</td><td>7</td><td>ブラジル 2014</td><td>敏林　浩</td><td>0.142</td><td>1.576</td></tr>
+<tr><td>15</td><td>2616</td><td>登録されていません</td><td class='strong'>64.3</td><td>6</td><td>アルゼンチン 2001</td><td>カラヴァン</td><td>0.164</td><td>0.926</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
 </body>
 </html>
