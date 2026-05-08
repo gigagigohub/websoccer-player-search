@@ -12,6 +12,7 @@ from pathlib import Path
 
 DEFAULT_DB = Path("/Users/k.nishimura/work/coding/wsc_data/websoccer_master_db/wsm_2605042226.sqlite3")
 DEFAULT_OUT_DIR = Path(__file__).resolve().parents[1] / "app" / "prepared"
+MIN_SLOT_RANK_USES = 21
 
 
 def to_int(value, default=0):
@@ -141,8 +142,13 @@ def build_formation_scores(team_rows):
     return scores
 
 
+def rank_fit_score(rank):
+    if rank <= 0:
+        return 0.0
+    return 100.0 / (1.0 + 0.35 * (rank - 1))
+
+
 def build_slot_fit_scores(player_rows):
-    by_slot = defaultdict(list)
     by_player_slot = defaultdict(list)
     for row in player_rows:
         if str(row.get("is_starting11") or "") != "1":
@@ -153,28 +159,34 @@ def build_slot_fit_scores(player_rows):
         pts = to_float(row.get("pts"), None)
         if fid <= 0 or slot <= 0 or pid <= 0 or pts is None:
             continue
-        by_slot[(fid, slot)].append(pts)
         by_player_slot[(fid, slot, pid)].append(pts)
 
-    slot_baseline = {}
-    for key, pts_list in by_slot.items():
-        slot_baseline[key] = {"mean": mean(pts_list), "sd": max(stdev(pts_list), 0.15), "n": len(pts_list)}
+    candidates_by_slot = defaultdict(list)
+    for (fid, slot, pid), pts_list in by_player_slot.items():
+        uses = len(pts_list)
+        if uses < MIN_SLOT_RANK_USES:
+            continue
+        avg = mean(pts_list)
+        candidates_by_slot[(fid, slot)].append({"playerId": pid, "uses": uses, "avgPts": avg})
 
     scores = {}
-    prior = 8
-    for (fid, slot, pid), pts_list in by_player_slot.items():
-        base = slot_baseline.get((fid, slot))
-        if not base:
-            continue
-        n = len(pts_list)
-        avg = mean(pts_list)
-        shrunk = base["mean"] + (avg - base["mean"]) * (n / (n + prior))
-        scores[(fid, slot, pid)] = {
-            "n": n,
-            "avgPts": avg,
-            "score": clamp((shrunk - base["mean"]) / base["sd"], -2.5, 2.5),
-        }
-    return scores, slot_baseline
+    slot_rankings = {}
+    for (fid, slot), items in candidates_by_slot.items():
+        items.sort(key=lambda x: (-x["avgPts"], -x["uses"], x["playerId"]))
+        ranking = []
+        for rank, item in enumerate(items, start=1):
+            score = rank_fit_score(rank)
+            row = {
+                "rank": rank,
+                "playerId": item["playerId"],
+                "uses": item["uses"],
+                "avgPts": item["avgPts"],
+                "score": score,
+            }
+            ranking.append(row)
+            scores[(fid, slot, item["playerId"])] = row
+        slot_rankings[(fid, slot)] = ranking
+    return scores, slot_rankings
 
 
 def build_team_entries(team_rows, player_rows, formation_scores, slot_scores, world_names):
@@ -385,7 +397,7 @@ def write_html(path, world_rows, season_rows, team_entries, strong_cutoff, elite
                 f"<td>{row['gachiIndex']:.0f}</td>"
                 f"<td>{row['p90Score']:.1f}</td>"
                 f"<td>{row['medianScore']:.1f}</td>"
-                f"<td>{row['avgLineupComponent']:.3f}</td>"
+                f"<td>{row['avgLineupComponent']:.1f}</td>"
                 f"<td>{row['avgFormationComponent']:.3f}</td>"
                 f"<td class='top'>{html.escape(row['strongFormations'])}</td>"
                 "</tr>"
@@ -439,7 +451,7 @@ def write_html(path, world_rows, season_rows, team_entries, strong_cutoff, elite
                 f"<td>{team['matches']}</td>"
                 f"<td>{html.escape(team['formation'])}</td>"
                 f"<td>{html.escape(team['coach'])}</td>"
-                f"<td>{team['lineupComponent']:.3f}</td>"
+                f"<td>{team['lineupComponent']:.1f}</td>"
                 f"<td>{team['formationComponent']:.3f}</td>"
                 "</tr>"
                 for idx, team in enumerate(team_rows[:15], start=1)
@@ -466,7 +478,7 @@ def write_html(path, world_rows, season_rows, team_entries, strong_cutoff, elite
         <div><span>Elite Share</span><b>{fmt_pct(row['eliteShare'])}</b></div>
         <div><span>P90</span><b>{row['p90Score']:.1f}</b></div>
         <div><span>Median</span><b>{row['medianScore']:.1f}</b></div>
-        <div><span>Avg Slot Fit</span><b>{row['avgLineupComponent']:.3f}</b></div>
+        <div><span>Avg Rank Fit</span><b>{row['avgLineupComponent']:.1f}</b></div>
         <div><span>Avg Formation</span><b>{row['avgFormationComponent']:.3f}</b></div>
       </div>
       <div class="mix">{mix_html}</div>
@@ -484,7 +496,7 @@ def write_html(path, world_rows, season_rows, team_entries, strong_cutoff, elite
           <h3>Top Team Samples</h3>
           <div class="table-wrap compact">
             <table>
-              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>Slot</th><th>Form</th></tr></thead>
+              <thead><tr><th>#</th><th>Season</th><th>Team</th><th>Score</th><th>Matches</th><th>Formation</th><th>Coach</th><th>RankFit</th><th>Form</th></tr></thead>
               <tbody>{team_body}</tbody>
             </table>
           </div>
@@ -552,7 +564,9 @@ def write_html(path, world_rows, season_rows, team_entries, strong_cutoff, elite
   <main>
     <section>
       <div class="note">
-        チーム力は、過去CCデータから算出した slot別選手適合度とフォーメーション実績を合成した簡易スコアです。
+        チーム力は、過去CCデータから算出した slot別評価点ランキング適合度とフォーメーション実績を合成した簡易スコアです。
+        slot適合度は、同じフォーメーション・同じslotの評価点ランキングで、使用数20以下を除外した上位選手を使っているかで判定します。
+        各slotは1位=100点で、順位が下がるほど減点され、全slotが1位ならチームのslot適合度は100になります。
         監督評価はフォーメーションとセットになりやすいため、今回のスコア計算から外しています。
         ランキングは平均値ではなく、全チーム中上位20%に入るチームの割合を主指標にしています。
         Gachi Indexは「全体平均の上位20%比率」を100とした指数です。
@@ -560,7 +574,8 @@ def write_html(path, world_rows, season_rows, team_entries, strong_cutoff, elite
       <div>
         <span class="pill">Unit: season + world + team</span>
         <span class="pill">Primary: top 20% share</span>
-        <span class="pill">Score: slot fit 70% / formation 30%</span>
+        <span class="pill">Score: rank fit 70% / formation 30%</span>
+        <span class="pill">Slot ranking: uses &gt; 20</span>
         <span class="pill">Tie-break: elite share / p90</span>
       </div>
     </section>
@@ -569,7 +584,7 @@ def write_html(path, world_rows, season_rows, team_entries, strong_cutoff, elite
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>#</th><th>World</th><th>Seasons</th><th>Teams</th><th>Strong Share</th><th>Elite Share</th><th>Gachi Index</th><th>P90</th><th>Median</th><th>Avg Slot</th><th>Avg Form</th><th>Strong Formation Mix</th></tr>
+            <tr><th>#</th><th>World</th><th>Seasons</th><th>Teams</th><th>Strong Share</th><th>Elite Share</th><th>Gachi Index</th><th>P90</th><th>Median</th><th>Avg RankFit</th><th>Avg Form</th><th>Strong Formation Mix</th></tr>
           </thead>
           <tbody>{table_world(top_worlds)}</tbody>
         </table>
