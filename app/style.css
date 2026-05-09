@@ -2421,6 +2421,8 @@ body.modal-scroll-lock #formationModal {
 
 .usage-dialog {
   width: min(520px, calc(100vw - 24px));
+  top: max(12px, 11vh);
+  transform: translateX(-50%);
   max-height: min(78vh, 720px);
   display: grid;
   grid-template-rows: auto auto auto minmax(0, 1fr);
