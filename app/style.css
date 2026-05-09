@@ -280,6 +280,8 @@ body.modal-scroll-lock .hero {
   border-radius: 10px;
   border: 1px solid #31476f;
   background: #101b30;
+  max-height: min(560px, calc(100vh - 110px));
+  overflow: auto;
 }
 
 .player-replace-panel[hidden] {
@@ -425,6 +427,10 @@ body.modal-scroll-lock .hero {
 
 .player-replace-actions {
   margin-top: 10px;
+  position: sticky;
+  bottom: 0;
+  padding-top: 8px;
+  background: linear-gradient(180deg, rgba(16, 27, 48, 0) 0%, #101b30 28%);
 }
 
 .myteam-current-season {
