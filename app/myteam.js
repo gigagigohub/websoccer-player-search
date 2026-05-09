@@ -1932,6 +1932,18 @@ function syncPlayerReplaceSourceInput() {
 
 function syncPlayerReplaceLayout() {
   const isReplaceOpen = !!els.playerReplacePanel && !els.playerReplacePanel.hidden;
+  if (els.playerCardModal) {
+    els.playerCardModal.dataset.view = isReplaceOpen ? "replace" : "detail";
+  }
+  if (els.playerCardTitle) {
+    if (isReplaceOpen) {
+      els.playerCardTitle.textContent = selectedPlayerMode === "successor" ? "Replace Successor" : "Replace Player";
+    } else if (Number.isInteger(selectedPlayerId)) {
+      els.playerCardTitle.textContent = "Player";
+    } else {
+      els.playerCardTitle.textContent = selectedPlayerMode === "successor" ? "Add Successor" : "Add Player";
+    }
+  }
   if (els.playerCardHost) els.playerCardHost.hidden = isReplaceOpen;
   if (els.playerCardActions) els.playerCardActions.hidden = isReplaceOpen;
   if (els.playerReplaceBtn) els.playerReplaceBtn.hidden = isReplaceOpen;
@@ -2038,7 +2050,7 @@ function openPlayerReplacePanel() {
   if (els.playerReplaceApply) els.playerReplaceApply.disabled = true;
   if (els.playerReplaceSearch) {
     els.playerReplaceSearch.value = "";
-    els.playerReplaceSearch.focus();
+    els.playerReplaceSearch.focus({ preventScroll: true });
   }
   if (els.playerReplaceResults) {
     els.playerReplaceResults.innerHTML = `<div class="player-replace-empty">Search player name or ID</div>`;
