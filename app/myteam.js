@@ -84,6 +84,7 @@ const els = {
   playerCardTitle: document.querySelector("#playerCardTitle"),
   playerCardClose: document.querySelector("#playerCardClose"),
   playerCardHost: document.querySelector("#playerCardHost"),
+  playerCardActions: document.querySelector("#playerCardModal .player-card-actions"),
   playerReplaceBtn: document.querySelector("#playerReplaceBtn"),
   playerRemoveSuccessorBtn: document.querySelector("#playerRemoveSuccessorBtn"),
   playerReplacePanel: document.querySelector("#playerReplacePanel"),
@@ -1859,6 +1860,7 @@ function renderPlayerCardModal() {
     els.playerReplaceBtn.textContent = selectedPlayerMode === "successor" ? "Replace Successor" : "Replace Player";
     els.playerReplaceBtn.hidden = false;
   }
+  syncPlayerReplaceLayout();
   if (els.playerRemoveSuccessorBtn) {
     els.playerRemoveSuccessorBtn.hidden = selectedPlayerMode !== "successor";
   }
@@ -1919,11 +1921,19 @@ function closePlayerReplacePanel() {
   if (els.playerReplaceSourceInput) els.playerReplaceSourceInput.value = "";
   syncPlayerReplaceSourceInput();
   if (els.playerReplaceApply) els.playerReplaceApply.disabled = true;
+  syncPlayerReplaceLayout();
 }
 
 function syncPlayerReplaceSourceInput() {
   if (!els.playerReplaceSourceType || !els.playerReplaceSourceCustomWrap) return;
   els.playerReplaceSourceCustomWrap.hidden = els.playerReplaceSourceType.value !== "custom";
+}
+
+
+function syncPlayerReplaceLayout() {
+  const isReplaceOpen = !!els.playerReplacePanel && !els.playerReplacePanel.hidden;
+  if (els.playerCardHost) els.playerCardHost.hidden = isReplaceOpen;
+  if (els.playerCardActions) els.playerCardActions.hidden = isReplaceOpen;
 }
 
 function playerReplacementScore(player, rawQuery, query) {
@@ -2033,6 +2043,7 @@ function openPlayerReplacePanel() {
     els.playerReplaceResults.innerHTML = `<div class="player-replace-empty">Search player name or ID</div>`;
   }
   if (els.playerReplaceSeason) els.playerReplaceSeason.innerHTML = "";
+  syncPlayerReplaceLayout();
 }
 
 async function applySelectedPlayerReplacement() {
