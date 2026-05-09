@@ -1481,12 +1481,28 @@ function renderUsageModalContent() {
   }
 }
 
+function resolveDefaultUsageSourceMode(playerId) {
+  const pid = Number(playerId);
+  const personId = playerPersonIdForPlayerId(pid);
+  const sourceOrder = [
+    { mode: "cc", map: playerUsageById, key: pid },
+    { mode: "rohm", map: playerRohmUsageById, key: pid },
+    { mode: "rohm-person", map: playerRohmUsageByPersonId, key: personId },
+  ];
+  const available = sourceOrder.find(({ map, key }) => {
+    if (!(map instanceof Map)) return false;
+    const rows = map.get(key);
+    return Array.isArray(rows) && rows.length > 0;
+  });
+  return available ? available.mode : "cc";
+}
+
 function openUsageModal(playerId) {
   if (!els.usageModal || !els.usageItems) return;
   const player = players.find((p) => Number(p?.id) === Number(playerId));
   if (!player) return;
   currentUsagePlayerId = Number(playerId);
-  currentUsageSourceMode = "cc";
+  currentUsageSourceMode = resolveDefaultUsageSourceMode(currentUsagePlayerId);
   renderUsageModalContent();
   els.usageModal.hidden = false;
 }
