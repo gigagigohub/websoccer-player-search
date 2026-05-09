@@ -1934,6 +1934,7 @@ function syncPlayerReplaceLayout() {
   const isReplaceOpen = !!els.playerReplacePanel && !els.playerReplacePanel.hidden;
   if (els.playerCardHost) els.playerCardHost.hidden = isReplaceOpen;
   if (els.playerCardActions) els.playerCardActions.hidden = isReplaceOpen;
+  if (els.playerReplaceBtn) els.playerReplaceBtn.hidden = isReplaceOpen;
 }
 
 function playerReplacementScore(player, rawQuery, query) {
@@ -2456,7 +2457,8 @@ async function init() {
   if (els.playerCardBackdrop) els.playerCardBackdrop.addEventListener("click", closePlayerCardModal);
   if (els.playerCardClose) els.playerCardClose.addEventListener("click", closePlayerCardModal);
   if (els.playerReplaceBtn) {
-    els.playerReplaceBtn.addEventListener("click", () => {
+    els.playerReplaceBtn.addEventListener("click", (e) => {
+      e.preventDefault();
       openPlayerReplacePanel();
     });
   }
