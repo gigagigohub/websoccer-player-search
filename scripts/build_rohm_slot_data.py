@@ -2,12 +2,15 @@
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import datetime as dt
 import hashlib
+import html as html_lib
 import io
 import json
 import math
 import re
+import threading
 import time
 import unicodedata
 from pathlib import Path
@@ -31,6 +34,9 @@ NR_RATE_BY_ROHM_CATEGORY = {
 LINKABLE_CATEGORIES = {"無", "銅", "銀", "金", "PS", "CM", "CC"}
 IMAGE_MSE_THRESHOLD = 1500.0
 ROHM_SLOT_ROW_LIMIT = 100
+TR_RE = re.compile(r"<tr\b[^>]*>(.*?)</tr>", re.IGNORECASE | re.DOTALL)
+CELL_RE = re.compile(r"<t[dh]\b[^>]*>(.*?)</t[dh]>", re.IGNORECASE | re.DOTALL)
+TAG_RE = re.compile(r"<[^>]+>")
 
 
 def parse_args() -> argparse.Namespace:
@@ -39,6 +45,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--out", default=None)
     p.add_argument("--cache-dir", default=None)
     p.add_argument("--sleep", type=float, default=0.03)
+    p.add_argument("--detail-workers", type=int, default=8)
+    p.add_argument("--no-reuse-links", action="store_true")
+    p.add_argument("--reuse-links-from", default=None)
     p.add_argument("--limit-formations", type=int, default=0)
     return p.parse_args()
 
@@ -79,12 +88,40 @@ def to_int(value: str) -> int | None:
         return None
 
 
+def html_cell_text(value: str) -> str:
+    text = TAG_RE.sub(" ", value or "")
+    text = html_lib.unescape(text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
 class Fetcher:
     def __init__(self, cache_dir: Path, sleep: float) -> None:
         self.cache_dir = cache_dir
         self.sleep = sleep
-        self.session = requests.Session()
+        self._thread_local = threading.local()
         self.cache_dir.mkdir(parents=True, exist_ok=True)
+
+    def _session(self) -> requests.Session:
+        session = getattr(self._thread_local, "session", None)
+        if session is None:
+            session = requests.Session()
+            self._thread_local.session = session
+        return session
+
+    def _get(self, url: str) -> requests.Response:
+        last_error: Exception | None = None
+        for attempt in range(3):
+            try:
+                res = self._session().get(url, timeout=25)
+                res.raise_for_status()
+                return res
+            except requests.RequestException as exc:
+                last_error = exc
+                if attempt < 2:
+                    time.sleep(0.5 * (attempt + 1))
+        if last_error:
+            raise last_error
+        raise RuntimeError(f"failed to fetch {url}")
 
     def _path_for(self, url: str, suffix: str) -> Path:
         digest = hashlib.sha1(url.encode("utf-8")).hexdigest()
@@ -94,8 +131,7 @@ class Fetcher:
         path = self._path_for(url, ".html")
         if path.exists():
             return path.read_text(encoding="utf-8")
-        res = self.session.get(url, timeout=25)
-        res.raise_for_status()
+        res = self._get(url)
         res.encoding = "utf-8"
         text = res.text
         path.write_text(text, encoding="utf-8")
@@ -107,8 +143,7 @@ class Fetcher:
         path = self._path_for(url, ".bin")
         if path.exists():
             return path.read_bytes()
-        res = self.session.get(url, timeout=25)
-        res.raise_for_status()
+        res = self._get(url)
         data = res.content
         path.write_bytes(data)
         if self.sleep:
@@ -179,6 +214,42 @@ def build_player_name_index(players: list[dict]) -> dict[str, list[dict]]:
         if not name:
             continue
         result.setdefault(normalize(name), []).append(player)
+    return result
+
+
+def row_link_key(formation_id: int, slot: int, rank: int | None, name: str, category: str, uses: int | None) -> tuple:
+    return (
+        int(formation_id or 0),
+        int(slot or 0),
+        int(rank or 0),
+        normalize(name),
+        str(category or ""),
+        int(uses or 0),
+    )
+
+
+def load_previous_local_links(path: Path) -> dict[tuple, int | None]:
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    result: dict[tuple, int | None] = {}
+    for formation_key, formation in (data.get("formations") or {}).items():
+        formation_id = int(formation.get("localFormationId") or formation_key or 0)
+        for slot_key, slot_data in (formation.get("slots") or {}).items():
+            slot = int(slot_key or 0)
+            for row in slot_data.get("rows") or []:
+                key = row_link_key(
+                    formation_id,
+                    slot,
+                    row.get("rohmRank") or row.get("rank"),
+                    row.get("playerName") or "",
+                    row.get("rohmCategory") or "",
+                    row.get("uses"),
+                )
+                result[key] = row.get("localPlayerId")
     return result
 
 
@@ -319,7 +390,123 @@ class PlayerMatcher:
         return result
 
 
-def parse_position_page(fetcher: Fetcher, matcher: PlayerMatcher, rohm_formation_id: int, slot: int) -> dict:
+def weighted_average(rows: list[dict], value_key: str, weight_key: str = "games") -> float | None:
+    values = [
+        (float(row[value_key]), int(row.get(weight_key) or 0))
+        for row in rows
+        if row.get(value_key) is not None
+    ]
+    if not values:
+        return None
+    weight_total = sum(weight for _, weight in values)
+    if weight_total > 0:
+        return sum(value * weight for value, weight in values) / weight_total
+    return sum(value for value, _ in values) / len(values)
+
+
+def parse_peak_period_stats(fetcher: Fetcher, rohm_formation_id: int, slot: int, rohm_player_id: int) -> dict:
+    url = f"{BASE_URL}/formation/{rohm_formation_id}/position/{slot}/{rohm_player_id}"
+    try:
+        page = fetcher.text(url)
+    except Exception as exc:
+        return {"detailUrl": url, "error": str(exc)}
+    periods: list[dict] = []
+    table_start = page.find('<table class="table table-bordered table-striped table-mobile"')
+    if table_start < 0:
+        table_start = page.find("<table")
+    table_end = page.find("</table>", table_start)
+    table_html = page[table_start:table_end] if table_start >= 0 and table_end > table_start else page
+    for tr_html in TR_RE.findall(table_html):
+        cells = [html_cell_text(cell) for cell in CELL_RE.findall(tr_html)]
+        if len(cells) < 7:
+            continue
+        period_match = re.fullmatch(r"(\d+)期", cells[0])
+        if not period_match:
+            continue
+        speed = to_int(cells[4])
+        technique = to_int(cells[5])
+        power = to_int(cells[6])
+        if speed is None or technique is None or power is None:
+            continue
+        avg_pts = to_float(cells[2])
+        periods.append({
+            "period": int(period_match.group(1)),
+            "games": to_int(cells[1]) or 0,
+            "avgPts": avg_pts,
+            "speed": speed,
+            "technique": technique,
+            "power": power,
+            "abilityTotal": speed + technique + power,
+        })
+    if not periods:
+        return {"detailUrl": url, "error": "no_period_rows"}
+    peak_total = max(row["abilityTotal"] for row in periods)
+    peak_rows = [row for row in periods if row["abilityTotal"] == peak_total]
+    peak_avg = weighted_average(peak_rows, "avgPts")
+    return {
+        "detailUrl": url,
+        "peakAvgPts": peak_avg,
+        "peakAbilityTotal": peak_total,
+        "peakPeriods": [row["period"] for row in peak_rows],
+        "peakGames": sum(row.get("games") or 0 for row in peak_rows),
+    }
+
+
+def apply_peak_period_stats(
+    rows: list[dict],
+    fetcher: Fetcher,
+    rohm_formation_id: int,
+    slot: int,
+    detail_executor: concurrent.futures.Executor | None,
+) -> None:
+    def load(row: dict) -> dict:
+        rohm_player_id = int(row.get("rohmPlayerId") or 0)
+        if rohm_player_id <= 0:
+            return {}
+        return parse_peak_period_stats(fetcher, rohm_formation_id, slot, rohm_player_id)
+
+    if detail_executor:
+        futures = [detail_executor.submit(load, row) for row in rows]
+        stats_list = [future.result() for future in futures]
+    else:
+        stats_list = [load(row) for row in rows]
+
+    for row, stats in zip(rows, stats_list):
+        career_avg = row.get("avgPts")
+        row["careerAvgPts"] = career_avg
+        peak_avg = stats.get("peakAvgPts")
+        if peak_avg is not None:
+            row["avgPts"] = round(float(peak_avg), 4)
+        if stats.get("peakAbilityTotal") is not None:
+            row["peakAbilityTotal"] = int(stats["peakAbilityTotal"])
+        if stats.get("peakPeriods"):
+            row["peakPeriods"] = stats["peakPeriods"]
+        if stats.get("peakGames") is not None:
+            row["peakGames"] = int(stats["peakGames"])
+
+
+def rerank_rows(rows: list[dict]) -> list[dict]:
+    rows.sort(key=lambda row: (
+        -(float(row.get("avgPts")) if row.get("avgPts") is not None else -math.inf),
+        -(int(row.get("uses") or 0)),
+        int(row.get("rohmRank") or row.get("rank") or 9999),
+        str(row.get("playerName") or ""),
+        int(row.get("rohmPlayerId") or 0),
+    ))
+    for idx, row in enumerate(rows, start=1):
+        row["rank"] = idx
+    return rows
+
+
+def parse_position_page(
+    fetcher: Fetcher,
+    matcher: PlayerMatcher,
+    local_formation_id: int,
+    rohm_formation_id: int,
+    slot: int,
+    previous_local_links: dict[tuple, int | None] | None = None,
+    detail_executor: concurrent.futures.Executor | None = None,
+) -> dict:
     url = f"{BASE_URL}/formation/{rohm_formation_id}/position/{slot}"
     soup = BeautifulSoup(fetcher.text(url), "html.parser")
     h2 = soup.find("h2")
@@ -353,16 +540,28 @@ def parse_position_page(fetcher: Fetcher, matcher: PlayerMatcher, rohm_formation
                     break
             name = cells[1]
             category = cells[2]
-            match = matcher.match(name, category, rohm_player_id) if rohm_player_id else {
-                "localPlayerId": None,
-                "matchMethod": "unlinked",
-                "matchStatus": "no_rohm_player_id",
-            }
+            rohm_rank = int(rank_match.group(1))
+            uses = to_int(cells[3])
+            link_key = row_link_key(local_formation_id, slot, rohm_rank, name, category, uses)
+            if previous_local_links is not None and link_key in previous_local_links:
+                match = {
+                    "localPlayerId": previous_local_links[link_key],
+                    "matchMethod": "previous_output",
+                    "matchStatus": "linked" if previous_local_links[link_key] else "previous_unlinked",
+                }
+            else:
+                match = matcher.match(name, category, rohm_player_id) if rohm_player_id else {
+                    "localPlayerId": None,
+                    "matchMethod": "unlinked",
+                    "matchStatus": "no_rohm_player_id",
+                }
             rows.append({
-                "rank": int(rank_match.group(1)),
+                "rank": rohm_rank,
+                "rohmRank": rohm_rank,
+                "rohmPlayerId": rohm_player_id or None,
                 "playerName": name,
                 "rohmCategory": category,
-                "uses": to_int(cells[3]),
+                "uses": uses,
                 "avgPts": to_float(cells[4]),
                 "goals": to_float(cells[6]),
                 "assists": to_float(cells[7]),
@@ -370,6 +569,8 @@ def parse_position_page(fetcher: Fetcher, matcher: PlayerMatcher, rohm_formation
             })
             if len(rows) >= ROHM_SLOT_ROW_LIMIT:
                 break
+    apply_peak_period_stats(rows, fetcher, rohm_formation_id, slot, detail_executor)
+    rerank_rows(rows)
     return {
         "url": url,
         "title": title,
@@ -395,27 +596,50 @@ def main() -> int:
     rohm_index = parse_rohm_formation_index(fetcher)
     mapped, missing = build_local_formation_map(formations, rohm_index)
     matcher = PlayerMatcher(app_dir, fetcher, list(players_data.get("players") or []))
+    detail_workers = max(0, int(args.detail_workers or 0))
+    reuse_links_path = Path(args.reuse_links_from).expanduser().resolve() if args.reuse_links_from else out_path
+    previous_local_links = {} if args.no_reuse_links else load_previous_local_links(reuse_links_path)
+    if previous_local_links:
+        print(f"reusing {len(previous_local_links)} local Rohm links from {reuse_links_path}", flush=True)
 
     result = {
         "source": BASE_URL,
         "generatedAt": dt.datetime.now(dt.timezone(dt.timedelta(hours=9))).isoformat(timespec="seconds"),
+        "rankingMethod": "peak_spd_tec_pwr_avg",
         "formationCount": len(mapped),
         "missingFormations": missing,
         "formations": {},
     }
-    for idx, formation in enumerate(formations, start=1):
-        local_id = int(formation.get("id") or 0)
-        mapping = mapped.get(local_id)
-        if not mapping:
-            continue
-        print(f"[{idx}/{len(formations)}] {mapping['localFormationLabel']} -> Rohm {mapping['rohmFormationId']} {mapping['rohmFormationName']}", flush=True)
-        slots = {}
-        for slot in range(1, 12):
-            slots[str(slot)] = parse_position_page(fetcher, matcher, int(mapping["rohmFormationId"]), slot)
-        result["formations"][str(local_id)] = {
-            **mapping,
-            "slots": slots,
-        }
+    detail_executor = (
+        concurrent.futures.ThreadPoolExecutor(max_workers=detail_workers)
+        if detail_workers > 1
+        else None
+    )
+    try:
+        for idx, formation in enumerate(formations, start=1):
+            local_id = int(formation.get("id") or 0)
+            mapping = mapped.get(local_id)
+            if not mapping:
+                continue
+            print(f"[{idx}/{len(formations)}] {mapping['localFormationLabel']} -> Rohm {mapping['rohmFormationId']} {mapping['rohmFormationName']}", flush=True)
+            slots = {}
+            for slot in range(1, 12):
+                slots[str(slot)] = parse_position_page(
+                    fetcher,
+                    matcher,
+                    local_id,
+                    int(mapping["rohmFormationId"]),
+                    slot,
+                    previous_local_links,
+                    detail_executor,
+                )
+            result["formations"][str(local_id)] = {
+                **mapping,
+                "slots": slots,
+            }
+    finally:
+        if detail_executor:
+            detail_executor.shutdown(wait=True)
 
     out_path.write_text(json.dumps(result, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
     print(f"wrote {out_path}")

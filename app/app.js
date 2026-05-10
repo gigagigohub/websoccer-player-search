@@ -45,7 +45,7 @@ const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOi
 const APP_UPDATED_AT_ISO = "2026-03-26T21:53:00+09:00";
 const APP_UPDATED_AT_JST = "2026-03-30 23:10 JST";
 const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-player-search/commits/main";
-const ROHM_SLOT_DATA_URL = "./rohm_slot_data.json?v=20260507-rohm-link-choices";
+const ROHM_SLOT_DATA_URL = "./rohm_slot_data.json?v=20260510-rohm-peak-avg";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 let ccDataMeta = null;
 
