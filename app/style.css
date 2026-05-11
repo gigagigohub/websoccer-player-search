@@ -2678,17 +2678,12 @@ body.modal-scroll-lock #formationModal {
   overflow: hidden;
 }
 
-.aptitude-picker-grid::before {
-  content: "";
-  position: absolute;
-  inset: 8px 63px 8px 8px;
+.aptitude-pitch-bg {
+  grid-column: 1 / 4;
+  grid-row: 1 / -1;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 500'%3E%3Cg fill='none' stroke='%23eaf1ff' stroke-opacity='.24' stroke-width='4' stroke-linecap='square' stroke-linejoin='miter'%3E%3Crect x='2' y='2' width='296' height='496' rx='4'/%3E%3Cpath d='M105 2 A45 45 0 0 0 195 2'/%3E%3Cpath d='M75 498 V390 H225 V498'/%3E%3Cpath d='M115 498 V450 H185 V498'/%3E%3Cpath d='M115 390 A35 35 0 0 1 185 390'/%3E%3C/g%3E%3C/svg%3E") center / 100% 100% no-repeat;
   pointer-events: none;
   z-index: 0;
-}
-
-.aptitude-picker-grid::after {
-  content: none;
 }
 
 .aptitude-area-cell {

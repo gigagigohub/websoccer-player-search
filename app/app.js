@@ -479,7 +479,8 @@ function setDraftAptitudeMatchMode(mode) {
 function renderAptitudePicker() {
   const selected = new Map(draftAptitudeFilters.map((filter) => [filter.code, filter]));
   if (els.aptitudeGrid) {
-    els.aptitudeGrid.innerHTML = APTITUDE_AREA_DEFS.map((area) => {
+    const pitchLayer = '<div class="aptitude-pitch-bg" aria-hidden="true"></div>';
+    const areaCells = APTITUDE_AREA_DEFS.map((area) => {
       const isOn = selected.has(area.code);
       const classes = ["aptitude-area-cell"];
       if (isOn) classes.push("is-active");
@@ -493,6 +494,7 @@ function renderAptitudePicker() {
         </button>
       `;
     }).join("");
+    els.aptitudeGrid.innerHTML = pitchLayer + areaCells;
   }
   if (els.aptitudeRows) {
     if (!draftAptitudeFilters.length) {
