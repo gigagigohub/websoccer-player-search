@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WebSoccer Ordinary - Collections</title>
+  <meta property="og:title" content="WebSoccer Ordinary" />
+  <meta property="og:site_name" content="WebSoccer Ordinary" />
+  <meta name="twitter:title" content="WebSoccer Ordinary" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=20260324-013653" />
+  <link rel="icon" type="image/x-icon" href="./favicon.ico?v=20260324-013653" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=20260324-013653" />
+  <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png?v=20260324-013653" />
+  <link rel="shortcut icon" href="./favicon.ico?v=20260324-013653" />
+  <link rel="stylesheet" href="./style.css?v=20260511-collections" />
+</head>
+<body class="collections-page">
+  <main class="container">
+    <header class="hero">
+      <button id="menuButton" type="button" class="menu-button" aria-label="メニュー">☰</button>
+      <div id="menuPanel" class="menu-panel">
+        <div id="menuLoginId" class="menu-login-id" hidden></div>
+        <button id="playersButton" type="button" class="menu-item">Players</button>
+        <button id="coachesButton" type="button" class="menu-item">Coaches</button>
+        <button id="formationsButton" type="button" class="menu-item">Formations</button>
+        <button id="collectionsButton" type="button" class="menu-item is-current" aria-current="page">Collections</button>
+        <button id="myTeamButton" type="button" class="menu-item">My Team</button>
+        <button id="loginButton" type="button" class="menu-item">Login</button>
+        <button id="logoutButton" type="button" class="menu-item logout" hidden>Logout</button>
+      </div>
+      <h1>WebSoccer Ordinary</h1>
+      <p class="meta" id="metaText">Loading...</p>
+    </header>
+
+    <section class="panel collection-filter-panel">
+      <div class="collection-type-switch">
+        <button id="uniformTab" type="button" class="collection-type-btn is-active" aria-pressed="true">Uniforms</button>
+        <button id="emblemTab" type="button" class="collection-type-btn" aria-pressed="false">Emblems</button>
+      </div>
+
+      <div class="collection-filter-grid">
+        <div>
+          <label class="label" for="collectionQuery">Search</label>
+          <input id="collectionQuery" type="search" enterkeyhint="search" placeholder="名前・IDで検索" />
+        </div>
+        <div>
+          <label class="label" for="rarityFilter">Rarity</label>
+          <select id="rarityFilter">
+            <option value="">ALL</option>
+          </select>
+        </div>
+      </div>
+      <div class="collection-filter-grid">
+        <div>
+          <label class="label" for="categoryFilter">Category</label>
+          <select id="categoryFilter">
+            <option value="">ALL</option>
+          </select>
+        </div>
+        <div>
+          <label class="label" for="collectionSort">Sort</label>
+          <select id="collectionSort">
+            <option value="idAsc">ID ↑</option>
+            <option value="idDesc">ID ↓</option>
+            <option value="nameAsc">Name ↑</option>
+            <option value="nameDesc">Name ↓</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="result-head">
+        <h2 id="collectionTitle">Uniforms</h2>
+        <span id="collectionCount">0 results</span>
+      </div>
+      <div id="collectionList" class="collection-list"></div>
+    </section>
+  </main>
+
+  <div id="loginModal" class="season-modal" hidden>
+    <div id="loginBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+      <div class="season-head">
+        <h2 id="loginTitle">Login</h2>
+        <button id="loginClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <p class="season-target">TeamIDを入力してください</p>
+      <label class="label" for="loginLineupKey">TeamID</label>
+      <input id="loginLineupKey" type="text" />
+      <div class="season-actions">
+        <button id="signupOpen" type="button" class="add-btn">Create New ID</button>
+        <button id="loginApply" type="button">Login</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="signupModal" class="season-modal" hidden>
+    <div id="signupBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog" role="dialog" aria-modal="true" aria-labelledby="signupTitle">
+      <div class="season-head">
+        <h2 id="signupTitle">Sign Up</h2>
+        <button id="signupClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <label class="label" for="signupLineupKey">TeamID</label>
+      <input id="signupLineupKey" type="text" placeholder="新規ID（任意の半角英数字記号）" />
+      <div class="season-actions">
+        <button id="signupCancel" type="button" class="ghost">Cancel</button>
+        <button id="signupApply" type="button">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./collections.js?v=20260511-collections"></script>
+</body>
+</html>

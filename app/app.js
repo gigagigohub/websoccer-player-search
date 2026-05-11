@@ -84,6 +84,7 @@ const els = {
   coachesButton: document.querySelector("#coachesButton"),
   loginButton: document.querySelector("#loginButton"),
   formationsButton: document.querySelector("#formationsButton"),
+  collectionsButton: document.querySelector("#collectionsButton"),
   myTeamButton: document.querySelector("#myTeamButton"),
   logoutButton: document.querySelector("#logoutButton"),
   nameQuery: document.querySelector("#nameQuery"),
@@ -2532,6 +2533,12 @@ async function init() {
     els.coachesButton.addEventListener("click", () => {
       closeMenuPanel();
       window.location.href = "./coaches.html";
+    });
+  }
+  if (els.collectionsButton) {
+    els.collectionsButton.addEventListener("click", () => {
+      closeMenuPanel();
+      window.location.href = "./collections.html";
     });
   }
   if (els.loginButton) {

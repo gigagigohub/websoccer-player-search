@@ -1022,6 +1022,11 @@ button.ghost {
   font-size: 0.92rem;
 }
 
+#collectionCount {
+  color: var(--sub);
+  font-size: 0.92rem;
+}
+
 .results {
   display: grid;
   gap: 8px;
@@ -1032,6 +1037,169 @@ button.ghost {
   margin-top: 10px;
   display: flex;
   justify-content: center;
+}
+
+.collection-filter-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.collection-type-switch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  border: 1px solid #263a59;
+  border-radius: 9px;
+  background: #0d1728;
+  padding: 3px;
+}
+
+.collection-type-btn {
+  min-height: 32px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: #9fb0cd;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 6px 4px;
+  box-shadow: none;
+}
+
+.collection-type-btn.is-active {
+  border-color: #5c8fca;
+  background: linear-gradient(180deg, #25537e 0%, #183a61 100%);
+  color: #f0f7ff;
+  box-shadow: var(--btn-inset);
+}
+
+.collection-filter-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 0.52fr);
+  gap: 10px;
+  align-items: end;
+}
+
+.collection-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  gap: 8px;
+}
+
+.collection-card {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #151f33 0%, #111a2b 100%);
+  padding: 9px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.collection-card-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+  align-items: start;
+  margin-bottom: 8px;
+}
+
+.collection-card-head h3 {
+  margin: 0;
+  min-width: 0;
+  color: #e9f1ff;
+  font-size: 0.84rem;
+  line-height: 1.25;
+  font-weight: 800;
+}
+
+.collection-id {
+  color: #92a6c8;
+  font-size: 0.7rem;
+  line-height: 1.2;
+}
+
+.collection-uniform-images {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.collection-uniform-frame,
+.collection-emblem-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #263b5e;
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(64, 91, 139, 0.22) 0%, rgba(64, 91, 139, 0) 56%),
+    #0d1626;
+  min-height: 92px;
+  position: relative;
+}
+
+.collection-uniform-frame span {
+  position: absolute;
+  left: 6px;
+  top: 5px;
+  color: #8fa5c9;
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.collection-uniform-frame img {
+  width: 79px;
+  height: 87px;
+  object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+.collection-emblem-image {
+  min-height: 112px;
+}
+
+.collection-emblem-image img {
+  width: 76px;
+  height: 76px;
+  object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+.collection-image-missing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  height: 76px;
+  border: 1px dashed #3a4e72;
+  border-radius: 8px;
+  color: #6f84a8;
+  font-size: 0.68rem;
+}
+
+.collection-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.collection-chip {
+  border: 1px solid #30476f;
+  border-radius: 999px;
+  background: #101a2c;
+  color: #b8c7df;
+  font-size: 0.66rem;
+  line-height: 1;
+  padding: 4px 7px;
+}
+
+.collection-empty {
+  margin: 0;
+  color: var(--sub);
+  font-size: 0.86rem;
 }
 
 .card {
