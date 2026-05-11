@@ -2664,6 +2664,8 @@ body.modal-scroll-lock #formationModal {
 }
 
 .aptitude-picker-grid {
+  --aptitude-pitch-line: rgba(235, 241, 255, 0.22);
+  --aptitude-pitch-line-soft: rgba(235, 241, 255, 0.15);
   position: relative;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr)) 50px;
@@ -2681,14 +2683,43 @@ body.modal-scroll-lock #formationModal {
 .aptitude-picker-grid::before {
   content: "";
   position: absolute;
-  inset: 8px 63px 8px 8px;
-  border: 1px solid rgba(230, 238, 255, 0.16);
-  border-radius: 8px;
+  inset: 5px 58px 5px 5px;
+  border: 2px solid var(--aptitude-pitch-line);
+  border-radius: 5px;
+  background-image:
+    linear-gradient(var(--aptitude-pitch-line), var(--aptitude-pitch-line)),
+    linear-gradient(var(--aptitude-pitch-line), var(--aptitude-pitch-line)),
+    linear-gradient(var(--aptitude-pitch-line), var(--aptitude-pitch-line)),
+    linear-gradient(var(--aptitude-pitch-line-soft), var(--aptitude-pitch-line-soft)),
+    linear-gradient(var(--aptitude-pitch-line-soft), var(--aptitude-pitch-line-soft)),
+    linear-gradient(var(--aptitude-pitch-line-soft), var(--aptitude-pitch-line-soft));
+  background-position:
+    50% 79%,
+    25% 90%,
+    75% 90%,
+    50% 94%,
+    38% 97%,
+    62% 97%;
+  background-repeat: no-repeat;
+  background-size:
+    50% 2px,
+    2px 22%,
+    2px 22%,
+    24% 2px,
+    2px 8%,
+    2px 8%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.aptitude-picker-grid::after {
+  content: "";
+  position: absolute;
+  inset: 5px 58px 5px 5px;
+  border-radius: 5px;
   background:
-    radial-gradient(circle at 50% 50%, transparent 0 20%, rgba(235, 243, 255, 0.14) 20.7%, rgba(235, 243, 255, 0.14) 22%, transparent 22.7%),
-    linear-gradient(to bottom, transparent calc(50% - 0.5px), rgba(235, 243, 255, 0.14) calc(50% - 0.5px), rgba(235, 243, 255, 0.14) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
-    linear-gradient(to bottom, transparent 15%, rgba(235, 243, 255, 0.10) 15%, rgba(235, 243, 255, 0.10) calc(15% + 1px), transparent calc(15% + 1px), transparent 85%, rgba(235, 243, 255, 0.10) 85%, rgba(235, 243, 255, 0.10) calc(85% + 1px), transparent calc(85% + 1px)),
-    linear-gradient(to right, transparent 18%, rgba(235, 243, 255, 0.08) 18%, rgba(235, 243, 255, 0.08) calc(18% + 1px), transparent calc(18% + 1px), transparent 82%, rgba(235, 243, 255, 0.08) 82%, rgba(235, 243, 255, 0.08) calc(82% + 1px), transparent calc(82% + 1px));
+    radial-gradient(circle at 50% 0%, transparent 0 17%, var(--aptitude-pitch-line) 17.7%, var(--aptitude-pitch-line) 19.2%, transparent 20%),
+    radial-gradient(circle at 50% 79%, transparent 0 12%, var(--aptitude-pitch-line-soft) 12.7%, var(--aptitude-pitch-line-soft) 14.3%, transparent 15%);
   pointer-events: none;
   z-index: 0;
 }
@@ -2701,7 +2732,7 @@ body.modal-scroll-lock #formationModal {
   min-height: 0;
   border: 1px solid #30466a;
   border-radius: 8px;
-  background: linear-gradient(180deg, rgba(23, 36, 59, 0.88) 0%, rgba(17, 27, 45, 0.88) 100%);
+  background: linear-gradient(180deg, rgba(23, 36, 59, 0.72) 0%, rgba(17, 27, 45, 0.76) 100%);
   color: #d9e6ff;
   padding: 4px;
   display: flex;
