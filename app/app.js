@@ -2,12 +2,6 @@ const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織"
 ];
-const POSITION_FITNESS_METRICS = ["FW適正", "MF適正", "DF適正"];
-const POSITION_FITNESS_TO_HIDDEN_R = {
-  "FW適正": "R16",
-  "MF適正": "R17",
-  "DF適正": "R18",
-};
 const APTITUDE_AREA_DEFS = [
   { code: "R1", row: 0, col: 0 },
   { code: "R2", row: 0, col: 1 },
@@ -29,7 +23,7 @@ const APTITUDE_AREA_DEFS = [
   { code: "R18", row: 5, col: 2, line: true, displayRow: 10, displayCol: 3, rowSpan: 5 },
 ];
 const APTITUDE_AREA_BY_CODE = Object.fromEntries(APTITUDE_AREA_DEFS.map((x) => [x.code, x]));
-const CONDITION_METRICS = ["ID", ...METRICS, ...POSITION_FITNESS_METRICS];
+const CONDITION_METRICS = ["ID", ...METRICS];
 const METRIC_LABELS = {
   "ID": "ID",
   "スピ": "スピード",
@@ -37,9 +31,6 @@ const METRIC_LABELS = {
   "パワ": "パワー",
   "スタ": "スタミナ",
   "CP": "Cap.",
-  "FW適正": "FW適正",
-  "MF適正": "MF適正",
-  "DF適正": "DF適正",
 };
 const DETAIL_METRIC_LABELS = {
   "スピ": "スピ",
@@ -1799,33 +1790,12 @@ function getMatchingPeriods(player, conditions) {
   });
 }
 
-function seasonNumberFromLabel(label) {
-  const m = String(label || "").match(/(\d+)/);
-  return m ? Number(m[1]) : null;
-}
-
-function getPositionFitnessFromSegments(player, seasonLabel, hiddenKey) {
-  const segments = Array.isArray(player?.positionHeatmaps) ? player.positionHeatmaps : [];
-  if (!segments.length) return null;
-  const seasonNo = seasonNumberFromLabel(seasonLabel);
-  const ordered = [...segments].sort((a, b) => Number(a?.start || 0) - Number(b?.start || 0));
-  const seg = Number.isFinite(seasonNo)
-    ? ordered.reduce((picked, item) => (Number(item?.start || 0) <= seasonNo ? item : picked), ordered[0])
-    : ordered[0];
-  const v = seg?.hiddenR?.[hiddenKey];
-  if (v == null) return null;
-  const n = Number(v);
-  return Number.isFinite(n) ? n : null;
-}
-
 function getConditionTargetValue(player, period, metric) {
   if (metric === "ID") return Number(player?.id);
   const metrics = period?.metrics || {};
   const direct = metrics[metric];
   if (typeof direct === "number" && Number.isFinite(direct)) return direct;
-  const hiddenKey = POSITION_FITNESS_TO_HIDDEN_R[metric];
-  if (!hiddenKey) return direct;
-  return getPositionFitnessFromSegments(player, period?.season, hiddenKey);
+  return direct;
 }
 
 const CORE_METRICS = ["スピ", "テク", "パワ"];
