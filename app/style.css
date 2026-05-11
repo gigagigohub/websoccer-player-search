@@ -2665,7 +2665,8 @@ body.modal-scroll-lock #formationModal {
 
 .aptitude-picker-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(44px, 0.82fr);
+  grid-template-rows: repeat(5, minmax(42px, auto));
   gap: 5px;
   padding: 8px;
   border: 1px solid #263b5e;
@@ -2676,6 +2677,8 @@ body.modal-scroll-lock #formationModal {
 }
 
 .aptitude-area-cell {
+  grid-column: calc(var(--c) + 1);
+  grid-row: calc(var(--r) + 1);
   min-height: 42px;
   border: 1px solid #30466a;
   border-radius: 8px;
@@ -2704,6 +2707,7 @@ body.modal-scroll-lock #formationModal {
 }
 
 .aptitude-area-cell.is-line {
+  min-height: 38px;
   background: linear-gradient(180deg, #1b2842 0%, #111d32 100%);
 }
 

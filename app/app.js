@@ -24,9 +24,9 @@ const APTITUDE_AREA_DEFS = [
   { code: "R13", label: "R13", row: 4, col: 0, dim: true },
   { code: "R14", label: "GK", row: 4, col: 1 },
   { code: "R15", label: "R15", row: 4, col: 2, dim: true },
-  { code: "R16", label: "FW", row: 5, col: 0, line: true },
-  { code: "R17", label: "MF", row: 5, col: 1, line: true },
-  { code: "R18", label: "DF", row: 5, col: 2, line: true },
+  { code: "R16", label: "FW", row: 5, col: 0, line: true, displayRow: 0, displayCol: 3 },
+  { code: "R17", label: "MF", row: 5, col: 1, line: true, displayRow: 1, displayCol: 3 },
+  { code: "R18", label: "DF", row: 5, col: 2, line: true, displayRow: 2, displayCol: 3 },
 ];
 const APTITUDE_AREA_BY_CODE = Object.fromEntries(APTITUDE_AREA_DEFS.map((x) => [x.code, x]));
 const CONDITION_METRICS = ["ID", ...METRICS, ...POSITION_FITNESS_METRICS];
@@ -486,7 +486,7 @@ function renderAptitudePicker() {
       if (area.dim) classes.push("is-dim");
       if (area.line) classes.push("is-line");
       return `
-        <button type="button" class="${classes.join(" ")}" style="--r:${area.row};--c:${area.col}" data-code="${area.code}">
+        <button type="button" class="${classes.join(" ")}" style="--r:${area.displayRow ?? area.row};--c:${area.displayCol ?? area.col}" data-code="${area.code}">
           <span class="area-main">${area.label}</span>
           <span class="area-code">${area.code}</span>
         </button>
