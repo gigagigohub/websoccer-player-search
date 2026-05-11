@@ -21,7 +21,6 @@ const els = {
   emblemTab: document.querySelector("#emblemTab"),
   collectionQuery: document.querySelector("#collectionQuery"),
   rarityFilter: document.querySelector("#rarityFilter"),
-  categoryFilter: document.querySelector("#categoryFilter"),
   collectionSort: document.querySelector("#collectionSort"),
   collectionTitle: document.querySelector("#collectionTitle"),
   collectionCount: document.querySelector("#collectionCount"),
@@ -239,7 +238,6 @@ function collectionSearchText(item) {
     item.name,
     item.baseName,
     item.year,
-    item.categoryId,
     item.rarity,
   ].filter((x) => x !== undefined && x !== null).join(" ").toLowerCase();
 }
@@ -266,20 +264,16 @@ function populateSelectOptions(select, values, prefix = "") {
 function refreshFilterOptions() {
   const rows = currentItems();
   const rarities = [...new Set(rows.map((x) => Number(x.rarity)).filter((x) => Number.isInteger(x)))].sort((a, b) => a - b);
-  const categories = [...new Set(rows.map((x) => Number(x.categoryId)).filter((x) => Number.isInteger(x)))].sort((a, b) => a - b);
   populateSelectOptions(els.rarityFilter, rarities, "R");
-  populateSelectOptions(els.categoryFilter, categories, "Category ");
 }
 
 function filteredItems() {
   const query = String(els.collectionQuery?.value || "").trim().toLowerCase();
   const rarity = String(els.rarityFilter?.value || "");
-  const category = String(els.categoryFilter?.value || "");
   const sortKey = String(els.collectionSort?.value || "idAsc");
   let rows = currentItems().filter((item) => {
     if (query && !collectionSearchText(item).includes(query)) return false;
     if (rarity && String(item.rarity) !== rarity) return false;
-    if (category && String(item.categoryId) !== category) return false;
     return true;
   });
   rows = [...rows].sort((a, b) => {
@@ -314,7 +308,6 @@ function renderUniform(item) {
       </div>
       <div class="collection-meta">
         <span class="collection-chip">${escapeHtml(rarityLabel(item.rarity))}</span>
-        <span class="collection-chip">Category ${escapeHtml(item.categoryId)}</span>
       </div>
     </article>`;
 }
@@ -332,7 +325,6 @@ function renderEmblem(item) {
       <div class="collection-emblem-image">${image}</div>
       <div class="collection-meta">
         <span class="collection-chip">${escapeHtml(rarityLabel(item.rarity))}</span>
-        <span class="collection-chip">Category ${escapeHtml(item.categoryId)}</span>
       </div>
     </article>`;
 }
@@ -381,7 +373,7 @@ function bindEvents() {
 
   if (els.uniformTab) els.uniformTab.addEventListener("click", () => setMode("uniforms"));
   if (els.emblemTab) els.emblemTab.addEventListener("click", () => setMode("emblems"));
-  [els.collectionQuery, els.rarityFilter, els.categoryFilter, els.collectionSort].forEach((el) => {
+  [els.collectionQuery, els.rarityFilter, els.collectionSort].forEach((el) => {
     if (el) el.addEventListener("input", renderCollections);
     if (el) el.addEventListener("change", renderCollections);
   });

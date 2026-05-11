@@ -1075,8 +1075,8 @@ button.ghost {
 
 .collection-filter-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(120px, 0.52fr);
-  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) minmax(72px, 0.36fr) minmax(88px, 0.42fr);
+  gap: 8px;
   align-items: end;
 }
 
