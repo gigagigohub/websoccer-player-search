@@ -2712,11 +2712,11 @@ body.modal-scroll-lock #formationModal {
 }
 
 .aptitude-pitch-bg::after {
-  top: calc(78% - 35px);
-  width: 70px;
-  height: 35px;
-  border-bottom: 0;
-  border-radius: 70px 70px 0 0;
+  top: calc(78% - 14px);
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  clip-path: inset(0 0 62px 0);
 }
 
 .aptitude-area-cell {
