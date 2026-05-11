@@ -8,6 +8,27 @@ const POSITION_FITNESS_TO_HIDDEN_R = {
   "MF適正": "R17",
   "DF適正": "R18",
 };
+const APTITUDE_AREA_DEFS = [
+  { code: "R1", label: "LWG", row: 0, col: 0 },
+  { code: "R2", label: "CF", row: 0, col: 1 },
+  { code: "R3", label: "RWG", row: 0, col: 2 },
+  { code: "R4", label: "LMF", row: 1, col: 0 },
+  { code: "R5", label: "OMF", row: 1, col: 1 },
+  { code: "R6", label: "RMF", row: 1, col: 2 },
+  { code: "R7", label: "LDM", row: 2, col: 0 },
+  { code: "R8", label: "CDM", row: 2, col: 1 },
+  { code: "R9", label: "RDM", row: 2, col: 2 },
+  { code: "R10", label: "LSB", row: 3, col: 0 },
+  { code: "R11", label: "CB", row: 3, col: 1 },
+  { code: "R12", label: "RSB", row: 3, col: 2 },
+  { code: "R13", label: "R13", row: 4, col: 0, dim: true },
+  { code: "R14", label: "GK", row: 4, col: 1 },
+  { code: "R15", label: "R15", row: 4, col: 2, dim: true },
+  { code: "R16", label: "FW", row: 5, col: 0, line: true },
+  { code: "R17", label: "MF", row: 5, col: 1, line: true },
+  { code: "R18", label: "DF", row: 5, col: 2, line: true },
+];
+const APTITUDE_AREA_BY_CODE = Object.fromEntries(APTITUDE_AREA_DEFS.map((x) => [x.code, x]));
 const CONDITION_METRICS = ["ID", ...METRICS, ...POSITION_FITNESS_METRICS];
 const METRIC_LABELS = {
   "ID": "ID",
@@ -90,9 +111,18 @@ const els = {
   nameQuery: document.querySelector("#nameQuery"),
   nameSuggest: document.querySelector("#nameSuggest"),
   positionFilter: document.querySelector("#positionFilter"),
-  aptitudePositionFilter: document.querySelector("#aptitudePositionFilter"),
-  aptitudeIncludeSix: document.querySelector("#aptitudeIncludeSix"),
   aptitudeAreaLabel: document.querySelector("#aptitudeAreaLabel"),
+  aptitudePickerOpen: document.querySelector("#aptitudePickerOpen"),
+  aptitudeSelectedSummary: document.querySelector("#aptitudeSelectedSummary"),
+  aptitudeModal: document.querySelector("#aptitudeModal"),
+  aptitudeBackdrop: document.querySelector("#aptitudeBackdrop"),
+  aptitudeClose: document.querySelector("#aptitudeClose"),
+  aptitudeGrid: document.querySelector("#aptitudeGrid"),
+  aptitudeRows: document.querySelector("#aptitudeRows"),
+  aptitudeMatchAll: document.querySelector("#aptitudeMatchAll"),
+  aptitudeMatchAny: document.querySelector("#aptitudeMatchAny"),
+  aptitudeClear: document.querySelector("#aptitudeClear"),
+  aptitudeApply: document.querySelector("#aptitudeApply"),
   cmOnly: document.querySelector("#cmOnly"),
   ssOnly: document.querySelector("#ssOnly"),
   nrWhiteOnly: document.querySelector("#nrWhiteOnly"),
@@ -201,6 +231,10 @@ let cloudConfig = { url: "", anonKey: "", lineupKey: "" };
 let renderJobToken = 0;
 let modalScrollLockY = 0;
 let modalScrollLocked = false;
+let aptitudeFilters = [];
+let aptitudeMatchMode = "all";
+let draftAptitudeFilters = [];
+let draftAptitudeMatchMode = "all";
 
 function setModalScrollLocked(locked) {
   const root = document.documentElement;
@@ -359,10 +393,63 @@ function syncMenuButtonSize() {
   document.documentElement.style.setProperty("--menu-button-size", "60px");
 }
 
+function normalizeAptitudeRange(min, max) {
+  const a = Number(min);
+  const b = Number(max);
+  const safeMin = Number.isInteger(a) ? Math.max(1, Math.min(7, a)) : 7;
+  const safeMax = Number.isInteger(b) ? Math.max(1, Math.min(7, b)) : 7;
+  return {
+    min: Math.min(safeMin, safeMax),
+    max: Math.max(safeMin, safeMax),
+  };
+}
+
+function normalizeAptitudeFilter(filter) {
+  const code = String(filter?.code || "").toUpperCase();
+  if (!APTITUDE_AREA_BY_CODE[code]) return null;
+  const range = normalizeAptitudeRange(filter?.min, filter?.max);
+  return { code, ...range };
+}
+
+function cloneAptitudeFilters(rows = aptitudeFilters) {
+  return rows.map(normalizeAptitudeFilter).filter(Boolean);
+}
+
+function aptitudeAreaLabel(code) {
+  const area = APTITUDE_AREA_BY_CODE[String(code || "").toUpperCase()];
+  return area ? area.label : String(code || "");
+}
+
+function formatAptitudeRange(min, max) {
+  if (min === 1 && max === 7) return "ALL";
+  if (min === max) return `=${min}`;
+  if (max === 7) return `>=${min}`;
+  if (min === 1) return `<=${max}`;
+  return `${min}-${max}`;
+}
+
+function updateAptitudeSummary() {
+  const hasFilters = aptitudeFilters.length > 0;
+  if (els.aptitudePickerOpen) {
+    els.aptitudePickerOpen.classList.toggle("is-active", hasFilters);
+    els.aptitudePickerOpen.textContent = hasFilters ? "Edit Area" : "Select Area";
+  }
+  if (!els.aptitudeSelectedSummary) return;
+  if (!hasFilters) {
+    els.aptitudeSelectedSummary.textContent = "Selected: -";
+    return;
+  }
+  const modeLabel = aptitudeMatchMode === "any" && aptitudeFilters.length > 1 ? " / ANY" : "";
+  const selected = aptitudeFilters
+    .map((filter) => `${aptitudeAreaLabel(filter.code)} ${formatAptitudeRange(filter.min, filter.max)}`)
+    .join(", ");
+  els.aptitudeSelectedSummary.textContent = `Selected: ${selected}${modeLabel}`;
+}
+
 function syncAptitudeAreaLabel() {
   if (!els.aptitudeAreaLabel) return;
-  const includeSix = !!els.aptitudeIncludeSix?.checked;
-  els.aptitudeAreaLabel.textContent = includeSix ? "Position Area (>=6)" : "Position Area (=7)";
+  els.aptitudeAreaLabel.textContent = "Position Area";
+  updateAptitudeSummary();
 }
 
 function updateMenuState() {
@@ -374,6 +461,125 @@ function updateMenuState() {
     els.menuLoginId.textContent = loggedIn ? `Team ID：${cloudConfig.lineupKey}` : "";
   }
   renderHeaderMeta();
+}
+
+function aptitudeRangeOptions(selected) {
+  return Array.from({ length: 7 }, (_, i) => {
+    const value = i + 1;
+    return `<option value="${value}"${value === selected ? " selected" : ""}>${value}</option>`;
+  }).join("");
+}
+
+function setDraftAptitudeMatchMode(mode) {
+  draftAptitudeMatchMode = mode === "any" ? "any" : "all";
+  if (els.aptitudeMatchAll) els.aptitudeMatchAll.classList.toggle("is-active", draftAptitudeMatchMode === "all");
+  if (els.aptitudeMatchAny) els.aptitudeMatchAny.classList.toggle("is-active", draftAptitudeMatchMode === "any");
+}
+
+function renderAptitudePicker() {
+  const selected = new Map(draftAptitudeFilters.map((filter) => [filter.code, filter]));
+  if (els.aptitudeGrid) {
+    els.aptitudeGrid.innerHTML = APTITUDE_AREA_DEFS.map((area) => {
+      const isOn = selected.has(area.code);
+      const classes = ["aptitude-area-cell"];
+      if (isOn) classes.push("is-active");
+      if (area.dim) classes.push("is-dim");
+      if (area.line) classes.push("is-line");
+      return `
+        <button type="button" class="${classes.join(" ")}" style="--r:${area.row};--c:${area.col}" data-code="${area.code}">
+          <span class="area-main">${area.label}</span>
+          <span class="area-code">${area.code}</span>
+        </button>
+      `;
+    }).join("");
+  }
+  if (els.aptitudeRows) {
+    if (!draftAptitudeFilters.length) {
+      els.aptitudeRows.innerHTML = '<p class="aptitude-empty">エリア未指定</p>';
+    } else {
+      els.aptitudeRows.innerHTML = draftAptitudeFilters.map((filter) => `
+        <div class="aptitude-row" data-code="${filter.code}">
+          <div class="aptitude-row-label">
+            <strong>${aptitudeAreaLabel(filter.code)}</strong>
+            <span>${filter.code}</span>
+          </div>
+          <label>
+            <span>Min</span>
+            <select class="aptitude-range-min">${aptitudeRangeOptions(filter.min)}</select>
+          </label>
+          <label>
+            <span>Max</span>
+            <select class="aptitude-range-max">${aptitudeRangeOptions(filter.max)}</select>
+          </label>
+          <button type="button" class="aptitude-row-remove" aria-label="${filter.code}を削除">×</button>
+        </div>
+      `).join("");
+    }
+  }
+  setDraftAptitudeMatchMode(draftAptitudeMatchMode);
+}
+
+function openAptitudeModal() {
+  draftAptitudeFilters = cloneAptitudeFilters();
+  draftAptitudeMatchMode = aptitudeMatchMode;
+  renderAptitudePicker();
+  if (els.aptitudeModal) els.aptitudeModal.hidden = false;
+}
+
+function closeAptitudeModal() {
+  if (els.aptitudeModal) els.aptitudeModal.hidden = true;
+}
+
+function toggleDraftAptitudeArea(code) {
+  const key = String(code || "").toUpperCase();
+  if (!APTITUDE_AREA_BY_CODE[key]) return;
+  const idx = draftAptitudeFilters.findIndex((filter) => filter.code === key);
+  if (idx >= 0) {
+    draftAptitudeFilters.splice(idx, 1);
+  } else {
+    draftAptitudeFilters.push({ code: key, min: 7, max: 7 });
+  }
+  draftAptitudeFilters.sort((a, b) => {
+    const aa = APTITUDE_AREA_DEFS.findIndex((x) => x.code === a.code);
+    const bb = APTITUDE_AREA_DEFS.findIndex((x) => x.code === b.code);
+    return aa - bb;
+  });
+  renderAptitudePicker();
+}
+
+function updateDraftAptitudeRange(code, field, value) {
+  const filter = draftAptitudeFilters.find((x) => x.code === code);
+  if (!filter) return;
+  const range = normalizeAptitudeRange(
+    field === "min" ? value : filter.min,
+    field === "max" ? value : filter.max
+  );
+  filter.min = range.min;
+  filter.max = range.max;
+  renderAptitudePicker();
+}
+
+function applyAptitudeFilters() {
+  aptitudeFilters = cloneAptitudeFilters(draftAptitudeFilters);
+  aptitudeMatchMode = draftAptitudeMatchMode === "any" ? "any" : "all";
+  updateAptitudeSummary();
+  closeAptitudeModal();
+  render();
+}
+
+function clearAptitudeFilters() {
+  aptitudeFilters = [];
+  aptitudeMatchMode = "all";
+  draftAptitudeFilters = [];
+  draftAptitudeMatchMode = "all";
+  updateAptitudeSummary();
+  renderAptitudePicker();
+}
+
+function clearDraftAptitudeFilters() {
+  draftAptitudeFilters = [];
+  draftAptitudeMatchMode = "all";
+  renderAptitudePicker();
 }
 
 function openLoginModal() {
@@ -1152,9 +1358,7 @@ function renderListResultsByEvent(eventId, source) {
   els.nameQuery.value = "";
   hideNameSuggest();
   if (els.positionFilter) els.positionFilter.value = "";
-  if (els.aptitudePositionFilter) els.aptitudePositionFilter.value = "";
-  if (els.aptitudeIncludeSix) els.aptitudeIncludeSix.checked = false;
-  syncAptitudeAreaLabel();
+  clearAptitudeFilters();
 
   [
     els.nrWhiteOnly, els.nrBronzeOnly, els.nrSilverOnly, els.nrGoldOnly, els.nrAllOnly,
@@ -1734,33 +1938,35 @@ function getPeakTimeline(player) {
     .filter(Boolean);
 }
 
-function getGridPosCellValue(grid, code) {
-  const m = {
-    GK: [4, 1],
-    RSB: [3, 2], CB: [3, 1], LSB: [3, 0],
-    RDM: [2, 2], CDM: [2, 1], LDM: [2, 0],
-    RMF: [1, 2], OMF: [1, 1], LMF: [1, 0],
-    RWG: [0, 2], CF: [0, 1], LWG: [0, 0],
-  };
+function getAptitudeValueFromSegment(seg, code) {
   const key = String(code || "").toUpperCase();
-  const rc = m[key];
-  if (!rc) return null;
-  const [r, c] = rc;
-  const row = grid?.[r];
+  const area = APTITUDE_AREA_BY_CODE[key];
+  if (!area) return null;
+  const direct = seg?.hiddenR?.[key];
+  if (direct != null) {
+    const n = Number(direct);
+    if (Number.isFinite(n)) return n;
+  }
+  const grid = Array.isArray(seg?.grid) ? seg.grid : [];
+  const row = grid?.[area.row];
   if (!Array.isArray(row)) return null;
-  const v = row[c];
+  const v = row[area.col];
   if (v == null) return null;
   const n = Number(v);
   return Number.isFinite(n) ? n : null;
 }
 
-function hasAptitudeAtLeast(player, code, threshold = 6) {
-  if (!code) return true;
+function matchesAptitudeFilters(player) {
+  if (!aptitudeFilters.length) return true;
   const segments = Array.isArray(player?.positionHeatmaps) ? player.positionHeatmaps : [];
   return segments.some((seg) => {
-    const grid = Array.isArray(seg?.grid) ? seg.grid : [];
-    const v = getGridPosCellValue(grid, code);
-    return typeof v === "number" && v >= threshold;
+    const checks = aptitudeFilters.map((filter) => {
+      const normalized = normalizeAptitudeFilter(filter);
+      if (!normalized) return true;
+      const v = getAptitudeValueFromSegment(seg, normalized.code);
+      return typeof v === "number" && v >= normalized.min && v <= normalized.max;
+    });
+    return aptitudeMatchMode === "any" ? checks.some(Boolean) : checks.every(Boolean);
   });
 }
 
@@ -1872,8 +2078,6 @@ function updateCMFilterVisibility() {
 function filterPlayers(conditions = getConditions()) {
   const query = toHiragana(els.nameQuery.value.trim().toLowerCase());
   const positionFilter = els.positionFilter.value;
-  const aptitudePosFilter = (els.aptitudePositionFilter?.value || "").toUpperCase();
-  const aptitudeThreshold = els.aptitudeIncludeSix?.checked ? 6 : 7;
   const cmOnly = isCategoryChipActive(els.cmOnly);
   const ssOnly = isCategoryChipActive(els.ssOnly);
   const nrWhiteOnly = isCategoryChipActive(els.nrWhiteOnly);
@@ -1906,7 +2110,7 @@ function filterPlayers(conditions = getConditions()) {
     if (positionFilter && player.position !== positionFilter) {
       return false;
     }
-    if (aptitudePosFilter && !hasAptitudeAtLeast(player, aptitudePosFilter, aptitudeThreshold)) {
+    if (!matchesAptitudeFilters(player)) {
       return false;
     }
 
@@ -1971,8 +2175,7 @@ function hasActiveSearchCriteria(conditions) {
     conditions.length > 0 ||
     !!els.nameQuery.value.trim() ||
     !!els.positionFilter.value ||
-    !!els.aptitudePositionFilter?.value ||
-    !!els.aptitudeIncludeSix?.checked ||
+    aptitudeFilters.length > 0 ||
     !!els.includeRetired?.checked ||
     Number(els.scoutEventFilter?.value || 0) > 0 ||
     Number(els.cmEventFilter?.value || 0) > 0 ||
@@ -2429,19 +2632,14 @@ async function init() {
       els.ssOnly, els.cmOnly, els.ccOnly,
     ].forEach((el) => setCategoryChipActive(el, false));
     els.positionFilter.value = "";
-    if (els.aptitudePositionFilter) els.aptitudePositionFilter.value = "";
-    if (els.aptitudeIncludeSix) els.aptitudeIncludeSix.checked = false;
+    clearAptitudeFilters();
     if (els.includeRetired) els.includeRetired.checked = false;
     if (els.scoutEventFilter) els.scoutEventFilter.value = "";
     if (els.cmEventFilter) els.cmEventFilter.value = "";
-    syncAptitudeAreaLabel();
     updateScoutFilterVisibility();
     updateCMFilterVisibility();
     render();
   });
-  if (els.aptitudeIncludeSix) {
-    els.aptitudeIncludeSix.addEventListener("change", syncAptitudeAreaLabel);
-  }
   if (els.includeRetired) {
     els.includeRetired.addEventListener("change", render);
   }
@@ -2505,6 +2703,53 @@ async function init() {
   }
   if (els.loadMoreResults) {
     els.loadMoreResults.addEventListener("click", () => renderNextBatch(false));
+  }
+  if (els.aptitudePickerOpen) {
+    els.aptitudePickerOpen.addEventListener("click", openAptitudeModal);
+  }
+  if (els.aptitudeBackdrop) {
+    els.aptitudeBackdrop.addEventListener("click", closeAptitudeModal);
+  }
+  if (els.aptitudeClose) {
+    els.aptitudeClose.addEventListener("click", closeAptitudeModal);
+  }
+  if (els.aptitudeMatchAll) {
+    els.aptitudeMatchAll.addEventListener("click", () => setDraftAptitudeMatchMode("all"));
+  }
+  if (els.aptitudeMatchAny) {
+    els.aptitudeMatchAny.addEventListener("click", () => setDraftAptitudeMatchMode("any"));
+  }
+  if (els.aptitudeGrid) {
+    els.aptitudeGrid.addEventListener("click", (e) => {
+      const btn = e.target.closest(".aptitude-area-cell");
+      if (!btn) return;
+      toggleDraftAptitudeArea(btn.dataset.code);
+    });
+  }
+  if (els.aptitudeRows) {
+    els.aptitudeRows.addEventListener("change", (e) => {
+      const row = e.target.closest(".aptitude-row");
+      if (!row) return;
+      if (e.target.classList.contains("aptitude-range-min")) {
+        updateDraftAptitudeRange(row.dataset.code, "min", e.target.value);
+      } else if (e.target.classList.contains("aptitude-range-max")) {
+        updateDraftAptitudeRange(row.dataset.code, "max", e.target.value);
+      }
+    });
+    els.aptitudeRows.addEventListener("click", (e) => {
+      const remove = e.target.closest(".aptitude-row-remove");
+      if (!remove) return;
+      const row = remove.closest(".aptitude-row");
+      if (!row) return;
+      draftAptitudeFilters = draftAptitudeFilters.filter((filter) => filter.code !== row.dataset.code);
+      renderAptitudePicker();
+    });
+  }
+  if (els.aptitudeClear) {
+    els.aptitudeClear.addEventListener("click", clearDraftAptitudeFilters);
+  }
+  if (els.aptitudeApply) {
+    els.aptitudeApply.addEventListener("click", applyAptitudeFilters);
   }
   if (els.menuButton) {
     els.menuButton.addEventListener("click", () => {

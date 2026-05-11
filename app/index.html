@@ -12,7 +12,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=20260324-013653" />
   <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png?v=20260324-013653" />
   <link rel="shortcut icon" href="./favicon.ico?v=20260324-013653" />
-  <link rel="stylesheet" href="./style.css?v=20260511-collections" />
+  <link rel="stylesheet" href="./style.css?v=20260511-area-picker" />
 </head>
 <body>
   <main class="container">
@@ -51,29 +51,11 @@
           </select>
         </div>
         <div>
-          <label id="aptitudeAreaLabel" class="label" for="aptitudePositionFilter">Position Area (=7)</label>
+          <label id="aptitudeAreaLabel" class="label" for="aptitudePickerOpen">Position Area</label>
           <div class="area-control-row">
-            <select id="aptitudePositionFilter" class="area-select">
-              <option value="">-</option>
-              <option value="GK">GK</option>
-              <option value="RSB">RSB</option>
-              <option value="CB">CB</option>
-              <option value="LSB">LSB</option>
-              <option value="RDM">RDM</option>
-              <option value="CDM">CDM</option>
-              <option value="LDM">LDM</option>
-              <option value="RMF">RMF</option>
-              <option value="OMF">OMF</option>
-              <option value="LMF">LMF</option>
-              <option value="RWG">RWG</option>
-              <option value="CF">CF</option>
-              <option value="LWG">LWG</option>
-            </select>
-            <label class="label aptitude-toggle">
-              <input id="aptitudeIncludeSix" type="checkbox" />
-              &gt;=6
-            </label>
+            <button id="aptitudePickerOpen" type="button" class="area-picker-open">Select Area</button>
           </div>
+          <div id="aptitudeSelectedSummary" class="area-selected-summary">Selected: -</div>
         </div>
       </div>
       <label class="label category-label">Category Filter</label>
@@ -263,6 +245,27 @@
     </div>
   </div>
 
+  <div id="aptitudeModal" class="season-modal" hidden>
+    <div id="aptitudeBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog aptitude-dialog" role="dialog" aria-modal="true" aria-labelledby="aptitudeTitle">
+      <div class="season-head">
+        <h2 id="aptitudeTitle">Position Area</h2>
+        <button id="aptitudeClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <p class="season-target">R1-R18をタップして、各エリアの数値範囲を指定してください</p>
+      <div class="aptitude-match-switch">
+        <button id="aptitudeMatchAll" type="button" class="aptitude-match-btn is-active">ALL</button>
+        <button id="aptitudeMatchAny" type="button" class="aptitude-match-btn">ANY</button>
+      </div>
+      <div id="aptitudeGrid" class="aptitude-picker-grid"></div>
+      <div id="aptitudeRows" class="aptitude-selected-rows"></div>
+      <div class="season-actions">
+        <button id="aptitudeClear" type="button" class="ghost">Clear</button>
+        <button id="aptitudeApply" type="button">Apply</button>
+      </div>
+    </div>
+  </div>
+
   <template id="conditionTemplate">
     <div class="condition-row">
       <select class="metric"></select>
@@ -279,6 +282,6 @@
     </div>
   </template>
 
-  <script src="./app.js?v=20260511-collections"></script>
+  <script src="./app.js?v=20260511-area-picker"></script>
 </body>
 </html>
