@@ -504,15 +504,14 @@ function renderAptitudePicker() {
         <div class="aptitude-row" data-code="${filter.code}">
           <div class="aptitude-row-label">
             <strong>${aptitudeAreaLabel(filter.code)}</strong>
-            <span>${filter.code}</span>
           </div>
-          <label>
-            <span>Min</span>
-            <select class="aptitude-range-min">${aptitudeRangeOptions(filter.min)}</select>
-          </label>
           <label>
             <span>Max</span>
             <select class="aptitude-range-max">${aptitudeRangeOptions(filter.max)}</select>
+          </label>
+          <label>
+            <span>Min</span>
+            <select class="aptitude-range-min">${aptitudeRangeOptions(filter.min)}</select>
           </label>
           <button type="button" class="aptitude-row-remove" aria-label="${filter.code}を削除">×</button>
         </div>
