@@ -228,8 +228,8 @@ function closeSignupModal() {
 
 function rarityLabel(value) {
   const n = Number(value);
-  if (!Number.isInteger(n)) return "-";
-  return `R${n}`;
+  if (!Number.isInteger(n) || n <= 0) return "-";
+  return "★".repeat(n);
 }
 
 function textMeasureWidth(value) {
@@ -258,14 +258,14 @@ function currentItems() {
   return mode === "emblems" ? emblems : uniforms;
 }
 
-function populateSelectOptions(select, values, prefix = "") {
+function populateSelectOptions(select, values, formatLabel = (value) => String(value)) {
   if (!select) return;
   const current = select.value;
   select.innerHTML = '<option value="">ALL</option>';
   values.forEach((value) => {
     const opt = document.createElement("option");
     opt.value = String(value);
-    opt.textContent = `${prefix}${value}`;
+    opt.textContent = formatLabel(value);
     select.appendChild(opt);
   });
   if ([...select.options].some((opt) => opt.value === current)) {
@@ -276,7 +276,7 @@ function populateSelectOptions(select, values, prefix = "") {
 function refreshFilterOptions() {
   const rows = currentItems();
   const rarities = [...new Set(rows.map((x) => Number(x.rarity)).filter((x) => Number.isInteger(x)))].sort((a, b) => a - b);
-  populateSelectOptions(els.rarityFilter, rarities, "R");
+  populateSelectOptions(els.rarityFilter, rarities, rarityLabel);
 }
 
 function filteredItems() {
