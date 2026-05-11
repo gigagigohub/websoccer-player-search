@@ -2679,13 +2679,13 @@ body.modal-scroll-lock #formationModal {
 }
 
 .aptitude-pitch-bg {
-  --pitch-line: rgba(234, 241, 255, 0.42);
+  --pitch-line: rgba(234, 241, 255, 0.28);
   position: absolute;
   top: 8px;
   right: 63px;
   bottom: 8px;
   left: 8px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none' viewBox='0 0 100 100'%3E%3Cg fill='none' stroke='%23eaf1ff' stroke-opacity='.42' stroke-width='2' vector-effect='non-scaling-stroke' stroke-linecap='square' stroke-linejoin='miter'%3E%3Crect x='1.2' y='1.2' width='97.6' height='97.6' rx='1.5'/%3E%3Cpath d='M25 98.8 V78 H75 V98.8'/%3E%3Cpath d='M37 98.8 V90 H63 V98.8'/%3E%3C/g%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none' viewBox='0 0 100 100'%3E%3Cg fill='none' stroke='%23eaf1ff' stroke-opacity='.28' stroke-width='2' vector-effect='non-scaling-stroke' stroke-linecap='square' stroke-linejoin='miter'%3E%3Crect x='1.2' y='1.2' width='97.6' height='97.6' rx='1.5'/%3E%3Cpath d='M25 98.8 V78 H75 V98.8'/%3E%3Cpath d='M37 98.8 V90 H63 V98.8'/%3E%3C/g%3E%3C/svg%3E") center / 100% 100% no-repeat;
   overflow: hidden;
   pointer-events: none;
   z-index: 20;
