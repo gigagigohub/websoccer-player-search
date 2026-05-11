@@ -232,6 +232,18 @@ function rarityLabel(value) {
   return `R${n}`;
 }
 
+function textMeasureWidth(value) {
+  return [...String(value || "")].reduce((sum, char) => sum + (char.charCodeAt(0) > 0xff ? 2 : 1), 0);
+}
+
+function collectionTitleClass(value) {
+  const width = textMeasureWidth(value);
+  if (width >= 28) return "collection-title is-micro";
+  if (width >= 24) return "collection-title is-tiny";
+  if (width >= 20) return "collection-title is-small";
+  return "collection-title";
+}
+
 function collectionSearchText(item) {
   return [
     item.id,
@@ -290,16 +302,17 @@ function missingImage(label) {
 }
 
 function renderUniform(item) {
+  const name = item.name || `Uniform ${item.id}`;
   const home = item.images?.home
-    ? `<img src="${escapeHtml(item.images.home)}" alt="${escapeHtml(item.name)} home" loading="lazy">`
+    ? `<img src="${escapeHtml(item.images.home)}" alt="${escapeHtml(name)} home" loading="lazy">`
     : missingImage("Home");
   const away = item.images?.away
-    ? `<img src="${escapeHtml(item.images.away)}" alt="${escapeHtml(item.name)} away" loading="lazy">`
+    ? `<img src="${escapeHtml(item.images.away)}" alt="${escapeHtml(name)} away" loading="lazy">`
     : missingImage("Away");
   return `
     <article class="collection-card collection-uniform-card">
       <div class="collection-card-head">
-        <h3>${escapeHtml(item.name || `Uniform ${item.id}`)}</h3>
+        <h3 class="${collectionTitleClass(name)}" title="${escapeHtml(name)}">${escapeHtml(name)}</h3>
         <span class="collection-id">#${escapeHtml(item.id)}</span>
       </div>
       <div class="collection-uniform-images">
@@ -313,13 +326,14 @@ function renderUniform(item) {
 }
 
 function renderEmblem(item) {
+  const name = item.name || `Emblem ${item.id}`;
   const image = item.image
-    ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy">`
+    ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(name)}" loading="lazy">`
     : missingImage("Emblem");
   return `
     <article class="collection-card collection-emblem-card">
       <div class="collection-card-head">
-        <h3>${escapeHtml(item.name || `Emblem ${item.id}`)}</h3>
+        <h3 class="${collectionTitleClass(name)}" title="${escapeHtml(name)}">${escapeHtml(name)}</h3>
         <span class="collection-id">#${escapeHtml(item.id)}</span>
       </div>
       <div class="collection-emblem-image">${image}</div>
