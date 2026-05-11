@@ -2679,16 +2679,18 @@ body.modal-scroll-lock #formationModal {
 }
 
 .aptitude-pitch-bg {
-  grid-column: 1 / 4;
-  grid-row: 1 / -1;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 500'%3E%3Cg fill='none' stroke='%23eaf1ff' stroke-opacity='.24' stroke-width='4' stroke-linecap='square' stroke-linejoin='miter'%3E%3Crect x='2' y='2' width='296' height='496' rx='4'/%3E%3Cpath d='M105 2 A45 45 0 0 0 195 2'/%3E%3Cpath d='M75 498 V390 H225 V498'/%3E%3Cpath d='M115 498 V450 H185 V498'/%3E%3Cpath d='M115 390 A35 35 0 0 1 185 390'/%3E%3C/g%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  position: absolute;
+  top: 8px;
+  right: 63px;
+  bottom: 8px;
+  left: 8px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none' viewBox='0 0 300 500'%3E%3Cg fill='none' stroke='%23eaf1ff' stroke-opacity='.4' stroke-width='4' stroke-linecap='square' stroke-linejoin='miter'%3E%3Crect x='6' y='6' width='288' height='488' rx='4'/%3E%3Cpath d='M105 6 A45 45 0 0 0 195 6'/%3E%3Cpath d='M75 494 V386 H225 V494'/%3E%3Cpath d='M115 494 V446 H185 V494'/%3E%3Cpath d='M115 386 A35 35 0 0 1 185 386'/%3E%3C/g%3E%3C/svg%3E") center / 100% 100% no-repeat;
   pointer-events: none;
-  z-index: 0;
+  z-index: 20;
 }
 
 .aptitude-area-cell {
   position: relative;
-  z-index: 1;
   grid-column: calc(var(--c) + 1);
   grid-row: calc(var(--r) + 1) / span var(--rs);
   min-height: 0;
@@ -2723,6 +2725,8 @@ body.modal-scroll-lock #formationModal {
 }
 
 .aptitude-area-cell .area-main {
+  position: relative;
+  z-index: 30;
   font-size: 0.78rem;
   font-weight: 900;
   line-height: 1;
