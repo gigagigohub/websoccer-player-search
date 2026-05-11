@@ -384,11 +384,14 @@ function syncMenuButtonSize() {
   document.documentElement.style.setProperty("--menu-button-size", "60px");
 }
 
+function clampAptitudeValue(value) {
+  const num = Number(value);
+  return Number.isInteger(num) ? Math.max(1, Math.min(7, num)) : 7;
+}
+
 function normalizeAptitudeRange(min, max) {
-  const a = Number(min);
-  const b = Number(max);
-  const safeMin = Number.isInteger(a) ? Math.max(1, Math.min(7, a)) : 7;
-  const safeMax = Number.isInteger(b) ? Math.max(1, Math.min(7, b)) : 7;
+  const safeMin = clampAptitudeValue(min);
+  const safeMax = clampAptitudeValue(max);
   return {
     min: Math.min(safeMin, safeMax),
     max: Math.max(safeMin, safeMax),
@@ -543,12 +546,19 @@ function toggleDraftAptitudeArea(code) {
 function updateDraftAptitudeRange(code, field, value) {
   const filter = draftAptitudeFilters.find((x) => x.code === code);
   if (!filter) return;
-  const range = normalizeAptitudeRange(
-    field === "min" ? value : filter.min,
-    field === "max" ? value : filter.max
-  );
-  filter.min = range.min;
-  filter.max = range.max;
+
+  const nextValue = clampAptitudeValue(value);
+  const currentMin = clampAptitudeValue(filter.min);
+  const currentMax = clampAptitudeValue(filter.max);
+
+  if (field === "max") {
+    filter.max = nextValue;
+    filter.min = nextValue < currentMin ? nextValue : currentMin;
+  } else {
+    filter.min = nextValue;
+    filter.max = nextValue > currentMax ? nextValue : currentMax;
+  }
+
   renderAptitudePicker();
 }
 
