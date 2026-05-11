@@ -9,24 +9,24 @@ const POSITION_FITNESS_TO_HIDDEN_R = {
   "DF適正": "R18",
 };
 const APTITUDE_AREA_DEFS = [
-  { code: "R1", label: "LWG", row: 0, col: 0 },
-  { code: "R2", label: "CF", row: 0, col: 1 },
-  { code: "R3", label: "RWG", row: 0, col: 2 },
-  { code: "R4", label: "LMF", row: 1, col: 0 },
-  { code: "R5", label: "OMF", row: 1, col: 1 },
-  { code: "R6", label: "RMF", row: 1, col: 2 },
-  { code: "R7", label: "LDM", row: 2, col: 0 },
-  { code: "R8", label: "CDM", row: 2, col: 1 },
-  { code: "R9", label: "RDM", row: 2, col: 2 },
-  { code: "R10", label: "LSB", row: 3, col: 0 },
-  { code: "R11", label: "CB", row: 3, col: 1 },
-  { code: "R12", label: "RSB", row: 3, col: 2 },
-  { code: "R13", label: "R13", row: 4, col: 0, dim: true },
-  { code: "R14", label: "GK", row: 4, col: 1 },
-  { code: "R15", label: "R15", row: 4, col: 2, dim: true },
-  { code: "R16", label: "FW", row: 5, col: 0, line: true, displayRow: 0, displayCol: 3 },
-  { code: "R17", label: "MF", row: 5, col: 1, line: true, displayRow: 1, displayCol: 3 },
-  { code: "R18", label: "DF", row: 5, col: 2, line: true, displayRow: 2, displayCol: 3 },
+  { code: "R1", row: 0, col: 0 },
+  { code: "R2", row: 0, col: 1 },
+  { code: "R3", row: 0, col: 2 },
+  { code: "R4", row: 1, col: 0 },
+  { code: "R5", row: 1, col: 1 },
+  { code: "R6", row: 1, col: 2 },
+  { code: "R7", row: 2, col: 0 },
+  { code: "R8", row: 2, col: 1 },
+  { code: "R9", row: 2, col: 2 },
+  { code: "R10", row: 3, col: 0 },
+  { code: "R11", row: 3, col: 1 },
+  { code: "R12", row: 3, col: 2 },
+  { code: "R13", row: 4, col: 0, dim: true },
+  { code: "R14", row: 4, col: 1 },
+  { code: "R15", row: 4, col: 2, dim: true },
+  { code: "R16", row: 5, col: 0, line: true, displayRow: 0, displayCol: 3, rowSpan: 5 },
+  { code: "R17", row: 5, col: 1, line: true, displayRow: 5, displayCol: 3, rowSpan: 5 },
+  { code: "R18", row: 5, col: 2, line: true, displayRow: 10, displayCol: 3, rowSpan: 5 },
 ];
 const APTITUDE_AREA_BY_CODE = Object.fromEntries(APTITUDE_AREA_DEFS.map((x) => [x.code, x]));
 const CONDITION_METRICS = ["ID", ...METRICS, ...POSITION_FITNESS_METRICS];
@@ -417,7 +417,7 @@ function cloneAptitudeFilters(rows = aptitudeFilters) {
 
 function aptitudeAreaLabel(code) {
   const area = APTITUDE_AREA_BY_CODE[String(code || "").toUpperCase()];
-  return area ? area.label : String(code || "");
+  return area ? area.code : String(code || "");
 }
 
 function formatAptitudeRange(min, max) {
@@ -485,10 +485,11 @@ function renderAptitudePicker() {
       if (isOn) classes.push("is-active");
       if (area.dim) classes.push("is-dim");
       if (area.line) classes.push("is-line");
+      const displayRow = area.displayRow ?? area.row * 3;
+      const rowSpan = area.rowSpan ?? 3;
       return `
-        <button type="button" class="${classes.join(" ")}" style="--r:${area.displayRow ?? area.row};--c:${area.displayCol ?? area.col}" data-code="${area.code}">
-          <span class="area-main">${area.label}</span>
-          <span class="area-code">${area.code}</span>
+        <button type="button" class="${classes.join(" ")}" style="--r:${displayRow};--c:${area.displayCol ?? area.col};--rs:${rowSpan}" data-code="${area.code}">
+          <span class="area-main">${area.code}</span>
         </button>
       `;
     }).join("");

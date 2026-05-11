@@ -2664,9 +2664,10 @@ body.modal-scroll-lock #formationModal {
 }
 
 .aptitude-picker-grid {
+  position: relative;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(44px, 0.82fr);
-  grid-template-rows: repeat(5, minmax(42px, auto));
+  grid-template-columns: repeat(3, minmax(0, 1fr)) 50px;
+  grid-template-rows: repeat(15, minmax(12px, 1fr));
   gap: 5px;
   padding: 8px;
   border: 1px solid #263b5e;
@@ -2674,15 +2675,33 @@ body.modal-scroll-lock #formationModal {
   background:
     linear-gradient(180deg, rgba(26, 39, 64, 0.82), rgba(13, 22, 38, 0.92)),
     #0d1626;
+  overflow: hidden;
+}
+
+.aptitude-picker-grid::before {
+  content: "";
+  position: absolute;
+  inset: 8px 63px 8px 8px;
+  border: 1px solid rgba(230, 238, 255, 0.16);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 0 20%, rgba(235, 243, 255, 0.14) 20.7%, rgba(235, 243, 255, 0.14) 22%, transparent 22.7%),
+    linear-gradient(to bottom, transparent calc(50% - 0.5px), rgba(235, 243, 255, 0.14) calc(50% - 0.5px), rgba(235, 243, 255, 0.14) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    linear-gradient(to bottom, transparent 15%, rgba(235, 243, 255, 0.10) 15%, rgba(235, 243, 255, 0.10) calc(15% + 1px), transparent calc(15% + 1px), transparent 85%, rgba(235, 243, 255, 0.10) 85%, rgba(235, 243, 255, 0.10) calc(85% + 1px), transparent calc(85% + 1px)),
+    linear-gradient(to right, transparent 18%, rgba(235, 243, 255, 0.08) 18%, rgba(235, 243, 255, 0.08) calc(18% + 1px), transparent calc(18% + 1px), transparent 82%, rgba(235, 243, 255, 0.08) 82%, rgba(235, 243, 255, 0.08) calc(82% + 1px), transparent calc(82% + 1px));
+  pointer-events: none;
+  z-index: 0;
 }
 
 .aptitude-area-cell {
+  position: relative;
+  z-index: 1;
   grid-column: calc(var(--c) + 1);
-  grid-row: calc(var(--r) + 1);
-  min-height: 42px;
+  grid-row: calc(var(--r) + 1) / span var(--rs);
+  min-height: 0;
   border: 1px solid #30466a;
   border-radius: 8px;
-  background: linear-gradient(180deg, #17243b 0%, #111b2d 100%);
+  background: linear-gradient(180deg, rgba(23, 36, 59, 0.88) 0%, rgba(17, 27, 45, 0.88) 100%);
   color: #d9e6ff;
   padding: 4px;
   display: flex;
@@ -2707,12 +2726,11 @@ body.modal-scroll-lock #formationModal {
 }
 
 .aptitude-area-cell.is-line {
-  min-height: 38px;
   background: linear-gradient(180deg, #1b2842 0%, #111d32 100%);
 }
 
 .aptitude-area-cell .area-main {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 900;
   line-height: 1;
 }
