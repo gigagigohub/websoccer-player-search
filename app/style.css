@@ -784,7 +784,7 @@ select {
 .flag-row {
   display: grid;
   gap: 6px;
-  margin-top: 10px;
+  margin-top: 6px;
   margin-bottom: 18px;
   font-size: 0.9rem;
   margin-left: 10px;
@@ -797,10 +797,17 @@ select {
   align-items: center;
 }
 
-.flag-row label {
+.category-head {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 10px;
+  margin-top: 1em;
+  min-width: 0;
+}
+
+.category-head .category-label {
+  flex: 0 0 auto;
+  margin: 0;
 }
 
 .retired-toggle {
@@ -808,7 +815,6 @@ select {
   align-items: center;
   gap: 6px;
   height: 28px;
-  margin-top: 6px;
   padding: 0 10px;
   width: max-content;
   border: 1px solid #2d4166;
@@ -944,10 +950,6 @@ select {
     inset 0 1px 0 rgba(255, 255, 255, 0.72),
     inset 0 -1px 0 rgba(126, 141, 162, 0.36),
     0 0 0 1px rgba(108, 123, 145, 0.44);
-}
-
-.category-label {
-  margin-top: 1em;
 }
 
 .scout-filter-wrap {
