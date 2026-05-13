@@ -817,7 +817,7 @@ select {
   height: 28px;
   padding: 0 10px;
   width: max-content;
-  border: 1px solid #2d4166;
+  border: 1px solid transparent;
   border-radius: 999px;
   background: #0b1424;
   color: #9fb1cf;
@@ -852,7 +852,7 @@ select {
 }
 
 .retired-toggle:has(input:checked) {
-  border-color: #3f6590;
+  border-color: transparent;
   background: #0f2138;
   color: #d6e7ff;
 }
