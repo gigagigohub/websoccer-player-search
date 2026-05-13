@@ -2158,7 +2158,6 @@ function hasActiveSearchCriteria(conditions) {
     !!els.nameQuery.value.trim() ||
     !!els.positionFilter.value ||
     aptitudeFilters.length > 0 ||
-    !!els.includeRetired?.checked ||
     Number(els.scoutEventFilter?.value || 0) > 0 ||
     Number(els.cmEventFilter?.value || 0) > 0 ||
     hasCategoryFilter
