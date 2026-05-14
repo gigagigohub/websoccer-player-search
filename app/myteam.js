@@ -47,6 +47,7 @@ const els = {
   myteamCoachesButton: document.querySelector("#myteamCoachesButton"),
   myteamFormationsButton: document.querySelector("#myteamFormationsButton"),
   myteamCollectionsButton: document.querySelector("#myteamCollectionsButton"),
+  myteamSimulationButton: document.querySelector("#myteamSimulationButton"),
   myteamLoginButton: document.querySelector("#myteamLoginButton"),
   myteamLogoutButton: document.querySelector("#myteamLogoutButton"),
   loginModal: document.querySelector("#loginModal"),
@@ -2371,6 +2372,11 @@ async function init() {
   if (els.myteamCollectionsButton) {
     els.myteamCollectionsButton.addEventListener("click", () => {
       window.location.href = "./collections.html";
+    });
+  }
+  if (els.myteamSimulationButton) {
+    els.myteamSimulationButton.addEventListener("click", () => {
+      window.location.href = "./simulation_v3.html";
     });
   }
   if (els.myteamLoginButton) {
