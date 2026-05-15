@@ -1235,11 +1235,6 @@ function renderTeamIndex() {
 
   try {
     const result = calcTeamV4CleanUniformIndex(input);
-    const keySlotText = result.keyslotBreakdown.length
-      ? result.keyslotBreakdown
-        .map((row) => `K${row.keyNo}:S${row.slotNo} ${formatIndexValue(row.playerPoint, 2)}`)
-        .join(" / ")
-      : "-";
     const warningHtml = warnings.length
       ? `<div class="myteam-index-warnings">${warnings.map((w) => `<span>${escapeHtml(w)}</span>`).join("")}</div>`
       : "";
@@ -1255,7 +1250,6 @@ function renderTeamIndex() {
           <span>Formation <strong>${formatIndexValue(result.formationContribution, 2)}</strong></span>
           <span>Coach <strong>${formatIndexValue(result.coachContribution, 2)}</strong></span>
         </div>
-        <div class="myteam-index-keyslots">${escapeHtml(keySlotText)}</div>
         ${warningHtml}
       </section>
     `;
