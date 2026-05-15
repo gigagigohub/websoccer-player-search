@@ -1080,11 +1080,9 @@ function renderTeamIndex() {
           <strong class="myteam-index-value">${formatIndexValue(result.totalIndex, 2)}</strong>
         </div>
         <div class="myteam-index-grid">
+          <span>Starting Member <strong>${formatIndexValue(result.starting11Contribution, 2)}</strong></span>
+          <span>Key Slots <strong>${formatIndexValue(result.keyslotContribution, 2)}</strong></span>
           <span>Formation <strong>${formatIndexValue(result.formationContribution, 2)}</strong></span>
-          <span>Avg Sum <strong>${formatIndexValue(result.starting11PointSum, 2)}</strong></span>
-          <span>Starter Add <strong>${formatIndexValue(result.starting11Contribution, 2)}</strong></span>
-          <span>Key Sum <strong>${formatIndexValue(result.keyslotPointSum, 2)}</strong></span>
-          <span>Key Add <strong>${formatIndexValue(result.keyslotContribution, 2)}</strong></span>
           <span>Coach <strong>${formatIndexValue(result.coachContribution, 2)}</strong></span>
         </div>
         <div class="myteam-index-keyslots">${escapeHtml(keySlotText)}</div>
