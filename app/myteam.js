@@ -1292,6 +1292,13 @@ function formatTeamPowerScore(value) {
   return score.toFixed(1);
 }
 
+function formatScoreContribution(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return "-";
+  const points = n * 15;
+  return `${points >= 0 ? "+" : ""}${points.toFixed(1)}`;
+}
+
 function renderTeamIndex() {
   if (!els.myTeamIndexWrap) return;
   const { input, pointSourceBySlot, warnings } = buildMyTeamV4CleanUniformInput();
@@ -1319,15 +1326,15 @@ function renderTeamIndex() {
       <section class="myteam-index-card">
         <div class="myteam-index-head">
           <span class="myteam-index-label">Team Power Index</span>
-          <strong class="myteam-index-value">${teamPowerScore}<span class="myteam-index-unit">/100</span></strong>
+          <strong class="myteam-index-value">${teamPowerScore}</strong>
+        </div>
+        <div class="myteam-index-grid">
+          <span>Slots <strong>${formatScoreContribution(result.starting11Contribution)}</strong></span>
+          <span>Key Slots <strong>${formatScoreContribution(result.keyslotContribution)}</strong></span>
+          <span>Formation <strong>${formatScoreContribution(result.formationContribution)}</strong></span>
+          <span>Coach <strong>${formatScoreContribution(result.coachContribution)}</strong></span>
         </div>
         <p class="myteam-index-subnote">${ccAvgText}</p>
-        <div class="myteam-index-grid">
-          <span>Starting Member <strong>${formatIndexValue(result.starting11Contribution, 2)}</strong></span>
-          <span>Key Slots <strong>${formatIndexValue(result.keyslotContribution, 2)}</strong></span>
-          <span>Formation <strong>${formatIndexValue(result.formationContribution, 2)}</strong></span>
-          <span>Coach <strong>${formatIndexValue(result.coachContribution, 2)}</strong></span>
-        </div>
         ${warningHtml}
       </section>
     `;
