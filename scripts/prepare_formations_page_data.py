@@ -12,6 +12,11 @@ from pathlib import Path
 
 from bs4 import BeautifulSoup
 
+try:
+    import build_v4_slot_adjusted_team_power as tpi_model
+except Exception:  # pragma: no cover - optional analysis helper for generated data
+    tpi_model = None
+
 PARAM_KEYS = [
     ("spd", "ZSPD"),
     ("tec", "ZTEC"),
@@ -80,6 +85,106 @@ def points_from_row(row):
     if gf == ga:
         return 1.0
     return 0.0
+
+
+def build_team_power_index_by_instance(team_rows, player_rows, key_slots_by_formation):
+    """Return Team Power Index by (season, world_id, match_id, side).
+
+    This uses the same reusable estimation path as the MyTeam Team Power Index data.
+    It intentionally stays optional so formation data generation can still run in
+    reduced environments where the analysis helper is unavailable.
+    """
+    if tpi_model is None:
+        return {}
+
+    teams = {}
+    for row in team_rows:
+        season = to_int(row.get("season"))
+        world_id = to_int(row.get("world_id"))
+        match_id = to_int(row.get("match_id"))
+        side = str(row.get("side") or "").strip().lower()
+        if season <= 0 or world_id <= 0 or match_id <= 0 or not side:
+            continue
+        key = (season, world_id, match_id, side)
+        teams[key] = tpi_model.TeamRow(
+            season=season,
+            world_id=world_id,
+            match_id=match_id,
+            side=side,
+            team_id=to_int(row.get("team_id")),
+            team_name=str(row.get("team_name") or ""),
+            formation_id=to_int(row.get("formation_id")),
+            formation_name=str(row.get("formation_name") or ""),
+            headcoach_id=to_int(row.get("headcoach_id")),
+            headcoach_name=str(row.get("headcoach_name") or ""),
+            headcoach_pts=tpi_model.as_float(row.get("headcoach_pts")),
+            goals_for=to_int(row.get("goals_for")),
+            goals_against=to_int(row.get("goals_against")),
+        )
+
+    players_by_team = defaultdict(list)
+    for row in player_rows:
+        if str(row.get("is_starting11") or "") != "1":
+            continue
+        season = to_int(row.get("season"))
+        world_id = to_int(row.get("world_id"))
+        match_id = to_int(row.get("match_id"))
+        side = str(row.get("side") or "").strip().lower()
+        slot = to_int(row.get("member_order"))
+        player_id = to_int(row.get("player_id"))
+        pts = to_float(row.get("pts"), None)
+        if (
+            season <= 0
+            or world_id <= 0
+            or match_id <= 0
+            or not side
+            or slot < 1
+            or slot > 11
+            or player_id <= 0
+            or pts is None
+        ):
+            continue
+        key = (season, world_id, match_id, side)
+        players_by_team[key].append(
+            tpi_model.PlayerRow(
+                season=season,
+                world_id=world_id,
+                match_id=match_id,
+                side=side,
+                slot=slot,
+                player_id=player_id,
+                pts=pts,
+            )
+        )
+
+    if not teams or not players_by_team:
+        return {}
+
+    try:
+        model = tpi_model.fit_model(teams, players_by_team, key_slots_by_formation)
+    except Exception as exc:
+        print(f"warning: failed to build Top Teams TPI data: {exc}")
+        return {}
+
+    effects = model.get("effects")
+    weights = model.get("weights") or {}
+    formation_power = model.get("formationPower") or {}
+    coach_power = model.get("coachPower") or {}
+    result = {}
+    for key in teams:
+        features = tpi_model.side_features(
+            key,
+            teams,
+            players_by_team,
+            effects,
+            key_slots_by_formation,
+            formation_power,
+            coach_power,
+        )
+        if features is None:
+            continue
+        result[key] = tpi_model.team_index_from_features(features, weights)
+    return result
 
 
 def cc_round_rank(title):
@@ -1554,6 +1659,20 @@ def build_data(src):
     for f in formation_by_id.values():
         f["keyPositions"].sort(key=lambda p: (p["rank"], p["slot"]))
 
+    key_slots_by_formation = {
+        fid: {
+            int(row["rank"]): int(row["slot"])
+            for row in f.get("keyPositions", [])
+            if 1 <= int(row.get("rank") or 0) <= 4 and 1 <= int(row.get("slot") or 0) <= 11
+        }
+        for fid, f in formation_by_id.items()
+    }
+    team_power_index_by_instance = build_team_power_index_by_instance(
+        team_rows,
+        player_rows,
+        key_slots_by_formation,
+    )
+
     model_slots_by_formation = defaultdict(list)
     for row in model_slot_rows:
         fid = to_int(row.get("formationId"))
@@ -1828,6 +1947,8 @@ def build_data(src):
                 "goalsAgainst": 0,
                 "goalDiff": 0,
                 "playerPtsSum": 0.0,
+                "teamPowerIndexSum": 0.0,
+                "teamPowerIndexCount": 0,
                 "membersBySlot": {int(m["slot"]): {**m, "goals": 0} for m in lineup},
             }
         group = best_team_groups[group_key]
@@ -1848,6 +1969,16 @@ def build_data(src):
         group["goalDiff"] += gf - ga
         coach_pts = to_float(team.get("headcoach_pts"), 0.0)
         group["coach"]["ptsSum"] += coach_pts
+        tpi_key = (
+            season,
+            to_int(team.get("world_id")),
+            to_int(team.get("match_id")),
+            str(team.get("side") or "").strip().lower(),
+        )
+        tpi_value = team_power_index_by_instance.get(tpi_key)
+        if tpi_value is not None:
+            group["teamPowerIndexSum"] += float(tpi_value)
+            group["teamPowerIndexCount"] += 1
         for member in lineup:
             slot = int(member["slot"])
             pts = float(member.get("ptsSum") or 0.0)
@@ -1904,6 +2035,11 @@ def build_data(src):
             "score": int(group["wins"] or 0),
             "playerPtsSum": round(float(group["playerPtsSum"] or 0.0), 4),
             "avgPlayerPts": round(float(group["playerPtsSum"] or 0.0) / (matches * 11), 4),
+            "teamPowerIndex": (
+                round(float(group["teamPowerIndexSum"] or 0.0) / int(group["teamPowerIndexCount"] or 1), 6)
+                if int(group.get("teamPowerIndexCount") or 0) > 0
+                else None
+            ),
             "coach": {
                 "id": group["coach"]["id"],
                 "name": group["coach"]["name"],

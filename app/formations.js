@@ -536,6 +536,12 @@ function avg(v) {
   return Number(v || 0).toFixed(2);
 }
 
+function signedFixed(v, digits = 2) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return "-";
+  return `${n >= 0 ? "+" : ""}${n.toFixed(digits)}`;
+}
+
 function goalsPer7(v) {
   return Number(v || 0).toFixed(2);
 }
@@ -1128,6 +1134,7 @@ function renderBestTeam(formation) {
   const goalDiff = Number(team?.goalDiff || 0);
   const goalsFor = Number(team?.goalsFor || 0);
   const goalsAgainst = Number(team?.goalsAgainst || 0);
+  const teamPowerIndex = Number(team?.teamPowerIndex);
   const finish = String(team?.finish || "-");
   const finishDisplay = finish === "1" ? "Champion" : finish;
   const coach = team?.coach || {};
@@ -1158,6 +1165,7 @@ function renderBestTeam(formation) {
         <span><strong>${finishDisplay}</strong></span>
         <span>Record <strong>${wins}-${draws}-${losses}</strong></span>
         <span>Avg Pts <strong>${avg(team?.avgPlayerPts)}</strong></span>
+        ${Number.isFinite(teamPowerIndex) ? `<span>TPI <strong>${signedFixed(teamPowerIndex)}</strong></span>` : ""}
         <span>Goals For <strong>${Number.isFinite(goalsFor) ? goalsFor : "-"}</strong></span>
         <span>Goals Against <strong>${Number.isFinite(goalsAgainst) ? goalsAgainst : "-"}</strong></span>
         <span>Goal Diff <strong>${Number.isFinite(goalDiff) ? (goalDiff >= 0 ? `+${goalDiff}` : goalDiff) : "-"}</strong></span>
@@ -2441,7 +2449,7 @@ async function init() {
   bindEvents();
 
   const [formationsRes, playersRes, coachesMetaRes] = await Promise.all([
-    fetch("./formations_data.json?v=20260507-manu0708-swap"),
+    fetch("./formations_data.json?v=20260516-topteams-tpi"),
     fetch("./data.json?v=20260507-id908-cm").catch(() => null),
     fetch("./coaches_data.json").catch(() => null),
     loadSiteMeta(),
