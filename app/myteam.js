@@ -18,6 +18,9 @@ const V4_FALLBACK_PERSON_USE_CAP = 80;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
 const MYTEAM_COACH_STORAGE_KEY = "ws_myteam_coach_v1";
+const SIMULATION_LINEUP_STORAGE_KEY = "ws_simulation_lineup_v1";
+const SIMULATION_FORMATION_STORAGE_KEY = "ws_simulation_formation_v1";
+const SIMULATION_COACH_STORAGE_KEY = "ws_simulation_coach_v1";
 const CORE_METRICS = ["スピ", "テク", "パワ"];
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
@@ -349,6 +352,41 @@ function formationMetaId(lineupId = cloudConfig?.lineupKey) {
   return id ? `${id}__meta` : "";
 }
 
+function simulationLineupId(lineupId = cloudConfig?.lineupKey) {
+  const id = String(lineupId || "").trim();
+  return id ? `${id}__simulation` : "";
+}
+
+function simulationMetaId(lineupId = cloudConfig?.lineupKey) {
+  const id = String(lineupId || "").trim();
+  return id ? `${id}__simulation_meta` : "";
+}
+
+function cloudLineupIdForMode(mode = IS_SIMULATION_MODE ? "simulation" : "myteam", lineupId = cloudConfig?.lineupKey) {
+  return mode === "simulation" ? simulationLineupId(lineupId) : String(lineupId || "").trim();
+}
+
+function cloudMetaIdForMode(mode = IS_SIMULATION_MODE ? "simulation" : "myteam", lineupId = cloudConfig?.lineupKey) {
+  return mode === "simulation" ? simulationMetaId(lineupId) : formationMetaId(lineupId);
+}
+
+function scopedStorageKey(baseKey) {
+  const id = String(cloudConfig?.lineupKey || "").trim();
+  return id ? `${baseKey}:${id}` : baseKey;
+}
+
+function lineupStorageKeyForCurrentMode() {
+  return IS_SIMULATION_MODE ? scopedStorageKey(SIMULATION_LINEUP_STORAGE_KEY) : LINEUP_STORAGE_KEY;
+}
+
+function formationStorageKeyForCurrentMode() {
+  return scopedStorageKey(IS_SIMULATION_MODE ? SIMULATION_FORMATION_STORAGE_KEY : MYTEAM_FORMATION_STORAGE_KEY);
+}
+
+function coachStorageKeyForCurrentMode() {
+  return scopedStorageKey(IS_SIMULATION_MODE ? SIMULATION_COACH_STORAGE_KEY : MYTEAM_COACH_STORAGE_KEY);
+}
+
 function normalizeFormationId(v) {
   const n = Number(v);
   return Number.isInteger(n) && n > 0 ? n : null;
@@ -362,18 +400,12 @@ function normalizeCoach(raw) {
 }
 
 function loadSelectedFormationId() {
-  if (IS_SIMULATION_MODE) {
-    selectedFormationId = null;
-    return;
-  }
-  const key = cloudConfig?.lineupKey ? `${MYTEAM_FORMATION_STORAGE_KEY}:${cloudConfig.lineupKey}` : MYTEAM_FORMATION_STORAGE_KEY;
-  const raw = String(localStorage.getItem(key) || "").trim();
+  const raw = String(localStorage.getItem(formationStorageKeyForCurrentMode()) || "").trim();
   selectedFormationId = normalizeFormationId(raw);
 }
 
 function saveSelectedFormationId() {
-  if (IS_SIMULATION_MODE) return;
-  const key = cloudConfig?.lineupKey ? `${MYTEAM_FORMATION_STORAGE_KEY}:${cloudConfig.lineupKey}` : MYTEAM_FORMATION_STORAGE_KEY;
+  const key = formationStorageKeyForCurrentMode();
   if (Number.isInteger(selectedFormationId) && selectedFormationId > 0) {
     localStorage.setItem(key, String(selectedFormationId));
   } else {
@@ -382,21 +414,15 @@ function saveSelectedFormationId() {
 }
 
 function loadSelectedCoach() {
-  if (IS_SIMULATION_MODE) {
-    selectedCoach = null;
-    return;
-  }
-  const key = cloudConfig?.lineupKey ? `${MYTEAM_COACH_STORAGE_KEY}:${cloudConfig.lineupKey}` : MYTEAM_COACH_STORAGE_KEY;
   try {
-    selectedCoach = normalizeCoach(JSON.parse(localStorage.getItem(key) || "null"));
+    selectedCoach = normalizeCoach(JSON.parse(localStorage.getItem(coachStorageKeyForCurrentMode()) || "null"));
   } catch (_) {
     selectedCoach = null;
   }
 }
 
 function saveSelectedCoach() {
-  if (IS_SIMULATION_MODE) return;
-  const key = cloudConfig?.lineupKey ? `${MYTEAM_COACH_STORAGE_KEY}:${cloudConfig.lineupKey}` : MYTEAM_COACH_STORAGE_KEY;
+  const key = coachStorageKeyForCurrentMode();
   if (selectedCoach && Number.isInteger(Number(selectedCoach.coachId))) {
     localStorage.setItem(key, JSON.stringify(selectedCoach));
   } else {
@@ -523,7 +549,7 @@ async function applyFormationFromSelect() {
   const id = Number(els.myTeamFormationSelect.value || 0);
   selectedFormationId = normalizeFormationId(id);
   saveSelectedFormationId();
-  if (!IS_SIMULATION_MODE && hasCloudConfig()) {
+  if (hasCloudConfig()) {
     try {
       await saveCloudFormationId();
     } catch (_) {
@@ -1427,8 +1453,7 @@ function normalizeLineupArray(parsed) {
 }
 
 function saveLineupLocal() {
-  if (IS_SIMULATION_MODE) return;
-  localStorage.setItem(LINEUP_STORAGE_KEY, JSON.stringify(lineup));
+  localStorage.setItem(lineupStorageKeyForCurrentMode(), JSON.stringify(lineup));
 }
 
 function loadLifecycleMode() {
@@ -1528,6 +1553,15 @@ async function applyLoginFromModal() {
       window.alert("入力されたIDの登録はありません。Create New IDを使用してください。");
       return;
     }
+    if (IS_SIMULATION_MODE) {
+      await loadSimulationStateForCurrentId();
+      buildFormationOptions();
+      closeFormationEditor();
+      renderFormationCurrent();
+      renderLineup();
+      closeLoginModal();
+      return;
+    }
     await loadCloudLineup();
     await loadCloudFormationId();
     buildFormationOptions();
@@ -1581,7 +1615,7 @@ async function applySignupFromModal() {
 
 function renderMyTeamMeta() {
   if (!els.myTeamMeta) return;
-  const loggedIn = !IS_SIMULATION_MODE && hasCloudConfig();
+  const loggedIn = hasCloudConfig();
   const ccLine = ccDataMeta
     ? `<span class="meta-line">CC Data: ${ccDataMeta.seasonStart}-${ccDataMeta.seasonEnd} / ${ccDataMeta.games} games</span>`
     : "";
@@ -1626,7 +1660,7 @@ async function refreshUpdatedAtFromGitHub() {
     if (!label) return;
     appUpdatedAtJst = label;
     if (els.myTeamMeta) {
-      const loggedIn = !IS_SIMULATION_MODE && hasCloudConfig();
+      const loggedIn = hasCloudConfig();
       const ccLine = ccDataMeta
         ? `<span class="meta-line">CC Data: ${ccDataMeta.seasonStart}-${ccDataMeta.seasonEnd} / ${ccDataMeta.games} games</span>`
         : "";
@@ -1677,18 +1711,22 @@ async function supabaseRequest(pathWithQuery, options = {}) {
   return res.json();
 }
 
-async function loadCloudLineup() {
+async function loadCloudLineup(mode = IS_SIMULATION_MODE ? "simulation" : "myteam") {
+  const lineupId = cloudLineupIdForMode(mode);
+  if (!lineupId) return false;
   const params = new URLSearchParams({
     select: "lineup_json",
-    lineup_id: `eq.${cloudConfig.lineupKey}`,
+    lineup_id: `eq.${lineupId}`,
     limit: "1",
   });
   const rows = await supabaseRequest(`${SUPABASE_TABLE}?${params.toString()}`, {
     method: "GET",
   });
   if (!Array.isArray(rows) || !rows.length) {
-    selectedCoach = null;
-    saveSelectedCoach();
+    if (mode !== "simulation") {
+      selectedCoach = null;
+      saveSelectedCoach();
+    }
     return false;
   }
   const remote = rows[0]?.lineup_json;
@@ -1698,8 +1736,8 @@ async function loadCloudLineup() {
   return true;
 }
 
-async function loadCloudFormationId() {
-  const metaId = formationMetaId();
+async function loadCloudFormationId(mode = IS_SIMULATION_MODE ? "simulation" : "myteam") {
+  const metaId = cloudMetaIdForMode(mode);
   if (!metaId) return false;
   const params = new URLSearchParams({
     select: "lineup_json",
@@ -1732,9 +1770,11 @@ async function cloudLineupExists(lineupId) {
   return Array.isArray(rows) && rows.length > 0;
 }
 
-async function saveCloudLineup() {
+async function saveCloudLineup(mode = IS_SIMULATION_MODE ? "simulation" : "myteam") {
+  const lineupId = cloudLineupIdForMode(mode);
+  if (!lineupId) return;
   const payload = {
-    lineup_id: cloudConfig.lineupKey,
+    lineup_id: lineupId,
     lineup_json: lineup,
     updated_at: new Date().toISOString(),
   };
@@ -1747,8 +1787,8 @@ async function saveCloudLineup() {
   });
 }
 
-async function saveCloudFormationId() {
-  const metaId = formationMetaId();
+async function saveCloudFormationId(mode = IS_SIMULATION_MODE ? "simulation" : "myteam") {
+  const metaId = cloudMetaIdForMode(mode);
   if (!metaId) return;
   const payload = {
     lineup_id: metaId,
@@ -1768,11 +1808,11 @@ async function saveCloudFormationId() {
 }
 
 function myTeamFormationStorageKeyForCurrentId() {
-  return cloudConfig?.lineupKey ? `${MYTEAM_FORMATION_STORAGE_KEY}:${cloudConfig.lineupKey}` : MYTEAM_FORMATION_STORAGE_KEY;
+  return scopedStorageKey(MYTEAM_FORMATION_STORAGE_KEY);
 }
 
 function myTeamCoachStorageKeyForCurrentId() {
-  return cloudConfig?.lineupKey ? `${MYTEAM_COACH_STORAGE_KEY}:${cloudConfig.lineupKey}` : MYTEAM_COACH_STORAGE_KEY;
+  return scopedStorageKey(MYTEAM_COACH_STORAGE_KEY);
 }
 
 function stripLineupForSimulation(rows) {
@@ -1783,6 +1823,45 @@ function stripLineupForSimulation(rows) {
       ? { playerId, season: null, successor: null }
       : null;
   });
+}
+
+function loadLocalLineupForCurrentMode() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(lineupStorageKeyForCurrentMode()) || "null");
+    const localLineup = normalizeLineupArray(parsed);
+    if (!Array.isArray(localLineup)) return false;
+    lineup = IS_SIMULATION_MODE ? stripLineupForSimulation(localLineup) : localLineup;
+    return lineup.some((row) => row && Number.isInteger(Number(row.playerId)));
+  } catch (_) {
+    return false;
+  }
+}
+
+function loadLocalSimulationState() {
+  const lineupLoaded = loadLocalLineupForCurrentMode();
+  loadSelectedFormationId();
+  loadSelectedCoach();
+  return lineupLoaded || selectedFormationId != null || selectedCoach != null;
+}
+
+async function loadSimulationStateForCurrentId() {
+  if (!IS_SIMULATION_MODE) return false;
+  lineup = Array.from({ length: LINEUP_SIZE }, () => null);
+  selectedFormationId = null;
+  selectedCoach = null;
+  let loaded = false;
+  if (hasCloudConfig()) {
+    try {
+      const lineupLoaded = await loadCloudLineup("simulation");
+      const metaLoaded = await loadCloudFormationId("simulation");
+      loaded = !!lineupLoaded || !!metaLoaded;
+    } catch (e) {
+      console.warn(e);
+      loaded = false;
+    }
+  }
+  if (!loaded) loaded = loadLocalSimulationState();
+  return loaded;
 }
 
 function loadLocalMyTeamStateForSimulation() {
@@ -1813,8 +1892,8 @@ async function copyMyTeamStateToSimulation() {
   let copied = false;
   if (hasCloudConfig()) {
     try {
-      const lineupLoaded = await loadCloudLineup();
-      const metaLoaded = await loadCloudFormationId();
+      const lineupLoaded = await loadCloudLineup("myteam");
+      const metaLoaded = await loadCloudFormationId("myteam");
       copied = !!lineupLoaded || !!metaLoaded;
     } catch (_) {
       copied = false;
@@ -1825,6 +1904,17 @@ async function copyMyTeamStateToSimulation() {
   if (selectedCoach) selectedCoach = { coachId: Number(selectedCoach.coachId), season: null };
   if (!copied) {
     window.alert("コピーできるMyTeam登録が見つかりませんでした。");
+  }
+  saveLineupLocal();
+  saveSelectedFormationId();
+  saveSelectedCoach();
+  if (hasCloudConfig()) {
+    try {
+      await saveCloudLineup("simulation");
+      await saveCloudFormationId("simulation");
+    } catch (e) {
+      window.alert("Simulationのクラウド保存に失敗しました。");
+    }
   }
   renderLineup();
 }
@@ -2991,7 +3081,7 @@ async function applySelectedPlayerReplacement() {
   }
 
   saveLineupLocal();
-  if (!IS_SIMULATION_MODE && hasCloudConfig()) {
+  if (hasCloudConfig()) {
     try {
       await saveCloudLineup();
     } catch (e) {
@@ -3152,7 +3242,7 @@ async function applySelectedCoachReplacement() {
   if (!Number.isInteger(coachId) || coachId <= 0) return;
   selectedCoach = { coachId, season };
   saveSelectedCoach();
-  if (!IS_SIMULATION_MODE && hasCloudConfig()) {
+  if (hasCloudConfig()) {
     try {
       await saveCloudFormationId();
     } catch (e) {
@@ -3680,6 +3770,10 @@ async function init() {
   renderFormationCurrent();
 
   if (IS_SIMULATION_MODE) {
+    await loadSimulationStateForCurrentId();
+    buildFormationOptions();
+    closeFormationEditor();
+    renderFormationCurrent();
     renderMyTeamMeta();
     if (els.myTeamTarget) els.myTeamTarget.textContent = "Simulation";
     renderLineup();

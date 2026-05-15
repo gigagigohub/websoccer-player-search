@@ -16,12 +16,15 @@
     <header class="hero">
       <button id="myteamMenuButton" type="button" class="menu-button" aria-label="メニュー">☰</button>
       <div id="myteamMenuPanel" class="menu-panel">
+        <div id="myteamMenuLoginId" class="menu-login-id" hidden></div>
         <button id="myteamDatabaseButton" type="button" class="menu-item">Players</button>
         <button id="myteamCoachesButton" type="button" class="menu-item">Coaches</button>
         <button id="myteamFormationsButton" type="button" class="menu-item">Formations</button>
         <button id="myteamCollectionsButton" type="button" class="menu-item">Collections</button>
         <button id="myteamCurrentButton" type="button" class="menu-item">My Team</button>
         <button id="myteamSimulationButton" type="button" class="menu-item is-current" aria-current="page">Simulation</button>
+        <button id="myteamLoginButton" type="button" class="menu-item" hidden>Login</button>
+        <button id="myteamLogoutButton" type="button" class="menu-item logout" hidden>Logout</button>
       </div>
       <h1>WebSoccer Ordinary</h1>
       <p class="meta" id="myTeamMeta">Loading...</p>
@@ -41,6 +44,21 @@
       <div id="myTeamFormationWrap" class="myteam-formation-wrap"></div>
     </section>
   </main>
+
+  <div id="loginModal" class="season-modal" hidden>
+    <div id="loginBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+      <div class="season-head">
+        <h2 id="loginTitle">Login</h2>
+        <button id="loginClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <label class="label" for="loginLineupKey">TeamID</label>
+      <input id="loginLineupKey" type="text" />
+      <div class="season-actions">
+        <button id="loginApply" type="button">Login</button>
+      </div>
+    </div>
+  </div>
 
   <div id="myTeamFormationEditor" class="season-modal" hidden>
     <div id="myTeamFormationBackdrop" class="season-backdrop"></div>
@@ -133,6 +151,6 @@
     </div>
   </div>
 
-  <script src="./myteam.js?v=20260516-tpi-info-copy"></script>
+  <script src="./myteam.js?v=20260516-simulation-save"></script>
 </body>
 </html>
