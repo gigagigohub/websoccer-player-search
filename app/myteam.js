@@ -937,10 +937,10 @@ function v4EstimateNrToSsAdjustment(ctx, context = {}) {
   const otherIdResult = applyBaseline(otherIdCc, "CC other SS id");
   if (otherIdResult) return otherIdResult;
 
-  const hasAnyCcRows =
-    (ctx.ccRowsByPlayer.get(String(targetPlayerId)) || []).length > 0
-    || (ctx.ccRowsByPerson.get(String(personId)) || []).length > 0;
-  if (hasAnyCcRows) return null;
+  const hasQualifiedCcRows =
+    v4HasQualifiedRows(ctx.ccRowsByPlayer.get(String(targetPlayerId)))
+    || v4HasQualifiedRows(ctx.ccRowsByPerson.get(String(personId)));
+  if (hasQualifiedCcRows) return null;
 
   const rohmValueOffset = Number(ctx.rohmToCcOffset || 0);
   const rohmNrDeviation = v4CategoryDeviation(ctx, ctx.rohmRowsByPerson.get(String(personId)), "NR", {
@@ -1005,6 +1005,12 @@ function v4SelectReferenceRecord(rows, targetCategory, minUses = 1) {
     )[0] || null;
 }
 
+function v4HasQualifiedRows(rows, minUses = V4_CC_DIRECT_MIN_USES) {
+  return (Array.isArray(rows) ? rows : []).some((row) =>
+    Number(row?.uses || 0) >= minUses && Number.isFinite(Number(row?.avgPts))
+  );
+}
+
 function v4PointLabelForRecord(prefix, record, targetCategory, baseOffset = 0, adjustmentContext = {}) {
   const categoryInfo = v4CategoryAdjustmentInfo(targetCategory, record?.category, adjustmentContext);
   const categoryOffset = Number(categoryInfo.value || 0);
@@ -1056,10 +1062,10 @@ function resolveMyTeamPlayerPoint(formationId, slot, player) {
     };
   }
 
-  const hasAnyCcRows =
-    (ctx.ccRowsByPlayer.get(String(playerId)) || []).length > 0
-    || (ctx.ccRowsByPerson.get(String(personId)) || []).length > 0;
-  if (!hasAnyCcRows) {
+  const hasQualifiedCcRows =
+    v4HasQualifiedRows(ctx.ccRowsByPlayer.get(String(playerId)))
+    || v4HasQualifiedRows(ctx.ccRowsByPerson.get(String(personId)));
+  if (!hasQualifiedCcRows) {
     const exactRohm = ctx.rohmRowByFormationSlotPlayer.get(v4PointKey(formationId, slot, playerId));
     if (exactRohm) {
       return {
