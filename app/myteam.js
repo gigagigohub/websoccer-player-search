@@ -8,6 +8,8 @@ const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-pla
 const STARTING_LINEUP_SIZE = 11;
 const RESERVE_LINEUP_SIZE = 5;
 const LINEUP_SIZE = STARTING_LINEUP_SIZE + RESERVE_LINEUP_SIZE;
+const V4_CLEAN_UNIFORM_SLOT_WEIGHT = 0.177300;
+const V4_CLEAN_UNIFORM_KEY_WEIGHT = 0.043100;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
 const MYTEAM_COACH_STORAGE_KEY = "ws_myteam_coach_v1";
@@ -63,6 +65,7 @@ const els = {
   signupApply: document.querySelector("#signupApply"),
   myTeamMeta: document.querySelector("#myTeamMeta"),
   myTeamTarget: document.querySelector("#myTeamTarget"),
+  myTeamIndexWrap: document.querySelector("#myTeamIndexWrap"),
   myTeamSlots: document.querySelector("#myTeamSlots"),
   myTeamReserveSlots: document.querySelector("#myTeamReserveSlots"),
   myTeamReserveTotals: document.querySelector("#myTeamReserveTotals"),
@@ -130,6 +133,7 @@ let lifecycleModeEnabled = false;
 const cardViewModeById = new Map();
 let formations = [];
 let coaches = [];
+let v4CleanUniformData = { formationPower: {}, coachPower: {} };
 let selectedFormationId = null;
 let selectedCoach = null;
 let isFormationEditorOpen = false;
@@ -539,6 +543,254 @@ function findCcSlotStat(formationId, slot, playerId) {
     refCategory: refPlayer ? getCategory(refPlayer) : "-",
     byName: true,
   };
+}
+
+function v4RequiredSlots() {
+  return Array.from({ length: STARTING_LINEUP_SIZE }, (_, i) => i + 1);
+}
+
+function asFiniteNumber(value, fieldName) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) {
+    throw new Error(`${fieldName} must be numeric`);
+  }
+  return n;
+}
+
+function calcTeamV4CleanUniformIndex({
+  formationId,
+  headcoachId,
+  slotPlayerIds,
+  playerPointById,
+  formationKeySlots,
+  formationPower,
+  coachPowerById = null,
+  includeCoachPower = false,
+}) {
+  const requiredSlots = v4RequiredSlots();
+  const missingSlots = requiredSlots.filter((slotNo) => !(slotNo in slotPlayerIds));
+  if (missingSlots.length) {
+    throw new Error(`slotPlayerIds is missing required slots: ${missingSlots.join(", ")}`);
+  }
+
+  const rawKeySlots = formationKeySlots?.[formationId] || {};
+  const validKeySlots = {};
+  Object.entries(rawKeySlots).forEach(([rawKeyNo, rawSlotNo]) => {
+    const keyNo = Number(rawKeyNo);
+    const slotNo = Number(rawSlotNo);
+    if (!Number.isInteger(keyNo) || keyNo < 1 || keyNo > 4) return;
+    if (!Number.isInteger(slotNo) || slotNo < 1 || slotNo > STARTING_LINEUP_SIZE) {
+      throw new Error(`formationKeySlots[${formationId}][${keyNo}] has invalid slot: ${slotNo}`);
+    }
+    validKeySlots[keyNo] = slotNo;
+  });
+
+  const keySlotNumbers = new Set(Object.values(validKeySlots));
+  let starting11PointSum = 0;
+  const slotBreakdown = requiredSlots.map((slotNo) => {
+    const playerId = Number(slotPlayerIds[slotNo]);
+    if (!Number.isInteger(playerId)) {
+      throw new Error(`slotPlayerIds[${slotNo}] has invalid player id`);
+    }
+    if (!(playerId in playerPointById)) {
+      throw new Error(`playerPointById is missing player_id: ${playerId}`);
+    }
+    const playerPoint = asFiniteNumber(playerPointById[playerId], `playerPointById[${playerId}]`);
+    const contribution = V4_CLEAN_UNIFORM_SLOT_WEIGHT * playerPoint;
+    starting11PointSum += playerPoint;
+    return {
+      slotNo,
+      playerId,
+      playerPoint,
+      weight: V4_CLEAN_UNIFORM_SLOT_WEIGHT,
+      contribution,
+      isKeyslot: keySlotNumbers.has(slotNo),
+    };
+  });
+  const starting11Contribution = V4_CLEAN_UNIFORM_SLOT_WEIGHT * starting11PointSum;
+
+  let keyslotPointSum = 0;
+  const keyslotBreakdown = Object.entries(validKeySlots)
+    .sort((a, b) => Number(a[0]) - Number(b[0]))
+    .map(([rawKeyNo, slotNo]) => {
+      const keyNo = Number(rawKeyNo);
+      const playerId = Number(slotPlayerIds[slotNo]);
+      const playerPoint = asFiniteNumber(playerPointById[playerId], `playerPointById[${playerId}]`);
+      const contribution = V4_CLEAN_UNIFORM_KEY_WEIGHT * playerPoint;
+      keyslotPointSum += playerPoint;
+      return {
+        keyNo,
+        slotNo,
+        playerId,
+        playerPoint,
+        weight: V4_CLEAN_UNIFORM_KEY_WEIGHT,
+        contribution,
+      };
+    });
+  const keyslotContribution = V4_CLEAN_UNIFORM_KEY_WEIGHT * keyslotPointSum;
+  const formationContribution = asFiniteNumber(formationPower?.[formationId] ?? 0, `formationPower[${formationId}]`);
+  const coachContribution = includeCoachPower && coachPowerById && headcoachId != null
+    ? asFiniteNumber(coachPowerById?.[headcoachId] ?? 0, `coachPowerById[${headcoachId}]`)
+    : 0;
+  const totalIndex = formationContribution + starting11Contribution + keyslotContribution + coachContribution;
+  return {
+    totalIndex,
+    formationContribution,
+    starting11PointSum,
+    starting11Contribution,
+    keyslotPointSum,
+    keyslotContribution,
+    coachContribution,
+    slotBreakdown,
+    keyslotBreakdown,
+  };
+}
+
+function selectedFormationKeySlotLookup() {
+  const fid = Number(selectedFormationId);
+  if (!Number.isInteger(fid) || fid <= 0) return {};
+  const formation = formations.find((f) => Number(f?.id) === fid);
+  const rows = Array.isArray(formation?.keyPositions) ? formation.keyPositions : [];
+  const keySlots = {};
+  rows.forEach((row) => {
+    const keyNo = Number(row?.rank);
+    const slotNo = Number(row?.slot);
+    if (Number.isInteger(keyNo) && keyNo >= 1 && keyNo <= 4 && Number.isInteger(slotNo)) {
+      keySlots[keyNo] = slotNo;
+    }
+  });
+  return { [fid]: keySlots };
+}
+
+function buildMyTeamV4CleanUniformInput() {
+  const formationId = Number(selectedFormationId);
+  const warnings = [];
+  if (!Number.isInteger(formationId) || formationId <= 0) {
+    warnings.push("Formation not selected.");
+    return { input: null, warnings };
+  }
+
+  const slotPlayerIds = {};
+  const playerPointById = {};
+  const pointSourceBySlot = {};
+  for (let slotNo = 1; slotNo <= STARTING_LINEUP_SIZE; slotNo += 1) {
+    const entry = lineup[slotNo - 1];
+    const playerId = Number(entry?.playerId);
+    if (!Number.isInteger(playerId)) {
+      warnings.push(`Slot ${slotNo}: player not registered.`);
+      continue;
+    }
+    const player = players.find((p) => Number(p?.id) === playerId);
+    if (!player) {
+      warnings.push(`Slot ${slotNo}: player data not found (${playerId}).`);
+      continue;
+    }
+    slotPlayerIds[slotNo] = playerId;
+    const statInfo = findCcSlotStat(formationId, slotNo, playerId);
+    const avgPts = Number(statInfo?.row?.avgPts);
+    if (!Number.isFinite(avgPts)) {
+      warnings.push(`Slot ${slotNo}: CC Avg not found for ${player.name}.`);
+      continue;
+    }
+    playerPointById[playerId] = avgPts;
+    pointSourceBySlot[slotNo] = {
+      playerId,
+      playerName: player.name,
+      point: avgPts,
+      byName: !!statInfo.byName,
+      refCategory: statInfo.refCategory || "",
+    };
+    if (statInfo.byName) {
+      warnings.push(`Slot ${slotNo}: ${player.name} uses same-name CC Avg (${statInfo.refCategory || "-"}).`);
+    }
+  }
+
+  if (!v4CleanUniformData?.formationPower || !(String(formationId) in v4CleanUniformData.formationPower)) {
+    warnings.push("Formation power not found. 0.00 is used.");
+  }
+
+  return {
+    input: {
+      formationId,
+      headcoachId: selectedCoach?.coachId == null ? null : Number(selectedCoach.coachId),
+      slotPlayerIds,
+      playerPointById,
+      formationKeySlots: selectedFormationKeySlotLookup(),
+      formationPower: v4CleanUniformData?.formationPower || {},
+      coachPowerById: v4CleanUniformData?.coachPower || {},
+      includeCoachPower: false,
+    },
+    pointSourceBySlot,
+    warnings,
+  };
+}
+
+function formatIndexValue(value, digits = 2) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n.toFixed(digits) : "-";
+}
+
+function renderTeamIndex() {
+  if (!els.myTeamIndexWrap) return;
+  const { input, pointSourceBySlot, warnings } = buildMyTeamV4CleanUniformInput();
+  if (!input) {
+    els.myTeamIndexWrap.innerHTML = `
+      <section class="myteam-index-card is-empty">
+        <div class="myteam-index-head">
+          <span class="myteam-index-label">V4 Clean Uniform</span>
+          <strong class="myteam-index-value">-</strong>
+        </div>
+        <p class="myteam-index-note">${warnings.map(escapeHtml).join(" / ") || "No index data."}</p>
+      </section>
+    `;
+    return;
+  }
+
+  try {
+    const result = calcTeamV4CleanUniformIndex(input);
+    const keySlotText = result.keyslotBreakdown.length
+      ? result.keyslotBreakdown
+        .map((row) => `K${row.keyNo}:S${row.slotNo} ${formatIndexValue(row.playerPoint, 2)}`)
+        .join(" / ")
+      : "-";
+    const warningHtml = warnings.length
+      ? `<div class="myteam-index-warnings">${warnings.map((w) => `<span>${escapeHtml(w)}</span>`).join("")}</div>`
+      : "";
+    els.myTeamIndexWrap.innerHTML = `
+      <section class="myteam-index-card">
+        <div class="myteam-index-head">
+          <span class="myteam-index-label">V4 Clean Uniform</span>
+          <strong class="myteam-index-value">${formatIndexValue(result.totalIndex, 2)}</strong>
+        </div>
+        <div class="myteam-index-grid">
+          <span>Formation <strong>${formatIndexValue(result.formationContribution, 2)}</strong></span>
+          <span>Starters <strong>${formatIndexValue(result.starting11Contribution, 2)}</strong></span>
+          <span>Key Slots <strong>${formatIndexValue(result.keyslotContribution, 2)}</strong></span>
+          <span>Coach <strong>${formatIndexValue(result.coachContribution, 2)}</strong></span>
+        </div>
+        <div class="myteam-index-subgrid">
+          <span>Avg Sum <strong>${formatIndexValue(result.starting11PointSum, 2)}</strong></span>
+          <span>Key Avg Sum <strong>${formatIndexValue(result.keyslotPointSum, 2)}</strong></span>
+        </div>
+        <div class="myteam-index-keyslots">${escapeHtml(keySlotText)}</div>
+        ${warningHtml}
+      </section>
+    `;
+    return;
+  } catch (error) {
+    const allWarnings = [...warnings, error?.message || "Index calculation failed."];
+    const knownSlots = Object.values(pointSourceBySlot || {}).length;
+    els.myTeamIndexWrap.innerHTML = `
+      <section class="myteam-index-card is-empty">
+        <div class="myteam-index-head">
+          <span class="myteam-index-label">V4 Clean Uniform</span>
+          <strong class="myteam-index-value">-</strong>
+        </div>
+        <p class="myteam-index-note">CC Avg found: ${knownSlots}/11</p>
+        <div class="myteam-index-warnings">${allWarnings.map((w) => `<span>${escapeHtml(w)}</span>`).join("")}</div>
+      </section>
+    `;
+  }
 }
 
 function getSelectedFormationKeySlots() {
@@ -1469,6 +1721,7 @@ function renderLineup() {
   renderReserveTotals();
   renderCoachSection();
   renderFormationCurrent();
+  renderTeamIndex();
 }
 
 function handleMyTeamSlotClick(e) {
@@ -2668,10 +2921,11 @@ async function init() {
     });
   }
 
-  const [dataRes, formationsRes, coachesMetaRes] = await Promise.all([
+  const [dataRes, formationsRes, coachesMetaRes, v4CleanUniformRes] = await Promise.all([
     fetch("./data.json?v=20260507-id908-cm"),
     fetch("./formations_data.json").catch(() => null),
     fetch("./coaches_data.json").catch(() => null),
+    fetch("./v4_clean_uniform_data.json?v=20260516-v4-index").catch(() => null),
     loadSiteMeta(),
   ]);
   const data = await dataRes.json();
@@ -2707,6 +2961,17 @@ async function init() {
   } else {
     formations = [];
     coaches = [];
+  }
+  if (v4CleanUniformRes && v4CleanUniformRes.ok) {
+    try {
+      const raw = await v4CleanUniformRes.json();
+      v4CleanUniformData = {
+        formationPower: raw?.formationPower || {},
+        coachPower: raw?.coachPower || {},
+      };
+    } catch (_) {
+      v4CleanUniformData = { formationPower: {}, coachPower: {} };
+    }
   }
   buildFormationOptions();
   closeFormationEditor();
