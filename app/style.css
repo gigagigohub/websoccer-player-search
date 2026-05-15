@@ -2347,6 +2347,21 @@ button.ghost {
   line-height: 1;
 }
 
+.myteam-index-unit {
+  margin-left: 2px;
+  color: #9fb6e0;
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
+.myteam-index-subnote {
+  margin: -2px 0 7px;
+  color: #9fb6e0;
+  font-size: 0.66rem;
+  line-height: 1.2;
+  text-align: right;
+}
+
 .myteam-index-grid,
 .myteam-index-subgrid {
   display: grid;
