@@ -126,6 +126,10 @@ const els = {
   myteamRenameLineupKey: document.querySelector("#myteamRenameLineupKey"),
   myteamRenameIdApply: document.querySelector("#myteamRenameIdApply"),
   myteamDeleteIdApply: document.querySelector("#myteamDeleteIdApply"),
+  tpiInfoModal: document.querySelector("#tpiInfoModal"),
+  tpiInfoBackdrop: document.querySelector("#tpiInfoBackdrop"),
+  tpiInfoClose: document.querySelector("#tpiInfoClose"),
+  simulationCopyButton: document.querySelector("#simulationCopyButton"),
 };
 
 let players = [];
@@ -1299,7 +1303,7 @@ function renderTeamIndex() {
     els.myTeamIndexWrap.innerHTML = `
       <section class="myteam-index-card is-empty">
         <div class="myteam-index-head">
-          <span class="myteam-index-label">Team Power Index</span>
+          <span class="myteam-index-title"><span class="myteam-index-label">Team Power Index</span><button type="button" class="myteam-index-info" data-tpi-info aria-label="Team Power Index info">i</button></span>
           <strong class="myteam-index-value">-</strong>
         </div>
         <p class="myteam-index-note">${warnings.map(escapeHtml).join(" / ") || "No index data."}</p>
@@ -1316,7 +1320,7 @@ function renderTeamIndex() {
     els.myTeamIndexWrap.innerHTML = `
       <section class="myteam-index-card">
         <div class="myteam-index-head">
-          <span class="myteam-index-label">Team Power Index</span>
+          <span class="myteam-index-title"><span class="myteam-index-label">Team Power Index</span><button type="button" class="myteam-index-info" data-tpi-info aria-label="Team Power Index info">i</button></span>
           <strong class="myteam-index-value">${formatIndexValue(result.totalIndex, 2)}</strong>
         </div>
         <div class="myteam-index-grid">
@@ -1335,7 +1339,7 @@ function renderTeamIndex() {
     els.myTeamIndexWrap.innerHTML = `
       <section class="myteam-index-card is-empty">
         <div class="myteam-index-head">
-          <span class="myteam-index-label">Team Power Index</span>
+          <span class="myteam-index-title"><span class="myteam-index-label">Team Power Index</span><button type="button" class="myteam-index-info" data-tpi-info aria-label="Team Power Index info">i</button></span>
           <strong class="myteam-index-value">-</strong>
         </div>
         <p class="myteam-index-note">CC Avg found: ${knownSlots}/11</p>
@@ -1380,6 +1384,14 @@ function openMyteamSettingModal() {
 function closeMyteamSettingModal() {
   if (!els.myteamSettingModal) return;
   els.myteamSettingModal.hidden = true;
+}
+
+function openTpiInfoModal() {
+  if (els.tpiInfoModal) els.tpiInfoModal.hidden = false;
+}
+
+function closeTpiInfoModal() {
+  if (els.tpiInfoModal) els.tpiInfoModal.hidden = true;
 }
 
 function normalizedSupabaseUrl(url) {
@@ -1573,8 +1585,7 @@ function renderMyTeamMeta() {
   const ccLine = ccDataMeta
     ? `<span class="meta-line">CC Data: ${ccDataMeta.seasonStart}-${ccDataMeta.seasonEnd} / ${ccDataMeta.games} games</span>`
     : "";
-  const modeLine = IS_SIMULATION_MODE ? `<span class="meta-line">Simulation Mode</span>` : "";
-  els.myTeamMeta.innerHTML = `<span class="meta-line">Updated: ${appUpdatedAtJst}</span>${modeLine}${ccLine}`;
+  els.myTeamMeta.innerHTML = `<span class="meta-line">Updated: ${appUpdatedAtJst}</span>${ccLine}`;
   if (els.myteamLoginButton) els.myteamLoginButton.hidden = loggedIn;
   if (els.myteamLogoutButton) els.myteamLogoutButton.hidden = !loggedIn;
   if (els.myteamMenuLoginId) {
@@ -1619,8 +1630,7 @@ async function refreshUpdatedAtFromGitHub() {
       const ccLine = ccDataMeta
         ? `<span class="meta-line">CC Data: ${ccDataMeta.seasonStart}-${ccDataMeta.seasonEnd} / ${ccDataMeta.games} games</span>`
         : "";
-      const modeLine = IS_SIMULATION_MODE ? `<span class="meta-line">Simulation Mode</span>` : "";
-      els.myTeamMeta.innerHTML = `<span class="meta-line">Updated: ${appUpdatedAtJst}</span>${modeLine}${ccLine}`;
+      els.myTeamMeta.innerHTML = `<span class="meta-line">Updated: ${appUpdatedAtJst}</span>${ccLine}`;
       if (els.myteamLoginButton) els.myteamLoginButton.hidden = loggedIn;
       if (els.myteamLogoutButton) els.myteamLogoutButton.hidden = !loggedIn;
     }
@@ -1755,6 +1765,68 @@ async function saveCloudFormationId() {
     },
     body: JSON.stringify(payload),
   });
+}
+
+function myTeamFormationStorageKeyForCurrentId() {
+  return cloudConfig?.lineupKey ? `${MYTEAM_FORMATION_STORAGE_KEY}:${cloudConfig.lineupKey}` : MYTEAM_FORMATION_STORAGE_KEY;
+}
+
+function myTeamCoachStorageKeyForCurrentId() {
+  return cloudConfig?.lineupKey ? `${MYTEAM_COACH_STORAGE_KEY}:${cloudConfig.lineupKey}` : MYTEAM_COACH_STORAGE_KEY;
+}
+
+function stripLineupForSimulation(rows) {
+  return Array.from({ length: LINEUP_SIZE }, (_, i) => {
+    const row = rows?.[i];
+    const playerId = Number(row?.playerId);
+    return Number.isInteger(playerId) && playerId > 0
+      ? { playerId, season: null, successor: null }
+      : null;
+  });
+}
+
+function loadLocalMyTeamStateForSimulation() {
+  let localLineup = null;
+  try {
+    const parsed = JSON.parse(localStorage.getItem(LINEUP_STORAGE_KEY) || "null");
+    localLineup = normalizeLineupArray(parsed);
+  } catch (_) {
+    localLineup = null;
+  }
+  if (Array.isArray(localLineup)) {
+    lineup = stripLineupForSimulation(localLineup);
+  }
+
+  selectedFormationId = normalizeFormationId(localStorage.getItem(myTeamFormationStorageKeyForCurrentId()));
+  try {
+    const coach = normalizeCoach(JSON.parse(localStorage.getItem(myTeamCoachStorageKeyForCurrentId()) || "null"));
+    selectedCoach = coach ? { coachId: coach.coachId, season: null } : null;
+  } catch (_) {
+    selectedCoach = null;
+  }
+
+  return Array.isArray(localLineup) && localLineup.some((row) => row && Number.isInteger(Number(row.playerId)));
+}
+
+async function copyMyTeamStateToSimulation() {
+  if (!IS_SIMULATION_MODE) return;
+  let copied = false;
+  if (hasCloudConfig()) {
+    try {
+      const lineupLoaded = await loadCloudLineup();
+      const metaLoaded = await loadCloudFormationId();
+      copied = !!lineupLoaded || !!metaLoaded;
+    } catch (_) {
+      copied = false;
+    }
+  }
+  if (!copied) copied = loadLocalMyTeamStateForSimulation();
+  lineup = stripLineupForSimulation(lineup);
+  if (selectedCoach) selectedCoach = { coachId: Number(selectedCoach.coachId), season: null };
+  if (!copied) {
+    window.alert("コピーできるMyTeam登録が見つかりませんでした。");
+  }
+  renderLineup();
 }
 
 async function cloudDeleteLineupById(lineupId, required = true) {
@@ -3303,6 +3375,12 @@ async function init() {
   if (els.myTeamCoachWrap) {
     els.myTeamCoachWrap.addEventListener("click", handleMyTeamCoachClick);
   }
+  if (els.myTeamIndexWrap) {
+    els.myTeamIndexWrap.addEventListener("click", (e) => {
+      if (!e.target.closest("[data-tpi-info]")) return;
+      openTpiInfoModal();
+    });
+  }
   document.addEventListener("click", (e) => {
     if (!els.myteamMenuPanel || !els.myteamMenuButton) return;
     if (!els.myteamMenuPanel.classList.contains("is-open")) return;
@@ -3319,6 +3397,7 @@ async function init() {
       closePlayerCardModal();
       closeCoachCardModal();
       closeMyteamSettingModal();
+      closeTpiInfoModal();
     }
   });
 
@@ -3463,6 +3542,15 @@ async function init() {
   if (els.myteamSettingClose) {
     els.myteamSettingClose.addEventListener("click", closeMyteamSettingModal);
   }
+  if (els.tpiInfoBackdrop) {
+    els.tpiInfoBackdrop.addEventListener("click", closeTpiInfoModal);
+  }
+  if (els.tpiInfoClose) {
+    els.tpiInfoClose.addEventListener("click", closeTpiInfoModal);
+  }
+  if (els.simulationCopyButton) {
+    els.simulationCopyButton.addEventListener("click", copyMyTeamStateToSimulation);
+  }
   if (els.myteamRenameIdApply) {
     els.myteamRenameIdApply.addEventListener("click", async () => {
       const oldKey = String(cloudConfig.lineupKey || "").trim();
@@ -3593,7 +3681,7 @@ async function init() {
 
   if (IS_SIMULATION_MODE) {
     renderMyTeamMeta();
-    if (els.myTeamTarget) els.myTeamTarget.textContent = "保存なしでTeam Power Indexを試算します";
+    if (els.myTeamTarget) els.myTeamTarget.textContent = "Simulation";
     renderLineup();
     if (els.myTeamSlots) {
       els.myTeamSlots.addEventListener("click", handleMyTeamSlotClick);

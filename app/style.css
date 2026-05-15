@@ -2310,6 +2310,24 @@ button.ghost {
   margin: 0;
 }
 
+.simulation-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 6px;
+}
+
+.simulation-copy-btn {
+  min-height: 31px;
+  border-radius: 8px;
+  border: 1px solid #4f75b8;
+  background: linear-gradient(180deg, var(--btn-secondary-top) 0%, var(--btn-secondary-bottom) 100%);
+  color: #eef5ff;
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  box-shadow: var(--btn-inset);
+}
+
 .myteam-index-wrap {
   margin: 8px 0 10px;
 }
@@ -2333,10 +2351,17 @@ button.ghost {
 
 .myteam-index-head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 10px;
   margin-bottom: 6px;
+}
+
+.myteam-index-title {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
 }
 
 .myteam-index-label {
@@ -2344,6 +2369,24 @@ button.ghost {
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.02em;
+}
+
+.myteam-index-info {
+  width: 13px;
+  height: 13px;
+  min-width: 13px;
+  border-radius: 999px;
+  border: 1px solid rgba(156, 183, 232, 0.42);
+  background: rgba(16, 28, 48, 0.64);
+  color: #a8badc;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.48rem;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: none;
 }
 
 .myteam-index-value {
@@ -2416,6 +2459,55 @@ button.ghost {
   color: #f0bf75;
   font-size: 0.58rem;
   line-height: 1.22;
+}
+
+.tpi-info-dialog {
+  width: min(420px, calc(100vw - 24px));
+}
+
+.tpi-info-body {
+  display: grid;
+  gap: 9px;
+  color: #c7d7f2;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.tpi-info-body p {
+  margin: 0;
+}
+
+.tpi-info-body dl {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.tpi-info-body dl div {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  border: 1px solid rgba(83, 119, 181, 0.28);
+  border-radius: 7px;
+  background: rgba(9, 17, 31, 0.28);
+  padding: 6px 7px;
+}
+
+.tpi-info-body dt {
+  color: #f1f6ff;
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.tpi-info-body dd {
+  margin: 0;
+  color: #9fb3d5;
+}
+
+.tpi-info-note {
+  color: #f0bf75;
+  font-size: 0.7rem;
 }
 
 .lineup-slots {

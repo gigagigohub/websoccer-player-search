@@ -9,7 +9,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=20260324-013653" />
   <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png?v=20260324-013653" />
   <link rel="shortcut icon" href="./favicon.ico?v=20260324-013653" />
-  <link rel="stylesheet" href="./style.css?v=20260516-v4-nr-ss-addon" />
+  <link rel="stylesheet" href="./style.css?v=20260516-tpi-info-small" />
 </head>
 <body class="myteam-page">
   <main class="container">
@@ -196,6 +196,26 @@
     </div>
   </div>
 
-  <script src="./myteam.js?v=20260516-simulation"></script>
+  <div id="tpiInfoModal" class="season-modal" hidden>
+    <div id="tpiInfoBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog tpi-info-dialog" role="dialog" aria-modal="true" aria-labelledby="tpiInfoTitle">
+      <div class="season-head">
+        <h2 id="tpiInfoTitle">Team Power Index</h2>
+        <button id="tpiInfoClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <div class="tpi-info-body">
+        <p>TPI is a team strength index estimated from CC match data. A value near 0.00 is CC average, and positive values indicate stronger expected goal difference against an average CC team.</p>
+        <dl>
+          <div><dt>Slots</dt><dd>Player placement value after adjusting for formation-slot scoring tendency.</dd></div>
+          <div><dt>Key Slots</dt><dd>Additional value from players placed in that formation's key slots.</dd></div>
+          <div><dt>Formation</dt><dd>Formation fixed effect estimated from past CC data.</dd></div>
+          <div><dt>Coach</dt><dd>Coach fixed effect, not post-match coach points.</dd></div>
+        </dl>
+        <p class="tpi-info-note">Actual results can still swing due to coach surprise and match variance.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="./myteam.js?v=20260516-tpi-info-copy"></script>
 </body>
 </html>
