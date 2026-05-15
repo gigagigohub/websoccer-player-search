@@ -956,15 +956,6 @@ function v4EstimateNrToSsAdjustment(ctx, context = {}) {
     };
   };
 
-  const sameIdRohm = v4CategoryDeviation(ctx, ctx.rohmRowsByPlayer.get(String(targetPlayerId)), "SS", {
-    excludeFormationId: formationId,
-    minUses: V4_CC_DIRECT_MIN_USES,
-    weightCap: V4_FALLBACK_PLAYER_USE_CAP,
-    valueOffset: rohmValueOffset,
-  });
-  const sameIdRohmResult = applyRohmBaseline(sameIdRohm, "Rohm same SS id / Rohm NR baseline");
-  if (sameIdRohmResult) return sameIdRohmResult;
-
   const otherIdRohm = v4CategoryDeviation(ctx, ctx.rohmRowsByPerson.get(String(personId)), "SS", {
     excludePlayerId: targetPlayerId,
     minUses: V4_CC_DIRECT_MIN_USES,
@@ -1065,37 +1056,43 @@ function resolveMyTeamPlayerPoint(formationId, slot, player) {
     };
   }
 
-  const exactRohm = ctx.rohmRowByFormationSlotPlayer.get(v4PointKey(formationId, slot, playerId));
-  if (exactRohm) {
-    return {
-      point: Number(exactRohm.avgPts || 0) + Number(ctx.rohmToCcOffset || 0),
-      source: "rohm-exact",
-      label: v4PointLabelForRecord("Rohm exact", exactRohm, targetCategory, Number(ctx.rohmToCcOffset || 0)),
-      referencePlayerId: exactRohm.playerId,
-    };
+  const hasAnyCcRows =
+    (ctx.ccRowsByPlayer.get(String(playerId)) || []).length > 0
+    || (ctx.ccRowsByPerson.get(String(personId)) || []).length > 0;
+  if (!hasAnyCcRows) {
+    const exactRohm = ctx.rohmRowByFormationSlotPlayer.get(v4PointKey(formationId, slot, playerId));
+    if (exactRohm) {
+      return {
+        point: Number(exactRohm.avgPts || 0) + Number(ctx.rohmToCcOffset || 0),
+        source: "rohm-exact",
+        label: v4PointLabelForRecord("Rohm exact", exactRohm, targetCategory, Number(ctx.rohmToCcOffset || 0)),
+        referencePlayerId: exactRohm.playerId,
+      };
+    }
   }
 
-  const samePersonRohm = ctx.rohmRowsByFormationSlotPerson.get(v4PointKey(formationId, slot, personId)) || [];
-  const rohmRef = v4SelectReferenceRecord(samePersonRohm, targetCategory, 1);
-  if (rohmRef) {
-    const adjustmentContext = {
-      ctx,
-      targetPlayerId: playerId,
-      personId,
-      formationId,
-      slot,
-      referenceRecord: rohmRef,
-      referenceOffset: Number(ctx.rohmToCcOffset || 0),
-    };
-    const point = Number(rohmRef.avgPts || 0)
-      + Number(ctx.rohmToCcOffset || 0)
-      + v4CategoryAdjustment(targetCategory, rohmRef.category, adjustmentContext);
-    return {
-      point,
-      source: "rohm-person",
-      label: v4PointLabelForRecord("Rohm same person", rohmRef, targetCategory, Number(ctx.rohmToCcOffset || 0), adjustmentContext),
-      referencePlayerId: rohmRef.playerId,
-    };
+    const samePersonRohm = ctx.rohmRowsByFormationSlotPerson.get(v4PointKey(formationId, slot, personId)) || [];
+    const rohmRef = v4SelectReferenceRecord(samePersonRohm, targetCategory, 1);
+    if (rohmRef) {
+      const adjustmentContext = {
+        ctx,
+        targetPlayerId: playerId,
+        personId,
+        formationId,
+        slot,
+        referenceRecord: rohmRef,
+        referenceOffset: Number(ctx.rohmToCcOffset || 0),
+      };
+      const point = Number(rohmRef.avgPts || 0)
+        + Number(ctx.rohmToCcOffset || 0)
+        + v4CategoryAdjustment(targetCategory, rohmRef.category, adjustmentContext);
+      return {
+        point,
+        source: "rohm-person",
+        label: v4PointLabelForRecord("Rohm same person", rohmRef, targetCategory, Number(ctx.rohmToCcOffset || 0), adjustmentContext),
+        referencePlayerId: rohmRef.playerId,
+      };
+    }
   }
 
   const fallbackEstimate = v4FallbackPointFromSlotExpectation(
