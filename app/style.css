@@ -75,6 +75,11 @@ body.myteam-page::before {
   background-size: 100% 4600px, 100% 4600px;
 }
 
+body.simulation-page .simulation-season-row,
+body.simulation-page #playerReplaceSourceWrap {
+  display: none !important;
+}
+
 .container {
   position: relative;
   width: min(980px, 100%);

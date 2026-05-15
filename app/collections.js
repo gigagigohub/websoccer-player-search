@@ -15,6 +15,7 @@ const els = {
   formationsButton: document.querySelector("#formationsButton"),
   collectionsButton: document.querySelector("#collectionsButton"),
   myTeamButton: document.querySelector("#myTeamButton"),
+  simulationButton: document.querySelector("#simulationButton"),
   loginButton: document.querySelector("#loginButton"),
   logoutButton: document.querySelector("#logoutButton"),
   uniformTab: document.querySelector("#uniformTab"),
@@ -382,6 +383,7 @@ function bindEvents() {
   if (els.formationsButton) els.formationsButton.addEventListener("click", () => { closeMenuPanel(); window.location.href = "./formations.html"; });
   if (els.collectionsButton) els.collectionsButton.addEventListener("click", closeMenuPanel);
   if (els.myTeamButton) els.myTeamButton.addEventListener("click", () => { closeMenuPanel(); window.location.href = "./myteam.html"; });
+  if (els.simulationButton) els.simulationButton.addEventListener("click", () => { closeMenuPanel(); window.location.href = "./simulation.html"; });
   if (els.loginButton) els.loginButton.addEventListener("click", () => { closeMenuPanel(); openLoginModal(); });
   if (els.logoutButton) els.logoutButton.addEventListener("click", () => { closeMenuPanel(); saveCloudConfig(""); updateMenuState(); });
 

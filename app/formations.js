@@ -70,6 +70,7 @@ const els = {
   loginButton: document.querySelector("#loginButton"),
   collectionsButton: document.querySelector("#collectionsButton"),
   myTeamButton: document.querySelector("#myTeamButton"),
+  simulationButton: document.querySelector("#simulationButton"),
   logoutButton: document.querySelector("#logoutButton"),
   formationNameQuery: document.querySelector("#formationNameQuery"),
   formationNameSuggest: document.querySelector("#formationNameSuggest"),
@@ -1969,11 +1970,12 @@ function closeFormationModal() {
   if (!els.formationModal) return;
   els.formationModal.hidden = true;
   const params = new URLSearchParams(window.location.search || "");
-  if (params.get("returnTo") === "myteam") {
+  const returnTo = params.get("returnTo");
+  if (returnTo === "myteam" || returnTo === "simulation") {
     if (window.history.length > 1) {
       window.history.back();
     } else {
-      window.location.href = "./myteam.html";
+      window.location.href = returnTo === "simulation" ? "./simulation.html" : "./myteam.html";
     }
   }
 }
@@ -2139,6 +2141,12 @@ function bindEvents() {
     els.myTeamButton.addEventListener("click", () => {
       closeMenuPanel();
       window.location.href = "./myteam.html";
+    });
+  }
+  if (els.simulationButton) {
+    els.simulationButton.addEventListener("click", () => {
+      closeMenuPanel();
+      window.location.href = "./simulation.html";
     });
   }
   if (els.logoutButton) {

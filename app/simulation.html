@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WebSoccer Ordinary - Simulation</title>
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=20260324-013653" />
+  <link rel="icon" type="image/x-icon" href="./favicon.ico?v=20260324-013653" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=20260324-013653" />
+  <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png?v=20260324-013653" />
+  <link rel="shortcut icon" href="./favicon.ico?v=20260324-013653" />
+  <link rel="stylesheet" href="./style.css?v=20260516-simulation" />
+</head>
+<body class="myteam-page simulation-page">
+  <main class="container">
+    <header class="hero">
+      <button id="myteamMenuButton" type="button" class="menu-button" aria-label="メニュー">☰</button>
+      <div id="myteamMenuPanel" class="menu-panel">
+        <button id="myteamDatabaseButton" type="button" class="menu-item">Players</button>
+        <button id="myteamCoachesButton" type="button" class="menu-item">Coaches</button>
+        <button id="myteamFormationsButton" type="button" class="menu-item">Formations</button>
+        <button id="myteamCollectionsButton" type="button" class="menu-item">Collections</button>
+        <button id="myteamCurrentButton" type="button" class="menu-item">My Team</button>
+        <button id="myteamSimulationButton" type="button" class="menu-item is-current" aria-current="page">Simulation</button>
+      </div>
+      <h1>WebSoccer Ordinary</h1>
+      <p class="meta" id="myTeamMeta">Loading...</p>
+    </header>
+
+    <section class="panel">
+      <p id="myTeamTarget" class="lineup-target"></p>
+      <div id="myTeamIndexWrap" class="myteam-index-wrap"></div>
+      <div class="myteam-section-band">Starting Members</div>
+      <div id="myTeamSlots" class="lineup-slots"></div>
+      <div class="myteam-section-band">Head Coach</div>
+      <div id="myTeamCoachWrap" class="myteam-coach-wrap"></div>
+      <div class="myteam-section-band">Formation</div>
+      <div id="myTeamFormationWrap" class="myteam-formation-wrap"></div>
+    </section>
+  </main>
+
+  <div id="myTeamFormationEditor" class="season-modal" hidden>
+    <div id="myTeamFormationBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog" role="dialog" aria-modal="true" aria-labelledby="myTeamFormationTitle">
+      <div class="season-head">
+        <h2 id="myTeamFormationTitle">Formation</h2>
+        <button id="myTeamFormationCancel" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <label class="label" for="myTeamFormationSelect">Choose Formation</label>
+      <select id="myTeamFormationSelect">
+        <option value="">Not selected</option>
+      </select>
+      <div class="season-actions">
+        <button id="myTeamFormationApply" type="button">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="playerCardModal" class="season-modal" hidden>
+    <div id="playerCardBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog player-card-wrap" role="dialog" aria-modal="true" aria-labelledby="playerCardTitle">
+      <div class="season-head">
+        <h2 id="playerCardTitle">Player</h2>
+        <button id="playerCardClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <div id="playerCardHost"></div>
+      <div class="player-card-actions">
+        <button id="playerReplaceBtn" type="button" class="player-replace-btn">Replace Player</button>
+        <button id="playerRemoveSuccessorBtn" type="button" class="player-delete-btn" hidden>Remove Successor</button>
+      </div>
+      <div id="playerReplacePanel" class="player-replace-panel" hidden>
+        <label class="label" for="playerReplaceSearch">Replace with</label>
+        <input id="playerReplaceSearch" type="search" autocomplete="off" placeholder="Search player name / ID" />
+        <div id="playerReplaceResults" class="player-replace-results"></div>
+        <label class="label simulation-season-row" for="playerReplaceSeason">Season</label>
+        <select id="playerReplaceSeason" class="simulation-season-row"></select>
+        <div id="playerReplaceSourceWrap" class="player-replace-source-wrap" hidden></div>
+        <select id="playerReplaceSourceType" hidden><option value="self">自チーム</option></select>
+        <input id="playerReplaceSourceInput" type="hidden" />
+        <div class="season-actions player-replace-actions">
+          <button id="playerReplaceApply" type="button">Apply</button>
+          <button id="playerReplaceCancel" type="button" class="ghost">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="coachCardModal" class="season-modal" hidden>
+    <div id="coachCardBackdrop" class="season-backdrop"></div>
+    <div class="season-dialog player-card-wrap" role="dialog" aria-modal="true" aria-labelledby="coachCardTitle">
+      <div class="season-head">
+        <h2 id="coachCardTitle">Coach</h2>
+        <button id="coachCardClose" type="button" class="season-close" aria-label="閉じる">×</button>
+      </div>
+      <div id="coachCardHost"></div>
+      <div class="player-card-actions">
+        <button id="coachReplaceBtn" type="button" class="player-replace-btn">Replace Coach</button>
+      </div>
+      <div id="coachReplacePanel" class="player-replace-panel" hidden>
+        <label class="label" for="coachReplaceSearch">Replace with</label>
+        <input id="coachReplaceSearch" type="search" autocomplete="off" placeholder="Search coach name / ID" />
+        <div id="coachReplaceResults" class="player-replace-results"></div>
+        <label class="label simulation-season-row" for="coachReplaceSeason">Season</label>
+        <select id="coachReplaceSeason" class="simulation-season-row"></select>
+        <div class="season-actions player-replace-actions">
+          <button id="coachReplaceApply" type="button">Apply</button>
+          <button id="coachReplaceCancel" type="button" class="ghost">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./myteam.js?v=20260516-simulation"></script>
+</body>
+</html>

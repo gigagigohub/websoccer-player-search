@@ -6,9 +6,10 @@ const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOi
 const APP_UPDATED_AT_JST = "2026-03-30 23:10 JST";
 const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-player-search/commits/main";
 const ROHM_SLOT_DATA_URL = "./rohm_slot_data.json?v=20260510-rohm-peak-avg";
+const IS_SIMULATION_MODE = document.body?.classList?.contains("simulation-page");
 const STARTING_LINEUP_SIZE = 11;
 const RESERVE_LINEUP_SIZE = 5;
-const LINEUP_SIZE = STARTING_LINEUP_SIZE + RESERVE_LINEUP_SIZE;
+const LINEUP_SIZE = IS_SIMULATION_MODE ? STARTING_LINEUP_SIZE : STARTING_LINEUP_SIZE + RESERVE_LINEUP_SIZE;
 const V4_CLEAN_UNIFORM_SLOT_WEIGHT = 0.57938903;
 const V4_CLEAN_UNIFORM_KEY_WEIGHT = 0.03754174;
 const V4_CC_DIRECT_MIN_USES = 20;
@@ -53,6 +54,8 @@ const els = {
   myteamCoachesButton: document.querySelector("#myteamCoachesButton"),
   myteamFormationsButton: document.querySelector("#myteamFormationsButton"),
   myteamCollectionsButton: document.querySelector("#myteamCollectionsButton"),
+  myteamCurrentButton: document.querySelector("#myteamCurrentButton"),
+  myteamSimulationButton: document.querySelector("#myteamSimulationButton"),
   myteamLoginButton: document.querySelector("#myteamLoginButton"),
   myteamLogoutButton: document.querySelector("#myteamLogoutButton"),
   loginModal: document.querySelector("#loginModal"),
@@ -355,12 +358,17 @@ function normalizeCoach(raw) {
 }
 
 function loadSelectedFormationId() {
+  if (IS_SIMULATION_MODE) {
+    selectedFormationId = null;
+    return;
+  }
   const key = cloudConfig?.lineupKey ? `${MYTEAM_FORMATION_STORAGE_KEY}:${cloudConfig.lineupKey}` : MYTEAM_FORMATION_STORAGE_KEY;
   const raw = String(localStorage.getItem(key) || "").trim();
   selectedFormationId = normalizeFormationId(raw);
 }
 
 function saveSelectedFormationId() {
+  if (IS_SIMULATION_MODE) return;
   const key = cloudConfig?.lineupKey ? `${MYTEAM_FORMATION_STORAGE_KEY}:${cloudConfig.lineupKey}` : MYTEAM_FORMATION_STORAGE_KEY;
   if (Number.isInteger(selectedFormationId) && selectedFormationId > 0) {
     localStorage.setItem(key, String(selectedFormationId));
@@ -370,6 +378,10 @@ function saveSelectedFormationId() {
 }
 
 function loadSelectedCoach() {
+  if (IS_SIMULATION_MODE) {
+    selectedCoach = null;
+    return;
+  }
   const key = cloudConfig?.lineupKey ? `${MYTEAM_COACH_STORAGE_KEY}:${cloudConfig.lineupKey}` : MYTEAM_COACH_STORAGE_KEY;
   try {
     selectedCoach = normalizeCoach(JSON.parse(localStorage.getItem(key) || "null"));
@@ -379,6 +391,7 @@ function loadSelectedCoach() {
 }
 
 function saveSelectedCoach() {
+  if (IS_SIMULATION_MODE) return;
   const key = cloudConfig?.lineupKey ? `${MYTEAM_COACH_STORAGE_KEY}:${cloudConfig.lineupKey}` : MYTEAM_COACH_STORAGE_KEY;
   if (selectedCoach && Number.isInteger(Number(selectedCoach.coachId))) {
     localStorage.setItem(key, JSON.stringify(selectedCoach));
@@ -506,7 +519,7 @@ async function applyFormationFromSelect() {
   const id = Number(els.myTeamFormationSelect.value || 0);
   selectedFormationId = normalizeFormationId(id);
   saveSelectedFormationId();
-  if (hasCloudConfig()) {
+  if (!IS_SIMULATION_MODE && hasCloudConfig()) {
     try {
       await saveCloudFormationId();
     } catch (_) {
@@ -522,7 +535,7 @@ function openSelectedFormationDetail() {
   if (!Number.isInteger(selectedFormationId) || selectedFormationId <= 0) return;
   const url = new URL("./formations.html", window.location.href);
   url.searchParams.set("openFormationId", String(selectedFormationId));
-  url.searchParams.set("returnTo", "myteam");
+  url.searchParams.set("returnTo", IS_SIMULATION_MODE ? "simulation" : "myteam");
   window.location.href = url.toString();
 }
 
@@ -1402,14 +1415,20 @@ function normalizeLineupArray(parsed) {
 }
 
 function saveLineupLocal() {
+  if (IS_SIMULATION_MODE) return;
   localStorage.setItem(LINEUP_STORAGE_KEY, JSON.stringify(lineup));
 }
 
 function loadLifecycleMode() {
+  if (IS_SIMULATION_MODE) {
+    lifecycleModeEnabled = false;
+    return;
+  }
   lifecycleModeEnabled = localStorage.getItem(LIFECYCLE_MODE_STORAGE_KEY) === "1";
 }
 
 function saveLifecycleMode() {
+  if (IS_SIMULATION_MODE) return;
   localStorage.setItem(LIFECYCLE_MODE_STORAGE_KEY, lifecycleModeEnabled ? "1" : "0");
 }
 
@@ -1550,11 +1569,12 @@ async function applySignupFromModal() {
 
 function renderMyTeamMeta() {
   if (!els.myTeamMeta) return;
-  const loggedIn = hasCloudConfig();
+  const loggedIn = !IS_SIMULATION_MODE && hasCloudConfig();
   const ccLine = ccDataMeta
     ? `<span class="meta-line">CC Data: ${ccDataMeta.seasonStart}-${ccDataMeta.seasonEnd} / ${ccDataMeta.games} games</span>`
     : "";
-  els.myTeamMeta.innerHTML = `<span class="meta-line">Updated: ${appUpdatedAtJst}</span>${ccLine}`;
+  const modeLine = IS_SIMULATION_MODE ? `<span class="meta-line">Simulation Mode</span>` : "";
+  els.myTeamMeta.innerHTML = `<span class="meta-line">Updated: ${appUpdatedAtJst}</span>${modeLine}${ccLine}`;
   if (els.myteamLoginButton) els.myteamLoginButton.hidden = loggedIn;
   if (els.myteamLogoutButton) els.myteamLogoutButton.hidden = !loggedIn;
   if (els.myteamMenuLoginId) {
@@ -1595,11 +1615,12 @@ async function refreshUpdatedAtFromGitHub() {
     if (!label) return;
     appUpdatedAtJst = label;
     if (els.myTeamMeta) {
-      const loggedIn = hasCloudConfig();
+      const loggedIn = !IS_SIMULATION_MODE && hasCloudConfig();
       const ccLine = ccDataMeta
         ? `<span class="meta-line">CC Data: ${ccDataMeta.seasonStart}-${ccDataMeta.seasonEnd} / ${ccDataMeta.games} games</span>`
         : "";
-      els.myTeamMeta.innerHTML = `<span class="meta-line">Updated: ${appUpdatedAtJst}</span>${ccLine}`;
+      const modeLine = IS_SIMULATION_MODE ? `<span class="meta-line">Simulation Mode</span>` : "";
+      els.myTeamMeta.innerHTML = `<span class="meta-line">Updated: ${appUpdatedAtJst}</span>${modeLine}${ccLine}`;
       if (els.myteamLoginButton) els.myteamLoginButton.hidden = loggedIn;
       if (els.myteamLogoutButton) els.myteamLogoutButton.hidden = !loggedIn;
     }
@@ -2162,6 +2183,10 @@ function myTeamSlotLabelByIndex(idx) {
 
 function renderReserveTotals() {
   if (!els.myTeamReserveTotals) return;
+  if (IS_SIMULATION_MODE) {
+    els.myTeamReserveTotals.innerHTML = "";
+    return;
+  }
   let individualityTotal = 0;
   let popularityTotal = 0;
   lineup.forEach((entry) => {
@@ -2189,7 +2214,7 @@ function renderReserveTotals() {
 }
 
 function renderLineup() {
-  if (!els.myTeamSlots || !els.myTeamReserveSlots) return;
+  if (!els.myTeamSlots) return;
   const keySlots = getSelectedFormationKeySlots();
   const renderSlotRange = (start, end) => lineup.slice(start, end).map((entry, localIdx) => {
     const idx = start + localIdx;
@@ -2201,7 +2226,9 @@ function renderLineup() {
     const season = player ? (entry?.season || null) : null;
     const seasonText = season ? `${season}目` : "-";
     const remaining = player ? getRemainingPeakPeriods(player, season) : 0;
-    const seasonBadge = lifecycleModeEnabled
+    const seasonBadge = IS_SIMULATION_MODE
+      ? ""
+      : lifecycleModeEnabled
       ? remainingBadgeHtml(remaining)
       : `<span class="badge lineup-season">${seasonText}</span>`;
     const pos = (player?.position || "-").toUpperCase();
@@ -2257,7 +2284,9 @@ function renderLineup() {
     `;
   }).join("");
   els.myTeamSlots.innerHTML = renderSlotRange(0, STARTING_LINEUP_SIZE);
-  els.myTeamReserveSlots.innerHTML = renderSlotRange(STARTING_LINEUP_SIZE, LINEUP_SIZE);
+  if (els.myTeamReserveSlots) {
+    els.myTeamReserveSlots.innerHTML = IS_SIMULATION_MODE ? "" : renderSlotRange(STARTING_LINEUP_SIZE, LINEUP_SIZE);
+  }
   renderReserveTotals();
   renderCoachSection();
   renderFormationCurrent();
@@ -2321,6 +2350,10 @@ function renderCoachSection() {
   const coachStats = Array.isArray(formation?.coachStats) ? formation.coachStats : [];
   const coachStat = coachStats.find((r) => Number(r?.coachId) === coachId) || null;
   const coachInfoText = `${typeLabel} / ${coachStat ? pct(coachStat.usageRate) : "-"} / ${coachStat ? avg(coachStat.avgPts) : "-"}`;
+  const seasonBadgeHtml = IS_SIMULATION_MODE ? "" : `<span class="badge lineup-season coach-season-badge">${season}</span>`;
+  const leadershipHtml = IS_SIMULATION_MODE
+    ? ""
+    : `<div class="lineup-coach-lead-wrap">${coachLeadershipTableHtml(leadership, seasonNum, 5)}</div>`;
   els.myTeamCoachWrap.innerHTML = `
     <button type="button" class="lineup-slot myteam-slot myteam-coach-slot has-player" id="myTeamCoachSlot">
       <span class="slot-no">HC</span>
@@ -2329,15 +2362,13 @@ function renderCoachSection() {
         <div class="lineup-player-meta">
           <div class="lineup-badges">
             <span class="badge pos-badge hc-badge">HC</span>
-            <span class="badge lineup-season coach-season-badge">${season}</span>
+            ${seasonBadgeHtml}
           </div>
           <span class="slot-name">${name}</span>
           <span class="lineup-cc-stat">${coachInfoText}</span>
         </div>
       </div>
-      <div class="lineup-coach-lead-wrap">
-        ${coachLeadershipTableHtml(leadership, seasonNum, 5)}
-      </div>
+      ${leadershipHtml}
     </button>
   `;
 }
@@ -2656,7 +2687,7 @@ function renderPlayerCardModal() {
   }
   syncPlayerReplaceLayout();
   if (els.playerRemoveSuccessorBtn) {
-    els.playerRemoveSuccessorBtn.hidden = selectedPlayerMode !== "successor";
+    els.playerRemoveSuccessorBtn.hidden = IS_SIMULATION_MODE || selectedPlayerMode !== "successor";
   }
 }
 
@@ -2685,7 +2716,7 @@ function openEmptyPlayerSlotModal(slotIndex, mode = "starter") {
       <div class="lineup-empty-thumb"></div>
       <div>
         <div class="player-replace-empty-title">未登録</div>
-        <div class="player-replace-empty-text">検索して${isSuccessor ? "後継選手" : "選手"}と期を選択してください。</div>
+        <div class="player-replace-empty-text">${IS_SIMULATION_MODE ? "検索して選手を選択してください。" : `検索して${isSuccessor ? "後継選手" : "選手"}と期を選択してください。`}</div>
       </div>
     </div>
   `;
@@ -2818,6 +2849,16 @@ function selectReplacementPlayer(playerId) {
   const player = players.find((p) => Number(p?.id) === id);
   if (!player || !els.playerReplaceSeason) return;
   replacementPlayerId = id;
+  if (IS_SIMULATION_MODE) {
+    els.playerReplaceSeason.innerHTML = `<option value="">Peak</option>`;
+    if (els.playerReplaceResults) {
+      els.playerReplaceResults.querySelectorAll(".player-replace-option").forEach((btn) => {
+        btn.classList.toggle("is-selected", Number(btn.dataset.playerId) === id);
+      });
+    }
+    if (els.playerReplaceApply) els.playerReplaceApply.disabled = false;
+    return;
+  }
   const seasons = (Array.isArray(player.periods) ? player.periods : [])
     .map((p) => p?.season)
     .filter((s) => typeof s === "string" && s.length > 0);
@@ -2858,8 +2899,8 @@ async function applySelectedPlayerReplacement() {
   const idx = selectedSlotIndex;
   const entry = lineup[idx];
   const playerId = Number(replacementPlayerId);
-  const season = String(els.playerReplaceSeason?.value || "").trim();
-  if (!Number.isInteger(playerId) || !season) return;
+  const season = IS_SIMULATION_MODE ? null : String(els.playerReplaceSeason?.value || "").trim();
+  if (!Number.isInteger(playerId) || (!IS_SIMULATION_MODE && !season)) return;
 
   if (selectedPlayerMode === "successor") {
     if (!entry) return;
@@ -2874,11 +2915,11 @@ async function applySelectedPlayerReplacement() {
     };
   } else {
     const currentSuccessor = normalizeSuccessor(entry?.successor);
-    lineup[idx] = { playerId, season, successor: currentSuccessor };
+    lineup[idx] = { playerId, season, successor: IS_SIMULATION_MODE ? null : currentSuccessor };
   }
 
   saveLineupLocal();
-  if (hasCloudConfig()) {
+  if (!IS_SIMULATION_MODE && hasCloudConfig()) {
     try {
       await saveCloudLineup();
     } catch (e) {
@@ -2981,6 +3022,16 @@ function selectReplacementCoach(coachId) {
   const coach = (Array.isArray(coaches) ? coaches : []).find((c) => Number(c?.id) === id);
   if (!coach || !els.coachReplaceSeason) return;
   replacementCoachId = id;
+  if (IS_SIMULATION_MODE) {
+    els.coachReplaceSeason.innerHTML = `<option value="">Peak</option>`;
+    if (els.coachReplaceResults) {
+      els.coachReplaceResults.querySelectorAll(".coach-replace-option").forEach((btn) => {
+        btn.classList.toggle("is-selected", Number(btn.dataset.coachId) === id);
+      });
+    }
+    if (els.coachReplaceApply) els.coachReplaceApply.disabled = false;
+    return;
+  }
   const currentSeason = selectedCoach && Number(selectedCoach.coachId) === id
     ? coachSeasonLabel(selectedCoach.season || "1期目")
     : "1期目";
@@ -3025,11 +3076,11 @@ function closeCoachReplacePanel() {
 
 async function applySelectedCoachReplacement() {
   const coachId = Number(replacementCoachId);
-  const season = coachSeasonLabel(els.coachReplaceSeason?.value || "1期目");
+  const season = IS_SIMULATION_MODE ? null : coachSeasonLabel(els.coachReplaceSeason?.value || "1期目");
   if (!Number.isInteger(coachId) || coachId <= 0) return;
   selectedCoach = { coachId, season };
   saveSelectedCoach();
-  if (hasCloudConfig()) {
+  if (!IS_SIMULATION_MODE && hasCloudConfig()) {
     try {
       await saveCloudFormationId();
     } catch (e) {
@@ -3116,7 +3167,7 @@ function openEmptyCoachCardModal() {
       <div class="lineup-empty-thumb"></div>
       <div>
         <div class="player-replace-empty-title">未登録</div>
-        <div class="player-replace-empty-text">検索して監督と期を選択してください。</div>
+        <div class="player-replace-empty-text">${IS_SIMULATION_MODE ? "検索して監督を選択してください。" : "検索して監督と期を選択してください。"}</div>
       </div>
     </div>
   `;
@@ -3164,6 +3215,20 @@ async function init() {
   if (els.myteamCollectionsButton) {
     els.myteamCollectionsButton.addEventListener("click", () => {
       window.location.href = "./collections.html";
+    });
+  }
+  if (els.myteamCurrentButton) {
+    els.myteamCurrentButton.addEventListener("click", () => {
+      if (!IS_SIMULATION_MODE) {
+        closeMenuPanel();
+        return;
+      }
+      window.location.href = "./myteam.html";
+    });
+  }
+  if (els.myteamSimulationButton) {
+    els.myteamSimulationButton.addEventListener("click", () => {
+      window.location.href = "./simulation.html";
     });
   }
   if (els.myteamLoginButton) {
@@ -3365,7 +3430,7 @@ async function init() {
       if (!Number.isInteger(fid) || fid <= 0) return;
       const url = new URL("./formations.html", window.location.href);
       url.searchParams.set("openFormationId", String(fid));
-      url.searchParams.set("returnTo", "myteam");
+      url.searchParams.set("returnTo", IS_SIMULATION_MODE ? "simulation" : "myteam");
       window.location.href = url.toString();
     });
   }
@@ -3525,6 +3590,19 @@ async function init() {
   buildFormationOptions();
   closeFormationEditor();
   renderFormationCurrent();
+
+  if (IS_SIMULATION_MODE) {
+    renderMyTeamMeta();
+    if (els.myTeamTarget) els.myTeamTarget.textContent = "保存なしでTeam Power Indexを試算します";
+    renderLineup();
+    if (els.myTeamSlots) {
+      els.myTeamSlots.addEventListener("click", handleMyTeamSlotClick);
+    }
+    if (els.myTeamReserveSlots) {
+      els.myTeamReserveSlots.addEventListener("click", handleMyTeamSlotClick);
+    }
+    return;
+  }
 
   if (!hasCloudConfig()) {
     if (els.myTeamTarget) els.myTeamTarget.textContent = "TeamIDが未設定です（先にLoginしてください）";
