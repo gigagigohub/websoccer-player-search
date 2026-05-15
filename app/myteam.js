@@ -147,7 +147,7 @@ let lifecycleModeEnabled = false;
 const cardViewModeById = new Map();
 let formations = [];
 let coaches = [];
-let v4CleanUniformData = { formationPower: {}, coachPower: {}, formationSlotExpectedPts: {}, weights: {} };
+let v4CleanUniformData = { meta: {}, formationPower: {}, coachPower: {}, formationSlotExpectedPts: {}, weights: {} };
 let myTeamPlayerById = new Map();
 let v4PointContext = null;
 let selectedFormationId = null;
@@ -1439,6 +1439,27 @@ function openTpiInfoModal() {
 
 function closeTpiInfoModal() {
   if (els.tpiInfoModal) els.tpiInfoModal.hidden = true;
+}
+
+function renderTpiInfoBenchmark() {
+  const meta = v4CleanUniformData?.meta || {};
+  const avg = Number(meta.championTpiAverage);
+  const sampleCount = Number(meta.championTpiSampleCount || 0);
+  const skippedFinals = Number(meta.championTpiSkippedFinals || 0);
+  document.querySelectorAll("[data-tpi-champion-benchmark]").forEach((box) => {
+    if (!Number.isFinite(avg) || sampleCount <= 0) {
+      box.hidden = true;
+      return;
+    }
+    const avgEl = box.querySelector("[data-tpi-champion-avg]");
+    const noteEl = box.querySelector("[data-tpi-champion-note]");
+    if (avgEl) avgEl.textContent = `${avg >= 0 ? "+" : ""}${formatIndexValue(avg, 2)}`;
+    if (noteEl) {
+      const skipText = skippedFinals > 0 ? ` / PK不明の同点決勝${skippedFinals}件を除外` : "";
+      noteEl.textContent = `過去CC優勝チーム ${sampleCount} teams${skipText}`;
+    }
+    box.hidden = false;
+  });
 }
 
 function normalizedSupabaseUrl(url) {
@@ -3729,7 +3750,7 @@ async function init() {
     fetch("./data.json?v=20260507-id908-cm"),
     fetch("./formations_data.json").catch(() => null),
     fetch("./coaches_data.json").catch(() => null),
-    fetch("./v4_clean_uniform_data.json?v=20260516-slot-adjusted-tpi").catch(() => null),
+    fetch("./v4_clean_uniform_data.json?v=20260516-tpi-champion-avg").catch(() => null),
     fetch(ROHM_SLOT_DATA_URL).catch(() => null),
     loadSiteMeta(),
   ]);
@@ -3772,6 +3793,7 @@ async function init() {
     try {
       const raw = await v4CleanUniformRes.json();
       v4CleanUniformData = {
+        meta: raw?.meta || {},
         formationPower: raw?.formationPower || {},
         coachPower: raw?.coachPower || {},
         formationSlotExpectedPts: raw?.formationSlotExpectedPts || {},
@@ -3781,9 +3803,10 @@ async function init() {
         diagnostics: raw?.diagnostics || {},
       };
     } catch (_) {
-      v4CleanUniformData = { formationPower: {}, coachPower: {}, formationSlotExpectedPts: {}, weights: {} };
+      v4CleanUniformData = { meta: {}, formationPower: {}, coachPower: {}, formationSlotExpectedPts: {}, weights: {} };
     }
   }
+  renderTpiInfoBenchmark();
   const rohmData = rohmRes && rohmRes.ok ? await rohmRes.json().catch(() => ({})) : {};
   v4PointContext = buildV4PointContext(rohmData);
   buildFormationOptions();

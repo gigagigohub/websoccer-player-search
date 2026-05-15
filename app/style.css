@@ -2483,6 +2483,40 @@ button.ghost {
   margin: 0;
 }
 
+.tpi-info-benchmark {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 10px;
+  align-items: center;
+  border: 1px solid rgba(240, 191, 117, 0.34);
+  border-radius: 8px;
+  background: rgba(240, 191, 117, 0.08);
+  padding: 7px 8px;
+}
+
+.tpi-info-benchmark[hidden] {
+  display: none;
+}
+
+.tpi-info-benchmark span {
+  color: #d7e6ff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.tpi-info-benchmark strong {
+  color: #ffd58a;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.tpi-info-benchmark small {
+  grid-column: 1 / -1;
+  color: #94a8c8;
+  font-size: 0.66rem;
+}
+
 .tpi-info-body dl {
   display: grid;
   gap: 6px;

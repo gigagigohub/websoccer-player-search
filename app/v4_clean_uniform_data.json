@@ -12,7 +12,12 @@
       2624
     ],
     "teamRows": 23814,
-    "matchRows": 11907
+    "matchRows": 11907,
+    "championTpiAverage": 1.082819,
+    "championTpiMedian": 1.126472,
+    "championTpiSampleCount": 178,
+    "championTpiSkippedFinals": 11,
+    "championTpiPkResolvedFinals": 10
   },
   "weights": {
     "intercept": 0.06566878,

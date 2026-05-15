@@ -14,6 +14,10 @@ from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DB_DIR = Path("/Users/k.nishimura/work/coding/wsc_data/websoccer_master_db")
+DEFAULT_CC_RESULT_JSON_DIRS = (
+    Path("/Users/k.nishimura/work/coding/wsc_data/CC_match_result_json"),
+    Path.home() / "Desktop" / "CC_match_result_json",
+)
 FORMATIONS_JSON = ROOT / "app" / "formations_data.json"
 OUTPUT_JSON = ROOT / "app" / "v4_clean_uniform_data.json"
 REPORT_HTML = ROOT / "app" / "prepared" / "team_power_index_reestimate.html"
@@ -32,6 +36,8 @@ class TeamRow:
     world_id: int
     match_id: int
     side: str
+    team_id: int
+    team_name: str
     formation_id: int
     formation_name: str
     headcoach_id: int
@@ -123,7 +129,7 @@ def load_db(db_path: Path) -> Tuple[Dict[Tuple[int, int, int, str], TeamRow], Di
         teams: Dict[Tuple[int, int, int, str], TeamRow] = {}
         for row in conn.execute(
             """
-            SELECT season, world_id, match_id, side, formation_id, formation_name,
+            SELECT season, world_id, match_id, side, team_id, team_name, formation_id, formation_name,
                    headcoach_id, headcoach_name, headcoach_pts,
                    goals_for, goals_against
             FROM cc_teams
@@ -135,6 +141,8 @@ def load_db(db_path: Path) -> Tuple[Dict[Tuple[int, int, int, str], TeamRow], Di
                 world_id=key[1],
                 match_id=key[2],
                 side=key[3],
+                team_id=int(row["team_id"] or 0),
+                team_name=str(row["team_name"] or ""),
                 formation_id=int(row["formation_id"] or 0),
                 formation_name=str(row["formation_name"] or ""),
                 headcoach_id=int(row["headcoach_id"] or 0),
@@ -281,6 +289,15 @@ def predict(coef: Sequence[float], features: Sequence[float]) -> float:
     if not coef:
         return 0.0
     return coef[0] + sum(coef[i + 1] * features[i] for i in range(min(len(features), len(coef) - 1)))
+
+
+def team_index_from_features(features: Mapping[str, float], weights: Mapping[str, float]) -> float:
+    return (
+        float(weights.get("slotAdjusted", 0.0)) * float(features.get("start", 0.0))
+        + float(weights.get("keyAdjusted", 0.0)) * float(features.get("key", 0.0))
+        + float(features.get("formation", 0.0))
+        + float(features.get("coach", 0.0))
+    )
 
 
 def rmse(pairs: Sequence[Tuple[float, float]]) -> float:
@@ -532,6 +549,134 @@ def evaluate_model(model: Mapping[str, object]) -> Dict[str, float]:
     }
 
 
+def find_cc_result_json(match_id: int, world_id: int) -> Optional[Path]:
+    rel = Path("api.app.websoccer.jp") / "match" / "summary" / "cc" / str(match_id) / str(world_id) / "1.json"
+    for root in DEFAULT_CC_RESULT_JSON_DIRS:
+        path = root / rel
+        if path.exists():
+            return path
+    return None
+
+
+def pk_winner_side(
+    teams_by_side: Mapping[str, TeamRow],
+    match_id: int,
+    world_id: int,
+) -> Optional[str]:
+    path = find_cc_result_json(match_id, world_id)
+    if path is None:
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        match = payload.get("m") or {}
+        pk_rows = match.get("pk") or []
+    except (OSError, json.JSONDecodeError, AttributeError):
+        return None
+    if not isinstance(pk_rows, list) or len(pk_rows) < 2:
+        return None
+    pk_scores = []
+    for rows in pk_rows[:2]:
+        if not isinstance(rows, list):
+            return None
+        pk_scores.append(sum(1 for row in rows if int((row or {}).get("goal") or 0) == 1))
+    if pk_scores[0] == pk_scores[1]:
+        return None
+
+    fallback_order = ["home", "away"]
+    raw_teams = (match.get("team") or [])[:2]
+    side_order: List[str] = []
+    team_id_to_side = {
+        int(team.team_id): side
+        for side, team in teams_by_side.items()
+        if int(team.team_id or 0) > 0
+    }
+    for idx, raw_team in enumerate(raw_teams):
+        try:
+            raw_team_id = int((raw_team or {}).get("id") or 0)
+        except (TypeError, ValueError):
+            raw_team_id = 0
+        side_order.append(team_id_to_side.get(raw_team_id, fallback_order[idx]))
+    if len(side_order) < 2:
+        side_order = fallback_order
+    return side_order[0] if pk_scores[0] > pk_scores[1] else side_order[1]
+
+
+def champion_tpi_summary(
+    teams: Mapping[Tuple[int, int, int, str], TeamRow],
+    players_by_team: Mapping[Tuple[int, int, int, str], Sequence[PlayerRow]],
+    key_slots_by_formation: Mapping[int, Mapping[int, int]],
+    model: Mapping[str, object],
+) -> Dict[str, float]:
+    effects: FixedEffects = model["effects"]  # type: ignore[assignment]
+    weights: Mapping[str, float] = model["weights"]  # type: ignore[assignment]
+    formation_power: Mapping[int, float] = model["formationPower"]  # type: ignore[assignment]
+    coach_power: Mapping[int, float] = model["coachPower"]  # type: ignore[assignment]
+
+    final_match_by_world: Dict[Tuple[int, int], int] = {}
+    for season, world_id, match_id, _side in teams:
+        key = (season, world_id)
+        final_match_by_world[key] = max(final_match_by_world.get(key, 0), match_id)
+
+    champion_indexes: List[float] = []
+    pk_resolved = 0
+    skipped = 0
+    for (season, world_id), match_id in sorted(final_match_by_world.items()):
+        teams_by_side = {
+            side: team
+            for side in ("home", "away")
+            if (team := teams.get((season, world_id, match_id, side))) is not None
+        }
+        if len(teams_by_side) < 2:
+            skipped += 1
+            continue
+        winner_side = next(
+            (
+                side
+                for side, team in teams_by_side.items()
+                if int(team.goals_for) > int(team.goals_against)
+            ),
+            None,
+        )
+        if winner_side is None:
+            winner_side = pk_winner_side(teams_by_side, match_id, world_id)
+            if winner_side is not None:
+                pk_resolved += 1
+        if winner_side is None:
+            skipped += 1
+            continue
+        features = side_features(
+            (season, world_id, match_id, winner_side),
+            teams,
+            players_by_team,
+            effects,
+            key_slots_by_formation,
+            formation_power=formation_power,
+            coach_power=coach_power,
+        )
+        if features is None:
+            skipped += 1
+            continue
+        champion_indexes.append(team_index_from_features(features, weights))
+
+    if not champion_indexes:
+        return {
+            "average": 0.0,
+            "sampleCount": 0.0,
+            "skippedFinals": float(skipped),
+            "pkResolvedFinals": float(pk_resolved),
+        }
+    champion_indexes.sort()
+    return {
+        "average": sum(champion_indexes) / len(champion_indexes),
+        "median": champion_indexes[len(champion_indexes) // 2],
+        "min": champion_indexes[0],
+        "max": champion_indexes[-1],
+        "sampleCount": float(len(champion_indexes)),
+        "skippedFinals": float(skipped),
+        "pkResolvedFinals": float(pk_resolved),
+    }
+
+
 def season_holdout_metrics(
     teams: Mapping[Tuple[int, int, int, str], TeamRow],
     players_by_team: Mapping[Tuple[int, int, int, str], Sequence[PlayerRow]],
@@ -657,6 +802,7 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
     model = fit_model(teams, players_by_team, key_slots)
     metrics = evaluate_model(model)
     holdout = season_holdout_metrics(teams, players_by_team, key_slots)
+    champion_tpi = champion_tpi_summary(teams, players_by_team, key_slots, model)
 
     effects: FixedEffects = model["effects"]  # type: ignore[assignment]
     formation_slot_expected = {
@@ -675,6 +821,11 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
             "seasons": [min(key[0] for key in teams), max(key[0] for key in teams)],
             "teamRows": len(teams),
             "matchRows": int(metrics.get("matches", 0)),
+            "championTpiAverage": round(float(champion_tpi.get("average", 0.0)), 6),
+            "championTpiMedian": round(float(champion_tpi.get("median", 0.0)), 6),
+            "championTpiSampleCount": int(champion_tpi.get("sampleCount", 0)),
+            "championTpiSkippedFinals": int(champion_tpi.get("skippedFinals", 0)),
+            "championTpiPkResolvedFinals": int(champion_tpi.get("pkResolvedFinals", 0)),
         },
         "weights": {key: round(float(value), 8) for key, value in model["weights"].items()},  # type: ignore[union-attr]
         "diagnostics": {key: round(float(value), 8) for key, value in model["diagnostics"].items()},  # type: ignore[union-attr]
