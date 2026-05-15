@@ -1279,26 +1279,6 @@ function formatIndexValue(value, digits = 2) {
   return Number.isFinite(n) ? n.toFixed(digits) : "-";
 }
 
-function formatSignedIndexValue(value, digits = 2) {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return "-";
-  return `${n >= 0 ? "+" : ""}${n.toFixed(digits)}`;
-}
-
-function formatTeamPowerScore(value) {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return "-";
-  const score = Math.max(0, Math.min(100, 50 + n * 15));
-  return score.toFixed(1);
-}
-
-function formatScoreContribution(value) {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return "-";
-  const points = n * 15;
-  return `${points >= 0 ? "+" : ""}${points.toFixed(1)}`;
-}
-
 function renderTeamIndex() {
   if (!els.myTeamIndexWrap) return;
   const { input, pointSourceBySlot, warnings } = buildMyTeamV4CleanUniformInput();
@@ -1317,8 +1297,6 @@ function renderTeamIndex() {
 
   try {
     const result = calcTeamV4CleanUniformIndex(input);
-    const teamPowerScore = formatTeamPowerScore(result.totalIndex);
-    const ccAvgText = `CC Avg ${formatSignedIndexValue(result.totalIndex, 2)} GD`;
     const warningHtml = warnings.length
       ? `<div class="myteam-index-warnings">${warnings.map((w) => `<span>${escapeHtml(w)}</span>`).join("")}</div>`
       : "";
@@ -1326,15 +1304,14 @@ function renderTeamIndex() {
       <section class="myteam-index-card">
         <div class="myteam-index-head">
           <span class="myteam-index-label">Team Power Index</span>
-          <strong class="myteam-index-value">${teamPowerScore}</strong>
+          <strong class="myteam-index-value">${formatIndexValue(result.totalIndex, 2)}</strong>
         </div>
         <div class="myteam-index-grid">
-          <span>Slots <strong>${formatScoreContribution(result.starting11Contribution)}</strong></span>
-          <span>Key Slots <strong>${formatScoreContribution(result.keyslotContribution)}</strong></span>
-          <span>Formation <strong>${formatScoreContribution(result.formationContribution)}</strong></span>
-          <span>Coach <strong>${formatScoreContribution(result.coachContribution)}</strong></span>
+          <span>Slots <strong>${formatIndexValue(result.starting11Contribution, 2)}</strong></span>
+          <span>Key Slots <strong>${formatIndexValue(result.keyslotContribution, 2)}</strong></span>
+          <span>Formation <strong>${formatIndexValue(result.formationContribution, 2)}</strong></span>
+          <span>Coach <strong>${formatIndexValue(result.coachContribution, 2)}</strong></span>
         </div>
-        <p class="myteam-index-subnote">${ccAvgText}</p>
         ${warningHtml}
       </section>
     `;
