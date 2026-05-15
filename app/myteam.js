@@ -1069,7 +1069,6 @@ function resolveMyTeamPlayerPoint(formationId, slot, player) {
         referencePlayerId: exactRohm.playerId,
       };
     }
-  }
 
     const samePersonRohm = ctx.rohmRowsByFormationSlotPerson.get(v4PointKey(formationId, slot, personId)) || [];
     const rohmRef = v4SelectReferenceRecord(samePersonRohm, targetCategory, 1);
