@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import csv
+import argparse
 import json
 import math
 import sqlite3
@@ -12,7 +13,7 @@ from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_DB = Path("/Users/k.nishimura/work/coding/wsc_data/websoccer_master_db/wsm_2605101631.sqlite3")
+DEFAULT_DB_DIR = Path("/Users/k.nishimura/work/coding/wsc_data/websoccer_master_db")
 FORMATIONS_JSON = ROOT / "app" / "formations_data.json"
 OUTPUT_JSON = ROOT / "app" / "v4_clean_uniform_data.json"
 REPORT_HTML = ROOT / "app" / "prepared" / "team_power_index_reestimate.html"
@@ -70,8 +71,35 @@ def as_float(value: object) -> Optional[float]:
     return n if math.isfinite(n) else None
 
 
-def load_formations() -> Dict[int, Dict[int, int]]:
-    with FORMATIONS_JSON.open(encoding="utf-8") as f:
+def find_latest_master_db(db_dir: Path = DEFAULT_DB_DIR) -> Path:
+    candidates = sorted(
+        db_dir.glob("wsm_*.sqlite3"),
+        key=lambda path: (path.stat().st_mtime, path.name),
+        reverse=True,
+    )
+    if not candidates:
+        raise FileNotFoundError(f"No master DB found under {db_dir}")
+    return candidates[0]
+
+
+def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Re-estimate Team Power Index data from the current websoccer master DB. "
+            "By default, the newest wsm_*.sqlite3 under the local master DB directory is used."
+        )
+    )
+    parser.add_argument("--db", type=Path, default=None, help="Master DB path. Defaults to the newest local wsm_*.sqlite3.")
+    parser.add_argument("--db-dir", type=Path, default=DEFAULT_DB_DIR, help="Directory used when --db is omitted.")
+    parser.add_argument("--formations-json", type=Path, default=FORMATIONS_JSON, help="formations_data.json path.")
+    parser.add_argument("--output-json", type=Path, default=OUTPUT_JSON, help="Output JSON consumed by MyTeam.")
+    parser.add_argument("--report-html", type=Path, default=REPORT_HTML, help="Analysis report HTML output.")
+    parser.add_argument("--report-csv", type=Path, default=REPORT_CSV, help="Season holdout metrics CSV output.")
+    return parser.parse_args(argv)
+
+
+def load_formations(formations_json: Path = FORMATIONS_JSON) -> Dict[int, Dict[int, int]]:
+    with formations_json.open(encoding="utf-8") as f:
         raw = json.load(f)
     result: Dict[int, Dict[int, int]] = {}
     for formation in raw.get("formations", []):
@@ -621,9 +649,11 @@ def render_report(metrics: Mapping[str, float], holdout: Sequence[Mapping[str, f
 """
 
 
-def main() -> None:
-    key_slots = load_formations()
-    teams, players_by_team = load_db(DEFAULT_DB)
+def main(argv: Optional[Sequence[str]] = None) -> None:
+    args = parse_args(argv)
+    db_path = args.db if args.db is not None else find_latest_master_db(args.db_dir)
+    key_slots = load_formations(args.formations_json)
+    teams, players_by_team = load_db(db_path)
     model = fit_model(teams, players_by_team, key_slots)
     metrics = evaluate_model(model)
     holdout = season_holdout_metrics(teams, players_by_team, key_slots)
@@ -636,7 +666,7 @@ def main() -> None:
     output = {
         "meta": {
             "model": "team_power_index_slot_adjusted",
-            "generatedFrom": str(DEFAULT_DB),
+            "generatedFrom": str(db_path),
             "ratingDecomposition": "pts = global + player_effect + formation_slot_effect + residual",
             "playerEffectPrior": PLAYER_EFFECT_PRIOR,
             "formationSlotEffectPrior": FORMATION_SLOT_EFFECT_PRIOR,
@@ -656,16 +686,19 @@ def main() -> None:
         "coachPower": rounded_mapping(model["coachPower"], 6),  # type: ignore[arg-type]
     }
 
-    OUTPUT_JSON.write_text(json.dumps(output, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    REPORT_HTML.parent.mkdir(parents=True, exist_ok=True)
-    REPORT_HTML.write_text(render_report(metrics, holdout, model), encoding="utf-8")
-    with REPORT_CSV.open("w", newline="", encoding="utf-8") as f:
+    args.output_json.parent.mkdir(parents=True, exist_ok=True)
+    args.output_json.write_text(json.dumps(output, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    args.report_html.parent.mkdir(parents=True, exist_ok=True)
+    args.report_html.write_text(render_report(metrics, holdout, model), encoding="utf-8")
+    args.report_csv.parent.mkdir(parents=True, exist_ok=True)
+    with args.report_csv.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=["season", "matches", "rmse", "mae", "corr"], lineterminator="\n")
         writer.writeheader()
         writer.writerows(holdout)
 
-    print(f"wrote {OUTPUT_JSON}")
-    print(f"wrote {REPORT_HTML}")
+    print(f"using {db_path}")
+    print(f"wrote {args.output_json}")
+    print(f"wrote {args.report_html}")
     print(f"matches={int(metrics.get('matches', 0))} corr={metrics.get('actualGoalDiffCorr', 0):.3f} rmse={metrics.get('actualGoalDiffRmse', 0):.3f}")
     print(
         "weights",
