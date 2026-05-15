@@ -12,6 +12,8 @@ const LINEUP_SIZE = STARTING_LINEUP_SIZE + RESERVE_LINEUP_SIZE;
 const V4_CLEAN_UNIFORM_SLOT_WEIGHT = 0.177300;
 const V4_CLEAN_UNIFORM_KEY_WEIGHT = 0.043100;
 const V4_CC_DIRECT_MIN_USES = 20;
+const V4_FALLBACK_PLAYER_USE_CAP = 60;
+const V4_FALLBACK_PERSON_USE_CAP = 80;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
 const MYTEAM_COACH_STORAGE_KEY = "ws_myteam_coach_v1";
@@ -592,6 +594,60 @@ function v4WeightedAverage(rows) {
   return weight > 0 ? sum / weight : null;
 }
 
+function v4SlotExpectedValue(ctx, formationId, slot) {
+  return ctx?.slotAvgByFormationSlot?.get(v4PointKey(formationId, slot))
+    ?? ctx?.slotAvgBySlot?.get(String(slot))
+    ?? (Number.isFinite(Number(ctx?.globalAvg)) ? Number(ctx.globalAvg) : null);
+}
+
+function v4DeviationFromSlotExpectation(ctx, rows, weightCap = Infinity) {
+  let sum = 0;
+  let weight = 0;
+  (Array.isArray(rows) ? rows : []).forEach((row) => {
+    const avgPts = Number(row?.avgPts);
+    const expected = v4SlotExpectedValue(ctx, row?.formationId, row?.slot);
+    if (!Number.isFinite(avgPts) || !Number.isFinite(Number(expected))) return;
+    const rawWeight = Math.max(1, Number(row?.uses || 0));
+    sum += (avgPts - Number(expected)) * rawWeight;
+    weight += rawWeight;
+  });
+  return weight > 0 ? { deviation: sum / weight, weight: Math.min(weight, weightCap) } : null;
+}
+
+function v4FallbackPointFromSlotExpectation(ctx, formationId, slot, exactCc, playerRows, personRows) {
+  const base = v4SlotExpectedValue(ctx, formationId, slot);
+  if (!Number.isFinite(Number(base))) return null;
+
+  const deviations = [];
+  if (exactCc && Number.isFinite(Number(exactCc.avgPts))) {
+    const exactDeviation = v4DeviationFromSlotExpectation(ctx, [exactCc], V4_CC_DIRECT_MIN_USES);
+    if (exactDeviation) deviations.push(exactDeviation);
+  }
+
+  const playerDeviation = v4DeviationFromSlotExpectation(ctx, playerRows, V4_FALLBACK_PLAYER_USE_CAP);
+  if (playerDeviation) deviations.push(playerDeviation);
+
+  const personDeviation = v4DeviationFromSlotExpectation(ctx, personRows, V4_FALLBACK_PERSON_USE_CAP);
+  if (personDeviation) deviations.push(personDeviation);
+
+  if (!deviations.length) return {
+    point: Number(base),
+    adjustment: 0,
+    base: Number(base),
+    weight: 0,
+  };
+
+  const totalWeight = deviations.reduce((sum, row) => sum + Number(row.weight || 0), 0);
+  if (totalWeight <= 0) return null;
+  const adjustment = deviations.reduce((sum, row) => sum + Number(row.deviation || 0) * Number(row.weight || 0), 0) / totalWeight;
+  return {
+    point: Number(base) + adjustment,
+    adjustment,
+    base: Number(base),
+    weight: totalWeight,
+  };
+}
+
 function v4BuildCategoryDiff(rowsByFormationSlotPerson) {
   const acc = new Map();
   rowsByFormationSlotPerson.forEach((rows) => {
@@ -839,19 +895,20 @@ function resolveMyTeamPlayerPoint(formationId, slot, player) {
     };
   }
 
-  const exactLowCc = exactCc && Number.isFinite(Number(exactCc.avgPts)) ? Number(exactCc.avgPts) : null;
-  const playerAvg = v4WeightedAverage(ctx.ccRowsByPlayer.get(String(playerId)));
-  const personAvg = v4WeightedAverage(ctx.ccRowsByPerson.get(String(personId)));
-  const slotAvg = ctx.slotAvgByFormationSlot.get(v4PointKey(formationId, slot))
-    ?? ctx.slotAvgBySlot.get(String(slot))
-    ?? null;
-  const components = [exactLowCc, playerAvg, personAvg, slotAvg].filter((value) => Number.isFinite(Number(value)));
-  if (components.length) {
-    const point = components.reduce((sum, value) => sum + Number(value), 0) / components.length;
+  const fallbackEstimate = v4FallbackPointFromSlotExpectation(
+    ctx,
+    formationId,
+    slot,
+    exactCc,
+    ctx.ccRowsByPlayer.get(String(playerId)),
+    ctx.ccRowsByPerson.get(String(personId))
+  );
+  if (fallbackEstimate) {
+    const adjustment = Number(fallbackEstimate.adjustment || 0);
     return {
-      point,
+      point: fallbackEstimate.point,
       source: "fallback",
-      label: "CC global/player-slot estimate",
+      label: `CC slot-base estimate ${adjustment >= 0 ? "+" : ""}${formatIndexValue(adjustment, 2)}`,
     };
   }
   return {
