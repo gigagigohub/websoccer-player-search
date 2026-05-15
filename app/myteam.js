@@ -1224,7 +1224,7 @@ function renderTeamIndex() {
     els.myTeamIndexWrap.innerHTML = `
       <section class="myteam-index-card is-empty">
         <div class="myteam-index-head">
-          <span class="myteam-index-label">V4 Clean Uniform</span>
+          <span class="myteam-index-label">Team Power Index</span>
           <strong class="myteam-index-value">-</strong>
         </div>
         <p class="myteam-index-note">${warnings.map(escapeHtml).join(" / ") || "No index data."}</p>
@@ -1246,7 +1246,7 @@ function renderTeamIndex() {
     els.myTeamIndexWrap.innerHTML = `
       <section class="myteam-index-card">
         <div class="myteam-index-head">
-          <span class="myteam-index-label">V4 Clean Uniform</span>
+          <span class="myteam-index-label">Team Power Index</span>
           <strong class="myteam-index-value">${formatIndexValue(result.totalIndex, 2)}</strong>
         </div>
         <div class="myteam-index-grid">
@@ -1266,7 +1266,7 @@ function renderTeamIndex() {
     els.myTeamIndexWrap.innerHTML = `
       <section class="myteam-index-card is-empty">
         <div class="myteam-index-head">
-          <span class="myteam-index-label">V4 Clean Uniform</span>
+          <span class="myteam-index-label">Team Power Index</span>
           <strong class="myteam-index-value">-</strong>
         </div>
         <p class="myteam-index-note">CC Avg found: ${knownSlots}/11</p>
