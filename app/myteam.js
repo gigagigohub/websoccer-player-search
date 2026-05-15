@@ -937,22 +937,41 @@ function v4EstimateNrToSsAdjustment(ctx, context = {}) {
   const otherIdResult = applyBaseline(otherIdCc, "CC other SS id");
   if (otherIdResult) return otherIdResult;
 
+  const hasAnyCcRows =
+    (ctx.ccRowsByPlayer.get(String(targetPlayerId)) || []).length > 0
+    || (ctx.ccRowsByPerson.get(String(personId)) || []).length > 0;
+  if (hasAnyCcRows) return null;
+
+  const rohmValueOffset = Number(ctx.rohmToCcOffset || 0);
+  const rohmNrDeviation = v4CategoryDeviation(ctx, ctx.rohmRowsByPerson.get(String(personId)), "NR", {
+    minUses: V4_CC_DIRECT_MIN_USES,
+    weightCap: V4_FALLBACK_PERSON_USE_CAP,
+    valueOffset: rohmValueOffset,
+  });
+  const applyRohmBaseline = (candidate, source) => {
+    if (!candidate || !rohmNrDeviation) return null;
+    return {
+      value: Number(candidate.deviation || 0) - Number(rohmNrDeviation.deviation || 0),
+      source,
+    };
+  };
+
   const sameIdRohm = v4CategoryDeviation(ctx, ctx.rohmRowsByPlayer.get(String(targetPlayerId)), "SS", {
     excludeFormationId: formationId,
     minUses: V4_CC_DIRECT_MIN_USES,
     weightCap: V4_FALLBACK_PLAYER_USE_CAP,
-    valueOffset: ctx.rohmToCcOffset || 0,
+    valueOffset: rohmValueOffset,
   });
-  const sameIdRohmResult = applyBaseline(sameIdRohm, "Rohm same SS id");
+  const sameIdRohmResult = applyRohmBaseline(sameIdRohm, "Rohm same SS id / Rohm NR baseline");
   if (sameIdRohmResult) return sameIdRohmResult;
 
   const otherIdRohm = v4CategoryDeviation(ctx, ctx.rohmRowsByPerson.get(String(personId)), "SS", {
     excludePlayerId: targetPlayerId,
     minUses: V4_CC_DIRECT_MIN_USES,
     weightCap: V4_FALLBACK_PERSON_USE_CAP,
-    valueOffset: ctx.rohmToCcOffset || 0,
+    valueOffset: rohmValueOffset,
   });
-  const otherIdRohmResult = applyBaseline(otherIdRohm, "Rohm other SS id");
+  const otherIdRohmResult = applyRohmBaseline(otherIdRohm, "Rohm other SS id / Rohm NR baseline");
   if (otherIdRohmResult) return otherIdRohmResult;
 
   return null;
@@ -968,7 +987,7 @@ function v4CategoryAdjustmentInfo(targetCategory, refCategory, context = {}) {
   const value = ctx?.categoryDiff?.get(`${targetCategory}|${refCategory}`);
   return {
     value: Number.isFinite(Number(value)) ? Number(value) : 0,
-    source: "global category addon",
+    source: "CC global category addon",
   };
 }
 
