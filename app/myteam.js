@@ -600,11 +600,11 @@ function v4SlotExpectedValue(ctx, formationId, slot) {
     ?? (Number.isFinite(Number(ctx?.globalAvg)) ? Number(ctx.globalAvg) : null);
 }
 
-function v4DeviationFromSlotExpectation(ctx, rows, weightCap = Infinity) {
+function v4DeviationFromSlotExpectation(ctx, rows, weightCap = Infinity, valueOffset = 0) {
   let sum = 0;
   let weight = 0;
   (Array.isArray(rows) ? rows : []).forEach((row) => {
-    const avgPts = Number(row?.avgPts);
+    const avgPts = Number(row?.avgPts) + Number(valueOffset || 0);
     const expected = v4SlotExpectedValue(ctx, row?.formationId, row?.slot);
     if (!Number.isFinite(avgPts) || !Number.isFinite(Number(expected))) return;
     const rawWeight = Math.max(1, Number(row?.uses || 0));
@@ -612,6 +612,25 @@ function v4DeviationFromSlotExpectation(ctx, rows, weightCap = Infinity) {
     weight += rawWeight;
   });
   return weight > 0 ? { deviation: sum / weight, weight: Math.min(weight, weightCap) } : null;
+}
+
+function v4CategoryDeviation(ctx, rows, category, options = {}) {
+  const targetCategory = String(category || "");
+  const filtered = (Array.isArray(rows) ? rows : []).filter((row) => {
+    if (String(row?.category || "") !== targetCategory) return false;
+    if (options.playerId != null && Number(row?.playerId) !== Number(options.playerId)) return false;
+    if (options.excludePlayerId != null && Number(row?.playerId) === Number(options.excludePlayerId)) return false;
+    if (options.excludeFormationId != null && Number(row?.formationId) === Number(options.excludeFormationId)) return false;
+    return Number.isFinite(Number(row?.avgPts));
+  });
+  const result = v4DeviationFromSlotExpectation(
+    ctx,
+    filtered,
+    options.weightCap ?? Infinity,
+    options.valueOffset ?? 0
+  );
+  if (!result || Number(result.weight || 0) < Number(options.minUses ?? 1)) return null;
+  return result;
 }
 
 function v4FallbackPointFromSlotExpectation(ctx, formationId, slot, exactCc, playerRows, personRows) {
@@ -699,6 +718,8 @@ function buildV4PointContext(rohmData = {}) {
     globalAvg: 3.0,
     categoryDiff: new Map(),
     rohmRowByFormationSlotPlayer: new Map(),
+    rohmRowsByPlayer: new Map(),
+    rohmRowsByPerson: new Map(),
     rohmRowsByFormationSlotPerson: new Map(),
     rohmToCcOffset: -0.38,
   };
@@ -792,6 +813,8 @@ function buildV4PointContext(rohmData = {}) {
           ctx.rohmRowByFormationSlotPlayer.set(playerKey, record);
         }
         v4AddMapRow(ctx.rohmRowsByFormationSlotPerson, v4PointKey(formationId, slot, personId), record);
+        v4AddMapRow(ctx.rohmRowsByPlayer, String(playerId), record);
+        v4AddMapRow(ctx.rohmRowsByPerson, String(personId), record);
 
         const ccRecord = ctx.ccRowByFormationSlotPlayer.get(playerKey);
         if (ccRecord && Number(ccRecord.uses || 0) >= V4_CC_DIRECT_MIN_USES) {
@@ -806,10 +829,80 @@ function buildV4PointContext(rohmData = {}) {
   return ctx;
 }
 
-function v4CategoryAdjustment(targetCategory, refCategory) {
-  if (!targetCategory || !refCategory || targetCategory === refCategory) return 0;
-  const value = v4PointContext?.categoryDiff?.get(`${targetCategory}|${refCategory}`);
-  return Number.isFinite(Number(value)) ? Number(value) : 0;
+function v4EstimateNrToSsAdjustment(ctx, context = {}) {
+  if (!ctx) return null;
+  const targetPlayerId = Number(context.targetPlayerId || 0);
+  const personId = Number(context.personId || 0);
+  const formationId = Number(context.formationId || 0);
+  const referenceOffset = Number(context.referenceOffset || 0);
+  const referenceDeviation = context.referenceRecord
+    ? v4DeviationFromSlotExpectation(ctx, [context.referenceRecord], Infinity, referenceOffset)
+    : null;
+  const nrDeviation = referenceDeviation
+    || v4CategoryDeviation(ctx, ctx.ccRowsByPerson.get(String(personId)), "NR", {
+      minUses: V4_CC_DIRECT_MIN_USES,
+      weightCap: V4_FALLBACK_PERSON_USE_CAP,
+    })
+    || { deviation: 0, weight: 0 };
+
+  const applyBaseline = (candidate, source) => candidate ? {
+    value: Number(candidate.deviation || 0) - Number(nrDeviation.deviation || 0),
+    source,
+  } : null;
+
+  const sameIdCc = v4CategoryDeviation(ctx, ctx.ccRowsByPlayer.get(String(targetPlayerId)), "SS", {
+    excludeFormationId: formationId,
+    minUses: V4_CC_DIRECT_MIN_USES,
+    weightCap: V4_FALLBACK_PLAYER_USE_CAP,
+  });
+  const sameIdResult = applyBaseline(sameIdCc, "CC same SS id");
+  if (sameIdResult) return sameIdResult;
+
+  const otherIdCc = v4CategoryDeviation(ctx, ctx.ccRowsByPerson.get(String(personId)), "SS", {
+    excludePlayerId: targetPlayerId,
+    minUses: V4_CC_DIRECT_MIN_USES,
+    weightCap: V4_FALLBACK_PERSON_USE_CAP,
+  });
+  const otherIdResult = applyBaseline(otherIdCc, "CC other SS id");
+  if (otherIdResult) return otherIdResult;
+
+  const sameIdRohm = v4CategoryDeviation(ctx, ctx.rohmRowsByPlayer.get(String(targetPlayerId)), "SS", {
+    excludeFormationId: formationId,
+    minUses: V4_CC_DIRECT_MIN_USES,
+    weightCap: V4_FALLBACK_PLAYER_USE_CAP,
+    valueOffset: ctx.rohmToCcOffset || 0,
+  });
+  const sameIdRohmResult = applyBaseline(sameIdRohm, "Rohm same SS id");
+  if (sameIdRohmResult) return sameIdRohmResult;
+
+  const otherIdRohm = v4CategoryDeviation(ctx, ctx.rohmRowsByPerson.get(String(personId)), "SS", {
+    excludePlayerId: targetPlayerId,
+    minUses: V4_CC_DIRECT_MIN_USES,
+    weightCap: V4_FALLBACK_PERSON_USE_CAP,
+    valueOffset: ctx.rohmToCcOffset || 0,
+  });
+  const otherIdRohmResult = applyBaseline(otherIdRohm, "Rohm other SS id");
+  if (otherIdRohmResult) return otherIdRohmResult;
+
+  return null;
+}
+
+function v4CategoryAdjustmentInfo(targetCategory, refCategory, context = {}) {
+  if (!targetCategory || !refCategory || targetCategory === refCategory) return { value: 0, source: "" };
+  const ctx = context.ctx || v4PointContext;
+  if (targetCategory === "SS" && refCategory === "NR") {
+    const nrToSs = v4EstimateNrToSsAdjustment(ctx, context);
+    if (nrToSs) return nrToSs;
+  }
+  const value = ctx?.categoryDiff?.get(`${targetCategory}|${refCategory}`);
+  return {
+    value: Number.isFinite(Number(value)) ? Number(value) : 0,
+    source: "global category addon",
+  };
+}
+
+function v4CategoryAdjustment(targetCategory, refCategory, context = {}) {
+  return v4CategoryAdjustmentInfo(targetCategory, refCategory, context).value;
 }
 
 function v4ReferenceCategoryPriority(row, targetCategory) {
@@ -831,11 +924,13 @@ function v4SelectReferenceRecord(rows, targetCategory, minUses = 1) {
     )[0] || null;
 }
 
-function v4PointLabelForRecord(prefix, record, targetCategory, baseOffset = 0) {
-  const categoryOffset = v4CategoryAdjustment(targetCategory, record?.category);
+function v4PointLabelForRecord(prefix, record, targetCategory, baseOffset = 0, adjustmentContext = {}) {
+  const categoryInfo = v4CategoryAdjustmentInfo(targetCategory, record?.category, adjustmentContext);
+  const categoryOffset = Number(categoryInfo.value || 0);
   const parts = [prefix];
   if (record?.category && record.category !== targetCategory) {
-    parts.push(`${record.category}->${targetCategory} ${categoryOffset >= 0 ? "+" : ""}${formatIndexValue(categoryOffset, 2)}`);
+    const source = categoryInfo.source ? ` ${categoryInfo.source}` : "";
+    parts.push(`${record.category}->${targetCategory}${source} ${categoryOffset >= 0 ? "+" : ""}${formatIndexValue(categoryOffset, 2)}`);
   }
   if (baseOffset) parts.push(`A補正 ${baseOffset >= 0 ? "+" : ""}${formatIndexValue(baseOffset, 2)}`);
   return parts.join(" / ");
@@ -862,11 +957,20 @@ function resolveMyTeamPlayerPoint(formationId, slot, player) {
   const samePersonCc = ctx.ccRowsByFormationSlotPerson.get(v4PointKey(formationId, slot, personId)) || [];
   const ccRef = v4SelectReferenceRecord(samePersonCc, targetCategory, V4_CC_DIRECT_MIN_USES);
   if (ccRef) {
-    const offset = v4CategoryAdjustment(targetCategory, ccRef.category);
+    const adjustmentContext = {
+      ctx,
+      targetPlayerId: playerId,
+      personId,
+      formationId,
+      slot,
+      referenceRecord: ccRef,
+      referenceOffset: 0,
+    };
+    const offset = v4CategoryAdjustment(targetCategory, ccRef.category, adjustmentContext);
     return {
       point: Number(ccRef.avgPts || 0) + offset,
       source: "cc-person",
-      label: v4PointLabelForRecord(ccRef.category === targetCategory ? "CC same person" : "CC category estimate", ccRef, targetCategory),
+      label: v4PointLabelForRecord(ccRef.category === targetCategory ? "CC same person" : "CC category estimate", ccRef, targetCategory, 0, adjustmentContext),
       referencePlayerId: ccRef.playerId,
     };
   }
@@ -884,13 +988,22 @@ function resolveMyTeamPlayerPoint(formationId, slot, player) {
   const samePersonRohm = ctx.rohmRowsByFormationSlotPerson.get(v4PointKey(formationId, slot, personId)) || [];
   const rohmRef = v4SelectReferenceRecord(samePersonRohm, targetCategory, 1);
   if (rohmRef) {
+    const adjustmentContext = {
+      ctx,
+      targetPlayerId: playerId,
+      personId,
+      formationId,
+      slot,
+      referenceRecord: rohmRef,
+      referenceOffset: Number(ctx.rohmToCcOffset || 0),
+    };
     const point = Number(rohmRef.avgPts || 0)
       + Number(ctx.rohmToCcOffset || 0)
-      + v4CategoryAdjustment(targetCategory, rohmRef.category);
+      + v4CategoryAdjustment(targetCategory, rohmRef.category, adjustmentContext);
     return {
       point,
       source: "rohm-person",
-      label: v4PointLabelForRecord("Rohm same person", rohmRef, targetCategory, Number(ctx.rohmToCcOffset || 0)),
+      label: v4PointLabelForRecord("Rohm same person", rohmRef, targetCategory, Number(ctx.rohmToCcOffset || 0), adjustmentContext),
       referencePlayerId: rohmRef.playerId,
     };
   }
