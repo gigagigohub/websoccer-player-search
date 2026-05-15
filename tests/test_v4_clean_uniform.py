@@ -55,6 +55,40 @@ class V4CleanUniformIndexTest(unittest.TestCase):
         self.assertTrue(all(x.weight == UNIFORM_SLOT_WEIGHT for x in result.slot_breakdown))
         self.assertTrue(all(x.weight == UNIFORM_KEY_WEIGHT for x in result.keyslot_breakdown))
 
+    def test_uses_formation_slot_expected_points_for_adjusted_index(self):
+        formation_slot_expected = {f"101:{slot}": 1.0 for slot in range(1, 12)}
+
+        result = calc_team_v4_clean_uniform_index(
+            formation_id=101,
+            headcoach_id=None,
+            slot_player_ids=self.slot_player_ids,
+            player_point_by_id=self.player_point_by_id,
+            formation_key_slots=self.formation_key_slots,
+            formation_power=self.formation_power,
+            formation_slot_expected=formation_slot_expected,
+        )
+
+        starting_sum = sum(self.player_point_by_id.values())
+        starting_adjusted = starting_sum - 11.0
+        key_sum = (
+            self.player_point_by_id[1010]
+            + self.player_point_by_id[1009]
+            + self.player_point_by_id[1011]
+            + self.player_point_by_id[1008]
+        )
+        key_adjusted = key_sum - 4.0
+        expected_total = 0.2 + UNIFORM_SLOT_WEIGHT * starting_adjusted + UNIFORM_KEY_WEIGHT * key_adjusted
+
+        self.assertAlmostEqual(result.starting11_point_sum, starting_sum)
+        self.assertAlmostEqual(result.starting11_adjusted_sum, starting_adjusted)
+        self.assertAlmostEqual(result.starting11_contribution, UNIFORM_SLOT_WEIGHT * starting_adjusted)
+        self.assertAlmostEqual(result.keyslot_point_sum, key_sum)
+        self.assertAlmostEqual(result.keyslot_adjusted_sum, key_adjusted)
+        self.assertAlmostEqual(result.keyslot_contribution, UNIFORM_KEY_WEIGHT * key_adjusted)
+        self.assertAlmostEqual(result.total_index, expected_total)
+        self.assertAlmostEqual(result.slot_breakdown[0].slot_expected_point, 1.0)
+        self.assertAlmostEqual(result.slot_breakdown[0].adjusted_point, -0.5)
+
     def test_optional_coach_power_is_only_added_when_enabled(self):
         result = calc_team_v4_clean_uniform_index(
             formation_id=101,

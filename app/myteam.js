@@ -9,8 +9,8 @@ const ROHM_SLOT_DATA_URL = "./rohm_slot_data.json?v=20260510-rohm-peak-avg";
 const STARTING_LINEUP_SIZE = 11;
 const RESERVE_LINEUP_SIZE = 5;
 const LINEUP_SIZE = STARTING_LINEUP_SIZE + RESERVE_LINEUP_SIZE;
-const V4_CLEAN_UNIFORM_SLOT_WEIGHT = 0.177300;
-const V4_CLEAN_UNIFORM_KEY_WEIGHT = 0.043100;
+const V4_CLEAN_UNIFORM_SLOT_WEIGHT = 0.57938903;
+const V4_CLEAN_UNIFORM_KEY_WEIGHT = 0.03754174;
 const V4_CC_DIRECT_MIN_USES = 20;
 const V4_FALLBACK_PLAYER_USE_CAP = 60;
 const V4_FALLBACK_PERSON_USE_CAP = 80;
@@ -137,7 +137,7 @@ let lifecycleModeEnabled = false;
 const cardViewModeById = new Map();
 let formations = [];
 let coaches = [];
-let v4CleanUniformData = { formationPower: {}, coachPower: {} };
+let v4CleanUniformData = { formationPower: {}, coachPower: {}, formationSlotExpectedPts: {}, weights: {} };
 let myTeamPlayerById = new Map();
 let v4PointContext = null;
 let selectedFormationId = null;
@@ -576,6 +576,31 @@ function v4PointKey(formationId, slot, tail = "") {
   return `${Number(formationId)}:${Number(slot)}${tail ? `:${tail}` : ""}`;
 }
 
+function v4TeamPowerSlotWeight() {
+  const n = Number(v4CleanUniformData?.weights?.slotAdjusted);
+  return Number.isFinite(n) ? n : V4_CLEAN_UNIFORM_SLOT_WEIGHT;
+}
+
+function v4TeamPowerKeyWeight() {
+  const n = Number(v4CleanUniformData?.weights?.keyAdjusted);
+  return Number.isFinite(n) ? n : V4_CLEAN_UNIFORM_KEY_WEIGHT;
+}
+
+function v4FormationSlotExpectedFromData(formationId, slot) {
+  const fid = Number(formationId);
+  const slotNo = Number(slot);
+  if (!Number.isInteger(fid) || !Number.isInteger(slotNo)) return null;
+  const source = v4CleanUniformData?.formationSlotExpectedPts || {};
+  const flat = Number(source[v4PointKey(fid, slotNo)]);
+  if (Number.isFinite(flat)) return flat;
+  const nested = source[String(fid)] || source[fid];
+  if (nested && typeof nested === "object") {
+    const nestedValue = Number(nested[String(slotNo)] ?? nested[slotNo]);
+    if (Number.isFinite(nestedValue)) return nestedValue;
+  }
+  return null;
+}
+
 function v4AddMapRow(map, key, row) {
   if (!map.has(key)) map.set(key, []);
   map.get(key).push(row);
@@ -595,8 +620,11 @@ function v4WeightedAverage(rows) {
 }
 
 function v4SlotExpectedValue(ctx, formationId, slot) {
+  const decomposed = v4FormationSlotExpectedFromData(formationId, slot);
+  if (Number.isFinite(decomposed)) return decomposed;
   return ctx?.slotAvgByFormationSlot?.get(v4PointKey(formationId, slot))
     ?? ctx?.slotAvgBySlot?.get(String(slot))
+    ?? (Number.isFinite(Number(v4CleanUniformData?.globalAvg)) ? Number(v4CleanUniformData.globalAvg) : null)
     ?? (Number.isFinite(Number(ctx?.globalAvg)) ? Number(ctx.globalAvg) : null);
 }
 
@@ -1043,6 +1071,18 @@ function asFiniteNumber(value, fieldName) {
   return n;
 }
 
+function lookupFormationSlotExpected(formationSlotExpected, formationId, slotNo) {
+  const flatKey = v4PointKey(formationId, slotNo);
+  const flat = Number(formationSlotExpected?.[flatKey]);
+  if (Number.isFinite(flat)) return flat;
+  const nested = formationSlotExpected?.[String(formationId)] || formationSlotExpected?.[formationId];
+  if (nested && typeof nested === "object") {
+    const nestedValue = Number(nested[String(slotNo)] ?? nested[slotNo]);
+    if (Number.isFinite(nestedValue)) return nestedValue;
+  }
+  return 0;
+}
+
 function calcTeamV4CleanUniformIndex({
   formationId,
   headcoachId,
@@ -1050,8 +1090,11 @@ function calcTeamV4CleanUniformIndex({
   playerPointById,
   formationKeySlots,
   formationPower,
+  formationSlotExpected = {},
   coachPowerById = null,
   includeCoachPower = false,
+  slotWeight = V4_CLEAN_UNIFORM_SLOT_WEIGHT,
+  keyWeight = V4_CLEAN_UNIFORM_KEY_WEIGHT,
 }) {
   const requiredSlots = v4RequiredSlots();
   const missingSlots = requiredSlots.filter((slotNo) => !(slotNo in slotPlayerIds));
@@ -1073,6 +1116,9 @@ function calcTeamV4CleanUniformIndex({
 
   const keySlotNumbers = new Set(Object.values(validKeySlots));
   let starting11PointSum = 0;
+  let starting11AdjustedSum = 0;
+  const appliedSlotWeight = asFiniteNumber(slotWeight, "slotWeight");
+  const appliedKeyWeight = asFiniteNumber(keyWeight, "keyWeight");
   const slotBreakdown = requiredSlots.map((slotNo) => {
     const playerId = Number(slotPlayerIds[slotNo]);
     if (!Number.isInteger(playerId)) {
@@ -1082,38 +1128,49 @@ function calcTeamV4CleanUniformIndex({
       throw new Error(`playerPointById is missing player_id: ${playerId}`);
     }
     const playerPoint = asFiniteNumber(playerPointById[playerId], `playerPointById[${playerId}]`);
-    const contribution = V4_CLEAN_UNIFORM_SLOT_WEIGHT * playerPoint;
+    const slotExpectedPoint = lookupFormationSlotExpected(formationSlotExpected, formationId, slotNo);
+    const adjustedPoint = playerPoint - slotExpectedPoint;
+    const contribution = appliedSlotWeight * adjustedPoint;
     starting11PointSum += playerPoint;
+    starting11AdjustedSum += adjustedPoint;
     return {
       slotNo,
       playerId,
       playerPoint,
-      weight: V4_CLEAN_UNIFORM_SLOT_WEIGHT,
+      slotExpectedPoint,
+      adjustedPoint,
+      weight: appliedSlotWeight,
       contribution,
       isKeyslot: keySlotNumbers.has(slotNo),
     };
   });
-  const starting11Contribution = V4_CLEAN_UNIFORM_SLOT_WEIGHT * starting11PointSum;
+  const starting11Contribution = appliedSlotWeight * starting11AdjustedSum;
 
   let keyslotPointSum = 0;
+  let keyslotAdjustedSum = 0;
   const keyslotBreakdown = Object.entries(validKeySlots)
     .sort((a, b) => Number(a[0]) - Number(b[0]))
     .map(([rawKeyNo, slotNo]) => {
       const keyNo = Number(rawKeyNo);
       const playerId = Number(slotPlayerIds[slotNo]);
       const playerPoint = asFiniteNumber(playerPointById[playerId], `playerPointById[${playerId}]`);
-      const contribution = V4_CLEAN_UNIFORM_KEY_WEIGHT * playerPoint;
+      const slotExpectedPoint = lookupFormationSlotExpected(formationSlotExpected, formationId, slotNo);
+      const adjustedPoint = playerPoint - slotExpectedPoint;
+      const contribution = appliedKeyWeight * adjustedPoint;
       keyslotPointSum += playerPoint;
+      keyslotAdjustedSum += adjustedPoint;
       return {
         keyNo,
         slotNo,
         playerId,
         playerPoint,
-        weight: V4_CLEAN_UNIFORM_KEY_WEIGHT,
+        slotExpectedPoint,
+        adjustedPoint,
+        weight: appliedKeyWeight,
         contribution,
       };
     });
-  const keyslotContribution = V4_CLEAN_UNIFORM_KEY_WEIGHT * keyslotPointSum;
+  const keyslotContribution = appliedKeyWeight * keyslotAdjustedSum;
   const formationContribution = asFiniteNumber(formationPower?.[formationId] ?? 0, `formationPower[${formationId}]`);
   const coachContribution = includeCoachPower && coachPowerById && headcoachId != null
     ? asFiniteNumber(coachPowerById?.[headcoachId] ?? 0, `coachPowerById[${headcoachId}]`)
@@ -1123,8 +1180,10 @@ function calcTeamV4CleanUniformIndex({
     totalIndex,
     formationContribution,
     starting11PointSum,
+    starting11AdjustedSum,
     starting11Contribution,
     keyslotPointSum,
+    keyslotAdjustedSum,
     keyslotContribution,
     coachContribution,
     slotBreakdown,
@@ -1204,8 +1263,11 @@ function buildMyTeamV4CleanUniformInput() {
       playerPointById,
       formationKeySlots: selectedFormationKeySlotLookup(),
       formationPower: v4CleanUniformData?.formationPower || {},
+      formationSlotExpected: v4CleanUniformData?.formationSlotExpectedPts || {},
       coachPowerById: v4CleanUniformData?.coachPower || {},
-      includeCoachPower: false,
+      includeCoachPower: true,
+      slotWeight: v4TeamPowerSlotWeight(),
+      keyWeight: v4TeamPowerKeyWeight(),
     },
     pointSourceBySlot,
     warnings,
@@ -3403,7 +3465,7 @@ async function init() {
     fetch("./data.json?v=20260507-id908-cm"),
     fetch("./formations_data.json").catch(() => null),
     fetch("./coaches_data.json").catch(() => null),
-    fetch("./v4_clean_uniform_data.json?v=20260516-v4-index").catch(() => null),
+    fetch("./v4_clean_uniform_data.json?v=20260516-slot-adjusted-tpi").catch(() => null),
     fetch(ROHM_SLOT_DATA_URL).catch(() => null),
     loadSiteMeta(),
   ]);
@@ -3448,9 +3510,14 @@ async function init() {
       v4CleanUniformData = {
         formationPower: raw?.formationPower || {},
         coachPower: raw?.coachPower || {},
+        formationSlotExpectedPts: raw?.formationSlotExpectedPts || {},
+        globalAvg: raw?.globalAvg,
+        weights: raw?.weights || {},
+        metrics: raw?.metrics || {},
+        diagnostics: raw?.diagnostics || {},
       };
     } catch (_) {
-      v4CleanUniformData = { formationPower: {}, coachPower: {} };
+      v4CleanUniformData = { formationPower: {}, coachPower: {}, formationSlotExpectedPts: {}, weights: {} };
     }
   }
   const rohmData = rohmRes && rohmRes.ok ? await rohmRes.json().catch(() => ({})) : {};
