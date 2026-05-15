@@ -1062,10 +1062,10 @@ function resolveMyTeamPlayerPoint(formationId, slot, player) {
     };
   }
 
-  const hasQualifiedCcRows =
-    v4HasQualifiedRows(ctx.ccRowsByPlayer.get(String(playerId)))
-    || v4HasQualifiedRows(ctx.ccRowsByPerson.get(String(personId)));
-  if (!hasQualifiedCcRows) {
+  const hasQualifiedFormationSlotCc =
+    (exactCc && Number(exactCc.uses || 0) >= V4_CC_DIRECT_MIN_USES)
+    || v4HasQualifiedRows(samePersonCc);
+  if (!hasQualifiedFormationSlotCc) {
     const exactRohm = ctx.rohmRowByFormationSlotPlayer.get(v4PointKey(formationId, slot, playerId));
     if (exactRohm) {
       return {
