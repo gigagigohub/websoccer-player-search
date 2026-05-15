@@ -5,11 +5,13 @@ const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
 const APP_UPDATED_AT_JST = "2026-03-30 23:10 JST";
 const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-player-search/commits/main";
+const ROHM_SLOT_DATA_URL = "./rohm_slot_data.json?v=20260510-rohm-peak-avg";
 const STARTING_LINEUP_SIZE = 11;
 const RESERVE_LINEUP_SIZE = 5;
 const LINEUP_SIZE = STARTING_LINEUP_SIZE + RESERVE_LINEUP_SIZE;
 const V4_CLEAN_UNIFORM_SLOT_WEIGHT = 0.177300;
 const V4_CLEAN_UNIFORM_KEY_WEIGHT = 0.043100;
+const V4_CC_DIRECT_MIN_USES = 20;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
 const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
 const MYTEAM_COACH_STORAGE_KEY = "ws_myteam_coach_v1";
@@ -134,6 +136,8 @@ const cardViewModeById = new Map();
 let formations = [];
 let coaches = [];
 let v4CleanUniformData = { formationPower: {}, coachPower: {} };
+let myTeamPlayerById = new Map();
+let v4PointContext = null;
 let selectedFormationId = null;
 let selectedCoach = null;
 let isFormationEditorOpen = false;
@@ -545,6 +549,318 @@ function findCcSlotStat(formationId, slot, playerId) {
   };
 }
 
+function rebuildMyTeamPlayerIndex() {
+  myTeamPlayerById = new Map();
+  (Array.isArray(players) ? players : []).forEach((player) => {
+    const playerId = Number(player?.id || 0);
+    if (Number.isInteger(playerId) && playerId > 0) myTeamPlayerById.set(playerId, player);
+  });
+}
+
+function findPlayerById(playerId) {
+  const pid = Number(playerId);
+  if (!Number.isInteger(pid) || pid <= 0) return null;
+  return myTeamPlayerById.get(pid) || players.find((p) => Number(p?.id) === pid) || null;
+}
+
+function playerPersonId(player) {
+  const personId = Number(player?.personId || 0);
+  if (Number.isInteger(personId) && personId > 0) return personId;
+  const playerId = Number(player?.id || 0);
+  return Number.isInteger(playerId) && playerId > 0 ? playerId : 0;
+}
+
+function v4PointKey(formationId, slot, tail = "") {
+  return `${Number(formationId)}:${Number(slot)}${tail ? `:${tail}` : ""}`;
+}
+
+function v4AddMapRow(map, key, row) {
+  if (!map.has(key)) map.set(key, []);
+  map.get(key).push(row);
+}
+
+function v4WeightedAverage(rows) {
+  let sum = 0;
+  let weight = 0;
+  (Array.isArray(rows) ? rows : []).forEach((row) => {
+    const avgPts = Number(row?.avgPts);
+    const uses = Math.max(1, Number(row?.uses || 0));
+    if (!Number.isFinite(avgPts)) return;
+    sum += avgPts * uses;
+    weight += uses;
+  });
+  return weight > 0 ? sum / weight : null;
+}
+
+function v4BuildCategoryDiff(rowsByFormationSlotPerson) {
+  const acc = new Map();
+  rowsByFormationSlotPerson.forEach((rows) => {
+    const byCategory = new Map();
+    rows.forEach((row) => {
+      if (Number(row?.uses || 0) < V4_CC_DIRECT_MIN_USES) return;
+      const category = String(row?.category || "");
+      if (!category) return;
+      const current = byCategory.get(category) || { sum: 0, weight: 0 };
+      const uses = Math.max(1, Number(row.uses || 0));
+      current.sum += Number(row.avgPts || 0) * uses;
+      current.weight += uses;
+      byCategory.set(category, current);
+    });
+    const cats = Array.from(byCategory.entries())
+      .filter(([, value]) => value.weight > 0)
+      .map(([category, value]) => ({
+        category,
+        avg: value.sum / value.weight,
+        weight: value.weight,
+      }));
+    cats.forEach((target) => {
+      cats.forEach((ref) => {
+        if (target.category === ref.category) return;
+        const key = `${target.category}|${ref.category}`;
+        const current = acc.get(key) || { sum: 0, weight: 0 };
+        const weight = Math.min(target.weight, ref.weight);
+        current.sum += (target.avg - ref.avg) * weight;
+        current.weight += weight;
+        acc.set(key, current);
+      });
+    });
+  });
+  const result = new Map();
+  acc.forEach((value, key) => {
+    if (value.weight > 0) result.set(key, value.sum / value.weight);
+  });
+  return result;
+}
+
+function buildV4PointContext(rohmData = {}) {
+  const ctx = {
+    ccRowByFormationSlotPlayer: new Map(),
+    ccRowsByFormationSlotPerson: new Map(),
+    ccRowsByPlayer: new Map(),
+    ccRowsByPerson: new Map(),
+    slotAvgByFormationSlot: new Map(),
+    slotAvgBySlot: new Map(),
+    globalAvg: 3.0,
+    categoryDiff: new Map(),
+    rohmRowByFormationSlotPlayer: new Map(),
+    rohmRowsByFormationSlotPerson: new Map(),
+    rohmToCcOffset: -0.38,
+  };
+
+  const slotAccByFormationSlot = new Map();
+  const slotAccBySlot = new Map();
+  const globalRows = [];
+  (Array.isArray(formations) ? formations : []).forEach((formation) => {
+    const formationId = Number(formation?.id || 0);
+    if (!Number.isInteger(formationId) || formationId <= 0) return;
+    Object.entries(formation?.slotStats || {}).forEach(([slotKey, rows]) => {
+      const slot = Number(slotKey);
+      if (!Number.isInteger(slot) || slot < 1 || slot > STARTING_LINEUP_SIZE) return;
+      (Array.isArray(rows) ? rows : []).forEach((row) => {
+        const playerId = Number(row?.playerId || 0);
+        const player = findPlayerById(playerId);
+        if (!player) return;
+        const uses = Number(row?.uses || 0);
+        const avgPts = Number(row?.avgPts);
+        if (!Number.isInteger(playerId) || playerId <= 0 || !Number.isFinite(avgPts)) return;
+        const personId = playerPersonId(player);
+        const category = typeLabelByPlayer(player);
+        const record = {
+          formationId,
+          slot,
+          playerId,
+          personId,
+          category,
+          uses,
+          avgPts,
+          source: "cc",
+        };
+        ctx.ccRowByFormationSlotPlayer.set(v4PointKey(formationId, slot, playerId), record);
+        v4AddMapRow(ctx.ccRowsByFormationSlotPerson, v4PointKey(formationId, slot, personId), record);
+        v4AddMapRow(ctx.ccRowsByPlayer, String(playerId), record);
+        v4AddMapRow(ctx.ccRowsByPerson, String(personId), record);
+        globalRows.push(record);
+        v4AddMapRow(slotAccByFormationSlot, v4PointKey(formationId, slot), record);
+        v4AddMapRow(slotAccBySlot, String(slot), record);
+      });
+    });
+  });
+
+  slotAccByFormationSlot.forEach((rows, key) => {
+    const avgPts = v4WeightedAverage(rows);
+    if (avgPts != null) ctx.slotAvgByFormationSlot.set(key, avgPts);
+  });
+  slotAccBySlot.forEach((rows, key) => {
+    const avgPts = v4WeightedAverage(rows);
+    if (avgPts != null) ctx.slotAvgBySlot.set(key, avgPts);
+  });
+  ctx.globalAvg = v4WeightedAverage(globalRows) ?? 3.0;
+  ctx.categoryDiff = v4BuildCategoryDiff(ctx.ccRowsByFormationSlotPerson);
+
+  let rohmCcDiffSum = 0;
+  let rohmCcDiffWeight = 0;
+  Object.entries(rohmData?.formations || {}).forEach(([formationKey, rohmFormation]) => {
+    const formationId = Number(rohmFormation?.localFormationId || formationKey || 0);
+    if (!Number.isInteger(formationId) || formationId <= 0) return;
+    Object.entries(rohmFormation?.slots || {}).forEach(([slotKey, slotData]) => {
+      const slot = Number(slotKey);
+      if (!Number.isInteger(slot) || slot < 1 || slot > STARTING_LINEUP_SIZE) return;
+      (Array.isArray(slotData?.rows) ? slotData.rows : []).forEach((row) => {
+        const playerId = Number(row?.localPlayerId || 0);
+        const player = findPlayerById(playerId);
+        const avgPts = Number(row?.avgPts);
+        if (!player || !Number.isInteger(playerId) || playerId <= 0 || !Number.isFinite(avgPts)) return;
+        const personId = playerPersonId(player);
+        const uses = Number(row?.uses || row?.peakGames || 0);
+        const record = {
+          formationId,
+          slot,
+          playerId,
+          personId,
+          category: typeLabelByPlayer(player),
+          uses,
+          avgPts,
+          rank: Number(row?.rank || row?.rohmRank || 0),
+          source: "rohm",
+        };
+        const playerKey = v4PointKey(formationId, slot, playerId);
+        const current = ctx.rohmRowByFormationSlotPlayer.get(playerKey);
+        if (
+          !current
+          || Number(record.uses || 0) > Number(current.uses || 0)
+          || (
+            Number(record.uses || 0) === Number(current.uses || 0)
+            && Number(record.avgPts || 0) > Number(current.avgPts || 0)
+          )
+        ) {
+          ctx.rohmRowByFormationSlotPlayer.set(playerKey, record);
+        }
+        v4AddMapRow(ctx.rohmRowsByFormationSlotPerson, v4PointKey(formationId, slot, personId), record);
+
+        const ccRecord = ctx.ccRowByFormationSlotPlayer.get(playerKey);
+        if (ccRecord && Number(ccRecord.uses || 0) >= V4_CC_DIRECT_MIN_USES) {
+          const weight = Math.max(1, Math.min(Number(ccRecord.uses || 0), Number(record.uses || ccRecord.uses || 0)));
+          rohmCcDiffSum += (Number(ccRecord.avgPts || 0) - Number(record.avgPts || 0)) * weight;
+          rohmCcDiffWeight += weight;
+        }
+      });
+    });
+  });
+  if (rohmCcDiffWeight > 0) ctx.rohmToCcOffset = rohmCcDiffSum / rohmCcDiffWeight;
+  return ctx;
+}
+
+function v4CategoryAdjustment(targetCategory, refCategory) {
+  if (!targetCategory || !refCategory || targetCategory === refCategory) return 0;
+  const value = v4PointContext?.categoryDiff?.get(`${targetCategory}|${refCategory}`);
+  return Number.isFinite(Number(value)) ? Number(value) : 0;
+}
+
+function v4ReferenceCategoryPriority(row, targetCategory) {
+  const refCategory = String(row?.category || "");
+  if (refCategory === targetCategory) return 0;
+  if (targetCategory === "SS" && refCategory === "NR") return 1;
+  if (Number.isFinite(v4CategoryAdjustment(targetCategory, refCategory)) && v4CategoryAdjustment(targetCategory, refCategory) !== 0) return 2;
+  return 3;
+}
+
+function v4SelectReferenceRecord(rows, targetCategory, minUses = 1) {
+  return (Array.isArray(rows) ? rows : [])
+    .filter((row) => Number(row?.uses || 0) >= minUses && Number.isFinite(Number(row?.avgPts)))
+    .sort((a, b) =>
+      v4ReferenceCategoryPriority(a, targetCategory) - v4ReferenceCategoryPriority(b, targetCategory)
+      || Number(b?.uses || 0) - Number(a?.uses || 0)
+      || Number(b?.avgPts || 0) - Number(a?.avgPts || 0)
+      || Number(a?.playerId || 0) - Number(b?.playerId || 0)
+    )[0] || null;
+}
+
+function v4PointLabelForRecord(prefix, record, targetCategory, baseOffset = 0) {
+  const categoryOffset = v4CategoryAdjustment(targetCategory, record?.category);
+  const parts = [prefix];
+  if (record?.category && record.category !== targetCategory) {
+    parts.push(`${record.category}->${targetCategory} ${categoryOffset >= 0 ? "+" : ""}${formatIndexValue(categoryOffset, 2)}`);
+  }
+  if (baseOffset) parts.push(`A補正 ${baseOffset >= 0 ? "+" : ""}${formatIndexValue(baseOffset, 2)}`);
+  return parts.join(" / ");
+}
+
+function resolveMyTeamPlayerPoint(formationId, slot, player) {
+  const ctx = v4PointContext;
+  const playerId = Number(player?.id || 0);
+  const personId = playerPersonId(player);
+  const targetCategory = typeLabelByPlayer(player);
+  if (!ctx || !Number.isInteger(playerId) || playerId <= 0 || !personId) {
+    return { point: null, source: "missing", label: "評価データなし" };
+  }
+
+  const exactCc = ctx.ccRowByFormationSlotPlayer.get(v4PointKey(formationId, slot, playerId));
+  if (exactCc && Number(exactCc.uses || 0) >= V4_CC_DIRECT_MIN_USES) {
+    return {
+      point: Number(exactCc.avgPts),
+      source: "cc-exact",
+      label: `CC ${Number(exactCc.uses || 0)} games`,
+    };
+  }
+
+  const samePersonCc = ctx.ccRowsByFormationSlotPerson.get(v4PointKey(formationId, slot, personId)) || [];
+  const ccRef = v4SelectReferenceRecord(samePersonCc, targetCategory, V4_CC_DIRECT_MIN_USES);
+  if (ccRef) {
+    const offset = v4CategoryAdjustment(targetCategory, ccRef.category);
+    return {
+      point: Number(ccRef.avgPts || 0) + offset,
+      source: "cc-person",
+      label: v4PointLabelForRecord(ccRef.category === targetCategory ? "CC same person" : "CC category estimate", ccRef, targetCategory),
+      referencePlayerId: ccRef.playerId,
+    };
+  }
+
+  const exactRohm = ctx.rohmRowByFormationSlotPlayer.get(v4PointKey(formationId, slot, playerId));
+  if (exactRohm) {
+    return {
+      point: Number(exactRohm.avgPts || 0) + Number(ctx.rohmToCcOffset || 0),
+      source: "rohm-exact",
+      label: v4PointLabelForRecord("Rohm exact", exactRohm, targetCategory, Number(ctx.rohmToCcOffset || 0)),
+      referencePlayerId: exactRohm.playerId,
+    };
+  }
+
+  const samePersonRohm = ctx.rohmRowsByFormationSlotPerson.get(v4PointKey(formationId, slot, personId)) || [];
+  const rohmRef = v4SelectReferenceRecord(samePersonRohm, targetCategory, 1);
+  if (rohmRef) {
+    const point = Number(rohmRef.avgPts || 0)
+      + Number(ctx.rohmToCcOffset || 0)
+      + v4CategoryAdjustment(targetCategory, rohmRef.category);
+    return {
+      point,
+      source: "rohm-person",
+      label: v4PointLabelForRecord("Rohm same person", rohmRef, targetCategory, Number(ctx.rohmToCcOffset || 0)),
+      referencePlayerId: rohmRef.playerId,
+    };
+  }
+
+  const exactLowCc = exactCc && Number.isFinite(Number(exactCc.avgPts)) ? Number(exactCc.avgPts) : null;
+  const playerAvg = v4WeightedAverage(ctx.ccRowsByPlayer.get(String(playerId)));
+  const personAvg = v4WeightedAverage(ctx.ccRowsByPerson.get(String(personId)));
+  const slotAvg = ctx.slotAvgByFormationSlot.get(v4PointKey(formationId, slot))
+    ?? ctx.slotAvgBySlot.get(String(slot))
+    ?? null;
+  const components = [exactLowCc, playerAvg, personAvg, slotAvg].filter((value) => Number.isFinite(Number(value)));
+  if (components.length) {
+    const point = components.reduce((sum, value) => sum + Number(value), 0) / components.length;
+    return {
+      point,
+      source: "fallback",
+      label: "CC global/player-slot estimate",
+    };
+  }
+  return {
+    point: Number(ctx.globalAvg || 3.0),
+    source: "fallback-global",
+    label: "global average estimate",
+  };
+}
+
 function v4RequiredSlots() {
   return Array.from({ length: STARTING_LINEUP_SIZE }, (_, i) => i + 1);
 }
@@ -686,10 +1002,10 @@ function buildMyTeamV4CleanUniformInput() {
       continue;
     }
     slotPlayerIds[slotNo] = playerId;
-    const statInfo = findCcSlotStat(formationId, slotNo, playerId);
-    const avgPts = Number(statInfo?.row?.avgPts);
+    const pointInfo = resolveMyTeamPlayerPoint(formationId, slotNo, player);
+    const avgPts = Number(pointInfo?.point);
     if (!Number.isFinite(avgPts)) {
-      warnings.push(`Slot ${slotNo}: CC Avg not found for ${player.name}.`);
+      warnings.push(`Slot ${slotNo}: point estimate not found for ${player.name}.`);
       continue;
     }
     playerPointById[playerId] = avgPts;
@@ -697,11 +1013,12 @@ function buildMyTeamV4CleanUniformInput() {
       playerId,
       playerName: player.name,
       point: avgPts,
-      byName: !!statInfo.byName,
-      refCategory: statInfo.refCategory || "",
+      source: pointInfo.source || "",
+      label: pointInfo.label || "",
+      referencePlayerId: pointInfo.referencePlayerId || 0,
     };
-    if (statInfo.byName) {
-      warnings.push(`Slot ${slotNo}: ${player.name} uses same-name CC Avg (${statInfo.refCategory || "-"}).`);
+    if (pointInfo.source !== "cc-exact") {
+      warnings.push(`Slot ${slotNo}: ${player.name} ${pointInfo.label || "estimated"} = ${formatIndexValue(avgPts, 2)}`);
     }
   }
 
@@ -2921,15 +3238,17 @@ async function init() {
     });
   }
 
-  const [dataRes, formationsRes, coachesMetaRes, v4CleanUniformRes] = await Promise.all([
+  const [dataRes, formationsRes, coachesMetaRes, v4CleanUniformRes, rohmRes] = await Promise.all([
     fetch("./data.json?v=20260507-id908-cm"),
     fetch("./formations_data.json").catch(() => null),
     fetch("./coaches_data.json").catch(() => null),
     fetch("./v4_clean_uniform_data.json?v=20260516-v4-index").catch(() => null),
+    fetch(ROHM_SLOT_DATA_URL).catch(() => null),
     loadSiteMeta(),
   ]);
   const data = await dataRes.json();
   players = data.players || [];
+  rebuildMyTeamPlayerIndex();
   syncProfileSideWidthFromPlayers(players);
   if (formationsRes && formationsRes.ok) {
     const formationsData = await formationsRes.json();
@@ -2973,6 +3292,8 @@ async function init() {
       v4CleanUniformData = { formationPower: {}, coachPower: {} };
     }
   }
+  const rohmData = rohmRes && rohmRes.ok ? await rohmRes.json().catch(() => ({})) : {};
+  v4PointContext = buildV4PointContext(rohmData);
   buildFormationOptions();
   closeFormationEditor();
   renderFormationCurrent();
