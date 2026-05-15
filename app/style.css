@@ -2354,7 +2354,7 @@ button.ghost {
 }
 
 .myteam-index-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .myteam-index-subgrid {
@@ -2631,6 +2631,10 @@ button.ghost {
   line-height: 1.2;
   margin-top: 2px;
   display: block;
+}
+
+.lineup-cc-stat.is-estimated {
+  color: #f0bf75;
 }
 
 .lineup-core {

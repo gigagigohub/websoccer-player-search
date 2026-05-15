@@ -1081,13 +1081,11 @@ function renderTeamIndex() {
         </div>
         <div class="myteam-index-grid">
           <span>Formation <strong>${formatIndexValue(result.formationContribution, 2)}</strong></span>
-          <span>Starters <strong>${formatIndexValue(result.starting11Contribution, 2)}</strong></span>
-          <span>Key Slots <strong>${formatIndexValue(result.keyslotContribution, 2)}</strong></span>
-          <span>Coach <strong>${formatIndexValue(result.coachContribution, 2)}</strong></span>
-        </div>
-        <div class="myteam-index-subgrid">
           <span>Avg Sum <strong>${formatIndexValue(result.starting11PointSum, 2)}</strong></span>
-          <span>Key Avg Sum <strong>${formatIndexValue(result.keyslotPointSum, 2)}</strong></span>
+          <span>Starter Add <strong>${formatIndexValue(result.starting11Contribution, 2)}</strong></span>
+          <span>Key Sum <strong>${formatIndexValue(result.keyslotPointSum, 2)}</strong></span>
+          <span>Key Add <strong>${formatIndexValue(result.keyslotContribution, 2)}</strong></span>
+          <span>Coach <strong>${formatIndexValue(result.coachContribution, 2)}</strong></span>
         </div>
         <div class="myteam-index-keyslots">${escapeHtml(keySlotText)}</div>
         ${warningHtml}
@@ -1991,14 +1989,15 @@ function renderLineup() {
       : `<div class="lineup-empty-thumb"></div>`;
     const selectedPeriod = player ? findPeriodBySeason(player, season) : null;
     const selectedMetrics = selectedPeriod?.metrics || (player ? getPeakMetrics(player) : null);
-    const ccStatInfo = (player && Number.isInteger(selectedFormationId))
-      ? findCcSlotStat(selectedFormationId, slot, player.id)
+    const v4PointInfo = (player && Number.isInteger(selectedFormationId) && idx < STARTING_LINEUP_SIZE)
+      ? resolveMyTeamPlayerPoint(selectedFormationId, slot, player)
       : null;
-    const ccStatText = Number.isInteger(selectedFormationId)
-      ? (ccStatInfo?.row
-        ? `${ccStatInfo.byName ? `(${ccStatInfo.refCategory || "-"}) ` : ""}${pct(ccStatInfo.row.usageRate)} / ${avg(ccStatInfo.row.avgPts)}`
-        : "- / -")
+    const v4Point = Number(v4PointInfo?.point);
+    const pointEstimated = !!v4PointInfo && v4PointInfo.source !== "cc-exact";
+    const ccStatText = player && Number.isInteger(selectedFormationId) && idx < STARTING_LINEUP_SIZE
+      ? `Pts ${formatIndexValue(v4Point, 2)}`
       : "";
+    const ccStatClass = `lineup-cc-stat${pointEstimated ? " is-estimated" : ""}`;
     const rightPaneHtml = player
       ? (lifecycleModeEnabled
         ? successorSummaryHtml(entry, remaining)
@@ -2026,7 +2025,7 @@ function renderLineup() {
               ${seasonBadge}
             </div>
             <span class="slot-name">${name}</span>
-            ${ccStatText ? `<span class="lineup-cc-stat">${ccStatText}</span>` : ""}
+            ${ccStatText ? `<span class="${ccStatClass}">${ccStatText}</span>` : ""}
           </div>
           ${rightPaneHtml}
         </div>
