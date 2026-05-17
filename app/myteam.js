@@ -148,6 +148,7 @@ const cardViewModeById = new Map();
 let formations = [];
 let coaches = [];
 let v4CleanUniformData = { meta: {}, formationPower: {}, coachPower: {}, formationSlotExpectedPts: {}, weights: {} };
+let latestRenderedTeamTpi = null;
 let myTeamPlayerById = new Map();
 let v4PointContext = null;
 let selectedFormationId = null;
@@ -503,6 +504,7 @@ function renderFormationCurrent() {
         </div>
       </div>
     `;
+    renderTpiInfoBenchmark();
     return;
   }
   const f = formations.find((x) => Number(x?.id) === selectedFormationId);
@@ -1356,6 +1358,7 @@ function renderTeamIndex() {
         <p class="myteam-index-note">${warnings.map(escapeHtml).join(" / ") || "No index data."}</p>
       </section>
     `;
+    renderTpiInfoBenchmark();
     return;
   }
 
@@ -1364,6 +1367,7 @@ function renderTeamIndex() {
     const warningHtml = warnings.length
       ? `<div class="myteam-index-warnings">${warnings.map((w) => `<span>${escapeHtml(w)}</span>`).join("")}</div>`
       : "";
+    latestRenderedTeamTpi = result.totalIndex;
     els.myTeamIndexWrap.innerHTML = `
       <section class="myteam-index-card">
         <div class="myteam-index-head">
@@ -1379,8 +1383,10 @@ function renderTeamIndex() {
         ${warningHtml}
       </section>
     `;
+    renderTpiInfoBenchmark();
     return;
   } catch (error) {
+    latestRenderedTeamTpi = null;
     const allWarnings = [...warnings, error?.message || "Index calculation failed."];
     const knownSlots = Object.values(pointSourceBySlot || {}).length;
     els.myTeamIndexWrap.innerHTML = `
@@ -1393,6 +1399,7 @@ function renderTeamIndex() {
         <div class="myteam-index-warnings">${allWarnings.map((w) => `<span>${escapeHtml(w)}</span>`).join("")}</div>
       </section>
     `;
+    renderTpiInfoBenchmark();
   }
 }
 
@@ -1441,22 +1448,41 @@ function closeTpiInfoModal() {
   if (els.tpiInfoModal) els.tpiInfoModal.hidden = true;
 }
 
+function tpiGridLabelFromValue(value, step = 0.25) {
+  const idx = Math.round(value / step);
+  const start = idx * step;
+  const end = start + step;
+  return `${formatIndexValue(start, 2)}〜${formatIndexValue(end, 2)}`;
+}
+
 function renderTpiInfoBenchmark() {
   const meta = v4CleanUniformData?.meta || {};
-  const avg = Number(meta.championTpiAverage);
-  const sampleCount = Number(meta.championTpiSampleCount || 0);
+  const rows = Array.isArray(meta.championTpiGridStats) ? meta.championTpiGridStats : [];
   const skippedFinals = Number(meta.championTpiSkippedFinals || 0);
+  const currentTpi = Number(latestRenderedTeamTpi);
+  const activeLabel = Number.isFinite(currentTpi) ? tpiGridLabelFromValue(currentTpi) : null;
+
   document.querySelectorAll("[data-tpi-champion-benchmark]").forEach((box) => {
-    if (!Number.isFinite(avg) || sampleCount <= 0) {
+    if (!rows.length) {
       box.hidden = true;
       return;
     }
-    const avgEl = box.querySelector("[data-tpi-champion-avg]");
     const noteEl = box.querySelector("[data-tpi-champion-note]");
-    if (avgEl) avgEl.textContent = `${avg >= 0 ? "+" : ""}${formatIndexValue(avg, 2)}`;
+    const gridEl = box.querySelector("[data-tpi-champion-grid]");
     if (noteEl) {
+      const sampleCount = rows.reduce((acc, row) => acc + Number(row?.champions || 0), 0);
       const skipText = skippedFinals > 0 ? ` / PK不明の同点決勝${skippedFinals}件を除外` : "";
-      noteEl.textContent = `過去CC優勝チーム ${sampleCount} teams${skipText}`;
+      noteEl.textContent = `優勝実績 ${sampleCount} teams${skipText}`;
+    }
+    if (gridEl) {
+      gridEl.innerHTML = rows.map((row) => {
+        const label = String(row?.label || "");
+        const total = Number(row?.totalTeams || 0);
+        const champions = Number(row?.champions || 0);
+        const prob = total > 0 ? (champions / total) * 100 : 0;
+        const isActive = activeLabel && label === activeLabel;
+        return `<div class="tpi-champion-cell${isActive ? " is-active" : ""}"><span class="tpi-champion-cell-range">${escapeHtml(label)}</span><strong>${prob.toFixed(1)}%</strong><small>${champions}/${total}</small></div>`;
+      }).join("");
     }
     box.hidden = false;
   });

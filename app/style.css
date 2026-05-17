@@ -2517,6 +2517,52 @@ button.ghost {
   font-size: 0.66rem;
 }
 
+.tpi-info-benchmark {
+  grid-template-columns: 1fr;
+}
+
+.tpi-info-benchmark-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.tpi-champion-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.tpi-champion-cell {
+  border: 1px solid rgba(83, 119, 181, 0.35);
+  border-radius: 6px;
+  padding: 5px 6px;
+  background: rgba(10, 22, 38, 0.45);
+  display: grid;
+  gap: 1px;
+}
+
+.tpi-champion-cell.is-active {
+  border-color: rgba(240, 191, 117, 0.82);
+  box-shadow: 0 0 0 1px rgba(240, 191, 117, 0.4) inset;
+}
+
+.tpi-champion-cell-range {
+  color: #d7e6ff;
+  font-size: 0.6rem;
+}
+
+.tpi-champion-cell strong {
+  color: #ffd58a;
+  font-size: 0.8rem;
+}
+
+.tpi-champion-cell small {
+  color: #9bb0d4;
+  font-size: 0.58rem;
+}
+
 .tpi-info-body dl {
   display: grid;
   gap: 6px;
