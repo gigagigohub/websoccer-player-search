@@ -45,6 +45,8 @@ class TeamRow:
     headcoach_pts: Optional[float]
     goals_for: int
     goals_against: int
+    match_title: str = ""
+    pk_winner_side: str = ""
 
 
 @dataclass(frozen=True)
@@ -131,8 +133,12 @@ def load_db(db_path: Path) -> Tuple[Dict[Tuple[int, int, int, str], TeamRow], Di
             """
             SELECT season, world_id, match_id, side, team_id, team_name, formation_id, formation_name,
                    headcoach_id, headcoach_name, headcoach_pts,
-                   goals_for, goals_against
-            FROM cc_teams
+                   goals_for, goals_against,
+                   m.title AS match_title,
+                   m.pk_winner_side AS pk_winner_side
+            FROM cc_teams t
+            LEFT JOIN cc_matches m
+              USING (season, world_id, match_id)
             """
         ):
             key = (int(row["season"]), int(row["world_id"]), int(row["match_id"]), str(row["side"]))
@@ -150,6 +156,8 @@ def load_db(db_path: Path) -> Tuple[Dict[Tuple[int, int, int, str], TeamRow], Di
                 headcoach_pts=as_float(row["headcoach_pts"]),
                 goals_for=int(row["goals_for"] or 0),
                 goals_against=int(row["goals_against"] or 0),
+                match_title=str(row["match_title"] or ""),
+                pk_winner_side=str(row["pk_winner_side"] or ""),
             )
 
         players: Dict[Tuple[int, int, int, str], List[PlayerRow]] = defaultdict(list)
@@ -563,6 +571,17 @@ def pk_winner_side(
     match_id: int,
     world_id: int,
 ) -> Optional[str]:
+    db_side = next(
+        (
+            side
+            for side, team in teams_by_side.items()
+            if str(team.pk_winner_side or "").strip().lower() == side
+        ),
+        None,
+    )
+    if db_side is not None:
+        return db_side
+
     path = find_cc_result_json(match_id, world_id)
     if path is None:
         return None
