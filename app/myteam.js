@@ -3776,7 +3776,7 @@ async function init() {
     fetch("./data.json?v=20260507-id908-cm"),
     fetch("./formations_data.json").catch(() => null),
     fetch("./coaches_data.json").catch(() => null),
-    fetch("./v4_clean_uniform_data.json?v=20260516-tpi-champion-avg").catch(() => null),
+    fetch("./v4_clean_uniform_data.json?v=20260517-tpi-champion-grid").catch(() => null),
     fetch(ROHM_SLOT_DATA_URL).catch(() => null),
     loadSiteMeta(),
   ]);
