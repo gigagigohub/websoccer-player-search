@@ -2775,6 +2775,8 @@ button.ghost {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  position: relative;
+  z-index: 3;
 }
 
 .lineup-badges {
@@ -2831,7 +2833,9 @@ button.ghost {
   display: block;
   height: 0.72rem;
   margin-top: 2px;
-  max-width: 100%;
+  width: 100%;
+  overflow: visible;
+  z-index: 4;
 }
 
 .lineup-cc-row .lineup-cc-stat {
@@ -2842,14 +2846,14 @@ button.ghost {
   position: absolute;
   left: 44px;
   top: 0;
-  max-width: calc(100% - 44px);
+  max-width: none;
   color: #f0bf75;
   font-size: 0.5rem;
   line-height: 1.2;
-  overflow: hidden;
-  text-overflow: clip;
+  overflow: visible;
   white-space: nowrap;
   pointer-events: none;
+  z-index: 5;
 }
 
 .lineup-core {
@@ -2858,6 +2862,8 @@ button.ghost {
   grid-template-columns: repeat(3, minmax(66px, 1fr));
   gap: 4px;
   min-width: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .lineup-badges .lineup-season {
