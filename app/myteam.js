@@ -47,6 +47,18 @@ const DETAIL_METRIC_LABELS = {
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 let updatedAtFetchStarted = false;
 let ccDataMeta = null;
+let ccRangeData = { rows: [], skippedFinals: 0 };
+const FETCH_TIMEOUT_MS = 12000;
+
+async function fetchWithTimeout(url, options = {}, timeoutMs = FETCH_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 const els = {
   hero: document.querySelector(".hero"),
@@ -1456,9 +1468,8 @@ function tpiGridLabelFromValue(value, step = 0.25) {
 }
 
 function renderTpiInfoBenchmark() {
-  const meta = v4CleanUniformData?.meta || {};
-  const rows = Array.isArray(meta.championTpiGridStats) ? meta.championTpiGridStats : [];
-  const skippedFinals = Number(meta.championTpiSkippedFinals || 0);
+  const rows = Array.isArray(ccRangeData?.rows) ? ccRangeData.rows : [];
+  const skippedFinals = Number(ccRangeData?.skippedFinals || 0);
   const currentTpi = Number(latestRenderedTeamTpi);
   const activeLabel = Number.isFinite(currentTpi) ? tpiGridLabelFromValue(currentTpi) : null;
 
@@ -1466,7 +1477,7 @@ function renderTpiInfoBenchmark() {
     if (!rows.length) {
       const noteEl = box.querySelector("[data-tpi-champion-note]");
       const gridEl = box.querySelector("[data-tpi-champion-grid]");
-      if (noteEl) noteEl.textContent = "集計データを読み込めませんでした（v4_clean_uniform_data.json の championTpiGridStats が未設定）";
+      if (noteEl) noteEl.textContent = "集計データを読み込めませんでした（cc_range_data.json が未設定）";
       if (gridEl) gridEl.innerHTML = `<div class="tpi-champion-cell"><span class="tpi-champion-cell-range">N/A</span><strong>—</strong><small>—/—</small></div>`;
       box.hidden = false;
       return;
@@ -3786,13 +3797,14 @@ async function init() {
     });
   }
 
-  const [dataRes, formationsRes, coachesMetaRes, v4CleanUniformRes, rohmRes] = await Promise.all([
-    fetch("./data.json?v=20260507-id908-cm"),
-    fetch("./formations_data.json").catch(() => null),
-    fetch("./coaches_data.json").catch(() => null),
-    fetch("./v4_clean_uniform_data.json?v=20260517-tpi-champion-grid").catch(() => null),
-    fetch(ROHM_SLOT_DATA_URL).catch(() => null),
-    loadSiteMeta(),
+  loadSiteMeta();
+  const [dataRes, formationsRes, coachesMetaRes, v4CleanUniformRes, rohmRes, ccRangeRes] = await Promise.all([
+    fetchWithTimeout("./data.json?v=20260507-id908-cm"),
+    fetchWithTimeout("./formations_data.json").catch(() => null),
+    fetchWithTimeout("./coaches_data.json").catch(() => null),
+    fetchWithTimeout("./v4_clean_uniform_data.json?v=20260517-tpi-champion-grid").catch(() => null),
+    fetchWithTimeout(ROHM_SLOT_DATA_URL).catch(() => null),
+    fetchWithTimeout("./cc_range_data.json?v=20260517-static").catch(() => null),
   ]);
   const data = await dataRes.json();
   players = data.players || [];
@@ -3844,6 +3856,17 @@ async function init() {
       };
     } catch (_) {
       v4CleanUniformData = { meta: {}, formationPower: {}, coachPower: {}, formationSlotExpectedPts: {}, weights: {} };
+    }
+  }
+  if (ccRangeRes && ccRangeRes.ok) {
+    try {
+      const raw = await ccRangeRes.json();
+      ccRangeData = {
+        rows: Array.isArray(raw?.rows) ? raw.rows : [],
+        skippedFinals: Number(raw?.skippedFinals || 0),
+      };
+    } catch (_) {
+      ccRangeData = { rows: [], skippedFinals: 0 };
     }
   }
   renderTpiInfoBenchmark();

@@ -60,6 +60,17 @@ const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-pla
 const ROHM_SLOT_DATA_URL = "./rohm_slot_data.json?v=20260510-rohm-peak-avg";
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 let ccDataMeta = null;
+const FETCH_TIMEOUT_MS = 12000;
+
+async function fetchWithTimeout(url, options = {}, timeoutMs = FETCH_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 function metricLabel(metric) {
   return METRIC_LABELS[metric] || metric;
@@ -3210,11 +3221,11 @@ async function init() {
     }
   });
 
+  loadSiteMeta();
   const [res, formationsRes, rohmRes] = await Promise.all([
-    fetch("./data.json?v=20260507-id908-cm"),
-    fetch("./formations_data.json?v=20260507-player-usage").catch(() => null),
-    fetch(ROHM_SLOT_DATA_URL).catch(() => null),
-    loadSiteMeta(),
+    fetchWithTimeout("./data.json?v=20260507-id908-cm"),
+    fetchWithTimeout("./formations_data.json?v=20260507-player-usage").catch(() => null),
+    fetchWithTimeout(ROHM_SLOT_DATA_URL).catch(() => null),
   ]);
   const data = await res.json();
   const formationData = formationsRes ? await formationsRes.json().catch(() => ({})) : {};
