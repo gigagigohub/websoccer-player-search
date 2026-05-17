@@ -2665,7 +2665,7 @@ button.ghost {
   min-width: 0;
   display: flex;
   align-items: flex-start;
-  gap: 6px;
+  gap: 8px;
   flex: 1 1 auto;
 }
 
@@ -2771,12 +2771,10 @@ button.ghost {
 
 .lineup-player-meta {
   min-width: 0;
-  flex: 0 1 132px;
-  max-width: 132px;
+  flex: 0 0 132px;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  overflow: hidden;
 }
 
 .lineup-badges {
@@ -2824,15 +2822,8 @@ button.ghost {
   display: inline-flex;
   align-items: baseline;
   gap: 3px;
-  width: 100%;
   max-width: 100%;
-  min-width: 0;
-  overflow: hidden;
   white-space: nowrap;
-}
-
-.lineup-cc-stat > span:first-child {
-  flex: 0 0 auto;
 }
 
 .lineup-cc-stat.is-estimated {
@@ -2841,34 +2832,16 @@ button.ghost {
 
 .lineup-point-source {
   color: #f0bf75;
-  flex: 1 1 auto;
-  min-width: 0;
-  font-size: 0.5rem;
-  overflow: hidden;
-  text-overflow: clip;
+  font-size: var(--point-source-size, 0.5rem);
   white-space: nowrap;
-}
-
-.lineup-point-source.is-long {
-  font-size: 0.46rem;
-}
-
-.lineup-point-source.is-xlong {
-  font-size: 0.42rem;
-}
-
-.lineup-point-source.is-xxlong {
-  font-size: 0.38rem;
 }
 
 .lineup-core {
   margin-left: auto;
-  flex: 1 1 168px;
   display: grid;
-  grid-template-columns: repeat(3, minmax(48px, 1fr));
+  grid-template-columns: repeat(3, minmax(66px, 1fr));
   gap: 4px;
   min-width: 0;
-  max-width: 184px;
 }
 
 .lineup-badges .lineup-season {
@@ -3684,10 +3657,8 @@ body.modal-scroll-lock #formationModal {
   }
 
   .lineup-core {
-    flex-basis: 144px;
-    grid-template-columns: repeat(3, minmax(42px, 1fr));
+    grid-template-columns: repeat(3, minmax(54px, 1fr));
     gap: 3px;
-    max-width: 154px;
   }
 
   .lineup-core-item .gauge {
@@ -3703,8 +3674,7 @@ body.modal-scroll-lock #formationModal {
   }
 
   .lineup-player-meta {
-    flex-basis: 106px;
-    max-width: 106px;
+    flex-basis: 110px;
   }
 
   .slot-name {
@@ -3714,19 +3684,6 @@ body.modal-scroll-lock #formationModal {
 
   .lineup-cc-stat {
     font-size: 0.52rem;
-  }
-
-  .lineup-point-source {
-    font-size: 0.45rem;
-  }
-
-  .lineup-point-source.is-long {
-    font-size: 0.41rem;
-  }
-
-  .lineup-point-source.is-xlong,
-  .lineup-point-source.is-xxlong {
-    font-size: 0.37rem;
   }
 
   .lineup-badges .lineup-season {
