@@ -521,7 +521,7 @@ def fit_model(
     }
 
 
-def evaluate_model(model: Mapping[str, object]) -> Dict[str, float]:
+def evaluate_model(model: Mapping[str, object]) -> Dict[str, object]:
     rows: Sequence[Dict[str, object]] = model["trainRows"]  # type: ignore[assignment]
     clean_goal_diff: Sequence[float] = model["cleanGoalDiff"]  # type: ignore[assignment]
     weights: Mapping[str, float] = model["weights"]  # type: ignore[assignment]
@@ -601,6 +601,13 @@ def pk_winner_side(
     return side_order[0] if pk_scores[0] > pk_scores[1] else side_order[1]
 
 
+
+def tpi_grid_label(value: float, step: float = 0.25) -> str:
+    idx = round(value / step)
+    start = idx * step
+    end = start + step
+    return f"{start:.2f}〜{end:.2f}"
+
 def champion_tpi_summary(
     teams: Mapping[Tuple[int, int, int, str], TeamRow],
     players_by_team: Mapping[Tuple[int, int, int, str], Sequence[PlayerRow]],
@@ -618,6 +625,7 @@ def champion_tpi_summary(
         final_match_by_world[key] = max(final_match_by_world.get(key, 0), match_id)
 
     champion_indexes: List[float] = []
+    tpi_grid_counts: Dict[str, Dict[str, int]] = {}
     pk_resolved = 0
     skipped = 0
     for (season, world_id), match_id in sorted(final_match_by_world.items()):
@@ -656,7 +664,27 @@ def champion_tpi_summary(
         if features is None:
             skipped += 1
             continue
-        champion_indexes.append(team_index_from_features(features, weights))
+        for side in ("home", "away"):
+            finalist_features = side_features(
+                (season, world_id, match_id, side),
+                teams,
+                players_by_team,
+                effects,
+                key_slots_by_formation,
+                formation_power=formation_power,
+                coach_power=coach_power,
+            )
+            if finalist_features is None:
+                continue
+            finalist_index = team_index_from_features(finalist_features, weights)
+            label = tpi_grid_label(finalist_index)
+            row = tpi_grid_counts.setdefault(label, {"label": label, "champions": 0, "totalTeams": 0})
+            row["totalTeams"] += 1
+        champion_index = team_index_from_features(features, weights)
+        champion_indexes.append(champion_index)
+        label = tpi_grid_label(champion_index)
+        row = tpi_grid_counts.setdefault(label, {"label": label, "champions": 0, "totalTeams": 0})
+        row["champions"] += 1
 
     if not champion_indexes:
         return {
@@ -664,6 +692,7 @@ def champion_tpi_summary(
             "sampleCount": 0.0,
             "skippedFinals": float(skipped),
             "pkResolvedFinals": float(pk_resolved),
+            "gridStats": [],
         }
     champion_indexes.sort()
     return {
@@ -674,6 +703,7 @@ def champion_tpi_summary(
         "sampleCount": float(len(champion_indexes)),
         "skippedFinals": float(skipped),
         "pkResolvedFinals": float(pk_resolved),
+        "gridStats": sorted(tpi_grid_counts.values(), key=lambda row: row["label"]),
     }
 
 
@@ -826,6 +856,7 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
             "championTpiSampleCount": int(champion_tpi.get("sampleCount", 0)),
             "championTpiSkippedFinals": int(champion_tpi.get("skippedFinals", 0)),
             "championTpiPkResolvedFinals": int(champion_tpi.get("pkResolvedFinals", 0)),
+            "championTpiGridStats": champion_tpi.get("gridStats", []),
         },
         "weights": {key: round(float(value), 8) for key, value in model["weights"].items()},  # type: ignore[union-attr]
         "diagnostics": {key: round(float(value), 8) for key, value in model["diagnostics"].items()},  # type: ignore[union-attr]
