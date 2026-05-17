@@ -1475,14 +1475,24 @@ function renderTpiInfoBenchmark() {
       noteEl.textContent = `優勝実績 ${sampleCount} teams${skipText}`;
     }
     if (gridEl) {
-      gridEl.innerHTML = rows.map((row) => {
-        const label = String(row?.label || "");
-        const total = Number(row?.totalTeams || 0);
-        const champions = Number(row?.champions || 0);
-        const prob = total > 0 ? (champions / total) * 100 : 0;
-        const isActive = activeLabel && label === activeLabel;
-        return `<div class="tpi-champion-cell${isActive ? " is-active" : ""}"><span class="tpi-champion-cell-range">${escapeHtml(label)}</span><strong>${prob.toFixed(1)}%</strong><small>${champions}/${total}</small></div>`;
-      }).join("");
+      const rowsKey = JSON.stringify(rows);
+      const needsRender = gridEl.dataset.rowsKey !== rowsKey;
+      if (needsRender) {
+        gridEl.innerHTML = rows.map((row) => {
+          const label = String(row?.label || "");
+          const total = Number(row?.totalTeams || 0);
+          const champions = Number(row?.champions || 0);
+          const prob = total > 0 ? (champions / total) * 100 : 0;
+          const isActive = activeLabel && label === activeLabel;
+          return `<div class="tpi-champion-cell${isActive ? " is-active" : ""}" data-tpi-champion-label="${escapeHtml(label)}"><span class="tpi-champion-cell-range">${escapeHtml(label)}</span><strong>${prob.toFixed(1)}%</strong><small>${champions}/${total}</small></div>`;
+        }).join("");
+        gridEl.dataset.rowsKey = rowsKey;
+      } else {
+        gridEl.querySelectorAll(".tpi-champion-cell").forEach((cell) => {
+          const label = cell.getAttribute("data-tpi-champion-label");
+          cell.classList.toggle("is-active", Boolean(activeLabel && label === activeLabel));
+        });
+      }
     }
     box.hidden = false;
   });
