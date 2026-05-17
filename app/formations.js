@@ -1164,7 +1164,6 @@ function renderBestTeam(formation) {
       <div class="best-team-score-grid">
         <span><strong>${finishDisplay}</strong></span>
         <span>Record <strong>${wins}-${draws}-${losses}</strong></span>
-        <span>Avg Pts <strong>${avg(team?.avgPlayerPts)}</strong></span>
         ${Number.isFinite(teamPowerIndex) ? `<span>TPI <strong>${signedFixed(teamPowerIndex)}</strong></span>` : ""}
         <span>Goals For <strong>${Number.isFinite(goalsFor) ? goalsFor : "-"}</strong></span>
         <span>Goals Against <strong>${Number.isFinite(goalsAgainst) ? goalsAgainst : "-"}</strong></span>
