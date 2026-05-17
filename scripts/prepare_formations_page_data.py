@@ -190,7 +190,12 @@ def build_team_power_index_by_instance(team_rows, player_rows, key_slots_by_form
             continue
         gdi = tpi_model.goal_difference_index_from_features(features, weights)
         tpi = (
-            tpi_model.team_power_index_from_gdi(gdi, int(teams[key].formation_id or 0), match_power_model)
+            tpi_model.team_power_index_from_gdi(
+                gdi,
+                int(teams[key].formation_id or 0),
+                match_power_model,
+                int(teams[key].headcoach_id or 0),
+            )
             if match_power_model is not None
             else gdi
         )

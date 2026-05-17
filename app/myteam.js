@@ -1376,19 +1376,24 @@ function clampNumber(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 
-function calcTeamPowerFromGdi(gdi, formationId) {
+function calcTeamPowerFromGdi(gdi, formationId, headcoachId = null) {
   const model = v4CleanUniformData?.matchPower || {};
   const slope = Number(model?.slope || 0);
-  const conversionMap = model?.formationWinConversion || {};
-  const conversion = Number(conversionMap?.[String(Number(formationId))] ?? conversionMap?.[Number(formationId)] ?? 0) || 0;
+  const formationMap = model?.formationWinConversion || {};
+  const coachMap = model?.coachWinConversion || {};
+  const formationConversion = Number(formationMap?.[String(Number(formationId))] ?? formationMap?.[Number(formationId)] ?? 0) || 0;
+  const coachConversion = headcoachId == null
+    ? 0
+    : (Number(coachMap?.[String(Number(headcoachId))] ?? coachMap?.[Number(headcoachId)] ?? 0) || 0);
   const baseMatchPower = clampNumber(slope * Number(gdi || 0), -0.95, 0.95);
-  const matchPower = clampNumber(baseMatchPower + conversion, -1, 1);
+  const matchPower = clampNumber(baseMatchPower + formationConversion + coachConversion, -1, 1);
   return {
     gdi: Number(gdi || 0),
     tpi: 50 + 50 * matchPower,
     matchPower,
     baseMatchPower,
-    formationWinConversion: conversion,
+    formationWinConversion: formationConversion,
+    coachWinConversion: coachConversion,
   };
 }
 
@@ -1411,7 +1416,7 @@ function renderTeamIndex() {
 
   try {
     const result = calcTeamV4CleanUniformIndex(input);
-    const teamPower = calcTeamPowerFromGdi(result.totalIndex, input.formationId);
+    const teamPower = calcTeamPowerFromGdi(result.totalIndex, input.formationId, input.headcoachId);
     const warningHtml = warnings.length
       ? `<div class="myteam-index-warnings">${warnings.map((w) => `<span>${escapeHtml(w)}</span>`).join("")}</div>`
       : "";
@@ -1422,7 +1427,7 @@ function renderTeamIndex() {
           <span class="myteam-index-title"><span class="myteam-index-label">Team Power Index</span><button type="button" class="myteam-index-info" data-tpi-info aria-label="Team Power Index info">i</button></span>
           <strong class="myteam-index-value">${formatIndexValue(teamPower.tpi, 1)}</strong>
         </div>
-        <p class="myteam-index-note">GDI ${result.totalIndex >= 0 ? "+" : ""}${formatIndexValue(result.totalIndex, 2)} / Formation win conversion ${teamPower.formationWinConversion >= 0 ? "+" : ""}${formatIndexValue(teamPower.formationWinConversion, 3)}</p>
+        <p class="myteam-index-note">GDI ${result.totalIndex >= 0 ? "+" : ""}${formatIndexValue(result.totalIndex, 2)} / Win conversion F ${teamPower.formationWinConversion >= 0 ? "+" : ""}${formatIndexValue(teamPower.formationWinConversion, 3)} C ${teamPower.coachWinConversion >= 0 ? "+" : ""}${formatIndexValue(teamPower.coachWinConversion, 3)}</p>
         <div class="myteam-index-grid">
           <span>Slots <strong>${formatIndexValue(result.starting11Contribution, 2)}</strong></span>
           <span>Key Slots <strong>${formatIndexValue(result.keyslotContribution, 2)}</strong></span>

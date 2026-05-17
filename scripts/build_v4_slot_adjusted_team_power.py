@@ -29,6 +29,7 @@ FORMATION_POWER_PRIOR = 45.0
 COACH_POWER_PRIOR = 60.0
 ITERATIONS = 32
 MATCH_POWER_FORMATION_PRIOR = 180.0
+MATCH_POWER_COACH_PRIOR = 220.0
 CHAMPION_TPI_GRID_STEP = 5.0
 
 
@@ -607,12 +608,27 @@ def team_power_index_from_gdi(
     gdi: float,
     formation_id: int,
     match_power_model: Mapping[str, object],
+    headcoach_id: Optional[int] = None,
 ) -> float:
-    conversions = match_power_model.get("formationWinConversion") or {}
-    conversion = 0.0
-    if isinstance(conversions, Mapping):
-        conversion = float(conversions.get(int(formation_id), conversions.get(str(int(formation_id)), 0.0)) or 0.0)
-    match_power = clamp(base_match_power_from_gdi(gdi, match_power_model, include_intercept=False) + conversion, -1.0, 1.0)
+    formation_conversions = match_power_model.get("formationWinConversion") or {}
+    coach_conversions = match_power_model.get("coachWinConversion") or {}
+    formation_conversion = 0.0
+    coach_conversion = 0.0
+    if isinstance(formation_conversions, Mapping):
+        formation_conversion = float(
+            formation_conversions.get(int(formation_id), formation_conversions.get(str(int(formation_id)), 0.0)) or 0.0
+        )
+    if isinstance(coach_conversions, Mapping) and headcoach_id is not None:
+        coach_conversion = float(
+            coach_conversions.get(int(headcoach_id), coach_conversions.get(str(int(headcoach_id)), 0.0)) or 0.0
+        )
+    match_power = clamp(
+        base_match_power_from_gdi(gdi, match_power_model, include_intercept=False)
+        + formation_conversion
+        + coach_conversion,
+        -1.0,
+        1.0,
+    )
     return 50.0 + 50.0 * match_power
 
 
@@ -630,7 +646,9 @@ def build_match_power_model(model: Mapping[str, object]) -> Dict[str, object]:
     slope = float(coef[1] if len(coef) > 1 else 0.0)
 
     residuals_by_formation: Dict[int, List[float]] = defaultdict(lambda: [0.0, 0.0])
+    residuals_by_coach: Dict[int, List[float]] = defaultdict(lambda: [0.0, 0.0])
     base_pairs: List[Tuple[float, float]] = []
+    formation_pairs: List[Tuple[float, float]] = []
     adjusted_pairs: List[Tuple[float, float]] = []
     for row, (gdi_diff, actual) in zip(rows, examples):
         home: TeamRow = row["home"]  # type: ignore[assignment]
@@ -663,18 +681,60 @@ def build_match_power_model(model: Mapping[str, object]) -> Dict[str, object]:
         away: TeamRow = row["away"]  # type: ignore[assignment]
         home_conv = conversions.get(int(home.formation_id or 0), 0.0)
         away_conv = conversions.get(int(away.formation_id or 0), 0.0)
-        adjusted = clamp(clamp(intercept + slope * gdi_diff, -0.95, 0.95) + home_conv - away_conv, -1.0, 1.0)
+        formation_adjusted = clamp(clamp(intercept + slope * gdi_diff, -0.95, 0.95) + home_conv - away_conv, -1.0, 1.0)
+        formation_residual = actual - formation_adjusted
+        if int(home.headcoach_id or 0) > 0:
+            residuals_by_coach[int(home.headcoach_id)][0] += formation_residual
+            residuals_by_coach[int(home.headcoach_id)][1] += 1.0
+        if int(away.headcoach_id or 0) > 0:
+            residuals_by_coach[int(away.headcoach_id)][0] -= formation_residual
+            residuals_by_coach[int(away.headcoach_id)][1] += 1.0
+        formation_pairs.append((actual, formation_adjusted))
+
+    coach_conversions = {
+        cid: values[0] / (values[1] + MATCH_POWER_COACH_PRIOR)
+        for cid, values in residuals_by_coach.items()
+    }
+    if coach_conversions:
+        total_count = sum(residuals_by_coach[cid][1] for cid in coach_conversions)
+        weighted_mean = (
+            sum(coach_conversions[cid] * residuals_by_coach[cid][1] for cid in coach_conversions) / total_count
+            if total_count > 0
+            else 0.0
+        )
+        coach_conversions = {cid: value - weighted_mean for cid, value in coach_conversions.items()}
+
+    for row, (gdi_diff, actual) in zip(rows, examples):
+        home: TeamRow = row["home"]  # type: ignore[assignment]
+        away: TeamRow = row["away"]  # type: ignore[assignment]
+        home_form = conversions.get(int(home.formation_id or 0), 0.0)
+        away_form = conversions.get(int(away.formation_id or 0), 0.0)
+        home_coach = coach_conversions.get(int(home.headcoach_id or 0), 0.0)
+        away_coach = coach_conversions.get(int(away.headcoach_id or 0), 0.0)
+        adjusted = clamp(
+            clamp(intercept + slope * gdi_diff, -0.95, 0.95)
+            + home_form
+            - away_form
+            + home_coach
+            - away_coach,
+            -1.0,
+            1.0,
+        )
         adjusted_pairs.append((actual, adjusted))
 
     return {
-        "model": "gdi_linear_with_formation_win_conversion",
+        "model": "gdi_linear_with_formation_and_coach_win_conversion",
         "intercept": intercept,
         "slope": slope,
         "formationConversionPrior": MATCH_POWER_FORMATION_PRIOR,
+        "coachConversionPrior": MATCH_POWER_COACH_PRIOR,
         "formationWinConversion": conversions,
+        "coachWinConversion": coach_conversions,
         "metrics": {
             "matchPowerBaseCorr": corr(base_pairs),
             "matchPowerBaseRmse": rmse(base_pairs),
+            "matchPowerFormationCorr": corr(formation_pairs),
+            "matchPowerFormationRmse": rmse(formation_pairs),
             "matchPowerAdjustedCorr": corr(adjusted_pairs),
             "matchPowerAdjustedRmse": rmse(adjusted_pairs),
             "matches": float(len(examples)),
@@ -829,7 +889,7 @@ def champion_tpi_summary(
             continue
         gdi = goal_difference_index_from_features(features, weights)
         group_stage_tpi[team_competition_key(team)].append(
-            team_power_index_from_gdi(gdi, int(team.formation_id or 0), match_power_model)
+            team_power_index_from_gdi(gdi, int(team.formation_id or 0), match_power_model, int(team.headcoach_id or 0))
         )
 
     champion_indexes: List[float] = []
@@ -1041,7 +1101,9 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
             "intercept": round(float(match_power_model.get("intercept", 0.0)), 8),
             "slope": round(float(match_power_model.get("slope", 0.0)), 8),
             "formationConversionPrior": float(match_power_model.get("formationConversionPrior", 0.0)),
+            "coachConversionPrior": float(match_power_model.get("coachConversionPrior", 0.0)),
             "formationWinConversion": rounded_mapping(match_power_model.get("formationWinConversion", {}), 8),  # type: ignore[arg-type]
+            "coachWinConversion": rounded_mapping(match_power_model.get("coachWinConversion", {}), 8),  # type: ignore[arg-type]
             "metrics": {
                 key: round(float(value), 6)
                 for key, value in (match_power_model.get("metrics") or {}).items()  # type: ignore[union-attr]

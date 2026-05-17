@@ -13,8 +13,8 @@
     ],
     "teamRows": 26460,
     "matchRows": 13230,
-    "championTpiAverage": 69.830234,
-    "championTpiMedian": 69.999164,
+    "championTpiAverage": 69.980548,
+    "championTpiMedian": 70.286529,
     "championTpiSampleCount": 210,
     "championTpiSkippedFinals": 0,
     "championTpiPkResolvedFinals": 24,
@@ -23,32 +23,32 @@
       {
         "label": "0.00〜5.00",
         "champions": 0,
-        "totalTeams": 2
+        "totalTeams": 3
       },
       {
         "label": "5.00〜10.00",
         "champions": 0,
-        "totalTeams": 16
+        "totalTeams": 14
       },
       {
         "label": "10.00〜15.00",
         "champions": 0,
-        "totalTeams": 32
+        "totalTeams": 35
       },
       {
         "label": "15.00〜20.00",
         "champions": 0,
-        "totalTeams": 86
+        "totalTeams": 87
       },
       {
         "label": "20.00〜25.00",
         "champions": 0,
-        "totalTeams": 167
+        "totalTeams": 173
       },
       {
         "label": "25.00〜30.00",
         "champions": 0,
-        "totalTeams": 312
+        "totalTeams": 316
       },
       {
         "label": "30.00〜35.00",
@@ -58,61 +58,61 @@
       {
         "label": "35.00〜40.00",
         "champions": 1,
-        "totalTeams": 645
+        "totalTeams": 673
       },
       {
         "label": "40.00〜45.00",
         "champions": 1,
-        "totalTeams": 827
+        "totalTeams": 783
       },
       {
         "label": "45.00〜50.00",
-        "champions": 5,
-        "totalTeams": 850
+        "champions": 4,
+        "totalTeams": 855
       },
       {
         "label": "50.00〜55.00",
-        "champions": 8,
-        "totalTeams": 839
+        "champions": 9,
+        "totalTeams": 818
       },
       {
         "label": "55.00〜60.00",
-        "champions": 16,
-        "totalTeams": 675
+        "champions": 15,
+        "totalTeams": 692
       },
       {
         "label": "60.00〜65.00",
         "champions": 27,
-        "totalTeams": 615
+        "totalTeams": 613
       },
       {
         "label": "65.00〜70.00",
-        "champions": 48,
-        "totalTeams": 467
+        "champions": 45,
+        "totalTeams": 468
       },
       {
         "label": "70.00〜75.00",
-        "champions": 35,
-        "totalTeams": 334
+        "champions": 38,
+        "totalTeams": 331
       },
       {
         "label": "75.00〜80.00",
-        "champions": 36,
-        "totalTeams": 215
+        "champions": 37,
+        "totalTeams": 222
       },
       {
         "label": "80.00〜85.00",
-        "champions": 27,
-        "totalTeams": 88
+        "champions": 22,
+        "totalTeams": 76
       },
       {
         "label": "85.00〜90.00",
-        "champions": 5,
-        "totalTeams": 13
+        "champions": 9,
+        "totalTeams": 24
       },
       {
         "label": "90.00〜95.00",
-        "champions": 1,
+        "champions": 2,
         "totalTeams": 4
       },
       {
@@ -2651,10 +2651,11 @@
     "9": 0.243395
   },
   "matchPower": {
-    "model": "gdi_linear_with_formation_win_conversion",
+    "model": "gdi_linear_with_formation_and_coach_win_conversion",
     "intercept": 0.02445984,
     "slope": 0.36571949,
     "formationConversionPrior": 180.0,
+    "coachConversionPrior": 220.0,
     "formationWinConversion": {
       "1": 0.02948345,
       "10": 0.00237893,
@@ -2764,11 +2765,51 @@
       "98": -0.0265996,
       "99": -0.00213306
     },
+    "coachWinConversion": {
+      "1": 0.01446517,
+      "10": 0.0039519,
+      "11": -0.00437295,
+      "12": 0.01331199,
+      "13": 0.01326505,
+      "14": -0.03576575,
+      "15": 0.01411918,
+      "16": 0.01143409,
+      "17": -0.04692791,
+      "18": -0.01746393,
+      "19": -0.00198325,
+      "2": 0.01368168,
+      "20": -0.00999668,
+      "21": -0.00813339,
+      "22": 0.00612821,
+      "23": -0.01023678,
+      "24": -0.00745551,
+      "25": -0.03210653,
+      "26": -0.00650604,
+      "27": 0.00475887,
+      "28": 0.00195875,
+      "29": -0.02965395,
+      "3": 0.01144285,
+      "30": -0.01929078,
+      "31": 0.00141234,
+      "32": 0.01135864,
+      "33": -0.05254824,
+      "34": -0.01895455,
+      "35": -0.02286252,
+      "36": 0.00313975,
+      "4": -0.0180062,
+      "5": 0.00846036,
+      "6": -0.0078543,
+      "7": -0.02148755,
+      "8": -0.01696446,
+      "9": -0.01689389
+    },
     "metrics": {
       "matchPowerBaseCorr": 0.44023,
       "matchPowerBaseRmse": 0.814437,
-      "matchPowerAdjustedCorr": 0.442899,
-      "matchPowerAdjustedRmse": 0.813223,
+      "matchPowerFormationCorr": 0.442899,
+      "matchPowerFormationRmse": 0.813223,
+      "matchPowerAdjustedCorr": 0.443938,
+      "matchPowerAdjustedRmse": 0.812754,
       "matches": 13230.0
     }
   }
