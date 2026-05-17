@@ -1512,7 +1512,8 @@ function tpiGridLabelFromValue(value, step = 0.25) {
   const idx = Math.floor(value / step);
   const start = idx * step;
   const end = start + step;
-  return `${formatIndexValue(start, 2)}〜${formatIndexValue(end, 2)}`;
+  if (start >= 95) return `${Math.round(start)}〜`;
+  return `${Math.round(start)}〜${Math.round(end)}`;
 }
 
 function renderTpiInfoBenchmark() {

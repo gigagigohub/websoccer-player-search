@@ -810,7 +810,9 @@ def tpi_grid_label(value: float, step: float = CHAMPION_TPI_GRID_STEP) -> str:
     idx = math.floor(value / step)
     start = idx * step
     end = start + step
-    return f"{start:.2f}〜{end:.2f}"
+    if start >= 95.0:
+        return f"{int(start)}〜"
+    return f"{int(start)}〜{int(end)}"
 
 
 def team_competition_key(team: TeamRow) -> Tuple[int, int, str]:

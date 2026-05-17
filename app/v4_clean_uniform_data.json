@@ -21,102 +21,102 @@
     "championTpiGridStep": 5.0,
     "championTpiGridStats": [
       {
-        "label": "0.00〜5.00",
+        "label": "0〜5",
         "champions": 0,
         "totalTeams": 3
       },
       {
-        "label": "5.00〜10.00",
+        "label": "5〜10",
         "champions": 0,
         "totalTeams": 14
       },
       {
-        "label": "10.00〜15.00",
+        "label": "10〜15",
         "champions": 0,
         "totalTeams": 35
       },
       {
-        "label": "15.00〜20.00",
+        "label": "15〜20",
         "champions": 0,
         "totalTeams": 87
       },
       {
-        "label": "20.00〜25.00",
+        "label": "20〜25",
         "champions": 0,
         "totalTeams": 173
       },
       {
-        "label": "25.00〜30.00",
+        "label": "25〜30",
         "champions": 0,
         "totalTeams": 316
       },
       {
-        "label": "30.00〜35.00",
+        "label": "30〜35",
         "champions": 0,
         "totalTeams": 530
       },
       {
-        "label": "35.00〜40.00",
+        "label": "35〜40",
         "champions": 1,
         "totalTeams": 673
       },
       {
-        "label": "40.00〜45.00",
+        "label": "40〜45",
         "champions": 1,
         "totalTeams": 783
       },
       {
-        "label": "45.00〜50.00",
+        "label": "45〜50",
         "champions": 4,
         "totalTeams": 855
       },
       {
-        "label": "50.00〜55.00",
+        "label": "50〜55",
         "champions": 9,
         "totalTeams": 818
       },
       {
-        "label": "55.00〜60.00",
+        "label": "55〜60",
         "champions": 15,
         "totalTeams": 692
       },
       {
-        "label": "60.00〜65.00",
+        "label": "60〜65",
         "champions": 27,
         "totalTeams": 613
       },
       {
-        "label": "65.00〜70.00",
+        "label": "65〜70",
         "champions": 45,
         "totalTeams": 468
       },
       {
-        "label": "70.00〜75.00",
+        "label": "70〜75",
         "champions": 38,
         "totalTeams": 331
       },
       {
-        "label": "75.00〜80.00",
+        "label": "75〜80",
         "champions": 37,
         "totalTeams": 222
       },
       {
-        "label": "80.00〜85.00",
+        "label": "80〜85",
         "champions": 22,
         "totalTeams": 76
       },
       {
-        "label": "85.00〜90.00",
+        "label": "85〜90",
         "champions": 9,
         "totalTeams": 24
       },
       {
-        "label": "90.00〜95.00",
+        "label": "90〜95",
         "champions": 2,
         "totalTeams": 4
       },
       {
-        "label": "95.00〜100.00",
+        "label": "95〜",
         "champions": 0,
         "totalTeams": 3
       }
