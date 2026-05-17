@@ -2529,18 +2529,24 @@ button.ghost {
 }
 
 .tpi-champion-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
   gap: 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 2px;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
 }
 
 .tpi-champion-cell {
+  flex: 0 0 92px;
   border: 1px solid rgba(83, 119, 181, 0.35);
   border-radius: 6px;
   padding: 5px 6px;
   background: rgba(10, 22, 38, 0.45);
   display: grid;
   gap: 1px;
+  scroll-snap-align: start;
 }
 
 .tpi-champion-cell.is-active {

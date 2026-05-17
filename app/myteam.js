@@ -1453,7 +1453,13 @@ function closeMyteamSettingModal() {
 }
 
 function openTpiInfoModal() {
-  if (els.tpiInfoModal) els.tpiInfoModal.hidden = false;
+  if (els.tpiInfoModal) {
+    els.tpiInfoModal.hidden = false;
+    renderTpiInfoBenchmark();
+    window.setTimeout(() => {
+      els.tpiInfoModal?.querySelector(".tpi-champion-cell.is-active")?.scrollIntoView({ block: "nearest", inline: "center" });
+    }, 0);
+  }
 }
 
 function closeTpiInfoModal() {
@@ -1461,7 +1467,7 @@ function closeTpiInfoModal() {
 }
 
 function tpiGridLabelFromValue(value, step = 0.25) {
-  const idx = Math.round(value / step);
+  const idx = Math.floor(value / step);
   const start = idx * step;
   const end = start + step;
   return `${formatIndexValue(start, 2)}〜${formatIndexValue(end, 2)}`;
@@ -1485,9 +1491,10 @@ function renderTpiInfoBenchmark() {
     const noteEl = box.querySelector("[data-tpi-champion-note]");
     const gridEl = box.querySelector("[data-tpi-champion-grid]");
     if (noteEl) {
-      const sampleCount = rows.reduce((acc, row) => acc + Number(row?.champions || 0), 0);
+      const championCount = rows.reduce((acc, row) => acc + Number(row?.champions || 0), 0);
+      const totalCount = rows.reduce((acc, row) => acc + Number(row?.totalTeams || 0), 0);
       const skipText = skippedFinals > 0 ? ` / PK不明の同点決勝${skippedFinals}件を除外` : "";
-      noteEl.textContent = `優勝実績 ${sampleCount} teams${skipText}`;
+      noteEl.textContent = `出場${totalCount} teams / 優勝${championCount} teams${skipText}`;
     }
     if (gridEl) {
       const rowsKey = JSON.stringify(rows);
