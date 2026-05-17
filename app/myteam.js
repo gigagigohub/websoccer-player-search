@@ -1339,9 +1339,6 @@ function buildMyTeamV4CleanUniformInput() {
       label: pointInfo.label || "",
       referencePlayerId: pointInfo.referencePlayerId || 0,
     };
-    if (pointInfo.source !== "cc-exact") {
-      warnings.push(`Slot ${slotNo}: ${player.name} ${pointInfo.label || "estimated"} = ${formatIndexValue(avgPts, 2)}`);
-    }
   }
 
   if (!v4CleanUniformData?.formationPower || !(String(formationId) in v4CleanUniformData.formationPower)) {
@@ -2551,10 +2548,17 @@ function renderLineup() {
       : null;
     const v4Point = Number(v4PointInfo?.point);
     const pointEstimated = !!v4PointInfo && v4PointInfo.source !== "cc-exact";
-    const ccStatText = player && Number.isInteger(selectedFormationId) && idx < STARTING_LINEUP_SIZE
-      ? `Pts ${formatIndexValue(v4Point, 2)}`
+    const pointSourceLabel = pointEstimated ? String(v4PointInfo?.label || "estimated") : "";
+    const pointSourceClass = pointSourceLabel.length > 54
+      ? " is-xxlong"
+      : pointSourceLabel.length > 36
+      ? " is-xlong"
+      : pointSourceLabel.length > 22
+      ? " is-long"
       : "";
-    const ccStatClass = `lineup-cc-stat${pointEstimated ? " is-estimated" : ""}`;
+    const ccStatHtml = player && Number.isInteger(selectedFormationId) && idx < STARTING_LINEUP_SIZE
+      ? `<span class="${`lineup-cc-stat${pointEstimated ? " is-estimated" : ""}`}"><span>Pts ${formatIndexValue(v4Point, 2)}</span>${pointSourceLabel ? `<span class="lineup-point-source${pointSourceClass}">${escapeHtml(pointSourceLabel)}</span>` : ""}</span>`
+      : "";
     const rightPaneHtml = player
       ? (lifecycleModeEnabled
         ? successorSummaryHtml(entry, remaining)
@@ -2582,7 +2586,7 @@ function renderLineup() {
               ${seasonBadge}
             </div>
             <span class="slot-name">${name}</span>
-            ${ccStatText ? `<span class="${ccStatClass}">${ccStatText}</span>` : ""}
+            ${ccStatHtml}
           </div>
           ${rightPaneHtml}
         </div>

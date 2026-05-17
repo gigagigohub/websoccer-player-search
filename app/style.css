@@ -2819,11 +2819,33 @@ button.ghost {
   color: #9ab3dd;
   line-height: 1.2;
   margin-top: 2px;
-  display: block;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  max-width: 100%;
+  white-space: nowrap;
 }
 
 .lineup-cc-stat.is-estimated {
   color: #f0bf75;
+}
+
+.lineup-point-source {
+  color: #f0bf75;
+  font-size: 0.5rem;
+  white-space: nowrap;
+}
+
+.lineup-point-source.is-long {
+  font-size: 0.46rem;
+}
+
+.lineup-point-source.is-xlong {
+  font-size: 0.42rem;
+}
+
+.lineup-point-source.is-xxlong {
+  font-size: 0.38rem;
 }
 
 .lineup-core {
