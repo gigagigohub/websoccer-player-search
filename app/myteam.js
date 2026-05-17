@@ -914,8 +914,10 @@ function buildV4PointContext(rohmData = {}) {
   return ctx;
 }
 
-function v4EstimateNrToSsAdjustment(ctx, context = {}) {
+function v4EstimateNrToCategoryAdjustment(ctx, targetCategory, context = {}) {
   if (!ctx) return null;
+  const target = String(targetCategory || "");
+  if (!target || target === "NR") return null;
   const targetPlayerId = Number(context.targetPlayerId || 0);
   const personId = Number(context.personId || 0);
   const formationId = Number(context.formationId || 0);
@@ -950,20 +952,20 @@ function v4EstimateNrToSsAdjustment(ctx, context = {}) {
     source,
   } : null;
 
-  const sameIdCc = v4CategoryDeviation(ctx, sameFormationSlotCcRows, "SS", {
+  const sameIdCc = v4CategoryDeviation(ctx, sameFormationSlotCcRows, target, {
     playerId: targetPlayerId,
     minUses: V4_CC_DIRECT_MIN_USES,
     weightCap: V4_FALLBACK_PLAYER_USE_CAP,
   });
-  const sameIdResult = applyBaseline(sameIdCc, "CC same SS id");
+  const sameIdResult = applyBaseline(sameIdCc, `CC same ${target} id`);
   if (sameIdResult) return sameIdResult;
 
-  const otherIdCc = v4CategoryDeviation(ctx, sameFormationSlotCcRows, "SS", {
+  const otherIdCc = v4CategoryDeviation(ctx, sameFormationSlotCcRows, target, {
     excludePlayerId: targetPlayerId,
     minUses: V4_CC_DIRECT_MIN_USES,
     weightCap: V4_FALLBACK_PERSON_USE_CAP,
   });
-  const otherIdResult = applyBaseline(otherIdCc, "CC other SS id");
+  const otherIdResult = applyBaseline(otherIdCc, `CC other ${target} id`);
   if (otherIdResult) return otherIdResult;
 
   const hasQualifiedCcRows = v4HasQualifiedRows(sameFormationSlotCcRows);
@@ -983,13 +985,13 @@ function v4EstimateNrToSsAdjustment(ctx, context = {}) {
     };
   };
 
-  const otherIdRohm = v4CategoryDeviation(ctx, sameFormationSlotRohmRows, "SS", {
+  const otherIdRohm = v4CategoryDeviation(ctx, sameFormationSlotRohmRows, target, {
     excludePlayerId: targetPlayerId,
     minUses: V4_CC_DIRECT_MIN_USES,
     weightCap: V4_FALLBACK_PERSON_USE_CAP,
     valueOffset: rohmValueOffset,
   });
-  const otherIdRohmResult = applyRohmBaseline(otherIdRohm, "Rohm other SS id / Rohm NR baseline");
+  const otherIdRohmResult = applyRohmBaseline(otherIdRohm, `Rohm other ${target} id / Rohm NR baseline`);
   if (otherIdRohmResult) return otherIdRohmResult;
 
   return null;
@@ -998,9 +1000,9 @@ function v4EstimateNrToSsAdjustment(ctx, context = {}) {
 function v4CategoryAdjustmentInfo(targetCategory, refCategory, context = {}) {
   if (!targetCategory || !refCategory || targetCategory === refCategory) return { value: 0, source: "" };
   const ctx = context.ctx || v4PointContext;
-  if (targetCategory === "SS" && refCategory === "NR") {
-    const nrToSs = v4EstimateNrToSsAdjustment(ctx, context);
-    if (nrToSs) return nrToSs;
+  if ((targetCategory === "SS" || targetCategory === "CM") && refCategory === "NR") {
+    const nrToCategory = v4EstimateNrToCategoryAdjustment(ctx, targetCategory, context);
+    if (nrToCategory) return nrToCategory;
   }
   const value = ctx?.categoryDiff?.get(`${targetCategory}|${refCategory}`);
   return {
@@ -1016,7 +1018,7 @@ function v4CategoryAdjustment(targetCategory, refCategory, context = {}) {
 function v4ReferenceCategoryPriority(row, targetCategory) {
   const refCategory = String(row?.category || "");
   if (refCategory === targetCategory) return 0;
-  if (targetCategory === "SS" && refCategory === "NR") return 1;
+  if ((targetCategory === "SS" || targetCategory === "CM") && refCategory === "NR") return 1;
   if (Number.isFinite(v4CategoryAdjustment(targetCategory, refCategory)) && v4CategoryAdjustment(targetCategory, refCategory) !== 0) return 2;
   return 3;
 }
