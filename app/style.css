@@ -2844,7 +2844,7 @@ button.ghost {
   top: 0;
   max-width: calc(100% - 44px);
   color: #f0bf75;
-  font-size: var(--point-source-size, 0.5rem);
+  font-size: 0.5rem;
   line-height: 1.2;
   overflow: hidden;
   text-overflow: clip;
