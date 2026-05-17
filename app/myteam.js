@@ -1464,7 +1464,11 @@ function renderTpiInfoBenchmark() {
 
   document.querySelectorAll("[data-tpi-champion-benchmark]").forEach((box) => {
     if (!rows.length) {
-      box.hidden = true;
+      const noteEl = box.querySelector("[data-tpi-champion-note]");
+      const gridEl = box.querySelector("[data-tpi-champion-grid]");
+      if (noteEl) noteEl.textContent = "集計データを読み込めませんでした（v4_clean_uniform_data.json の championTpiGridStats が未設定）";
+      if (gridEl) gridEl.innerHTML = `<div class="tpi-champion-cell"><span class="tpi-champion-cell-range">N/A</span><strong>—</strong><small>—/—</small></div>`;
+      box.hidden = false;
       return;
     }
     const noteEl = box.querySelector("[data-tpi-champion-note]");
