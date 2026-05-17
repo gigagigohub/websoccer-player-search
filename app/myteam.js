@@ -2562,7 +2562,7 @@ function renderLineup() {
     const pointSourceLabel = pointEstimated ? String(v4PointInfo?.label || "estimated") : "";
     const pointSourceSize = pointSourceFontSizeRem(pointSourceLabel).toFixed(3);
     const ccStatHtml = player && Number.isInteger(selectedFormationId) && idx < STARTING_LINEUP_SIZE
-      ? `<span class="${`lineup-cc-stat${pointEstimated ? " is-estimated" : ""}`}"><span>Pts ${formatIndexValue(v4Point, 2)}</span>${pointSourceLabel ? `<span class="lineup-point-source" style="--point-source-size:${pointSourceSize}rem">${escapeHtml(pointSourceLabel)}</span>` : ""}</span>`
+      ? `<span class="lineup-cc-row"><span class="${`lineup-cc-stat${pointEstimated ? " is-estimated" : ""}`}">Pts ${formatIndexValue(v4Point, 2)}</span>${pointSourceLabel ? `<span class="lineup-point-source" style="--point-source-size:${pointSourceSize}rem">${escapeHtml(pointSourceLabel)}</span>` : ""}</span>`
       : "";
     const rightPaneHtml = player
       ? (lifecycleModeEnabled

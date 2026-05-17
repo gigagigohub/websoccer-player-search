@@ -2819,21 +2819,37 @@ button.ghost {
   color: #9ab3dd;
   line-height: 1.2;
   margin-top: 2px;
-  display: inline-flex;
-  align-items: baseline;
-  gap: 3px;
-  max-width: 100%;
-  white-space: nowrap;
+  display: block;
 }
 
 .lineup-cc-stat.is-estimated {
   color: #f0bf75;
 }
 
+.lineup-cc-row {
+  position: relative;
+  display: block;
+  height: 0.72rem;
+  margin-top: 2px;
+  max-width: 100%;
+}
+
+.lineup-cc-row .lineup-cc-stat {
+  margin-top: 0;
+}
+
 .lineup-point-source {
+  position: absolute;
+  left: 44px;
+  top: 0;
+  max-width: calc(100% - 44px);
   color: #f0bf75;
   font-size: var(--point-source-size, 0.5rem);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: clip;
   white-space: nowrap;
+  pointer-events: none;
 }
 
 .lineup-core {
