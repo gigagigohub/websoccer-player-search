@@ -919,12 +919,27 @@ function v4EstimateNrToSsAdjustment(ctx, context = {}) {
   const targetPlayerId = Number(context.targetPlayerId || 0);
   const personId = Number(context.personId || 0);
   const formationId = Number(context.formationId || 0);
+  const slot = Number(context.slot || 0);
+  const sameFormationSlotCcRows = (
+    Number.isInteger(formationId) && formationId > 0
+    && Number.isInteger(slot) && slot >= 1 && slot <= STARTING_LINEUP_SIZE
+    && Number.isInteger(personId) && personId > 0
+  )
+    ? (ctx.ccRowsByFormationSlotPerson.get(v4PointKey(formationId, slot, personId)) || [])
+    : [];
+  const sameFormationSlotRohmRows = (
+    Number.isInteger(formationId) && formationId > 0
+    && Number.isInteger(slot) && slot >= 1 && slot <= STARTING_LINEUP_SIZE
+    && Number.isInteger(personId) && personId > 0
+  )
+    ? (ctx.rohmRowsByFormationSlotPerson.get(v4PointKey(formationId, slot, personId)) || [])
+    : [];
   const referenceOffset = Number(context.referenceOffset || 0);
   const referenceDeviation = context.referenceRecord
     ? v4DeviationFromSlotExpectation(ctx, [context.referenceRecord], Infinity, referenceOffset)
     : null;
   const nrDeviation = referenceDeviation
-    || v4CategoryDeviation(ctx, ctx.ccRowsByPerson.get(String(personId)), "NR", {
+    || v4CategoryDeviation(ctx, sameFormationSlotCcRows, "NR", {
       minUses: V4_CC_DIRECT_MIN_USES,
       weightCap: V4_FALLBACK_PERSON_USE_CAP,
     })
@@ -935,15 +950,15 @@ function v4EstimateNrToSsAdjustment(ctx, context = {}) {
     source,
   } : null;
 
-  const sameIdCc = v4CategoryDeviation(ctx, ctx.ccRowsByPlayer.get(String(targetPlayerId)), "SS", {
-    excludeFormationId: formationId,
+  const sameIdCc = v4CategoryDeviation(ctx, sameFormationSlotCcRows, "SS", {
+    playerId: targetPlayerId,
     minUses: V4_CC_DIRECT_MIN_USES,
     weightCap: V4_FALLBACK_PLAYER_USE_CAP,
   });
   const sameIdResult = applyBaseline(sameIdCc, "CC same SS id");
   if (sameIdResult) return sameIdResult;
 
-  const otherIdCc = v4CategoryDeviation(ctx, ctx.ccRowsByPerson.get(String(personId)), "SS", {
+  const otherIdCc = v4CategoryDeviation(ctx, sameFormationSlotCcRows, "SS", {
     excludePlayerId: targetPlayerId,
     minUses: V4_CC_DIRECT_MIN_USES,
     weightCap: V4_FALLBACK_PERSON_USE_CAP,
@@ -951,13 +966,11 @@ function v4EstimateNrToSsAdjustment(ctx, context = {}) {
   const otherIdResult = applyBaseline(otherIdCc, "CC other SS id");
   if (otherIdResult) return otherIdResult;
 
-  const hasQualifiedCcRows =
-    v4HasQualifiedRows(ctx.ccRowsByPlayer.get(String(targetPlayerId)))
-    || v4HasQualifiedRows(ctx.ccRowsByPerson.get(String(personId)));
+  const hasQualifiedCcRows = v4HasQualifiedRows(sameFormationSlotCcRows);
   if (hasQualifiedCcRows) return null;
 
   const rohmValueOffset = Number(ctx.rohmToCcOffset || 0);
-  const rohmNrDeviation = v4CategoryDeviation(ctx, ctx.rohmRowsByPerson.get(String(personId)), "NR", {
+  const rohmNrDeviation = v4CategoryDeviation(ctx, sameFormationSlotRohmRows, "NR", {
     minUses: V4_CC_DIRECT_MIN_USES,
     weightCap: V4_FALLBACK_PERSON_USE_CAP,
     valueOffset: rohmValueOffset,
@@ -970,7 +983,7 @@ function v4EstimateNrToSsAdjustment(ctx, context = {}) {
     };
   };
 
-  const otherIdRohm = v4CategoryDeviation(ctx, ctx.rohmRowsByPerson.get(String(personId)), "SS", {
+  const otherIdRohm = v4CategoryDeviation(ctx, sameFormationSlotRohmRows, "SS", {
     excludePlayerId: targetPlayerId,
     minUses: V4_CC_DIRECT_MIN_USES,
     weightCap: V4_FALLBACK_PERSON_USE_CAP,
