@@ -920,9 +920,9 @@ async function init() {
   bindEvents();
 
   const [formationsRes, coachesRes, playersRes] = await Promise.all([
-    fetch("./formations_data.json"),
-    fetch("./coaches_data.json").catch(() => null),
-    fetch("./data.json?v=20260507-id908-cm").catch(() => null),
+    fetch("./formations_data.json?v=20260517-cc2625"),
+    fetch("./coaches_data.json?v=20260517-cc2625").catch(() => null),
+    fetch("./data.json?v=20260517-cc2625").catch(() => null),
     loadSiteMeta(),
   ]);
 

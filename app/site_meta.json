@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-05-10T16:31:07+09:00",
+  "generatedAt": "2026-05-17T22:47:46+09:00",
   "source": "master-db",
   "ccData": {
     "seasonStart": 2616,
-    "seasonEnd": 2624,
-    "games": 11907
+    "seasonEnd": 2625,
+    "games": 13230
   }
 }

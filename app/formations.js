@@ -2449,9 +2449,9 @@ async function init() {
   bindEvents();
 
   const [formationsRes, playersRes, coachesMetaRes] = await Promise.all([
-    fetch("./formations_data.json?v=20260516-topteams-tpi"),
-    fetch("./data.json?v=20260507-id908-cm").catch(() => null),
-    fetch("./coaches_data.json").catch(() => null),
+    fetch("./formations_data.json?v=20260517-cc2625"),
+    fetch("./data.json?v=20260517-cc2625").catch(() => null),
+    fetch("./coaches_data.json?v=20260517-cc2625").catch(() => null),
     loadSiteMeta(),
   ]);
   const formationData = await formationsRes.json();
