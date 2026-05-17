@@ -6,6 +6,7 @@ const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOi
 const APP_UPDATED_AT_JST = "2026-03-30 23:10 JST";
 const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-player-search/commits/main";
 const ROHM_SLOT_DATA_URL = "./rohm_slot_data.json?v=20260510-rohm-peak-avg";
+const CC_AVG_MIN_USES = 20;
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 let ccDataMeta = null;
 const METRICS = [
@@ -234,13 +235,14 @@ function setupModalScrollLock() {
 function sortSlotRows(rows, mode) {
   const list = Array.isArray(rows) ? rows.slice() : [];
   if (mode === "avg") {
-    list.sort((a, b) =>
+    const qualified = list.filter((row) => Number(row?.uses || 0) >= CC_AVG_MIN_USES);
+    qualified.sort((a, b) =>
       Number(b?.avgPts || 0) - Number(a?.avgPts || 0)
-      || Number(b?.usageRate || 0) - Number(a?.usageRate || 0)
       || Number(b?.uses || 0) - Number(a?.uses || 0)
+      || Number(b?.usageRate || 0) - Number(a?.usageRate || 0)
       || Number(a?.playerId || 0) - Number(b?.playerId || 0)
     );
-    return list;
+    return qualified;
   }
   list.sort((a, b) =>
     Number(b?.usageRate || 0) - Number(a?.usageRate || 0)
