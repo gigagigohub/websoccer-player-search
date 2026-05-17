@@ -28,6 +28,8 @@ FORMATION_SLOT_EFFECT_PRIOR = 70.0
 FORMATION_POWER_PRIOR = 45.0
 COACH_POWER_PRIOR = 60.0
 ITERATIONS = 32
+MATCH_POWER_FORMATION_PRIOR = 180.0
+CHAMPION_TPI_GRID_STEP = 5.0
 
 
 @dataclass(frozen=True)
@@ -299,13 +301,22 @@ def predict(coef: Sequence[float], features: Sequence[float]) -> float:
     return coef[0] + sum(coef[i + 1] * features[i] for i in range(min(len(features), len(coef) - 1)))
 
 
-def team_index_from_features(features: Mapping[str, float], weights: Mapping[str, float]) -> float:
+def goal_difference_index_from_features(features: Mapping[str, float], weights: Mapping[str, float]) -> float:
     return (
         float(weights.get("slotAdjusted", 0.0)) * float(features.get("start", 0.0))
         + float(weights.get("keyAdjusted", 0.0)) * float(features.get("key", 0.0))
         + float(features.get("formation", 0.0))
         + float(features.get("coach", 0.0))
     )
+
+
+def team_index_from_features(features: Mapping[str, float], weights: Mapping[str, float]) -> float:
+    # Backward-compatible alias. This value is now treated as GDI.
+    return goal_difference_index_from_features(features, weights)
+
+
+def clamp(value: float, low: float, high: float) -> float:
+    return max(low, min(high, value))
 
 
 def rmse(pairs: Sequence[Tuple[float, float]]) -> float:
@@ -331,6 +342,20 @@ def corr(pairs: Sequence[Tuple[float, float]]) -> float:
     va = sum((a - ma) ** 2 for a in actuals)
     vp = sum((p - mp) ** 2 for p in preds)
     return cov / math.sqrt(va * vp) if va > 0 and vp > 0 else 0.0
+
+
+def actual_match_power(home: TeamRow, away: TeamRow) -> float:
+    if int(home.goals_for) > int(away.goals_for):
+        return 1.0
+    if int(home.goals_for) < int(away.goals_for):
+        return -1.0
+    home_pk = str(home.pk_winner_side or "").strip().lower()
+    away_pk = str(away.pk_winner_side or "").strip().lower()
+    if home_pk == "home" or away_pk == "home":
+        return 1.0
+    if home_pk == "away" or away_pk == "away":
+        return -1.0
+    return 0.0
 
 
 def side_features(
@@ -398,6 +423,7 @@ def pair_rows(
                     float(hf["coach"] - af["coach"]),
                 ],
                 "goal_diff": float(home.goals_for - away.goals_for),
+                "match_power": actual_match_power(home, away),
                 "coach_pts_diff": float((home.headcoach_pts or 0.0) - (away.headcoach_pts or 0.0)),
             }
         )
@@ -557,6 +583,105 @@ def evaluate_model(model: Mapping[str, object]) -> Dict[str, object]:
     }
 
 
+def gdi_diff_from_pair_features(features: Sequence[float], weights: Mapping[str, float]) -> float:
+    return (
+        float(weights.get("slotAdjusted", 0.0)) * float(features[0] if len(features) > 0 else 0.0)
+        + float(weights.get("keyAdjusted", 0.0)) * float(features[1] if len(features) > 1 else 0.0)
+        + float(features[2] if len(features) > 2 else 0.0)
+        + float(features[3] if len(features) > 3 else 0.0)
+    )
+
+
+def base_match_power_from_gdi(
+    gdi_diff: float,
+    match_power_model: Mapping[str, object],
+    *,
+    include_intercept: bool = True,
+) -> float:
+    intercept = float(match_power_model.get("intercept", 0.0)) if include_intercept else 0.0
+    slope = float(match_power_model.get("slope", 0.0))
+    return clamp(intercept + slope * float(gdi_diff), -0.95, 0.95)
+
+
+def team_power_index_from_gdi(
+    gdi: float,
+    formation_id: int,
+    match_power_model: Mapping[str, object],
+) -> float:
+    conversions = match_power_model.get("formationWinConversion") or {}
+    conversion = 0.0
+    if isinstance(conversions, Mapping):
+        conversion = float(conversions.get(int(formation_id), conversions.get(str(int(formation_id)), 0.0)) or 0.0)
+    match_power = clamp(base_match_power_from_gdi(gdi, match_power_model, include_intercept=False) + conversion, -1.0, 1.0)
+    return 50.0 + 50.0 * match_power
+
+
+def build_match_power_model(model: Mapping[str, object]) -> Dict[str, object]:
+    rows: Sequence[Dict[str, object]] = model["trainRows"]  # type: ignore[assignment]
+    weights: Mapping[str, float] = model["weights"]  # type: ignore[assignment]
+    examples: List[Tuple[float, float]] = []
+    for row in rows:
+        features = row["features"]  # type: ignore[assignment]
+        gdi_diff = gdi_diff_from_pair_features(features, weights)  # type: ignore[arg-type]
+        examples.append((gdi_diff, float(row.get("match_power", 0.0))))
+
+    coef = solve_linear_regression([([gdi], actual) for gdi, actual in examples], ridge=1e-5)
+    intercept = float(coef[0] if coef else 0.0)
+    slope = float(coef[1] if len(coef) > 1 else 0.0)
+
+    residuals_by_formation: Dict[int, List[float]] = defaultdict(lambda: [0.0, 0.0])
+    base_pairs: List[Tuple[float, float]] = []
+    adjusted_pairs: List[Tuple[float, float]] = []
+    for row, (gdi_diff, actual) in zip(rows, examples):
+        home: TeamRow = row["home"]  # type: ignore[assignment]
+        away: TeamRow = row["away"]  # type: ignore[assignment]
+        base = clamp(intercept + slope * gdi_diff, -0.95, 0.95)
+        residual = actual - base
+        if int(home.formation_id or 0) > 0:
+            residuals_by_formation[int(home.formation_id)][0] += residual
+            residuals_by_formation[int(home.formation_id)][1] += 1.0
+        if int(away.formation_id or 0) > 0:
+            residuals_by_formation[int(away.formation_id)][0] -= residual
+            residuals_by_formation[int(away.formation_id)][1] += 1.0
+        base_pairs.append((actual, base))
+
+    conversions = {
+        fid: values[0] / (values[1] + MATCH_POWER_FORMATION_PRIOR)
+        for fid, values in residuals_by_formation.items()
+    }
+    if conversions:
+        total_count = sum(residuals_by_formation[fid][1] for fid in conversions)
+        weighted_mean = (
+            sum(conversions[fid] * residuals_by_formation[fid][1] for fid in conversions) / total_count
+            if total_count > 0
+            else 0.0
+        )
+        conversions = {fid: value - weighted_mean for fid, value in conversions.items()}
+
+    for row, (gdi_diff, actual) in zip(rows, examples):
+        home: TeamRow = row["home"]  # type: ignore[assignment]
+        away: TeamRow = row["away"]  # type: ignore[assignment]
+        home_conv = conversions.get(int(home.formation_id or 0), 0.0)
+        away_conv = conversions.get(int(away.formation_id or 0), 0.0)
+        adjusted = clamp(clamp(intercept + slope * gdi_diff, -0.95, 0.95) + home_conv - away_conv, -1.0, 1.0)
+        adjusted_pairs.append((actual, adjusted))
+
+    return {
+        "model": "gdi_linear_with_formation_win_conversion",
+        "intercept": intercept,
+        "slope": slope,
+        "formationConversionPrior": MATCH_POWER_FORMATION_PRIOR,
+        "formationWinConversion": conversions,
+        "metrics": {
+            "matchPowerBaseCorr": corr(base_pairs),
+            "matchPowerBaseRmse": rmse(base_pairs),
+            "matchPowerAdjustedCorr": corr(adjusted_pairs),
+            "matchPowerAdjustedRmse": rmse(adjusted_pairs),
+            "matches": float(len(examples)),
+        },
+    }
+
+
 def find_cc_result_json(match_id: int, world_id: int) -> Optional[Path]:
     rel = Path("api.app.websoccer.jp") / "match" / "summary" / "cc" / str(match_id) / str(world_id) / "1.json"
     for root in DEFAULT_CC_RESULT_JSON_DIRS:
@@ -621,7 +746,7 @@ def pk_winner_side(
 
 
 
-def tpi_grid_label(value: float, step: float = 0.25) -> str:
+def tpi_grid_label(value: float, step: float = CHAMPION_TPI_GRID_STEP) -> str:
     idx = math.floor(value / step)
     start = idx * step
     end = start + step
@@ -642,6 +767,7 @@ def champion_tpi_summary(
     players_by_team: Mapping[Tuple[int, int, int, str], Sequence[PlayerRow]],
     key_slots_by_formation: Mapping[int, Mapping[int, int]],
     model: Mapping[str, object],
+    match_power_model: Mapping[str, object],
 ) -> Dict[str, float]:
     effects: FixedEffects = model["effects"]  # type: ignore[assignment]
     weights: Mapping[str, float] = model["weights"]  # type: ignore[assignment]
@@ -701,7 +827,10 @@ def champion_tpi_summary(
         )
         if features is None:
             continue
-        group_stage_tpi[team_competition_key(team)].append(team_index_from_features(features, weights))
+        gdi = goal_difference_index_from_features(features, weights)
+        group_stage_tpi[team_competition_key(team)].append(
+            team_power_index_from_gdi(gdi, int(team.formation_id or 0), match_power_model)
+        )
 
     champion_indexes: List[float] = []
     tpi_grid_counts: Dict[str, Dict[str, object]] = {}
@@ -726,6 +855,7 @@ def champion_tpi_summary(
             "sampleCount": 0.0,
             "skippedFinals": float(skipped),
             "pkResolvedFinals": float(pk_resolved),
+            "gridStep": CHAMPION_TPI_GRID_STEP,
             "gridStats": [],
         }
     champion_indexes.sort()
@@ -737,6 +867,7 @@ def champion_tpi_summary(
         "sampleCount": float(len(champion_indexes)),
         "skippedFinals": float(skipped),
         "pkResolvedFinals": float(pk_resolved),
+        "gridStep": CHAMPION_TPI_GRID_STEP,
         "gridStats": [
             {"label": str(row["label"]), "champions": int(row["champions"]), "totalTeams": int(row["totalTeams"])}
             for row in sorted(tpi_grid_counts.values(), key=lambda row: float(row["_sort"]))
@@ -868,8 +999,9 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
     teams, players_by_team = load_db(db_path)
     model = fit_model(teams, players_by_team, key_slots)
     metrics = evaluate_model(model)
+    match_power_model = build_match_power_model(model)
     holdout = season_holdout_metrics(teams, players_by_team, key_slots)
-    champion_tpi = champion_tpi_summary(teams, players_by_team, key_slots, model)
+    champion_tpi = champion_tpi_summary(teams, players_by_team, key_slots, model, match_power_model)
 
     effects: FixedEffects = model["effects"]  # type: ignore[assignment]
     formation_slot_expected = {
@@ -893,6 +1025,7 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
             "championTpiSampleCount": int(champion_tpi.get("sampleCount", 0)),
             "championTpiSkippedFinals": int(champion_tpi.get("skippedFinals", 0)),
             "championTpiPkResolvedFinals": int(champion_tpi.get("pkResolvedFinals", 0)),
+            "championTpiGridStep": float(champion_tpi.get("gridStep", CHAMPION_TPI_GRID_STEP)),
             "championTpiGridStats": champion_tpi.get("gridStats", []),
         },
         "weights": {key: round(float(value), 8) for key, value in model["weights"].items()},  # type: ignore[union-attr]
@@ -903,6 +1036,17 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
         "formationSlotSourceCounts": rounded_mapping({f"{fid}:{slot}": count for (fid, slot), count in effects.formation_slot_counts.items()}, 0),
         "formationPower": rounded_mapping(model["formationPower"], 6),  # type: ignore[arg-type]
         "coachPower": rounded_mapping(model["coachPower"], 6),  # type: ignore[arg-type]
+        "matchPower": {
+            "model": match_power_model.get("model"),
+            "intercept": round(float(match_power_model.get("intercept", 0.0)), 8),
+            "slope": round(float(match_power_model.get("slope", 0.0)), 8),
+            "formationConversionPrior": float(match_power_model.get("formationConversionPrior", 0.0)),
+            "formationWinConversion": rounded_mapping(match_power_model.get("formationWinConversion", {}), 8),  # type: ignore[arg-type]
+            "metrics": {
+                key: round(float(value), 6)
+                for key, value in (match_power_model.get("metrics") or {}).items()  # type: ignore[union-attr]
+            },
+        },
     }
 
     args.output_json.parent.mkdir(parents=True, exist_ok=True)

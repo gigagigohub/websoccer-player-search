@@ -204,7 +204,7 @@
         <button id="tpiInfoClose" type="button" class="season-close" aria-label="閉じる">×</button>
       </div>
       <div class="tpi-info-body">
-        <p>TPIは、過去のCC実績から推計したチームの強さを表す指数です。0.00付近がCC平均で、プラスの値が大きいほど平均的なCCチームに対して得失点差の期待値が高いことを示します。</p>
+        <p>TPIは、GDI（平均的なCCチームに対する得失点差期待値）を、過去CC実績の勝敗傾向とフォーメーション別の勝率変換補正で換算したチームの勝ちやすさ指数です。50付近がCC平均で、数値が高いほど勝ちに結びつきやすい構成を示します。</p>
         <div class="tpi-info-benchmark" data-tpi-champion-benchmark hidden>
           <div class="tpi-info-benchmark-head">
             <span>CC優勝確率</span>
@@ -213,6 +213,7 @@
           <div class="tpi-champion-grid" data-tpi-champion-grid></div>
         </div>
         <dl>
+          <div><dt>GDI</dt><dd>平均的なCCチームに対してどれだけ得失点差を上振れさせるかの基礎指数です。</dd></div>
           <div><dt>Slots</dt><dd>フォーメーションとslotごとの評価点の出やすさを補正した、選手配置による加点です。</dd></div>
           <div><dt>Key Slots</dt><dd>そのフォーメーションの重要slotに配置された選手による追加評価です。</dd></div>
           <div><dt>Formation</dt><dd>過去CC実績から推計したフォーメーション自体の固定効果です。</dd></div>

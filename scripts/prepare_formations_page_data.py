@@ -170,6 +170,11 @@ def build_team_power_index_by_instance(team_rows, player_rows, key_slots_by_form
     weights = model.get("weights") or {}
     formation_power = model.get("formationPower") or {}
     coach_power = model.get("coachPower") or {}
+    try:
+        match_power_model = tpi_model.build_match_power_model(model)
+    except Exception as exc:
+        print(f"warning: failed to build Top Teams TPI conversion data: {exc}")
+        match_power_model = None
     result = {}
     for key in teams:
         features = tpi_model.side_features(
@@ -183,7 +188,13 @@ def build_team_power_index_by_instance(team_rows, player_rows, key_slots_by_form
         )
         if features is None:
             continue
-        result[key] = tpi_model.team_index_from_features(features, weights)
+        gdi = tpi_model.goal_difference_index_from_features(features, weights)
+        tpi = (
+            tpi_model.team_power_index_from_gdi(gdi, int(teams[key].formation_id or 0), match_power_model)
+            if match_power_model is not None
+            else gdi
+        )
+        result[key] = {"gdi": gdi, "tpi": tpi}
     return result
 
 
@@ -1949,6 +1960,8 @@ def build_data(src):
                 "playerPtsSum": 0.0,
                 "teamPowerIndexSum": 0.0,
                 "teamPowerIndexCount": 0,
+                "goalDifferenceIndexSum": 0.0,
+                "goalDifferenceIndexCount": 0,
                 "membersBySlot": {int(m["slot"]): {**m, "goals": 0} for m in lineup},
             }
         group = best_team_groups[group_key]
@@ -1977,7 +1990,13 @@ def build_data(src):
         )
         tpi_value = team_power_index_by_instance.get(tpi_key)
         if tpi_value is not None:
-            group["teamPowerIndexSum"] += float(tpi_value)
+            if isinstance(tpi_value, dict):
+                group["teamPowerIndexSum"] += float(tpi_value.get("tpi") or 0.0)
+                if tpi_value.get("gdi") is not None:
+                    group["goalDifferenceIndexSum"] += float(tpi_value.get("gdi") or 0.0)
+                    group["goalDifferenceIndexCount"] += 1
+            else:
+                group["teamPowerIndexSum"] += float(tpi_value)
             group["teamPowerIndexCount"] += 1
         for member in lineup:
             slot = int(member["slot"])
@@ -2038,6 +2057,11 @@ def build_data(src):
             "teamPowerIndex": (
                 round(float(group["teamPowerIndexSum"] or 0.0) / int(group["teamPowerIndexCount"] or 1), 6)
                 if int(group.get("teamPowerIndexCount") or 0) > 0
+                else None
+            ),
+            "goalDifferenceIndex": (
+                round(float(group["goalDifferenceIndexSum"] or 0.0) / int(group["goalDifferenceIndexCount"] or 1), 6)
+                if int(group.get("goalDifferenceIndexCount") or 0) > 0
                 else None
             ),
             "coach": {

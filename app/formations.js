@@ -1137,6 +1137,7 @@ function renderBestTeam(formation) {
   const goalsFor = Number(team?.goalsFor || 0);
   const goalsAgainst = Number(team?.goalsAgainst || 0);
   const teamPowerIndex = Number(team?.teamPowerIndex);
+  const goalDifferenceIndex = Number(team?.goalDifferenceIndex);
   const finish = String(team?.finish || "-");
   const finishDisplay = finish === "1" ? "Champion" : finish;
   const coach = team?.coach || {};
@@ -1166,7 +1167,8 @@ function renderBestTeam(formation) {
       <div class="best-team-score-grid">
         <span><strong>${finishDisplay}</strong></span>
         <span>Record <strong>${wins}-${draws}-${losses}</strong></span>
-        ${Number.isFinite(teamPowerIndex) ? `<span>TPI <strong>${signedFixed(teamPowerIndex)}</strong></span>` : ""}
+        ${Number.isFinite(teamPowerIndex) ? `<span>TPI <strong>${teamPowerIndex.toFixed(1)}</strong></span>` : ""}
+        ${Number.isFinite(goalDifferenceIndex) ? `<span>GDI <strong>${signedFixed(goalDifferenceIndex)}</strong></span>` : ""}
         <span>Goals For <strong>${Number.isFinite(goalsFor) ? goalsFor : "-"}</strong></span>
         <span>Goals Against <strong>${Number.isFinite(goalsAgainst) ? goalsAgainst : "-"}</strong></span>
         <span>Goal Diff <strong>${Number.isFinite(goalDiff) ? (goalDiff >= 0 ? `+${goalDiff}` : goalDiff) : "-"}</strong></span>

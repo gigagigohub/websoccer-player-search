@@ -159,7 +159,7 @@ let lifecycleModeEnabled = false;
 const cardViewModeById = new Map();
 let formations = [];
 let coaches = [];
-let v4CleanUniformData = { meta: {}, formationPower: {}, coachPower: {}, formationSlotExpectedPts: {}, weights: {} };
+let v4CleanUniformData = { meta: {}, formationPower: {}, coachPower: {}, formationSlotExpectedPts: {}, weights: {}, matchPower: {} };
 let latestRenderedTeamTpi = null;
 let myTeamPlayerById = new Map();
 let v4PointContext = null;
@@ -1372,6 +1372,26 @@ function formatIndexValue(value, digits = 2) {
   return Number.isFinite(n) ? n.toFixed(digits) : "-";
 }
 
+function clampNumber(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function calcTeamPowerFromGdi(gdi, formationId) {
+  const model = v4CleanUniformData?.matchPower || {};
+  const slope = Number(model?.slope || 0);
+  const conversionMap = model?.formationWinConversion || {};
+  const conversion = Number(conversionMap?.[String(Number(formationId))] ?? conversionMap?.[Number(formationId)] ?? 0) || 0;
+  const baseMatchPower = clampNumber(slope * Number(gdi || 0), -0.95, 0.95);
+  const matchPower = clampNumber(baseMatchPower + conversion, -1, 1);
+  return {
+    gdi: Number(gdi || 0),
+    tpi: 50 + 50 * matchPower,
+    matchPower,
+    baseMatchPower,
+    formationWinConversion: conversion,
+  };
+}
+
 function renderTeamIndex() {
   if (!els.myTeamIndexWrap) return;
   const { input, pointSourceBySlot, warnings } = buildMyTeamV4CleanUniformInput();
@@ -1391,16 +1411,18 @@ function renderTeamIndex() {
 
   try {
     const result = calcTeamV4CleanUniformIndex(input);
+    const teamPower = calcTeamPowerFromGdi(result.totalIndex, input.formationId);
     const warningHtml = warnings.length
       ? `<div class="myteam-index-warnings">${warnings.map((w) => `<span>${escapeHtml(w)}</span>`).join("")}</div>`
       : "";
-    latestRenderedTeamTpi = result.totalIndex;
+    latestRenderedTeamTpi = teamPower.tpi;
     els.myTeamIndexWrap.innerHTML = `
       <section class="myteam-index-card">
         <div class="myteam-index-head">
           <span class="myteam-index-title"><span class="myteam-index-label">Team Power Index</span><button type="button" class="myteam-index-info" data-tpi-info aria-label="Team Power Index info">i</button></span>
-          <strong class="myteam-index-value">${formatIndexValue(result.totalIndex, 2)}</strong>
+          <strong class="myteam-index-value">${formatIndexValue(teamPower.tpi, 1)}</strong>
         </div>
+        <p class="myteam-index-note">GDI ${result.totalIndex >= 0 ? "+" : ""}${formatIndexValue(result.totalIndex, 2)} / Formation win conversion ${teamPower.formationWinConversion >= 0 ? "+" : ""}${formatIndexValue(teamPower.formationWinConversion, 3)}</p>
         <div class="myteam-index-grid">
           <span>Slots <strong>${formatIndexValue(result.starting11Contribution, 2)}</strong></span>
           <span>Key Slots <strong>${formatIndexValue(result.keyslotContribution, 2)}</strong></span>
@@ -1491,8 +1513,9 @@ function tpiGridLabelFromValue(value, step = 0.25) {
 function renderTpiInfoBenchmark() {
   const rows = Array.isArray(ccRangeData?.rows) ? ccRangeData.rows : [];
   const skippedFinals = Number(ccRangeData?.skippedFinals || 0);
+  const gridStep = Number(ccRangeData?.step || 5);
   const currentTpi = Number(latestRenderedTeamTpi);
-  const activeLabel = Number.isFinite(currentTpi) ? tpiGridLabelFromValue(currentTpi) : null;
+  const activeLabel = Number.isFinite(currentTpi) ? tpiGridLabelFromValue(currentTpi, gridStep) : null;
 
   document.querySelectorAll("[data-tpi-champion-benchmark]").forEach((box) => {
     if (!rows.length) {
@@ -3875,9 +3898,10 @@ async function init() {
         weights: raw?.weights || {},
         metrics: raw?.metrics || {},
         diagnostics: raw?.diagnostics || {},
+        matchPower: raw?.matchPower || {},
       };
     } catch (_) {
-      v4CleanUniformData = { meta: {}, formationPower: {}, coachPower: {}, formationSlotExpectedPts: {}, weights: {} };
+      v4CleanUniformData = { meta: {}, formationPower: {}, coachPower: {}, formationSlotExpectedPts: {}, weights: {}, matchPower: {} };
     }
   }
   if (ccRangeRes && ccRangeRes.ok) {
@@ -3886,9 +3910,11 @@ async function init() {
       ccRangeData = {
         rows: Array.isArray(raw?.rows) ? raw.rows : [],
         skippedFinals: Number(raw?.skippedFinals || 0),
+        step: Number(raw?.step || 5),
+        metric: String(raw?.metric || "tpi"),
       };
     } catch (_) {
-      ccRangeData = { rows: [], skippedFinals: 0 };
+      ccRangeData = { rows: [], skippedFinals: 0, step: 5, metric: "tpi" };
     }
   }
   renderTpiInfoBenchmark();

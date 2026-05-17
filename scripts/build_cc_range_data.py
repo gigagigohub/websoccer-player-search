@@ -12,6 +12,8 @@ def main() -> None:
     out = {
         "rows": meta.get("championTpiGridStats") or [],
         "skippedFinals": meta.get("championTpiSkippedFinals") or 0,
+        "step": meta.get("championTpiGridStep") or 5,
+        "metric": "tpi",
         "source": "v4_clean_uniform_data.json",
     }
     DEST.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
