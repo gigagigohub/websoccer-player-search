@@ -2848,7 +2848,7 @@ button.ghost {
   top: 0;
   max-width: none;
   color: #f0bf75;
-  font-size: 0.5rem;
+  font-size: var(--point-source-size, 0.5rem);
   line-height: 1.2;
   overflow: visible;
   white-space: nowrap;

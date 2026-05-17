@@ -1369,6 +1369,21 @@ function formatIndexValue(value, digits = 2) {
   return Number.isFinite(n) ? n.toFixed(digits) : "-";
 }
 
+function pointSourceFontSizeRem(label) {
+  const text = String(label || "");
+  if (!text) return 0.5;
+  const units = Array.from(text).reduce((sum, ch) => {
+    if (/\s/.test(ch)) return sum + 0.28;
+    if (/[\-+/().:]/.test(ch)) return sum + 0.34;
+    return sum + (ch.charCodeAt(0) <= 0x7f ? 0.52 : 0.92);
+  }, 0);
+  const mobile = typeof window !== "undefined"
+    && window.matchMedia
+    && window.matchMedia("(max-width: 700px)").matches;
+  const targetRem = mobile ? 11.1 : 12.4;
+  return Math.max(0.31, Math.min(0.5, targetRem / Math.max(units, 1)));
+}
+
 function clampNumber(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
@@ -2549,8 +2564,9 @@ function renderLineup() {
     const v4Point = Number(v4PointInfo?.point);
     const pointEstimated = !!v4PointInfo && v4PointInfo.source !== "cc-exact";
     const pointSourceLabel = pointEstimated ? String(v4PointInfo?.label || "estimated") : "";
+    const pointSourceSize = pointSourceFontSizeRem(pointSourceLabel).toFixed(3);
     const ccStatHtml = player && Number.isInteger(selectedFormationId) && idx < STARTING_LINEUP_SIZE
-      ? `<span class="lineup-cc-row"><span class="${`lineup-cc-stat${pointEstimated ? " is-estimated" : ""}`}">Pts ${formatIndexValue(v4Point, 2)}</span>${pointSourceLabel ? `<span class="lineup-point-source">${escapeHtml(pointSourceLabel)}</span>` : ""}</span>`
+      ? `<span class="lineup-cc-row"><span class="${`lineup-cc-stat${pointEstimated ? " is-estimated" : ""}`}">Pts ${formatIndexValue(v4Point, 2)}</span>${pointSourceLabel ? `<span class="lineup-point-source" style="--point-source-size:${pointSourceSize}rem">${escapeHtml(pointSourceLabel)}</span>` : ""}</span>`
       : "";
     const rightPaneHtml = player
       ? (lifecycleModeEnabled
