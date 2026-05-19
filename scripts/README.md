@@ -10,6 +10,9 @@
 - `prepare_collections_data.py` - Collections のユニフォーム・エンブレム表示データを生成する。
 - `write_site_meta.py` - サイト更新日時などのメタ情報を書き出す。
 
+UpdateFile の選手画像をサイトへ反映する場合は、通常選手画像として `Resources/img/chara/players` のみを使う。
+`Resources/img/SpecialMatch/CM/chara/players` は特別試合用素材で、同じ数値名でも通常の player id 画像として上書きしない。
+
 ## Master DB
 
 - `build_websoccer_master_db.py` - WSM master DB を構築する。
