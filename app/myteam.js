@@ -2094,6 +2094,7 @@ async function cloudDeleteLineupById(lineupId, required = true) {
 }
 
 function getCategory(player) {
+  if (player?.categoryPending) return "";
   if (player.category) return player.category;
   const hasCM = !!player.flags?.CM;
   const hasSS = !!player.flags?.SS;
@@ -2142,6 +2143,18 @@ function typeClassByPlayer(player) {
   if (typeLabel === "CM/SS") return "cat-cmss";
   if (typeLabel === "CC") return "cat-cc";
   return "cat-na";
+}
+
+function typeBadgeHtmlByPlayer(player) {
+  const typeLabel = typeLabelByPlayer(player);
+  if (!typeLabel) return "";
+  return `<span class="badge type-badge ${typeClassByPlayer(player)}">${typeLabel}</span>`;
+}
+
+function playerImageSrc(player, kind = "static") {
+  if (player?.imagePending) return "./images/chara/players/pending.svg";
+  const safeKind = kind === "action" ? "action" : "static";
+  return `./images/chara/players/${safeKind}/${player.id}.gif`;
 }
 
 function positionClass(position) {
@@ -2399,19 +2412,18 @@ function successorSummaryHtml(entry, currentRemaining) {
   const sourceText = successor?.source ? `<span class="lineup-successor-source">${successor.source}</span>` : "";
   const pos = (successorPlayer.position || "-").toUpperCase();
   const posClass = positionClass(pos);
-  const typeLabel = typeLabelByPlayer(successorPlayer);
-  const typeClass = typeClassByPlayer(successorPlayer);
+  const typeBadge = typeBadgeHtmlByPlayer(successorPlayer);
 
   return `
     <div class="lineup-successor">
       <div class="lineup-successor-arrow" aria-hidden="true">▶</div>
       <div class="lineup-thumb-wrap">
-        <img loading="lazy" src="./images/chara/players/static/${successorPlayer.id}.gif" alt="${successorPlayer.name}" />
+        <img loading="lazy" src="${playerImageSrc(successorPlayer, "static")}" alt="${successorPlayer.name}" />
       </div>
       <div class="lineup-successor-meta">
         <div class="lineup-badges">
           <span class="badge pos-badge ${posClass}">${pos}</span>
-          <span class="badge type-badge ${typeClass}">${typeLabel}</span>
+          ${typeBadge}
           ${remainingBadgeHtml(remain)}
         </div>
         <span class="slot-name">${successorPlayer.name}</span>
@@ -2551,10 +2563,9 @@ function renderLineup() {
       : `<span class="badge lineup-season">${seasonText}</span>`;
     const pos = (player?.position || "-").toUpperCase();
     const posClass = positionClass(pos);
-    const typeLabel = player ? typeLabelByPlayer(player) : "-";
-    const typeClass = player ? typeClassByPlayer(player) : "cat-na";
+    const typeBadge = player ? typeBadgeHtmlByPlayer(player) : "";
     const imageHtml = player
-      ? `<img loading="lazy" src="./images/chara/players/static/${player.id}.gif" alt="${player.name}" />`
+      ? `<img loading="lazy" src="${playerImageSrc(player, "static")}" alt="${player.name}" />`
       : `<div class="lineup-empty-thumb"></div>`;
     const selectedPeriod = player ? findPeriodBySeason(player, season) : null;
     const selectedMetrics = selectedPeriod?.metrics || (player ? getPeakMetrics(player) : null);
@@ -2591,7 +2602,7 @@ function renderLineup() {
           <div class="lineup-player-meta">
             <div class="lineup-badges">
               <span class="badge pos-badge ${posClass}">${pos}</span>
-              <span class="badge type-badge ${typeClass}">${typeLabel}</span>
+              ${typeBadge}
               ${seasonBadge}
             </div>
             <span class="slot-name">${name}</span>
@@ -2874,8 +2885,8 @@ function swipeDeckHtml(viewMode, normalViewHtml, detailViewHtml, thirdViewHtml) 
 }
 
 function playerCardHtml(player, season) {
-  const staticImg = `./images/chara/players/static/${player.id}.gif`;
-  const actionImg = `./images/chara/players/action/${player.id}.gif`;
+  const staticImg = playerImageSrc(player, "static");
+  const actionImg = playerImageSrc(player, "action");
   const displayMetrics = getPeakMetrics(player);
   const viewMode = getCardViewMode(player.id);
   const peakTimeline = getPeakTimeline(player);
@@ -2909,6 +2920,7 @@ function playerCardHtml(player, season) {
 
   const typeLabel = typeLabelByPlayer(player);
   const typeClass = typeClassByPlayer(player);
+  const typeBadge = typeBadgeHtmlByPlayer(player);
   const pos = (player.position || "-").toUpperCase();
   const posClass = positionClass(pos);
   const mainMetrics = ["スピ", "テク", "パワ", "個性"];
@@ -2980,7 +2992,7 @@ function playerCardHtml(player, season) {
         <div class="card-head-main">
           <h3 class="card-name">
             <span class="badge pos-badge ${posClass}">${pos}</span>
-            <span class="badge type-badge ${typeClass}">${typeLabel}</span>
+            ${typeBadge}
             <span>${player.name}</span>
           </h3>
         </div>
@@ -3143,18 +3155,17 @@ function renderPlayerReplaceResults() {
   els.playerReplaceResults.innerHTML = list.map((player) => {
     const pos = (player.position || "-").toUpperCase();
     const posClass = positionClass(pos);
-    const typeLabel = typeLabelByPlayer(player);
-    const typeClass = typeClassByPlayer(player);
+    const typeBadge = typeBadgeHtmlByPlayer(player);
     return `
       <button type="button" class="player-replace-option" data-player-id="${player.id}">
         <span class="player-replace-thumb">
-          <img loading="lazy" src="./images/chara/players/static/${player.id}.gif" alt="${escapeHtml(player.name)}" />
+          <img loading="lazy" src="${playerImageSrc(player, "static")}" alt="${escapeHtml(player.name)}" />
         </span>
         <span class="player-replace-meta">
           <span class="player-replace-name">${escapeHtml(player.name)}</span>
           <span class="player-replace-sub">
             <span class="badge pos-badge ${posClass}">${escapeHtml(pos)}</span>
-            <span class="badge type-badge ${typeClass}">${escapeHtml(typeLabel)}</span>
+            ${typeBadge}
             ID: ${player.id}
           </span>
         </span>
@@ -3863,12 +3874,12 @@ async function init() {
 
   loadSiteMeta();
   const [dataRes, formationsRes, coachesMetaRes, v4CleanUniformRes, rohmRes, ccRangeRes] = await Promise.all([
-    fetchWithTimeout("./data.json?v=20260517-cc2625"),
-    fetchWithTimeout("./formations_data.json?v=20260517-cc2625").catch(() => null),
-    fetchWithTimeout("./coaches_data.json?v=20260517-cc2625").catch(() => null),
-    fetchWithTimeout("./v4_clean_uniform_data.json?v=20260517-cc2625").catch(() => null),
+    fetchWithTimeout("./data.json?v=20260521-core3205"),
+    fetchWithTimeout("./formations_data.json?v=20260521-core3205").catch(() => null),
+    fetchWithTimeout("./coaches_data.json?v=20260521-core3205").catch(() => null),
+    fetchWithTimeout("./v4_clean_uniform_data.json?v=20260521-core3205").catch(() => null),
     fetchWithTimeout(ROHM_SLOT_DATA_URL).catch(() => null),
-    fetchWithTimeout("./cc_range_data.json?v=20260517-cc2625").catch(() => null),
+    fetchWithTimeout("./cc_range_data.json?v=20260521-core3205").catch(() => null),
   ]);
   const data = await dataRes.json();
   players = data.players || [];

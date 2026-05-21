@@ -630,6 +630,7 @@ function categoryBadgeHtmlByPlayerId(playerId) {
   const id = Number(playerId);
   const rawCategory = getCcCategoryLabelByPlayerId(id);
   const player = playersById.get(id);
+  if (player?.categoryPending) return "";
   const category = player ? badgeCategoryByRecency(player, rawCategory) : rawCategory;
   const rate = player ? Number(playerRateById.get(id)) : 0;
   const c = normalizeCategory(category);
@@ -639,6 +640,7 @@ function categoryBadgeHtmlByPlayerId(playerId) {
 function categoryBadgeHtml(category, playerId = null) {
   const id = Number(playerId);
   const player = playersById.get(id);
+  if (player?.categoryPending) return "";
   const rawCategory = normalizeCategory(category || getCcCategoryLabelByPlayerId(id));
   const badgeCategory = player ? badgeCategoryByRecency(player, rawCategory) : rawCategory;
   const rate = player ? Number(playerRateById.get(id)) : 0;
@@ -647,11 +649,13 @@ function categoryBadgeHtml(category, playerId = null) {
 }
 
 function getCategory(player) {
+  if (player?.categoryPending) return "";
   if (player?.category) return String(player.category);
   return getCcCategoryLabelByPlayerId(player?.id);
 }
 
 function typeLabelByPlayer(player) {
+  if (player?.categoryPending) return "";
   return badgeCategoryByRecency(player, getCategory(player));
 }
 
@@ -662,6 +666,19 @@ function typeClassByPlayer(player) {
     return categoryBadgeClass(typeLabel, rate);
   }
   return categoryBadgeClass(typeLabel);
+}
+
+function typeBadgeHtmlByPlayer(player) {
+  const typeLabel = typeLabelByPlayer(player);
+  if (!typeLabel) return "";
+  return `<span class="badge type-badge ${typeClassByPlayer(player)}">${typeLabel}</span>`;
+}
+
+function playerImageSrcById(playerId, kind = "static") {
+  const player = playersById.get(Number(playerId));
+  if (player?.imagePending) return "./images/chara/players/pending.svg";
+  const safeKind = kind === "action" ? "action" : "static";
+  return `./images/chara/players/${safeKind}/${Number(playerId)}.gif`;
 }
 
 function positionClass(position) {
@@ -964,7 +981,7 @@ function renderSlotTop(slotStats, mode = "usage") {
               </button>
             `;
           }
-          const imgSrc = `./images/chara/players/static/${top.playerId}.gif`;
+          const imgSrc = playerImageSrcById(top.playerId, "static");
           return `
             <button type="button" class="slot-top-row" data-slot="${slot}">
               <span class="slot-top-slotno">${slotLabel}</span>
@@ -1085,7 +1102,7 @@ function renderModelSlots(formation) {
             <button type="button" class="slot-top-row model-slot-row" data-player-id="${playerId}">
               <span class="slot-top-slotno">${slotLabel}</span>
               <div class="slot-top-thumb">
-                <img loading="lazy" src="./images/chara/players/static/${playerId}.gif" alt="${playerName}" />
+                <img loading="lazy" src="${playerImageSrcById(playerId, "static")}" alt="${playerName}" />
               </div>
               <div class="slot-top-meta">
                 <span class="slot-top-titleline">
@@ -1182,7 +1199,7 @@ function renderBestTeam(formation) {
         const playerId = Number(member?.playerId || 0);
         const slot = Number(member?.slot || 0);
         const slotLabel = `Slot ${slot}${keySlots.has(slot) ? ` <span class="slot-top-key-star" aria-hidden="true">★</span>` : ""}`;
-        const imgSrc = `./images/chara/players/static/${playerId}.gif`;
+        const imgSrc = playerImageSrcById(playerId, "static");
         return `
           <button type="button" class="slot-top-row best-team-player-row" data-player-id="${playerId}">
             <span class="slot-top-slotno">${slotLabel}</span>
@@ -1233,7 +1250,7 @@ function renderRepresentativeTeam(formation) {
       ${topPlayers
         .map((top) => {
           const slotLabel = `Slot ${top.slot}`;
-          const imgSrc = `./images/chara/players/static/${top.playerId}.gif`;
+          const imgSrc = playerImageSrcById(top.playerId, "static");
           return `
             <button type="button" class="slot-top-row coach-top-row" disabled>
               <span class="slot-top-slotno">${slotLabel}</span>
@@ -1542,8 +1559,8 @@ function swipeDeckHtml(viewMode, normalViewHtml, detailViewHtml, thirdViewHtml) 
 }
 
 function playerCardHtml(player) {
-  const staticImg = `./images/chara/players/static/${player.id}.gif`;
-  const actionImg = `./images/chara/players/action/${player.id}.gif`;
+  const staticImg = playerImageSrcById(player.id, "static");
+  const actionImg = playerImageSrcById(player.id, "action");
   const displayMetrics = getPeakMetrics(player);
   const viewMode = getCardViewMode(player.id);
   const peakTimeline = getPeakTimeline(player);
@@ -1572,6 +1589,7 @@ function playerCardHtml(player) {
   };
   const typeLabel = typeLabelByPlayer(player);
   const typeClass = typeClassByPlayer(player);
+  const typeBadge = typeBadgeHtmlByPlayer(player);
   const pos = (player.position || "-").toUpperCase();
   const posClass = positionClass(pos);
   const mainMetrics = ["スピ", "テク", "パワ", "個性"];
@@ -1634,7 +1652,7 @@ function playerCardHtml(player) {
         <div class="card-head-main">
           <h3 class="card-name">
             <span class="badge pos-badge ${posClass}">${pos}</span>
-            <span class="badge type-badge ${typeClass}">${typeLabel}</span>
+            ${typeBadge}
             <span>${player.name}</span>
           </h3>
         </div>
@@ -2450,9 +2468,9 @@ async function init() {
   bindEvents();
 
   const [formationsRes, playersRes, coachesMetaRes] = await Promise.all([
-    fetch("./formations_data.json?v=20260517-cc2625"),
-    fetch("./data.json?v=20260517-cc2625").catch(() => null),
-    fetch("./coaches_data.json?v=20260517-cc2625").catch(() => null),
+    fetch("./formations_data.json?v=20260521-core3205"),
+    fetch("./data.json?v=20260521-core3205").catch(() => null),
+    fetch("./coaches_data.json?v=20260521-core3205").catch(() => null),
     loadSiteMeta(),
   ]);
   const formationData = await formationsRes.json();
