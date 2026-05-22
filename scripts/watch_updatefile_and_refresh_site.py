@@ -6,6 +6,7 @@ import json
 import os
 import re
 import shutil
+import ssl
 import subprocess
 import sys
 import time
@@ -68,6 +69,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--no-notify", action="store_true", help="Do not send Pushover notifications.")
     p.add_argument("--dry-run", action="store_true", help="Check availability only. Do not download or update.")
     p.add_argument("--verify-tls", action="store_true", help="Enable TLS validation for the asset host.")
+    p.add_argument(
+        "--verify-pushover-tls",
+        action="store_true",
+        help="Enable TLS validation for Pushover. Disabled by default to avoid local Python CA issues.",
+    )
     return p.parse_args()
 
 
@@ -122,6 +128,7 @@ def notify(
     message: str,
     enabled: bool,
     log_path: Path,
+    verify_tls: bool,
 ) -> None:
     if not enabled:
         return
@@ -136,7 +143,8 @@ def notify(
             }
         ).encode("utf-8")
         req = urllib.request.Request("https://api.pushover.net/1/messages.json", data=payload, method="POST")
-        with urllib.request.urlopen(req, timeout=15) as res:
+        ctx = None if verify_tls else ssl._create_unverified_context()
+        with urllib.request.urlopen(req, timeout=15, context=ctx) as res:
             res.read()
         log(f"pushover sent: {title}", log_path)
     except Exception as exc:
@@ -377,6 +385,7 @@ def main() -> int:
             f"{version_label} が見つかりました。DBとサイト更新を開始します。",
             notify_enabled,
             log_path,
+            args.verify_pushover_tls,
         )
 
         zip_paths = [update_dir / f"p{v}.zip" for v in found_versions]
@@ -397,6 +406,7 @@ def main() -> int:
             f"{version_label} のDB/サイト更新が完了しました。WSM: {out_db.name}",
             notify_enabled,
             log_path,
+            args.verify_pushover_tls,
         )
         log(f"update complete: versions={found_versions} db={out_db}", log_path)
         return 0
@@ -411,6 +421,7 @@ def main() -> int:
                 f"UpdateFile {found_versions} の更新処理に失敗しました: {type(exc).__name__}: {exc}",
                 notify_enabled,
                 log_path,
+                args.verify_pushover_tls,
             )
         return 1
     finally:
