@@ -2,6 +2,7 @@
 import csv
 import datetime as dt
 import json
+import argparse
 import plistlib
 import re
 import zipfile
@@ -15,6 +16,21 @@ FILLED_CSV = Path('/Users/k.nishimura/work/coding/wsc_data/UpdateFile_inventory/
 APP_DATA = ROOT / 'app' / 'data.json'
 
 ZIP_RE = re.compile(r'p(\d+)\.zip$')
+
+BLANK_MISSING_TITLE = False
+
+
+def parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(description='Update SS scout event list and player scout history in app/data.json.')
+    p.add_argument('--zip-dir', default=str(ZIP_DIR), help='UpdateFile_pX_Y directory containing p*.zip files.')
+    p.add_argument('--filled-csv', default=str(FILLED_CSV), help='Manual SS event title CSV.')
+    p.add_argument('--app-data', default=str(APP_DATA), help='Target app/data.json path.')
+    p.add_argument(
+        '--blank-missing-title',
+        action='store_true',
+        help='Keep event name blank when it is not present in the manual CSV.',
+    )
+    return p.parse_args()
 
 
 def to_text(v) -> str:
@@ -38,6 +54,8 @@ def parse_player_ids(raw) -> List[int]:
 
 def load_event_meta() -> Dict[int, dict]:
     out: Dict[int, dict] = {}
+    if not FILLED_CSV.exists():
+        return out
     with FILLED_CSV.open('r', encoding='utf-8') as f:
         r = csv.DictReader(f)
         for row in r:
@@ -116,7 +134,8 @@ def build_scouts() -> Tuple[List[dict], Dict[int, List[dict]]]:
         m = meta.get(event_id, {})
         z = zips.get(event_id, {})
 
-        name = (m.get('name') or z.get('nameRaw') or '').strip()
+        fallback_name = '' if BLANK_MISSING_TITLE else z.get('nameRaw')
+        name = (m.get('name') or fallback_name or '').strip()
         start = m.get('start') or z.get('start') or ''
         end = m.get('end') or z.get('end') or ''
         notes = m.get('notes') or z.get('notes') or ''
@@ -196,6 +215,13 @@ def update_data_json(path: Path, scouts: List[dict], history: Dict[int, List[dic
 
 
 def main() -> None:
+    global ZIP_DIR, FILLED_CSV, APP_DATA, BLANK_MISSING_TITLE
+    args = parse_args()
+    ZIP_DIR = Path(args.zip_dir).expanduser().resolve()
+    FILLED_CSV = Path(args.filled_csv).expanduser().resolve()
+    APP_DATA = Path(args.app_data).expanduser().resolve()
+    BLANK_MISSING_TITLE = bool(args.blank_missing_title)
+
     jst = dt.timezone(dt.timedelta(hours=9))
     now = dt.datetime.now(jst)
     now_iso = now.isoformat(timespec='seconds')
