@@ -11,6 +11,9 @@
 - `write_site_meta.py` - サイト更新日時などのメタ情報を書き出す。
 - `watch_updatefile_and_refresh_site.py` - UpdateFile の新規配信を確認し、検出時だけ通知、取得、画像/SSリスト反映、DB/サイト更新を実行する。
 
+UpdateFile 監視の Pushover は `.websoccer_updatefile_watch/config.json` の `pushover_app_token` を使う。
+`pushover_user_key` は同ファイルにあればそれを使い、なければ `.yamato_pushover_watch/config.json` から流用する。
+
 UpdateFile の選手画像をサイトへ反映する場合は、通常選手画像として `Resources/img/chara/players` のみを使う。
 `Resources/img/SpecialMatch/CM/chara/players` は特別試合用素材で、同じ数値名でも通常の player id 画像として上書きしない。
 
