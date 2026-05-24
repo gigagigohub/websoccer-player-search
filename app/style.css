@@ -2310,6 +2310,98 @@ button.ghost {
   margin: 0;
 }
 
+.myteam-slot-switcher {
+  margin: 6px 0 10px;
+}
+
+.myteam-slot-switcher:empty,
+.myteam-slot-switcher[hidden] {
+  display: none;
+}
+
+.myteam-slot-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.myteam-slot-tab {
+  min-width: 0;
+  min-height: 40px;
+  border: 1px solid rgba(86, 126, 191, 0.48);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(31, 54, 91, 0.9) 0%, rgba(18, 32, 56, 0.96) 100%);
+  color: #d8e5ff;
+  box-shadow: var(--btn-inset);
+  padding: 5px 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  text-align: left;
+}
+
+.myteam-slot-tab.is-active {
+  border-color: #ff9b3d;
+  background: linear-gradient(180deg, #ffad5a 0%, #d56a0f 100%);
+  color: #fff5e8;
+}
+
+.myteam-slot-tab-no {
+  font-size: 0.58rem;
+  font-weight: 800;
+  line-height: 1;
+  opacity: 0.78;
+}
+
+.myteam-slot-tab strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.72rem;
+  line-height: 1.1;
+}
+
+.myteam-slot-name-row {
+  margin-top: 6px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.myteam-slot-name-row label {
+  color: #9fb0cd;
+  font-size: 0.66rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.myteam-slot-name-row input {
+  min-width: 0;
+  height: 30px;
+  border-radius: 7px;
+  border: 1px solid rgba(75, 105, 161, 0.7);
+  background: rgba(10, 20, 38, 0.92);
+  color: #eef5ff;
+  padding: 4px 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.myteam-slot-name-save {
+  min-height: 30px;
+  border-radius: 7px;
+  border: 1px solid #4f75b8;
+  background: linear-gradient(180deg, var(--btn-secondary-top) 0%, var(--btn-secondary-bottom) 100%);
+  color: #eef5ff;
+  padding: 5px 9px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  box-shadow: var(--btn-inset);
+}
+
 .simulation-actions {
   display: flex;
   justify-content: flex-end;

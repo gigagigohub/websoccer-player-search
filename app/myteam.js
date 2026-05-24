@@ -16,6 +16,9 @@ const V4_CC_DIRECT_MIN_USES = 15;
 const V4_FALLBACK_PLAYER_USE_CAP = 60;
 const V4_FALLBACK_PERSON_USE_CAP = 80;
 const LIFECYCLE_MODE_STORAGE_KEY = "ws_lifecycle_mode_v1";
+const MYTEAM_SLOT_COUNT = 3;
+const MYTEAM_ACTIVE_SLOT_STORAGE_KEY = "ws_myteam_active_slot_v1";
+const MYTEAM_SLOT_NAME_STORAGE_KEY = "ws_myteam_slot_name_v1";
 const MYTEAM_FORMATION_STORAGE_KEY = "ws_myteam_formation_v1";
 const MYTEAM_COACH_STORAGE_KEY = "ws_myteam_coach_v1";
 const SIMULATION_LINEUP_STORAGE_KEY = "ws_simulation_lineup_v1";
@@ -87,6 +90,7 @@ const els = {
   signupApply: document.querySelector("#signupApply"),
   myTeamMeta: document.querySelector("#myTeamMeta"),
   myTeamTarget: document.querySelector("#myTeamTarget"),
+  myTeamSlotSwitcher: document.querySelector("#myTeamSlotSwitcher"),
   myTeamIndexWrap: document.querySelector("#myTeamIndexWrap"),
   myTeamSlots: document.querySelector("#myTeamSlots"),
   myTeamReserveSlots: document.querySelector("#myTeamReserveSlots"),
@@ -156,6 +160,10 @@ let selectedPlayerMode = "starter";
 let replacementPlayerId = null;
 let replacementCoachId = null;
 let lifecycleModeEnabled = false;
+let activeMyTeamSlot = 1;
+let myTeamSlotNames = Object.fromEntries(
+  Array.from({ length: MYTEAM_SLOT_COUNT }, (_, i) => [i + 1, `Team ${i + 1}`])
+);
 const cardViewModeById = new Map();
 let formations = [];
 let coaches = [];
@@ -360,9 +368,65 @@ function coachFormationPills(list, withSeason = false) {
     .join("");
 }
 
-function formationMetaId(lineupId = cloudConfig?.lineupKey) {
+function normalizeMyTeamSlotNo(value) {
+  const n = Number(value);
+  return Number.isInteger(n) && n >= 1 && n <= MYTEAM_SLOT_COUNT ? n : 1;
+}
+
+function defaultMyTeamSlotName(slotNo) {
+  return `Team ${normalizeMyTeamSlotNo(slotNo)}`;
+}
+
+function activeMyTeamSlotStorageKey() {
+  return scopedStorageKey(MYTEAM_ACTIVE_SLOT_STORAGE_KEY);
+}
+
+function myTeamSlotNameStorageKey(slotNo, lineupId = cloudConfig?.lineupKey) {
+  const slot = normalizeMyTeamSlotNo(slotNo);
   const id = String(lineupId || "").trim();
+  return id ? `${MYTEAM_SLOT_NAME_STORAGE_KEY}:${id}:slot${slot}` : `${MYTEAM_SLOT_NAME_STORAGE_KEY}:slot${slot}`;
+}
+
+function loadActiveMyTeamSlot() {
+  if (IS_SIMULATION_MODE) {
+    activeMyTeamSlot = normalizeMyTeamSlotNo(localStorage.getItem(activeMyTeamSlotStorageKey()) || 1);
+    return;
+  }
+  activeMyTeamSlot = normalizeMyTeamSlotNo(localStorage.getItem(activeMyTeamSlotStorageKey()) || 1);
+}
+
+function saveActiveMyTeamSlot() {
+  localStorage.setItem(activeMyTeamSlotStorageKey(), String(normalizeMyTeamSlotNo(activeMyTeamSlot)));
+}
+
+function loadLocalMyTeamSlotNames() {
+  for (let slot = 1; slot <= MYTEAM_SLOT_COUNT; slot += 1) {
+    const name = String(localStorage.getItem(myTeamSlotNameStorageKey(slot)) || "").trim();
+    myTeamSlotNames[slot] = name || myTeamSlotNames[slot] || defaultMyTeamSlotName(slot);
+  }
+}
+
+function saveLocalMyTeamSlotName(slotNo) {
+  const slot = normalizeMyTeamSlotNo(slotNo);
+  const name = String(myTeamSlotNames[slot] || "").trim() || defaultMyTeamSlotName(slot);
+  myTeamSlotNames[slot] = name;
+  localStorage.setItem(myTeamSlotNameStorageKey(slot), name);
+}
+
+function myTeamLineupId(lineupId = cloudConfig?.lineupKey, slotNo = activeMyTeamSlot) {
+  const id = String(lineupId || "").trim();
+  if (!id) return "";
+  const slot = normalizeMyTeamSlotNo(slotNo);
+  return slot === 1 ? id : `${id}__slot${slot}`;
+}
+
+function myTeamMetaId(lineupId = cloudConfig?.lineupKey, slotNo = activeMyTeamSlot) {
+  const id = myTeamLineupId(lineupId, slotNo);
   return id ? `${id}__meta` : "";
+}
+
+function formationMetaId(lineupId = cloudConfig?.lineupKey, slotNo = activeMyTeamSlot) {
+  return myTeamMetaId(lineupId, slotNo);
 }
 
 function simulationLineupId(lineupId = cloudConfig?.lineupKey) {
@@ -375,12 +439,12 @@ function simulationMetaId(lineupId = cloudConfig?.lineupKey) {
   return id ? `${id}__simulation_meta` : "";
 }
 
-function cloudLineupIdForMode(mode = IS_SIMULATION_MODE ? "simulation" : "myteam", lineupId = cloudConfig?.lineupKey) {
-  return mode === "simulation" ? simulationLineupId(lineupId) : String(lineupId || "").trim();
+function cloudLineupIdForMode(mode = IS_SIMULATION_MODE ? "simulation" : "myteam", lineupId = cloudConfig?.lineupKey, slotNo = activeMyTeamSlot) {
+  return mode === "simulation" ? simulationLineupId(lineupId) : myTeamLineupId(lineupId, slotNo);
 }
 
-function cloudMetaIdForMode(mode = IS_SIMULATION_MODE ? "simulation" : "myteam", lineupId = cloudConfig?.lineupKey) {
-  return mode === "simulation" ? simulationMetaId(lineupId) : formationMetaId(lineupId);
+function cloudMetaIdForMode(mode = IS_SIMULATION_MODE ? "simulation" : "myteam", lineupId = cloudConfig?.lineupKey, slotNo = activeMyTeamSlot) {
+  return mode === "simulation" ? simulationMetaId(lineupId) : formationMetaId(lineupId, slotNo);
 }
 
 function scopedStorageKey(baseKey) {
@@ -389,15 +453,25 @@ function scopedStorageKey(baseKey) {
 }
 
 function lineupStorageKeyForCurrentMode() {
-  return IS_SIMULATION_MODE ? scopedStorageKey(SIMULATION_LINEUP_STORAGE_KEY) : LINEUP_STORAGE_KEY;
+  if (IS_SIMULATION_MODE) return scopedStorageKey(SIMULATION_LINEUP_STORAGE_KEY);
+  return myTeamLineupStorageKeyForSlot(activeMyTeamSlot);
+}
+
+function myTeamLineupStorageKeyForSlot(slotNo = activeMyTeamSlot) {
+  const slot = normalizeMyTeamSlotNo(slotNo);
+  return slot === 1 ? LINEUP_STORAGE_KEY : scopedStorageKey(`${LINEUP_STORAGE_KEY}:slot${slot}`);
 }
 
 function formationStorageKeyForCurrentMode() {
-  return scopedStorageKey(IS_SIMULATION_MODE ? SIMULATION_FORMATION_STORAGE_KEY : MYTEAM_FORMATION_STORAGE_KEY);
+  if (IS_SIMULATION_MODE) return scopedStorageKey(SIMULATION_FORMATION_STORAGE_KEY);
+  const slot = normalizeMyTeamSlotNo(activeMyTeamSlot);
+  return scopedStorageKey(slot === 1 ? MYTEAM_FORMATION_STORAGE_KEY : `${MYTEAM_FORMATION_STORAGE_KEY}:slot${slot}`);
 }
 
 function coachStorageKeyForCurrentMode() {
-  return scopedStorageKey(IS_SIMULATION_MODE ? SIMULATION_COACH_STORAGE_KEY : MYTEAM_COACH_STORAGE_KEY);
+  if (IS_SIMULATION_MODE) return scopedStorageKey(SIMULATION_COACH_STORAGE_KEY);
+  const slot = normalizeMyTeamSlotNo(activeMyTeamSlot);
+  return scopedStorageKey(slot === 1 ? MYTEAM_COACH_STORAGE_KEY : `${MYTEAM_COACH_STORAGE_KEY}:slot${slot}`);
 }
 
 function normalizeFormationId(v) {
@@ -1632,6 +1706,73 @@ function renderLifecycleControls() {
   }
 }
 
+function renderMyTeamSlotSwitcher() {
+  if (!els.myTeamSlotSwitcher) return;
+  if (IS_SIMULATION_MODE) {
+    els.myTeamSlotSwitcher.innerHTML = "";
+    els.myTeamSlotSwitcher.hidden = true;
+    return;
+  }
+  const activeSlot = normalizeMyTeamSlotNo(activeMyTeamSlot);
+  const buttons = Array.from({ length: MYTEAM_SLOT_COUNT }, (_, i) => {
+    const slot = i + 1;
+    const name = String(myTeamSlotNames[slot] || "").trim() || defaultMyTeamSlotName(slot);
+    return `
+      <button type="button" class="myteam-slot-tab${slot === activeSlot ? " is-active" : ""}" data-myteam-slot="${slot}">
+        <span class="myteam-slot-tab-no">Slot ${slot}</span>
+        <strong>${escapeHtml(name)}</strong>
+      </button>
+    `;
+  }).join("");
+  const activeName = String(myTeamSlotNames[activeSlot] || "").trim() || defaultMyTeamSlotName(activeSlot);
+  els.myTeamSlotSwitcher.hidden = false;
+  els.myTeamSlotSwitcher.innerHTML = `
+    <div class="myteam-slot-tabs">${buttons}</div>
+    <div class="myteam-slot-name-row">
+      <label for="myTeamSlotNameInput">Team Name</label>
+      <input id="myTeamSlotNameInput" type="text" maxlength="28" value="${escapeHtml(activeName)}" />
+      <button type="button" class="myteam-slot-name-save" data-myteam-slot-name-save>Save</button>
+    </div>
+  `;
+}
+
+async function switchMyTeamSlot(slotNo) {
+  if (IS_SIMULATION_MODE) return;
+  const nextSlot = normalizeMyTeamSlotNo(slotNo);
+  if (nextSlot === activeMyTeamSlot) {
+    renderMyTeamSlotSwitcher();
+    return;
+  }
+  saveLineupLocal();
+  saveSelectedFormationId();
+  saveSelectedCoach();
+  activeMyTeamSlot = nextSlot;
+  saveActiveMyTeamSlot();
+  await loadMyTeamStateForActiveSlot();
+  buildFormationOptions();
+  closeFormationEditor();
+  renderFormationCurrent();
+  renderLineup();
+}
+
+async function saveActiveMyTeamSlotNameFromInput() {
+  if (IS_SIMULATION_MODE) return;
+  const input = els.myTeamSlotSwitcher?.querySelector("#myTeamSlotNameInput");
+  const slot = normalizeMyTeamSlotNo(activeMyTeamSlot);
+  const name = String(input?.value || "").trim() || defaultMyTeamSlotName(slot);
+  myTeamSlotNames[slot] = name;
+  saveLocalMyTeamSlotName(slot);
+  renderMyTeamSlotSwitcher();
+  if (hasCloudConfig()) {
+    try {
+      await saveCloudFormationId("myteam");
+    } catch (e) {
+      console.warn(e);
+      window.alert("チーム名のクラウド保存に失敗しました。");
+    }
+  }
+}
+
 function loadCloudConfig() {
   try {
     const raw = localStorage.getItem(CLOUD_CONFIG_STORAGE_KEY);
@@ -1718,8 +1859,10 @@ async function applyLoginFromModal() {
       closeLoginModal();
       return;
     }
-    await loadCloudLineup();
-    await loadCloudFormationId();
+    loadActiveMyTeamSlot();
+    loadLocalMyTeamSlotNames();
+    await loadCloudMyTeamSlotNames();
+    await loadMyTeamStateForActiveSlot();
     buildFormationOptions();
     closeFormationEditor();
     renderFormationCurrent();
@@ -1752,9 +1895,16 @@ async function applySignupFromModal() {
       return;
     }
     lineup = Array.from({ length: LINEUP_SIZE }, () => null);
+    activeMyTeamSlot = 1;
+    myTeamSlotNames = Object.fromEntries(
+      Array.from({ length: MYTEAM_SLOT_COUNT }, (_, i) => [i + 1, defaultMyTeamSlotName(i + 1)])
+    );
+    saveActiveMyTeamSlot();
+    for (let slot = 1; slot <= MYTEAM_SLOT_COUNT; slot += 1) saveLocalMyTeamSlotName(slot);
     saveLineupLocal();
     await saveCloudLineup();
     await saveCloudFormationId();
+    renderMyTeamSlotSwitcher();
     buildFormationOptions();
     closeFormationEditor();
     renderFormationCurrent();
@@ -1867,8 +2017,8 @@ async function supabaseRequest(pathWithQuery, options = {}) {
   return res.json();
 }
 
-async function loadCloudLineup(mode = IS_SIMULATION_MODE ? "simulation" : "myteam") {
-  const lineupId = cloudLineupIdForMode(mode);
+async function loadCloudLineup(mode = IS_SIMULATION_MODE ? "simulation" : "myteam", slotNo = activeMyTeamSlot) {
+  const lineupId = cloudLineupIdForMode(mode, cloudConfig?.lineupKey, slotNo);
   if (!lineupId) return false;
   const params = new URLSearchParams({
     select: "lineup_json",
@@ -1892,8 +2042,8 @@ async function loadCloudLineup(mode = IS_SIMULATION_MODE ? "simulation" : "mytea
   return true;
 }
 
-async function loadCloudFormationId(mode = IS_SIMULATION_MODE ? "simulation" : "myteam") {
-  const metaId = cloudMetaIdForMode(mode);
+async function loadCloudFormationId(mode = IS_SIMULATION_MODE ? "simulation" : "myteam", slotNo = activeMyTeamSlot) {
+  const metaId = cloudMetaIdForMode(mode, cloudConfig?.lineupKey, slotNo);
   if (!metaId) return false;
   const params = new URLSearchParams({
     select: "lineup_json",
@@ -1905,11 +2055,43 @@ async function loadCloudFormationId(mode = IS_SIMULATION_MODE ? "simulation" : "
   });
   if (!Array.isArray(rows) || !rows.length) return false;
   const remote = rows[0]?.lineup_json;
+  if (mode !== "simulation") {
+    const slot = normalizeMyTeamSlotNo(slotNo);
+    const name = String(remote?.teamName || "").trim();
+    if (name) {
+      myTeamSlotNames[slot] = name;
+      saveLocalMyTeamSlotName(slot);
+    }
+  }
   selectedFormationId = normalizeFormationId(remote?.formationId);
   selectedCoach = normalizeCoach(remote?.coach);
   saveSelectedFormationId();
   saveSelectedCoach();
   return selectedFormationId != null;
+}
+
+async function loadCloudMyTeamSlotNames() {
+  if (!hasCloudConfig() || IS_SIMULATION_MODE) return;
+  await Promise.all(Array.from({ length: MYTEAM_SLOT_COUNT }, async (_, i) => {
+    const slot = i + 1;
+    const metaId = cloudMetaIdForMode("myteam", cloudConfig.lineupKey, slot);
+    if (!metaId) return;
+    const params = new URLSearchParams({
+      select: "lineup_json",
+      lineup_id: `eq.${metaId}`,
+      limit: "1",
+    });
+    try {
+      const rows = await supabaseRequest(`${SUPABASE_TABLE}?${params.toString()}`, { method: "GET" });
+      const name = String(rows?.[0]?.lineup_json?.teamName || "").trim();
+      if (name) {
+        myTeamSlotNames[slot] = name;
+        saveLocalMyTeamSlotName(slot);
+      }
+    } catch (_) {
+      // Slot names are cosmetic. Ignore partial cloud read failures.
+    }
+  }));
 }
 
 async function cloudLineupExists(lineupId) {
@@ -1926,8 +2108,8 @@ async function cloudLineupExists(lineupId) {
   return Array.isArray(rows) && rows.length > 0;
 }
 
-async function saveCloudLineup(mode = IS_SIMULATION_MODE ? "simulation" : "myteam") {
-  const lineupId = cloudLineupIdForMode(mode);
+async function saveCloudLineup(mode = IS_SIMULATION_MODE ? "simulation" : "myteam", slotNo = activeMyTeamSlot) {
+  const lineupId = cloudLineupIdForMode(mode, cloudConfig?.lineupKey, slotNo);
   if (!lineupId) return;
   const payload = {
     lineup_id: lineupId,
@@ -1943,14 +2125,16 @@ async function saveCloudLineup(mode = IS_SIMULATION_MODE ? "simulation" : "mytea
   });
 }
 
-async function saveCloudFormationId(mode = IS_SIMULATION_MODE ? "simulation" : "myteam") {
-  const metaId = cloudMetaIdForMode(mode);
+async function saveCloudFormationId(mode = IS_SIMULATION_MODE ? "simulation" : "myteam", slotNo = activeMyTeamSlot) {
+  const metaId = cloudMetaIdForMode(mode, cloudConfig?.lineupKey, slotNo);
   if (!metaId) return;
+  const slot = normalizeMyTeamSlotNo(slotNo);
   const payload = {
     lineup_id: metaId,
     lineup_json: {
       formationId: normalizeFormationId(selectedFormationId),
       coach: selectedCoach,
+      ...(mode === "simulation" ? {} : { teamName: String(myTeamSlotNames[slot] || "").trim() || defaultMyTeamSlotName(slot) }),
     },
     updated_at: new Date().toISOString(),
   };
@@ -1963,12 +2147,14 @@ async function saveCloudFormationId(mode = IS_SIMULATION_MODE ? "simulation" : "
   });
 }
 
-function myTeamFormationStorageKeyForCurrentId() {
-  return scopedStorageKey(MYTEAM_FORMATION_STORAGE_KEY);
+function myTeamFormationStorageKeyForCurrentId(slotNo = activeMyTeamSlot) {
+  const slot = normalizeMyTeamSlotNo(slotNo);
+  return scopedStorageKey(slot === 1 ? MYTEAM_FORMATION_STORAGE_KEY : `${MYTEAM_FORMATION_STORAGE_KEY}:slot${slot}`);
 }
 
-function myTeamCoachStorageKeyForCurrentId() {
-  return scopedStorageKey(MYTEAM_COACH_STORAGE_KEY);
+function myTeamCoachStorageKeyForCurrentId(slotNo = activeMyTeamSlot) {
+  const slot = normalizeMyTeamSlotNo(slotNo);
+  return scopedStorageKey(slot === 1 ? MYTEAM_COACH_STORAGE_KEY : `${MYTEAM_COACH_STORAGE_KEY}:slot${slot}`);
 }
 
 function stripLineupForSimulation(rows) {
@@ -2000,6 +2186,33 @@ function loadLocalSimulationState() {
   return lineupLoaded || selectedFormationId != null || selectedCoach != null;
 }
 
+async function loadMyTeamStateForActiveSlot() {
+  if (IS_SIMULATION_MODE) return false;
+  lineup = Array.from({ length: LINEUP_SIZE }, () => null);
+  selectedFormationId = null;
+  selectedCoach = null;
+  let loaded = false;
+  if (hasCloudConfig()) {
+    try {
+      const lineupLoaded = await loadCloudLineup("myteam", activeMyTeamSlot);
+      const metaLoaded = await loadCloudFormationId("myteam", activeMyTeamSlot);
+      loaded = !!lineupLoaded || !!metaLoaded;
+    } catch (e) {
+      console.warn(e);
+      loaded = false;
+    }
+  }
+  if (!loaded) {
+    const lineupLoaded = loadLocalLineupForCurrentMode();
+    loadSelectedFormationId();
+    loadSelectedCoach();
+    loaded = lineupLoaded || selectedFormationId != null || selectedCoach != null;
+  }
+  renderMyTeamSlotSwitcher();
+  renderMyTeamMeta();
+  return loaded;
+}
+
 async function loadSimulationStateForCurrentId() {
   if (!IS_SIMULATION_MODE) return false;
   lineup = Array.from({ length: LINEUP_SIZE }, () => null);
@@ -2023,7 +2236,7 @@ async function loadSimulationStateForCurrentId() {
 function loadLocalMyTeamStateForSimulation() {
   let localLineup = null;
   try {
-    const parsed = JSON.parse(localStorage.getItem(LINEUP_STORAGE_KEY) || "null");
+    const parsed = JSON.parse(localStorage.getItem(myTeamLineupStorageKeyForSlot(activeMyTeamSlot)) || "null");
     localLineup = normalizeLineupArray(parsed);
   } catch (_) {
     localLineup = null;
@@ -2091,6 +2304,65 @@ async function cloudDeleteLineupById(lineupId, required = true) {
   if (required && deletedCount < 1) {
     throw new Error("delete_not_applied");
   }
+}
+
+async function fetchCloudLineupJsonById(lineupId) {
+  const key = String(lineupId || "").trim();
+  if (!key) return null;
+  const params = new URLSearchParams({
+    select: "lineup_json",
+    lineup_id: `eq.${key}`,
+    limit: "1",
+  });
+  const rows = await supabaseRequest(`${SUPABASE_TABLE}?${params.toString()}`, { method: "GET" });
+  return Array.isArray(rows) && rows.length ? rows[0]?.lineup_json : null;
+}
+
+async function saveCloudJsonById(lineupId, lineupJson) {
+  const key = String(lineupId || "").trim();
+  if (!key) return;
+  const payload = {
+    lineup_id: key,
+    lineup_json: lineupJson,
+    updated_at: new Date().toISOString(),
+  };
+  await supabaseRequest(`${SUPABASE_TABLE}?on_conflict=lineup_id`, {
+    method: "POST",
+    headers: {
+      Prefer: "resolution=merge-duplicates,return=representation",
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+async function migrateCloudMyTeamId(oldKey, newKey) {
+  for (let slot = 1; slot <= MYTEAM_SLOT_COUNT; slot += 1) {
+    const oldLineupId = myTeamLineupId(oldKey, slot);
+    const oldMetaId = myTeamMetaId(oldKey, slot);
+    const newLineupId = myTeamLineupId(newKey, slot);
+    const newMetaId = myTeamMetaId(newKey, slot);
+    const oldLineupJson = await fetchCloudLineupJsonById(oldLineupId);
+    if (oldLineupJson != null) {
+      await saveCloudJsonById(newLineupId, oldLineupJson);
+      await cloudDeleteLineupById(oldLineupId, false);
+    }
+    const oldMetaJson = await fetchCloudLineupJsonById(oldMetaId);
+    if (oldMetaJson != null) {
+      await saveCloudJsonById(newMetaId, oldMetaJson);
+      await cloudDeleteLineupById(oldMetaId, false);
+    }
+  }
+}
+
+async function deleteCloudMyTeamId(lineupId) {
+  const key = String(lineupId || "").trim();
+  if (!key) return;
+  for (let slot = 1; slot <= MYTEAM_SLOT_COUNT; slot += 1) {
+    await cloudDeleteLineupById(myTeamLineupId(key, slot), slot === 1);
+    await cloudDeleteLineupById(myTeamMetaId(key, slot), false);
+  }
+  await cloudDeleteLineupById(simulationLineupId(key), false);
+  await cloudDeleteLineupById(simulationMetaId(key), false);
 }
 
 function getCategory(player) {
@@ -3515,6 +3787,8 @@ function closeCoachCardModal() {
 async function init() {
   setupModalScrollLock();
   loadCloudConfig();
+  loadActiveMyTeamSlot();
+  loadLocalMyTeamSlotNames();
   syncMenuButtonSize();
   window.addEventListener("resize", syncMenuButtonSize);
   loadLifecycleMode();
@@ -3637,6 +3911,24 @@ async function init() {
     els.myTeamIndexWrap.addEventListener("click", (e) => {
       if (!e.target.closest("[data-tpi-info]")) return;
       openTpiInfoModal();
+    });
+  }
+  if (els.myTeamSlotSwitcher) {
+    els.myTeamSlotSwitcher.addEventListener("click", async (e) => {
+      const tab = e.target.closest("[data-myteam-slot]");
+      if (tab) {
+        await switchMyTeamSlot(tab.dataset.myteamSlot);
+        return;
+      }
+      if (e.target.closest("[data-myteam-slot-name-save]")) {
+        await saveActiveMyTeamSlotNameFromInput();
+      }
+    });
+    els.myTeamSlotSwitcher.addEventListener("keydown", async (e) => {
+      if (e.key !== "Enter") return;
+      if (!e.target.closest("#myTeamSlotNameInput")) return;
+      e.preventDefault();
+      await saveActiveMyTeamSlotNameFromInput();
     });
   }
   document.addEventListener("click", (e) => {
@@ -3818,24 +4110,22 @@ async function init() {
         closeMyteamSettingModal();
         return;
       }
-      cloudConfig.lineupKey = newKey;
-      localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
       try {
         const exists = await cloudLineupExists(newKey);
         if (exists) {
           window.alert("そのIDは既に使われています。別のIDを入力してください。");
-          cloudConfig.lineupKey = oldKey;
-          localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
           renderMyTeamMeta();
           return;
         }
+        await migrateCloudMyTeamId(oldKey, newKey);
+        cloudConfig.lineupKey = newKey;
+        localStorage.setItem(CLOUD_CONFIG_STORAGE_KEY, JSON.stringify(cloudConfig));
+        saveActiveMyTeamSlot();
+        for (let slot = 1; slot <= MYTEAM_SLOT_COUNT; slot += 1) saveLocalMyTeamSlotName(slot);
         lineup = normalizeLineupArray(lineup);
-        await saveCloudLineup();
-        await saveCloudFormationId();
-        await cloudDeleteLineupById(oldKey);
-        await cloudDeleteLineupById(formationMetaId(oldKey), false);
         saveLineupLocal();
         renderMyTeamMeta();
+        renderMyTeamSlotSwitcher();
         closeMyteamSettingModal();
       } catch (e) {
         cloudConfig.lineupKey = oldKey;
@@ -3855,8 +4145,7 @@ async function init() {
       const ok = window.confirm("このIDを削除します。よろしいですか？");
       if (!ok) return;
       try {
-        await cloudDeleteLineupById(key);
-        await cloudDeleteLineupById(formationMetaId(key), false);
+        await deleteCloudMyTeamId(key);
         lineup = Array.from({ length: LINEUP_SIZE }, () => null);
         saveLineupLocal();
         logoutTeamId();
@@ -3974,6 +4263,7 @@ async function init() {
   if (!hasCloudConfig()) {
     if (els.myTeamTarget) els.myTeamTarget.textContent = "TeamIDが未設定です（先にLoginしてください）";
     renderMyTeamMeta();
+    renderMyTeamSlotSwitcher();
     renderLineup();
     return;
   }
@@ -3981,8 +4271,8 @@ async function init() {
   renderMyTeamMeta();
   if (els.myTeamTarget) els.myTeamTarget.textContent = "";
   try {
-    await loadCloudLineup();
-    await loadCloudFormationId();
+    await loadCloudMyTeamSlotNames();
+    await loadMyTeamStateForActiveSlot();
   } catch (e) {
     if (els.myTeamTarget) els.myTeamTarget.textContent = "クラウド読込に失敗しました";
   }
