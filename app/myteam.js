@@ -3874,12 +3874,12 @@ async function init() {
 
   loadSiteMeta();
   const [dataRes, formationsRes, coachesMetaRes, v4CleanUniformRes, rohmRes, ccRangeRes] = await Promise.all([
-    fetchWithTimeout("./data.json?v=20260521-core3205"),
-    fetchWithTimeout("./formations_data.json?v=20260521-core3205").catch(() => null),
-    fetchWithTimeout("./coaches_data.json?v=20260521-core3205").catch(() => null),
-    fetchWithTimeout("./v4_clean_uniform_data.json?v=20260521-core3205").catch(() => null),
+    fetchWithTimeout("./data.json?v=20260524-cc2626"),
+    fetchWithTimeout("./formations_data.json?v=20260524-cc2626").catch(() => null),
+    fetchWithTimeout("./coaches_data.json?v=20260524-cc2626").catch(() => null),
+    fetchWithTimeout("./v4_clean_uniform_data.json?v=20260524-cc2626").catch(() => null),
     fetchWithTimeout(ROHM_SLOT_DATA_URL).catch(() => null),
-    fetchWithTimeout("./cc_range_data.json?v=20260521-core3205").catch(() => null),
+    fetchWithTimeout("./cc_range_data.json?v=20260524-cc2626").catch(() => null),
   ]);
   const data = await dataRes.json();
   players = data.players || [];
