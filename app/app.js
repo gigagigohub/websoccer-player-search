@@ -1294,6 +1294,11 @@ function getCategory(player) {
   return "NR";
 }
 
+function hasCategoryMembership(player, category) {
+  const target = String(category || "");
+  return Array.isArray(player?.categoryMembership) && player.categoryMembership.map(String).includes(target);
+}
+
 function typeClassByPlayer(player) {
   const typeLabel = getCategory(player);
   if (typeLabel === "NR") {
@@ -1315,6 +1320,10 @@ function categoryBadgesHtmlByPlayer(player) {
   if (!typeLabel) return "";
   if (typeLabel === "CM/SS") {
     return `<span class="badge type-badge cat-ss">SS</span><span class="badge type-badge cat-cm">CM</span>`;
+  }
+  if (typeLabel === "NR" && hasCategoryMembership(player, "CM")) {
+    const nrClass = typeClassByPlayer(player);
+    return `<span class="badge type-badge ${nrClass}">NR</span><span class="badge type-badge cat-cm">CM</span>`;
   }
   const typeClass = typeClassByPlayer(player);
   return `<span class="badge type-badge ${typeClass}">${typeLabel}</span>`;
@@ -2122,7 +2131,7 @@ function filterPlayers(conditions = getConditions()) {
       const categoryMatched =
         nrMatched ||
         (ssOnly && (category === "SS" || category === "CM/SS")) ||
-        (cmOnly && (category === "CM" || category === "CM/SS")) ||
+        (cmOnly && (category === "CM" || category === "CM/SS" || hasCategoryMembership(player, "CM"))) ||
         (ccOnly && category === "CC");
       if (!categoryMatched) return false;
     }
