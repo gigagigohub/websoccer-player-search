@@ -7,7 +7,7 @@ import plistlib
 import re
 import zipfile
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 ROOT = Path('/Users/k.nishimura/work/coding/websoccer-player-search')
 ZIP_DIR = Path('/Users/k.nishimura/work/coding/wsc_data/UpdateFile_p40_322')
@@ -80,6 +80,56 @@ def load_event_meta() -> Dict[int, dict]:
     return out
 
 
+def load_existing_scout_meta(path: Path) -> Dict[int, dict]:
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding='utf-8'))
+    except Exception:
+        return {}
+    out: Dict[int, dict] = {}
+    for row in data.get('scouts') or []:
+        try:
+            event_id = int(row.get('eventId') or 0)
+        except Exception:
+            continue
+        if event_id <= 0:
+            continue
+        out[event_id] = {
+            'name': (row.get('name') or '').strip(),
+            'nameRaw': (row.get('nameRaw') or '').strip(),
+            'nameSource': (row.get('nameSource') or '').strip(),
+            'shopButtonImage': row.get('shopButtonImage') or '',
+        }
+    return out
+
+
+def collect_scout_button_event_ids(app_dir: Path) -> Set[int]:
+    ids: Set[int] = set()
+    button_dir = app_dir / 'images' / 'Shop' / 'btn'
+    if not button_dir.exists():
+        return ids
+    for image_path in button_dir.glob('ss_btn_*.png'):
+        m = re.fullmatch(r'ss_btn_(\d+)\.png', image_path.name)
+        if m:
+            ids.add(int(m.group(1)))
+    return ids
+
+
+def collect_player_image_ids(app_dir: Path) -> Set[int]:
+    ids: Set[int] = set()
+    for kind in ('static', 'action'):
+        image_dir = app_dir / 'images' / 'chara' / 'players' / kind
+        if not image_dir.exists():
+            continue
+        for image_path in image_dir.glob('*.gif'):
+            try:
+                ids.add(int(image_path.stem))
+            except ValueError:
+                continue
+    return ids
+
+
 def load_events_from_zips() -> Dict[int, dict]:
     latest: Dict[int, dict] = {}
     for zp in sorted(ZIP_DIR.glob('p*.zip')):
@@ -122,9 +172,14 @@ def load_events_from_zips() -> Dict[int, dict]:
     return latest
 
 
-def build_scouts() -> Tuple[List[dict], Dict[int, List[dict]]]:
+def build_scouts(
+    existing_meta: Optional[Dict[int, dict]] = None,
+    scout_button_event_ids: Optional[Set[int]] = None,
+) -> Tuple[List[dict], Dict[int, List[dict]]]:
     meta = load_event_meta()
     zips = load_events_from_zips()
+    existing_meta = existing_meta or {}
+    scout_button_event_ids = scout_button_event_ids or set()
 
     all_event_ids = sorted(set(meta.keys()) | set(zips.keys()))
     scouts: List[dict] = []
@@ -133,15 +188,19 @@ def build_scouts() -> Tuple[List[dict], Dict[int, List[dict]]]:
     for event_id in all_event_ids:
         m = meta.get(event_id, {})
         z = zips.get(event_id, {})
+        existing = existing_meta.get(event_id, {})
 
         fallback_name = '' if BLANK_MISSING_TITLE else z.get('nameRaw')
-        name = (m.get('name') or fallback_name or '').strip()
+        name = (m.get('name') or existing.get('name') or fallback_name or '').strip()
         start = m.get('start') or z.get('start') or ''
         end = m.get('end') or z.get('end') or ''
         notes = m.get('notes') or z.get('notes') or ''
         typ = int(m.get('type') or z.get('type') or 0)
         version = int(z.get('version') or m.get('version') or 0)
         player_ids = list(z.get('playerIds') or [])
+        shop_button_image = existing.get('shopButtonImage') or (
+            f'./images/Shop/btn/ss_btn_{event_id}.png' if event_id in scout_button_event_ids else ''
+        )
 
         scout = {
             'eventId': event_id,
@@ -151,10 +210,11 @@ def build_scouts() -> Tuple[List[dict], Dict[int, List[dict]]]:
             'type': typ,
             'version': version,
             'notes': notes,
-            'nameRaw': (m.get('nameRaw') or z.get('nameRaw') or '').strip(),
-            'nameSource': (m.get('nameSource') or '').strip(),
+            'nameRaw': (m.get('nameRaw') or z.get('nameRaw') or existing.get('nameRaw') or '').strip(),
+            'nameSource': (m.get('nameSource') or existing.get('nameSource') or '').strip(),
             'playerCount': len(player_ids),
             'playerIds': player_ids,
+            'shopButtonImage': shop_button_image,
         }
         scouts.append(scout)
 
@@ -176,13 +236,20 @@ def build_scouts() -> Tuple[List[dict], Dict[int, List[dict]]]:
     return scouts, player_history
 
 
-def update_data_json(path: Path, scouts: List[dict], history: Dict[int, List[dict]], now_iso: str) -> Tuple[int, int]:
+def update_data_json(
+    path: Path,
+    scouts: List[dict],
+    history: Dict[int, List[dict]],
+    now_iso: str,
+    image_available_player_ids: Optional[Set[int]] = None,
+) -> Tuple[int, int]:
     with path.open('r', encoding='utf-8') as f:
         data = json.load(f)
 
     players = data.get('players') or []
     changed_to_ss = 0
     linked = 0
+    image_available_player_ids = image_available_player_ids or set()
 
     for p in players:
         pid = int(p.get('id') or 0)
@@ -201,6 +268,8 @@ def update_data_json(path: Path, scouts: List[dict], history: Dict[int, List[dic
                     p['flags'] = flags
                 flags['SS'] = True
                 flags['CM'] = False
+            p['categoryPending'] = False
+            p['imagePending'] = pid not in image_available_player_ids
         else:
             if 'scoutHistory' in p:
                 del p['scoutHistory']
@@ -226,8 +295,12 @@ def main() -> None:
     now = dt.datetime.now(jst)
     now_iso = now.isoformat(timespec='seconds')
 
-    scouts, history = build_scouts()
-    app_changed, app_linked = update_data_json(APP_DATA, scouts, history, now_iso)
+    app_dir = APP_DATA.parent
+    existing_meta = load_existing_scout_meta(APP_DATA)
+    scout_button_event_ids = collect_scout_button_event_ids(app_dir)
+    image_available_player_ids = collect_player_image_ids(app_dir)
+    scouts, history = build_scouts(existing_meta, scout_button_event_ids)
+    app_changed, app_linked = update_data_json(APP_DATA, scouts, history, now_iso, image_available_player_ids)
 
     print(f'scout events: {len(scouts)}')
     print(f'players with scout history: {len(history)}')
