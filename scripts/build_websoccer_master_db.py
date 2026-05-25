@@ -51,6 +51,51 @@ def default_updatefile_dir() -> Path:
     return root / "UpdateFile_p40_322"
 
 
+def cc_source_stats(path: Path) -> tuple[int, int, int]:
+    if not path.exists():
+        return (0, 0, 0)
+    try:
+        conn = sqlite3.connect(str(path))
+        try:
+            tables = {str(r[0]) for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+            if "matches" in tables:
+                row = conn.execute("SELECT COALESCE(MIN(season), 0), COALESCE(MAX(season), 0), COUNT(*) FROM matches").fetchone()
+            elif "cc_matches" in tables:
+                row = conn.execute("SELECT COALESCE(MIN(season), 0), COALESCE(MAX(season), 0), COUNT(*) FROM cc_matches").fetchone()
+            else:
+                return (0, 0, 0)
+            return (int(row[0] or 0), int(row[1] or 0), int(row[2] or 0))
+        finally:
+            conn.close()
+    except sqlite3.Error:
+        return (0, 0, 0)
+
+
+def default_cc_db() -> Path:
+    wsc_data = Path.home() / "work" / "coding" / "wsc_data"
+    candidates = [
+        wsc_data / "cc_match_result.sqlite3",
+        Path.home() / "Desktop" / "CC_match_result_db" / "cc_match_result.sqlite3",
+    ]
+    candidates.extend(sorted((wsc_data / "websoccer_master_db").glob("wsm_*.sqlite3")))
+    ranked = []
+    for path in candidates:
+        min_season, max_season, count = cc_source_stats(path)
+        if count > 0:
+            ranked.append((max_season, count, min_season, path.stat().st_mtime, path))
+    if ranked:
+        ranked.sort(reverse=True)
+        return ranked[0][4]
+    return wsc_data / "cc_match_result.sqlite3"
+
+
+def default_product_sqlite() -> Path:
+    local = Path.home() / "work" / "coding" / "wsc_data" / "app original" / "Payload" / "Webサッカー.app" / "Product.sqlite"
+    if local.exists():
+        return local
+    return Path.home() / "Desktop" / "app original" / "Payload" / "Webサッカー.app" / "Product.sqlite"
+
+
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
         description="Build unified WebSoccer master SQLite DB from CC DB + Product.sqlite + UpdateFile zips + manual truth."
@@ -66,11 +111,11 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument(
         "--cc-db",
-        default=str(Path.home() / "Desktop" / "CC_match_result_db" / "cc_match_result.sqlite3"),
+        default=str(default_cc_db()),
     )
     p.add_argument(
         "--product-sqlite",
-        default=str(Path.home() / "Desktop" / "app original" / "Payload" / "Webサッカー.app" / "Product.sqlite"),
+        default=str(default_product_sqlite()),
     )
     p.add_argument(
         "--updatefile-dir",
@@ -129,6 +174,11 @@ def init_schema(conn: sqlite3.Connection) -> None:
           audience INTEGER,
           home_score INTEGER,
           away_score INTEGER,
+          pk_home_goals INTEGER,
+          pk_away_goals INTEGER,
+          pk_home_attempts INTEGER,
+          pk_away_attempts INTEGER,
+          pk_winner_side TEXT,
           access_datetime TEXT,
           file_path TEXT,
           PRIMARY KEY (season, world_id, match_id)
@@ -182,6 +232,21 @@ def init_schema(conn: sqlite3.Connection) -> None:
           scorer_player_id INTEGER,
           PRIMARY KEY (season, world_id, match_id, goal_index)
         );
+
+        CREATE TABLE IF NOT EXISTS cc_pk_events (
+          season INTEGER NOT NULL,
+          world_id INTEGER NOT NULL,
+          match_id INTEGER NOT NULL,
+          side TEXT NOT NULL,
+          pk_order INTEGER NOT NULL,
+          minute INTEGER NOT NULL,
+          player_id INTEGER,
+          goal INTEGER NOT NULL,
+          PRIMARY KEY (season, world_id, match_id, side, pk_order)
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_cc_pk_events_match
+          ON cc_pk_events(season, world_id, match_id);
 
         CREATE TABLE IF NOT EXISTS app_original_tables (
           table_name TEXT PRIMARY KEY,
@@ -303,40 +368,104 @@ def import_cc_db(conn: sqlite3.Connection, cc_db: Path) -> None:
         raise FileNotFoundError(f"cc db not found: {cc_db}")
     conn.execute("ATTACH DATABASE ? AS ccsrc", (str(cc_db),))
     try:
-        conn.execute(
-            """
-            INSERT INTO cc_matches
-            SELECT season, world_id, match_id, datetime, title, referee,
-                   stadium_id, stadium_name, stadium_capacity, audience,
-                   home_score, away_score, access_datetime, file_path
-            FROM ccsrc.matches
-            """
-        )
+        tables = {str(r[0]) for r in conn.execute("SELECT name FROM ccsrc.sqlite_master WHERE type='table'")}
+        if "matches" in tables:
+            match_table = "matches"
+            team_table = "teams"
+            player_table = "players"
+            goal_table = "goals"
+        elif "cc_matches" in tables:
+            match_table = "cc_matches"
+            team_table = "cc_teams"
+            player_table = "cc_players"
+            goal_table = "cc_goals"
+        else:
+            raise sqlite3.OperationalError(f"cc source has no matches/cc_matches table: {cc_db}")
+
+        match_cols = {str(r[1]) for r in conn.execute(f"PRAGMA ccsrc.table_info({match_table})").fetchall()}
+        pk_cols = [
+            "pk_home_goals",
+            "pk_away_goals",
+            "pk_home_attempts",
+            "pk_away_attempts",
+            "pk_winner_side",
+        ]
+        if all(c in match_cols for c in pk_cols):
+            conn.execute(
+                """
+                INSERT INTO cc_matches
+                (season, world_id, match_id, datetime, title, referee,
+                 stadium_id, stadium_name, stadium_capacity, audience,
+                 home_score, away_score,
+                 pk_home_goals, pk_away_goals, pk_home_attempts, pk_away_attempts, pk_winner_side,
+                 access_datetime, file_path)
+                SELECT season, world_id, match_id, datetime, title, referee,
+                       stadium_id, stadium_name, stadium_capacity, audience,
+                       home_score, away_score,
+                       pk_home_goals, pk_away_goals, pk_home_attempts, pk_away_attempts, pk_winner_side,
+                       access_datetime, file_path
+                FROM ccsrc.%s
+                """
+                % qident(match_table)
+            )
+        else:
+            conn.execute(
+                """
+                INSERT INTO cc_matches
+                (season, world_id, match_id, datetime, title, referee,
+                 stadium_id, stadium_name, stadium_capacity, audience,
+                 home_score, away_score, access_datetime, file_path)
+                SELECT season, world_id, match_id, datetime, title, referee,
+                       stadium_id, stadium_name, stadium_capacity, audience,
+                       home_score, away_score, access_datetime, file_path
+                FROM ccsrc.%s
+                """
+                % qident(match_table)
+            )
         conn.execute(
             """
             INSERT INTO cc_teams
+            (season, world_id, match_id, side, team_id, team_name,
+             uniform_id, formation_id, formation_name, headcoach_id,
+             headcoach_name, headcoach_pts, goals_for, goals_against, result)
             SELECT season, world_id, match_id, side, team_id, team_name,
                    uniform_id, formation_id, formation_name, headcoach_id,
                    headcoach_name, headcoach_pts, goals_for, goals_against, result
-            FROM ccsrc.teams
+            FROM ccsrc.%s
             """
+            % qident(team_table)
         )
         conn.execute(
             """
             INSERT INTO cc_players
+            (season, world_id, match_id, side, member_order, is_starting11,
+             player_id, player_fullname, player_name, pos_code_1_4, pts,
+             team_id, team_name, formation_id, formation_name)
             SELECT season, world_id, match_id, side, member_order, is_starting11,
                    player_id, player_fullname, player_name, pos_code_1_4, pts,
                    team_id, team_name, formation_id, formation_name
-            FROM ccsrc.players
+            FROM ccsrc.%s
             """
+            % qident(player_table)
         )
         conn.execute(
             """
             INSERT INTO cc_goals
+            (season, world_id, match_id, goal_index, side, minute, scorer_player_id)
             SELECT season, world_id, match_id, goal_index, side, minute, scorer_player_id
-            FROM ccsrc.goals
+            FROM ccsrc.%s
             """
+            % qident(goal_table)
         )
+        if "cc_pk_events" in tables:
+            conn.execute(
+                """
+                INSERT OR IGNORE INTO cc_pk_events
+                (season, world_id, match_id, side, pk_order, minute, player_id, goal)
+                SELECT season, world_id, match_id, side, pk_order, minute, player_id, goal
+                FROM ccsrc.cc_pk_events
+                """
+            )
     finally:
         try:
             conn.execute("DETACH DATABASE ccsrc")

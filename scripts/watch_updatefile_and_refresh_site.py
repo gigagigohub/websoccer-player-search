@@ -28,9 +28,12 @@ DEFAULT_PUSHOVER_USER_KEY_CONFIG = Path.home() / ".yamato_pushover_watch" / "con
 DEFAULT_WSM_DIR = WSC_DATA / "websoccer_master_db"
 DEFAULT_DESKTOP_WSM_DIR = Path.home() / "Desktop" / "websoccer_master_db"
 DEFAULT_FILLED_CSV = WSC_DATA / "UpdateFile_inventory" / "updatefile_ss_events_filled.csv"
+DEFAULT_CC_JSON_ROOT = WSC_DATA / "CC_match_result_json"
+DEFAULT_PRODUCT_SQLITE = WSC_DATA / "app original" / "Payload" / "Webサッカー.app" / "Product.sqlite"
 JST = timezone(timedelta(hours=9))
 
 sys.path.insert(0, str(SCRIPT_DIR))
+from build_websoccer_master_db import default_cc_db as default_master_cc_db  # noqa: E402
 from fetch_updatefiles import (  # noqa: E402
     DEFAULT_BASE_URL,
     default_update_dir,
@@ -64,6 +67,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--wsm-dir", default=str(DEFAULT_WSM_DIR))
     p.add_argument("--desktop-wsm-dir", default=str(DEFAULT_DESKTOP_WSM_DIR))
     p.add_argument("--filled-csv", default=str(DEFAULT_FILLED_CSV))
+    p.add_argument("--cc-db", default=str(default_master_cc_db()))
+    p.add_argument("--cc-json-root", default=str(DEFAULT_CC_JSON_ROOT))
+    p.add_argument("--product-sqlite", default=str(DEFAULT_PRODUCT_SQLITE))
     p.add_argument("--max-consecutive", type=int, default=5)
     p.add_argument("--commit-push", action="store_true", help="Commit and push regenerated site files after update.")
     p.add_argument("--no-notify", action="store_true", help="Do not send Pushover notifications.")
@@ -240,7 +246,13 @@ def run(cmd: list[str], cwd: Path = REPO_ROOT) -> None:
     subprocess.run(cmd, cwd=str(cwd), check=True)
 
 
-def build_master_db(update_dir: Path, wsm_dir: Path) -> Path:
+def build_master_db(
+    update_dir: Path,
+    wsm_dir: Path,
+    cc_db: Path,
+    cc_json_root: Path,
+    product_sqlite: Path,
+) -> Path:
     stamp = datetime.now(JST).strftime("%y%m%d%H%M")
     wsm_dir.mkdir(parents=True, exist_ok=True)
     out_db = wsm_dir / f"wsm_{stamp}.sqlite3"
@@ -252,8 +264,23 @@ def build_master_db(update_dir: Path, wsm_dir: Path) -> Path:
             str(out_db),
             "--updatefile-dir",
             str(update_dir),
+            "--cc-db",
+            str(cc_db),
+            "--product-sqlite",
+            str(product_sqlite),
         ]
     )
+    if cc_json_root.exists():
+        run(
+            [
+                sys.executable,
+                str(SCRIPT_DIR / "ingest_cc_pk_into_master_db.py"),
+                "--json-root",
+                str(cc_json_root),
+                "--master-db",
+                str(out_db),
+            ]
+        )
     return out_db
 
 
@@ -273,7 +300,15 @@ def cleanup_wsm_files(local_dir: Path, desktop_dir: Path) -> None:
         old.unlink()
 
 
-def refresh_site(update_dir: Path, wsm_dir: Path, desktop_wsm_dir: Path, filled_csv: Path) -> Path:
+def refresh_site(
+    update_dir: Path,
+    wsm_dir: Path,
+    desktop_wsm_dir: Path,
+    filled_csv: Path,
+    cc_db: Path,
+    cc_json_root: Path,
+    product_sqlite: Path,
+) -> Path:
     app_dir = REPO_ROOT / "app"
     # First reflect the latest ss.plist into app/data.json so the master DB imports new SS events.
     run(
@@ -289,7 +324,7 @@ def refresh_site(update_dir: Path, wsm_dir: Path, desktop_wsm_dir: Path, filled_
             "--blank-missing-title",
         ]
     )
-    out_db = build_master_db(update_dir, wsm_dir)
+    out_db = build_master_db(update_dir, wsm_dir, cc_db, cc_json_root, product_sqlite)
     copy_latest_wsm_to_desktop(out_db, desktop_wsm_dir)
     run(
         [
@@ -357,6 +392,9 @@ def main() -> int:
     wsm_dir = Path(args.wsm_dir).expanduser().resolve()
     desktop_wsm_dir = Path(args.desktop_wsm_dir).expanduser().resolve()
     filled_csv = Path(args.filled_csv).expanduser().resolve()
+    cc_db = Path(args.cc_db).expanduser().resolve()
+    cc_json_root = Path(args.cc_json_root).expanduser().resolve()
+    product_sqlite = Path(args.product_sqlite).expanduser().resolve()
     notify_enabled = not args.no_notify
 
     fd = acquire_lock(lock_path)
@@ -395,7 +433,7 @@ def main() -> int:
             f"static={copied.player_static} action={copied.player_action} scoutButtons={copied.scout_buttons}",
             log_path,
         )
-        out_db = refresh_site(update_dir, wsm_dir, desktop_wsm_dir, filled_csv)
+        out_db = refresh_site(update_dir, wsm_dir, desktop_wsm_dir, filled_csv, cc_db, cc_json_root, product_sqlite)
         if args.commit_push:
             git_commit_push(found_versions)
 
