@@ -1212,7 +1212,7 @@ function addConditionRow(defaults = {}) {
   });
 
   metric.value = defaults.metric || "ID";
-  op.value = defaults.op || "gte";
+  op.value = defaults.op || "eq";
   value1.value = defaults.value1 ?? "";
   value2.value = defaults.value2 ?? "";
 
@@ -1233,7 +1233,7 @@ function addConditionRow(defaults = {}) {
 
 function resetDefaultConditionRow() {
   els.conditions.innerHTML = "";
-  addConditionRow({ metric: "ID", op: "gte", value1: "" });
+  addConditionRow({ metric: "ID", op: "eq", value1: "" });
 }
 
 function getConditions() {
@@ -2622,7 +2622,7 @@ async function init() {
   window.addEventListener("resize", syncMenuButtonSize);
 
   els.addCondition.addEventListener("click", () => {
-    addConditionRow({ metric: "ID", op: "gte", value1: "" });
+    addConditionRow({ metric: "ID", op: "eq", value1: "" });
   });
 
   els.resetCondition.addEventListener("click", () => {
