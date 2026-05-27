@@ -16,6 +16,8 @@ from fetch_cc_all_worlds_completed import (
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+PYTHON = REPO_ROOT / ".venv" / "bin" / "python"
+PYTHON_EXE = str(PYTHON if PYTHON.exists() else Path(sys.executable))
 SESSION_SUFFIXES = {".chlsx", ".chlsj", ".chlz"}
 DEFAULT_SESSION_DIR = Path.home() / "charles_sessions"
 SITE_GIT_PATHS = [
@@ -228,8 +230,8 @@ def resolve_session(args: argparse.Namespace) -> Path:
 
 def fetch_cc(args: argparse.Namespace, session_file: Path) -> None:
     cmd = [
-        sys.executable,
-        str(REPO_ROOT / "scripts" / "fetch_cc_full_season_completed.py"),
+        PYTHON_EXE,
+        str(REPO_ROOT / "scripts" / "fetch_cc_completed_season.py"),
         "--match-root",
         str(Path(args.match_root).expanduser()),
         "--session-file",
@@ -262,7 +264,7 @@ def fetch_cc(args: argparse.Namespace, session_file: Path) -> None:
 
 def update_wsm_and_site(args: argparse.Namespace) -> None:
     cmd = [
-        sys.executable,
+        PYTHON_EXE,
         str(REPO_ROOT / "scripts" / "update_wsm_cc_from_json.py"),
         "--json-root",
         str(Path(args.match_root).expanduser()),

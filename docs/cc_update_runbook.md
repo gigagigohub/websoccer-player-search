@@ -82,7 +82,9 @@ python3 scripts/run_cc_update_pipeline.py \
 
 ## What The Pipeline Calls
 
-1. `scripts/fetch_cc_full_season_completed.py`
+1. `scripts/fetch_cc_completed_season.py`
+   - This is the cleaner group-league + tournament fetch implementation used by the pipeline.
+   - `scripts/fetch_cc_full_season_completed.py` remains as a compatibility wrapper for older manual runs.
 2. `scripts/update_wsm_cc_from_json.py`
 3. `git add` for tracked site JSON files only
 4. `git commit`
