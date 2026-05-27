@@ -216,31 +216,31 @@ tell application "System Events"
 end tell
 return "missing"
 """
-        return run_osascript_stdout(script, timeout_sec=8) == "exists"
+        return run_osascript_stdout(script, timeout_sec=5) == "exists"
 
-    def wait_click(description_part: str, retries: int) -> bool:
+    def wait_click(description_part: str, retries: int, interval_sec: float = 0.5) -> bool:
         for _ in range(max(1, retries)):
             if click_description(description_part):
                 return True
-            time.sleep(1)
+            time.sleep(interval_sec)
         return False
 
     did_start = False
-    for _ in range(8):
-        if wait_click("top btn", 1):
-            time.sleep(2)
+    for _ in range(3):
+        if click_description("top btn"):
+            time.sleep(0.75)
             if not description_exists("top btn"):
                 did_start = True
                 break
         else:
-            time.sleep(1)
+            time.sleep(0.4)
     if not did_start:
         run_osascript('tell application "System Events" to tell process "Webサッカー" to key code 36')
-    time.sleep(4)
-    wait_click("others header btn close", 15)
-    time.sleep(1)
-    wait_click("league results menu btn cc", 15)
-    time.sleep(6)
+        time.sleep(1.0)
+    wait_click("others header btn close", 10, 0.4)
+    time.sleep(0.5)
+    wait_click("league results menu btn cc", 15, 0.4)
+    time.sleep(2)
     click_description("others header btn close")
 
 
