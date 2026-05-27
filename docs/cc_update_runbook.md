@@ -37,7 +37,7 @@ scripts/run_weekly_cc_current_season_update.sh
 That wrapper calls:
 
 ```bash
-python3 scripts/run_cc_update_pipeline.py --season 0 --commit-push --quit-first --wait-sec 900
+python3 scripts/run_cc_update_pipeline.py --season 0 --commit-push --quit-first --auto-navigate-websoccer --wait-sec 900
 ```
 
 Logs are written to:
@@ -52,6 +52,31 @@ Charles must be able to save the captured session automatically or via its Web I
 supports headless mode and a Web Interface for recording/session control; it also has an Auto Save
 tool for periodic session saving. If Auto Save is not enabled, the scheduled job may wait for a
 saved session until `--wait-sec` expires.
+
+Charles Auto Save is configured on this Mac as:
+
+- Enable Auto Save: on
+- Enable on startup: on
+- Save interval: 1 minute
+- Save to: `/Users/gigagigo/charles_sessions`
+- Save type: Charles Session (`.chlz`)
+
+Use this to test only the unattended capture path without fetching/updating data:
+
+```bash
+python3 scripts/run_cc_update_pipeline.py \
+  --season 0 \
+  --quit-first \
+  --auto-navigate-websoccer \
+  --capture-only \
+  --wait-sec 180
+```
+
+Verified unattended capture on 2026-05-27 with:
+
+- saved session: `/Users/gigagigo/charles_sessions/charles202605272256.chlz`
+- `Websoccer-gate-key`: present
+- current-season dry-run: world `10`, group `0`, round max `4`, completed group targets `6`
 
 ## Charles / WebSoccer Capture Steps
 

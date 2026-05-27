@@ -21,5 +21,6 @@ python3 scripts/run_cc_update_pipeline.py \
   --season 0 \
   --commit-push \
   --quit-first \
+  --auto-navigate-websoccer \
   --wait-sec 900
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] weekly current-season CC update done"

@@ -48,6 +48,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--quit-first", action="store_true", help="Quit Charles/WebSoccer before launching them")
     p.add_argument("--keep-apps-open", action="store_true", help="Do not quit Charles/WebSoccer after the pipeline")
     p.add_argument("--skip-auto-start", action="store_true", help="Do not try to press START in WebSoccer")
+    p.add_argument("--auto-navigate-websoccer", action="store_true", help="Try START -> OK -> Champions Cup UI navigation")
+    p.add_argument("--capture-warmup-sec", type=float, default=8.0, help="Wait after WebSoccer auto navigation")
+    p.add_argument("--capture-only", action="store_true", help="Only capture and validate a fresh Charles session")
 
     p.add_argument("--team-id", default="", help="Team ID (optional; inferred from gate-key if omitted)")
     p.add_argument("--worlds", default="1-21", help='World range/list, e.g. "1-21" or "1,2,20"')
@@ -83,7 +86,8 @@ def run(cmd: Sequence[str], *, check: bool = True, capture: bool = False) -> sub
 def run_osascript(script: str, timeout_sec: float = 8.0) -> bool:
     try:
         cp = subprocess.run(
-            ["osascript", "-e", script],
+            ["osascript"],
+            input=script,
             text=True,
             capture_output=True,
             check=False,
@@ -94,6 +98,23 @@ def run_osascript(script: str, timeout_sec: float = 8.0) -> bool:
     if cp.returncode != 0 and cp.stderr.strip():
         print(f"[WARN] AppleScript failed: {cp.stderr.strip()}", flush=True)
     return cp.returncode == 0
+
+
+def run_osascript_stdout(script: str, timeout_sec: float = 8.0) -> str:
+    try:
+        cp = subprocess.run(
+            ["osascript"],
+            input=script,
+            text=True,
+            capture_output=True,
+            check=False,
+            timeout=timeout_sec,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return ""
+    if cp.returncode != 0 and cp.stderr.strip():
+        print(f"[WARN] AppleScript failed: {cp.stderr.strip()}", flush=True)
+    return cp.stdout.strip()
 
 
 def open_app(app_path: str, fallback_name: str) -> None:
@@ -149,6 +170,80 @@ end tell
         print("[WARN] START automation failed. Press START manually.", flush=True)
 
 
+def try_click_websoccer_sequence() -> None:
+    def click_description(description_part: str) -> bool:
+        script = f"""
+tell application "Webサッカー" to activate
+delay 0.2
+tell application "System Events"
+  tell process "Webサッカー"
+    set elems to entire contents of window 1
+    repeat with e in elems
+      try
+        if description of e contains "{description_part}" then
+          try
+            perform action "AXPress" of e
+          end try
+          try
+            click e
+          end try
+          return "clicked"
+        end if
+      end try
+    end repeat
+  end tell
+end tell
+return "missing"
+"""
+        result = run_osascript_stdout(script, timeout_sec=8)
+        if result:
+            print(f"[AUTO] WebSoccer click {description_part}: {result}", flush=True)
+        return result == "clicked"
+
+    def description_exists(description_part: str) -> bool:
+        script = f"""
+tell application "System Events"
+  tell process "Webサッカー"
+    set elems to entire contents of window 1
+    repeat with e in elems
+      try
+        if description of e contains "{description_part}" then
+          return "exists"
+        end if
+      end try
+    end repeat
+  end tell
+end tell
+return "missing"
+"""
+        return run_osascript_stdout(script, timeout_sec=8) == "exists"
+
+    def wait_click(description_part: str, retries: int) -> bool:
+        for _ in range(max(1, retries)):
+            if click_description(description_part):
+                return True
+            time.sleep(1)
+        return False
+
+    did_start = False
+    for _ in range(8):
+        if wait_click("top btn", 1):
+            time.sleep(2)
+            if not description_exists("top btn"):
+                did_start = True
+                break
+        else:
+            time.sleep(1)
+    if not did_start:
+        run_osascript('tell application "System Events" to tell process "Webサッカー" to key code 36')
+    time.sleep(4)
+    wait_click("others header btn close", 15)
+    time.sleep(1)
+    wait_click("league results menu btn cc", 15)
+    time.sleep(6)
+    click_description("others header btn close")
+
+
 def iter_session_files(root: Path) -> Iterable[Path]:
     if not root.exists():
         return []
@@ -162,6 +257,11 @@ def newest_session_file(root: Path, after_mtime: float = 0.0) -> Optional[Path]:
     return sorted(files, key=lambda p: (p.stat().st_mtime, p.name))[-1]
 
 
+def new_session_files(root: Path, after_mtime: float = 0.0) -> list[Path]:
+    files = [p for p in iter_session_files(root) if p.stat().st_mtime >= after_mtime]
+    return sorted(files, key=lambda p: (p.stat().st_mtime, p.name), reverse=True)
+
+
 def session_has_auth(fp: Path) -> bool:
     try:
         return extract_auth_from_session_files([fp]) is not None
@@ -173,10 +273,10 @@ def session_has_auth(fp: Path) -> bool:
 def wait_for_auth_session(root: Path, after_mtime: float, timeout_sec: float, poll_sec: float) -> Path:
     deadline = time.time() + timeout_sec
     while time.time() < deadline:
-        fp = newest_session_file(root, after_mtime)
-        if fp and session_has_auth(fp):
-            print(f"[INFO] Charles session with gate-key: {fp}", flush=True)
-            return fp
+        for fp in new_session_files(root, after_mtime):
+            if session_has_auth(fp):
+                print(f"[INFO] Charles session with gate-key: {fp}", flush=True)
+                return fp
         time.sleep(max(0.5, poll_sec))
     raise RuntimeError(f"Timed out waiting for a saved Charles session with Websoccer-gate-key in {root}")
 
@@ -198,18 +298,31 @@ def capture_session(args: argparse.Namespace) -> Path:
 
     print("[STEP] Open WebSoccer and try START")
     open_app(args.websoccer_app, "Webサッカー")
-    if not args.skip_auto_start:
+    if args.auto_navigate_websoccer:
+        try_click_websoccer_sequence()
+        if args.capture_warmup_sec > 0:
+            time.sleep(args.capture_warmup_sec)
+    elif not args.skip_auto_start:
         try_press_websoccer_start()
 
-    print(
-        "\n[ACTION]\n"
-        "  1. Webサッカーで START を押す\n"
-        "  2. お知らせが出たら OK で閉じる\n"
-        "  3. チャンピオンズカップを開く\n"
-        "  4. CC画面が読み込めたら Charles の Recording を止める\n"
-        f"  5. Charles のセッションを {session_dir} に .chlz で保存する\n",
-        flush=True,
-    )
+    if args.auto_navigate_websoccer:
+        print(
+            "\n[ACTION]\n"
+            "  Webサッカー操作は自動化を試行済みです。\n"
+            "  Charles Auto Save / Web Interface 保存が有効なら、このまま保存ファイルを待ちます。\n"
+            "  保存が無効な場合は Charles のセッションを手動で .chlz 保存してください。\n",
+            flush=True,
+        )
+    else:
+        print(
+            "\n[ACTION]\n"
+            "  1. Webサッカーで START を押す\n"
+            "  2. お知らせが出たら OK で閉じる\n"
+            "  3. チャンピオンズカップを開く\n"
+            "  4. CC画面が読み込めたら Charles の Recording を止める\n"
+            f"  5. Charles のセッションを {session_dir} に .chlz で保存する\n",
+            flush=True,
+        )
     print(f"[WAIT] Looking for Websoccer-gate-key from {API_HOST}...", flush=True)
     return wait_for_auth_session(session_dir, after_mtime, args.wait_sec, args.poll_sec)
 
@@ -299,6 +412,9 @@ def main() -> int:
     rc = 0
     try:
         session_file = resolve_session(args)
+        if args.capture_only:
+            print(f"[DONE] capture-only session validated: {session_file}")
+            return 0
         fetch_cc(args, session_file)
         if args.dry_run_fetch:
             print("[DONE] dry-run fetch completed; WSM/site/git steps skipped.")
