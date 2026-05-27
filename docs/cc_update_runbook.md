@@ -20,6 +20,39 @@ the generated site changes. After the run finishes, it quits Charles and WebSocc
 
 Use `--season 0` when the target is the current season instead of the previous season.
 
+## Weekly Schedule
+
+The installed launchd job runs every Sunday at 02:00 and fetches the current season:
+
+```bash
+python3 scripts/install_weekly_cc_update_launch_agent.py
+```
+
+It runs:
+
+```bash
+scripts/run_weekly_cc_current_season_update.sh
+```
+
+That wrapper calls:
+
+```bash
+python3 scripts/run_cc_update_pipeline.py --season 0 --commit-push --quit-first --wait-sec 900
+```
+
+Logs are written to:
+
+```text
+~/Library/Logs/websoccer-player-search/weekly-cc-update.out.log
+~/Library/Logs/websoccer-player-search/weekly-cc-update.err.log
+```
+
+For fully unattended key capture, the Mac must be logged in with GUI automation available, and
+Charles must be able to save the captured session automatically or via its Web Interface. Charles
+supports headless mode and a Web Interface for recording/session control; it also has an Auto Save
+tool for periodic session saving. If Auto Save is not enabled, the scheduled job may wait for a
+saved session until `--wait-sec` expires.
+
 ## Charles / WebSoccer Capture Steps
 
 The key is treated as same-day/short-lived auth. Capture it fresh each time.
