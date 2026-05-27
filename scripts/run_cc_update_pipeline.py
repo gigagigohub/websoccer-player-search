@@ -44,6 +44,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--websoccer-app", default="/Applications/Webサッカー.app")
     p.add_argument("--charles-app", default="/Applications/Charles.app")
     p.add_argument("--quit-first", action="store_true", help="Quit Charles/WebSoccer before launching them")
+    p.add_argument("--keep-apps-open", action="store_true", help="Do not quit Charles/WebSoccer after the pipeline")
     p.add_argument("--skip-auto-start", action="store_true", help="Do not try to press START in WebSoccer")
 
     p.add_argument("--team-id", default="", help="Team ID (optional; inferred from gate-key if omitted)")
@@ -293,21 +294,27 @@ def git_commit_push(args: argparse.Namespace) -> None:
 
 def main() -> int:
     args = parse_args()
+    rc = 0
     try:
         session_file = resolve_session(args)
         fetch_cc(args, session_file)
         if args.dry_run_fetch:
             print("[DONE] dry-run fetch completed; WSM/site/git steps skipped.")
-            return 0
-        if not args.skip_wsm_update:
-            update_wsm_and_site(args)
-        if args.commit_push:
-            git_commit_push(args)
+        else:
+            if not args.skip_wsm_update:
+                update_wsm_and_site(args)
+            if args.commit_push:
+                git_commit_push(args)
     except Exception as exc:  # noqa: BLE001
         print(f"[ERROR] {exc}", file=sys.stderr, flush=True)
-        return 1
-    print("[DONE] CC update pipeline completed.")
-    return 0
+        rc = 1
+    finally:
+        if not args.skip_capture and not args.keep_apps_open:
+            print("[STEP] Quit Charles and WebSoccer")
+            quit_apps()
+    if rc == 0:
+        print("[DONE] CC update pipeline completed.")
+    return rc
 
 
 if __name__ == "__main__":

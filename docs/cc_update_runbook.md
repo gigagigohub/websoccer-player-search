@@ -16,7 +16,7 @@ python3 scripts/run_cc_update_pipeline.py --commit-push
 
 The script launches Charles and WebSoccer, waits for a newly saved Charles session containing
 `Websoccer-gate-key`, fetches CC data, updates WSM, regenerates site JSON, then commits and pushes
-the generated site changes.
+the generated site changes. After the run finishes, it quits Charles and WebSoccer.
 
 Use `--season 0` when the target is the current season instead of the previous season.
 
@@ -46,6 +46,12 @@ If Charles or WebSoccer is stuck, rerun with:
 
 ```bash
 python3 scripts/run_cc_update_pipeline.py --quit-first --commit-push
+```
+
+If you want to inspect Charles after the run, keep the apps open:
+
+```bash
+python3 scripts/run_cc_update_pipeline.py --commit-push --keep-apps-open
 ```
 
 ## Useful Checks
