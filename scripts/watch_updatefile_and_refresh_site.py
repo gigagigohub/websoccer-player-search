@@ -25,6 +25,7 @@ WSC_DATA = CODING_ROOT / "wsc_data"
 DEFAULT_WATCH_DIR = WSC_DATA / "updatefile_watch"
 DEFAULT_PUSHOVER_CONFIG = Path.home() / ".websoccer_updatefile_watch" / "config.json"
 DEFAULT_PUSHOVER_USER_KEY_CONFIG = Path.home() / ".yamato_pushover_watch" / "config.json"
+DEFAULT_PUSHOVER_ENV_FILE = Path.home() / ".websoccer_pushover.env"
 DEFAULT_WSM_DIR = WSC_DATA / "websoccer_master_db"
 DEFAULT_DESKTOP_WSM_DIR = Path.home() / "Desktop" / "websoccer_master_db"
 DEFAULT_FILLED_CSV = WSC_DATA / "UpdateFile_inventory" / "updatefile_ss_events_filled.csv"
@@ -59,6 +60,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--timeout", type=float, default=20.0)
     p.add_argument("--watch-dir", default=str(DEFAULT_WATCH_DIR))
     p.add_argument("--pushover-config", default=str(DEFAULT_PUSHOVER_CONFIG))
+    p.add_argument("--pushover-env-file", default=str(DEFAULT_PUSHOVER_ENV_FILE))
     p.add_argument(
         "--pushover-user-key-config",
         default=str(DEFAULT_PUSHOVER_USER_KEY_CONFIG),
@@ -113,16 +115,38 @@ def read_json_config(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def load_pushover_config(app_config_path: Path, user_key_config_path: Path | None = None) -> dict[str, str]:
-    cfg = read_json_config(app_config_path)
+def read_env_config(path: Path) -> dict:
+    cfg = {}
+    if not path.exists():
+        return cfg
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        cfg[key.strip()] = value.strip().strip('"').strip("'")
+    return cfg
+
+
+def load_pushover_config(
+    app_config_path: Path,
+    user_key_config_path: Path | None = None,
+    env_file_path: Path | None = None,
+) -> dict[str, str]:
+    cfg = read_json_config(app_config_path) if app_config_path.exists() else {}
     token = str(cfg.get("pushover_app_token") or cfg.get("token") or "").strip()
     user = str(cfg.get("pushover_user_key") or cfg.get("user") or "").strip()
+    if (not token or not user) and env_file_path:
+        env_cfg = read_env_config(env_file_path)
+        token = token or str(env_cfg.get("PUSHOVER_APP_TOKEN") or "").strip()
+        user = user or str(env_cfg.get("PUSHOVER_USER_KEY") or "").strip()
     if not user and user_key_config_path and user_key_config_path.exists():
         user_cfg = read_json_config(user_key_config_path)
         user = str(user_cfg.get("pushover_user_key") or user_cfg.get("user") or "").strip()
     if not token or not user:
         raise ValueError(
-            f"Pushover token/user key missing. app_config={app_config_path} user_key_config={user_key_config_path}"
+            "Pushover token/user key missing. "
+            f"app_config={app_config_path} user_key_config={user_key_config_path} env_file={env_file_path}"
         )
     return {"token": token, "user": user}
 
@@ -130,6 +154,7 @@ def load_pushover_config(app_config_path: Path, user_key_config_path: Path | Non
 def notify(
     app_config_path: Path,
     user_key_config_path: Path | None,
+    env_file_path: Path | None,
     title: str,
     message: str,
     enabled: bool,
@@ -139,7 +164,7 @@ def notify(
     if not enabled:
         return
     try:
-        cfg = load_pushover_config(app_config_path, user_key_config_path)
+        cfg = load_pushover_config(app_config_path, user_key_config_path, env_file_path)
         payload = urllib.parse.urlencode(
             {
                 "token": cfg["token"],
@@ -389,6 +414,7 @@ def main() -> int:
     update_dir = Path(args.update_dir).expanduser().resolve()
     pushover_config = Path(args.pushover_config).expanduser().resolve()
     pushover_user_key_config = Path(args.pushover_user_key_config).expanduser().resolve()
+    pushover_env_file = Path(args.pushover_env_file).expanduser().resolve()
     wsm_dir = Path(args.wsm_dir).expanduser().resolve()
     desktop_wsm_dir = Path(args.desktop_wsm_dir).expanduser().resolve()
     filled_csv = Path(args.filled_csv).expanduser().resolve()
@@ -419,6 +445,7 @@ def main() -> int:
         notify(
             pushover_config,
             pushover_user_key_config,
+            pushover_env_file,
             "WebSoccer UpdateFile",
             f"{version_label} が見つかりました。DBとサイト更新を開始します。",
             notify_enabled,
@@ -440,6 +467,7 @@ def main() -> int:
         notify(
             pushover_config,
             pushover_user_key_config,
+            pushover_env_file,
             "WebSoccer Update Complete",
             f"{version_label} のDB/サイト更新が完了しました。WSM: {out_db.name}",
             notify_enabled,
@@ -455,6 +483,7 @@ def main() -> int:
             notify(
                 pushover_config,
                 pushover_user_key_config,
+                pushover_env_file,
                 "WebSoccer Update Failed",
                 f"UpdateFile {found_versions} の更新処理に失敗しました: {type(exc).__name__}: {exc}",
                 notify_enabled,

@@ -5,6 +5,7 @@ import argparse
 import csv
 import hashlib
 import json
+import os
 import re
 import ssl
 import time
@@ -18,6 +19,7 @@ from typing import Iterable
 
 DEFAULT_BASE_URL = "https://resources-ios.app.websoccer.jp"
 DEFAULT_USER_AGENT = "WebSoccer/1.3.28 CFNetwork/3860.400.51 Darwin/25.3.0"
+DEFAULT_WSC_DATA = Path(__file__).resolve().parents[2] / "wsc_data"
 
 
 @dataclass
@@ -64,7 +66,7 @@ def iter_local_versions(update_dir: Path) -> Iterable[int]:
 
 
 def default_update_dir() -> Path:
-    root = Path.home() / "work" / "coding" / "wsc_data"
+    root = Path(os.environ.get("WEBSOCCER_WSC_DATA", DEFAULT_WSC_DATA)).expanduser()
     cands = []
     for path in root.glob("UpdateFile_p*_*"):
         span = parse_span(path)

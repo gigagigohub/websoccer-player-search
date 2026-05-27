@@ -12,6 +12,7 @@ from fetch_cc_all_worlds_completed import (
     API_HOST,
     DEFAULT_MATCH_ROOT,
     extract_auth_from_session_files,
+    request_json,
 )
 
 
@@ -41,6 +42,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--session-dir", default=str(DEFAULT_SESSION_DIR), help="Directory for saved Charles sessions")
     p.add_argument("--session-file", default="", help="Use this saved Charles session")
     p.add_argument("--skip-capture", action="store_true", help="Do not launch apps; use --session-file or newest session")
+    p.add_argument(
+        "--reuse-valid-session",
+        action="store_true",
+        help="Before launching apps, reuse the newest/session-file Charles session if a lightweight CC API check passes.",
+    )
     p.add_argument("--wait-sec", type=float, default=420.0, help="How long to wait for a saved Charles session")
     p.add_argument("--poll-sec", type=float, default=2.0, help="Polling interval while waiting for session save")
     p.add_argument("--websoccer-app", default="/Applications/Webサッカー.app")
@@ -69,6 +75,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--commit-push", action="store_true", help="Commit and push generated site JSON changes")
     p.add_argument("--commit-message", default="Update CC data and site")
     p.add_argument("--skip-push", action="store_true", help="Commit only, without git push")
+    p.add_argument("--notify-pushover", action="store_true", help="Send Pushover notification on success/failure")
+    p.add_argument("--pushover-env-file", default=str(Path.home() / ".websoccer_pushover.env"))
     return p.parse_args()
 
 
@@ -228,7 +236,7 @@ return "missing"
     did_start = False
     for _ in range(3):
         if click_description("top btn"):
-            time.sleep(0.75)
+            time.sleep(3.0)
             if not description_exists("top btn"):
                 did_start = True
                 break
@@ -236,10 +244,10 @@ return "missing"
             time.sleep(0.4)
     if not did_start:
         run_osascript('tell application "System Events" to tell process "Webサッカー" to key code 36')
-        time.sleep(1.0)
-    wait_click("others header btn close", 10, 0.4)
-    time.sleep(0.5)
-    wait_click("league results menu btn cc", 15, 0.4)
+        time.sleep(3.0)
+    wait_click("others header btn close", 30, 1.0)
+    time.sleep(1.0)
+    wait_click("league results menu btn cc", 45, 1.0)
     time.sleep(2)
     click_description("others header btn close")
 
@@ -268,6 +276,41 @@ def session_has_auth(fp: Path) -> bool:
     except Exception as exc:  # noqa: BLE001
         print(f"[WARN] could not inspect {fp}: {exc}", flush=True)
         return False
+
+
+def first_int_from_spec(raw: str, default: int) -> int:
+    raw = (raw or "").strip()
+    if not raw:
+        return default
+    first = raw.split(",", 1)[0].strip()
+    if "-" in first:
+        first = first.split("-", 1)[0].strip()
+    try:
+        return int(first)
+    except ValueError:
+        return default
+
+
+def session_passes_cc_api_check(args: argparse.Namespace, fp: Path) -> bool:
+    auth = extract_auth_from_session_files([fp])
+    if not auth:
+        return False
+    team_id = (args.team_id or auth.gate_key.split(":", 1)[0]).strip()
+    if not team_id.isdigit():
+        return False
+    world_id = first_int_from_spec(args.worlds, 1)
+    group_idx = first_int_from_spec(args.groups, 0)
+    path = f"/cc/preliminary/{team_id}/{world_id}/{group_idx}/{args.season}.json"
+    ok, data = request_json(path, auth, args.timeout_sec)
+    if not ok:
+        print("[INFO] Existing Charles session failed the CC API check.", flush=True)
+        return False
+    obj = data if isinstance(data, dict) else {}
+    code = str(obj.get("code") or "")
+    if code == "000":
+        return True
+    print(f"[INFO] Existing Charles session did not pass the CC API check: code={code or 'missing'}", flush=True)
+    return False
 
 
 def wait_for_auth_session(root: Path, after_mtime: float, timeout_sec: float, poll_sec: float) -> Path:
@@ -329,6 +372,16 @@ def capture_session(args: argparse.Namespace) -> Path:
 
 def resolve_session(args: argparse.Namespace) -> Path:
     if not args.skip_capture:
+        if args.reuse_valid_session and not args.capture_only:
+            if args.session_file:
+                fp = Path(args.session_file).expanduser().resolve()
+            else:
+                fp = newest_session_file(Path(args.session_dir).expanduser().resolve()) or Path()
+            if fp.exists() and session_has_auth(fp):
+                if session_passes_cc_api_check(args, fp):
+                    print(f"[INFO] Reusing valid Charles session: {fp}", flush=True)
+                    return fp
+                print("[INFO] Existing Charles session appears stale; capturing a fresh one.", flush=True)
         return capture_session(args)
     if args.session_file:
         fp = Path(args.session_file).expanduser().resolve()
@@ -407,13 +460,43 @@ def git_commit_push(args: argparse.Namespace) -> None:
         run(["git", "push"])
 
 
+def notify_pushover(args: argparse.Namespace, *, success: bool, detail: str) -> None:
+    if not args.notify_pushover:
+        return
+    title = "WebSoccer CC Update Complete" if success else "WebSoccer CC Update Failed"
+    message = (
+        f"現シーズンCCデータ取得とサイト更新が完了しました。{detail}"
+        if success
+        else f"現シーズンCC更新に失敗しました。{detail}"
+    )
+    cp = run(
+        [
+            PYTHON_EXE,
+            str(REPO_ROOT / "scripts" / "notify_pushover.py"),
+            "--env-file",
+            args.pushover_env_file,
+            "--title",
+            title,
+            "--message",
+            message,
+            "--priority",
+            "0" if success else "1",
+        ],
+        check=False,
+    )
+    if cp.returncode != 0:
+        print("[WARN] Pushover notification was not delivered.", flush=True)
+
+
 def main() -> int:
     args = parse_args()
     rc = 0
+    error_detail = ""
     try:
         session_file = resolve_session(args)
         if args.capture_only:
             print(f"[DONE] capture-only session validated: {session_file}")
+            notify_pushover(args, success=True, detail="capture-only セッション検証のみ完了。")
             return 0
         fetch_cc(args, session_file)
         if args.dry_run_fetch:
@@ -424,6 +507,7 @@ def main() -> int:
             if args.commit_push:
                 git_commit_push(args)
     except Exception as exc:  # noqa: BLE001
+        error_detail = str(exc)
         print(f"[ERROR] {exc}", file=sys.stderr, flush=True)
         rc = 1
     finally:
@@ -431,7 +515,10 @@ def main() -> int:
             print("[STEP] Quit Charles and WebSoccer")
             quit_apps()
     if rc == 0:
+        notify_pushover(args, success=True, detail="commit/push 実行オプションに従って処理済み。")
         print("[DONE] CC update pipeline completed.")
+    else:
+        notify_pushover(args, success=False, detail=error_detail[:500])
     return rc
 
 

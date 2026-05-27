@@ -150,4 +150,83 @@ python3 scripts/run_cc_update_pipeline.py \
 
 The script does not commit unrelated working-tree files.
 
+## Pushover Notifications
+
+The pipeline can notify an iPhone through Pushover after success or failure:
+
+```bash
+python3 scripts/run_cc_update_pipeline.py --season 0 --commit-push --notify-pushover --reuse-valid-session
+```
+
+Create this local secret file on the Mac. Do not commit the values:
+
+```bash
+~/.websoccer_pushover.env
+```
+
+```text
+PUSHOVER_APP_TOKEN=...
+PUSHOVER_USER_KEY=...
+```
+
+The weekly Codex automation passes `--notify-pushover --reuse-valid-session`. The pipeline first
+checks whether the newest Charles session passes a lightweight CC API check. It launches
+Charles/Webサッカー for fresh auth only when the existing session is missing or stale. If the
+Pushover file or variables are missing, the CC update still runs and only the notification is
+skipped.
+
+## Git Hygiene
+
+Before scheduled or manual CC updates, keep unrelated local analysis out of the working tree.
+See `docs/git_hygiene.md` for what to commit and where to place scratch outputs.
+
+## UpdateFile / Core Data Watch
+
+Codex automation `websoccer-updatefile-and-core-data-watch` checks app update assets hourly.
+It runs the existing UpdateFile watcher first:
+
+```bash
+python3 scripts/watch_updatefile_and_refresh_site.py --commit-push
+```
+
+That watcher downloads new `UpdateFile/pXXX.zip` archives when available, copies site images,
+rebuilds the WSM/site JSON, then commits and pushes intentional site changes.
+
+`Update_core_data` is tracked separately because it requires fresh Websoccer-gate-key / Cookie /
+User-Agent capture from Charles/Webサッカー. Local snapshots live under
+`/Users/gigagigo/Documents/Codex/wsc_data/update_core_data_*`.
+
+Use this to verify that a Charles session has API auth without printing the values:
+
+```bash
+python3 scripts/fetch_update_core_data.py --auth-check
+```
+
+Auth presence alone is not enough. Validate the existing latest local core id explicitly; if it
+returns rows, the key is valid:
+
+```bash
+python3 scripts/fetch_update_core_data.py --ids <latest-local-core-id> --dry-run
+```
+
+Use this to probe from the latest local core player id + 1 after validation:
+
+```bash
+python3 scripts/fetch_update_core_data.py --dry-run
+```
+
+If no fresh auth exists, capture it first:
+
+```bash
+python3 scripts/run_cc_update_pipeline.py \
+  --season 0 \
+  --quit-first \
+  --auto-navigate-websoccer \
+  --capture-only \
+  --wait-sec 180 \
+  --capture-warmup-sec 3
+```
+
+Then rerun `fetch_update_core_data.py` without `--dry-run` if new rows were found.
+
 For old CC scripts and future cleanup criteria, see `scripts/CC_LEGACY_README.md`.

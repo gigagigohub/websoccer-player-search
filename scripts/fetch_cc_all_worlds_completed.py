@@ -28,11 +28,14 @@ from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 API_HOST = "api.app.websoccer.jp"
 UA_FALLBACK = "WebSoccer/1.3.28 CFNetwork/3860.400.51 Darwin/25.3.0"
+DEFAULT_WSC_DATA = Path(__file__).resolve().parents[2] / "wsc_data"
 DEFAULT_MATCH_ROOTS = [
-    Path.home() / "Desktop" / "CC_match_result_json",
+    DEFAULT_WSC_DATA / "CC_match_result_json",
     Path.home() / "Desktop" / "match_result",
     Path.home() / "Desktop" / "CM_match_result_json",
+    Path.home() / "Desktop" / "CC_match_result_json",
 ]
+DEFAULT_MATCH_ROOT = DEFAULT_MATCH_ROOTS[0]
 
 
 @dataclass
@@ -46,8 +49,8 @@ def parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser(description="Fetch completed CC summaries across worlds")
     ap.add_argument(
         "--match-root",
-        default=str(Path.home() / "Desktop" / "CC_match_result_json"),
-        help="Root folder for saved data (default: ~/Desktop/CC_match_result_json)",
+        default=str(DEFAULT_MATCH_ROOT),
+        help=f"Root folder for saved data (default: {DEFAULT_MATCH_ROOT})",
     )
     ap.add_argument(
         "--session-file",

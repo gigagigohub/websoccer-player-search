@@ -22,6 +22,7 @@ UpdateFile の選手画像をサイトへ反映する場合は、通常選手画
 - `build_websoccer_master_db.py` - WSM master DB を構築する。
 - `collect_updatefile_inventory.py` - UpdateFile の中身を棚卸しする。
 - `fetch_updatefiles.py` - UpdateFile を取得する。
+- `fetch_update_core_data.py` - Charles セッション由来の WebSoccer 認証で `update_core_data` の player / players_param JSON を取得する。
 - `link_challenge_history.py` - ChallengeMatch 系 plist を master DB に反映する。
 - `link_scout_history.py` - Scout 系データを master DB に反映する。
 - `migrate_player_person_identity.py` - player/person identity の移行補助。

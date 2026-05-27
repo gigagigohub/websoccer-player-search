@@ -1,5 +1,22 @@
 .venv/
+.venv.broken-*/
 .cache/
 __pycache__/
 *.pyc
 .DS_Store
+
+# Local-only secrets and machine state
+.env
+.env.*
+!.env.example
+charles_sessions/
+*.chlsx
+*.chlsj
+*.chlz
+
+# Scratch outputs that should not become site/repo artifacts by accident
+/local/
+/tmp/
+/artifacts/
+/app/prepared/local/
+/app/prepared/tmp/
