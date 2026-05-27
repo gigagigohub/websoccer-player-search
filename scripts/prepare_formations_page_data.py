@@ -12,6 +12,8 @@ from pathlib import Path
 
 from bs4 import BeautifulSoup
 
+from paths import REPO_ROOT, WSC_DATA, latest_wsm_file
+
 try:
     import build_v4_slot_adjusted_team_power as tpi_model
 except Exception:  # pragma: no cover - optional analysis helper for generated data
@@ -30,13 +32,13 @@ PARAM_KEYS = [
 ]
 
 DEFAULT_MODEL_SLOT_CSV = Path(
-    "/Users/k.nishimura/work/coding/wsc_data/model_slot_mapping_probe/model_slot_ocr_candidates_strict.csv"
+    WSC_DATA / "model_slot_mapping_probe" / "model_slot_ocr_candidates_strict.csv"
 )
 DEFAULT_MODEL_PAGE_DIR = Path(
-    "/Users/k.nishimura/work/coding/wsc_data/model_slot_mapping_probe/pages"
+    WSC_DATA / "model_slot_mapping_probe" / "pages"
 )
 DEFAULT_MODEL_OCR_DIR = Path(
-    "/Users/k.nishimura/work/coding/wsc_data/model_slot_mapping_probe/ocr"
+    WSC_DATA / "model_slot_mapping_probe" / "ocr"
 )
 DEFAULT_MODEL_SLOT_OVERRIDES_CSV = Path(__file__).resolve().parents[1] / "data" / "formation_model_slot_overrides.csv"
 DEFAULT_MODEL_CARD_OVERRIDES_CSV = Path(__file__).resolve().parents[1] / "data" / "formation_model_card_overrides.csv"
@@ -435,6 +437,15 @@ def model_entry_from_row(row):
     }
 
 
+def model_entry_with_name(entry, model_name):
+    entry = dict(entry)
+    if model_name:
+        entry["modelName"] = model_name
+        entry["aliases"] = model_name_aliases(model_name)
+        entry["ocrAliases"] = model_name_aliases(model_name, include_all_parts=True)
+    return entry
+
+
 def load_model_card_entries(master_db_path):
     db_path = Path(master_db_path).expanduser() if master_db_path else None
     if not db_path or not db_path.exists():
@@ -462,6 +473,39 @@ def load_model_card_entries(master_db_path):
             LEFT JOIN manual_player_category c ON c.player_id = i.player_id
             WHERE COALESCE(m.model_name, '') <> ''
             ORDER BY m.person_id, i.player_id
+            """
+        ).fetchall()
+    finally:
+        conn.close()
+    return [model_entry_from_row(row) for row in rows]
+
+
+def load_player_card_entries(master_db_path):
+    db_path = Path(master_db_path).expanduser() if master_db_path else None
+    if not db_path or not db_path.exists():
+        return []
+    conn = sqlite3.connect(str(db_path))
+    conn.row_factory = sqlite3.Row
+    try:
+        rows = conn.execute(
+            """
+            SELECT
+              i.canonical_person_id AS person_id,
+              '' AS model_name,
+              i.player_id,
+              p.ZNAME AS player_name,
+              p.ZFULLNAME AS player_fullname,
+              COALESCE(n.ZNAME, '') AS nation,
+              COALESCE(info.ZPLAY_TYPE, '') AS play_type,
+              COALESCE(c.category, '') AS category,
+              COALESCE(c.retired, 0) AS retired
+            FROM player_person_identity i
+            JOIN ao__ZMOPLAYER p ON p.ZPLAYER_ID = i.player_id
+            LEFT JOIN ao__ZMONATION n ON n.ZNATION_ID = p.ZNATION_ID
+            LEFT JOIN ao__ZMOPLAYERSINFO info ON info.Z_PK = p.ZINFO
+            LEFT JOIN manual_player_category c ON c.player_id = i.player_id
+            WHERE i.canonical_person_id > 0
+            ORDER BY i.canonical_person_id, i.player_id
             """
         ).fetchall()
     finally:
@@ -998,12 +1042,18 @@ def load_model_slots(path, page_dir=None, master_db_path=None, ocr_dir=None, ove
     if not model_path.exists():
         return []
     model_card_entries = load_model_card_entries(master_db_path)
+    player_card_entries = load_player_card_entries(master_db_path)
     model_entries = load_model_entries(master_db_path)
     model_alias_index = build_model_alias_index(model_entries) if model_entries else None
     model_ocr_alias_index = build_model_ocr_alias_index(model_entries) if model_entries else None
     model_entry_by_name = {normalize_match_text(entry.get("modelName")): entry for entry in model_entries}
     model_entry_by_person_id = {entry["personId"]: entry for entry in model_entries}
-    model_entry_by_player_id = {entry["playerId"]: entry for entry in model_card_entries}
+    player_entry_by_player_id = {entry["playerId"]: entry for entry in player_card_entries}
+    player_entry_by_person_id = {}
+    for entry in sorted(player_card_entries, key=lambda r: (to_int(r["personId"]), model_card_rank(r))):
+        player_entry_by_person_id.setdefault(entry["personId"], entry)
+    model_entry_by_player_id = dict(player_entry_by_player_id)
+    model_entry_by_player_id.update({entry["playerId"]: entry for entry in model_card_entries})
     card_overrides = load_model_card_overrides(card_overrides_path)
     formation_positions = load_formation_slot_positions(master_db_path) if ocr_dir else {}
     page_entries_by_slug = {}
@@ -1057,6 +1107,8 @@ def load_model_slots(path, page_dir=None, master_db_path=None, ocr_dir=None, ove
             linked_entry = body_entry or model_entry_by_player_id.get(player_id)
             if not linked_entry:
                 linked_entry = model_entry_by_name.get(normalize_match_text(row.get("best_model_name")))
+            if linked_entry:
+                linked_entry = model_entry_with_name(linked_entry, row.get("best_model_name") or linked_entry.get("modelName"))
         rows.append({
             "formationId": fid,
             "slot": slot,
@@ -1217,6 +1269,10 @@ def load_model_slots(path, page_dir=None, master_db_path=None, ocr_dir=None, ove
             meta = metadata_by_group.get((fid, slug), {})
             person_id = to_int(override.get("person_id") or override.get("manual_person_id"))
             entry = model_entry_by_person_id.get(person_id) if person_id else None
+            if not entry and person_id:
+                entry = player_entry_by_person_id.get(person_id)
+            if entry:
+                entry = model_entry_with_name(entry, model_name)
             rows_by_key[(fid, slot)] = {
                 "formationId": fid,
                 "slot": slot,
@@ -1246,6 +1302,7 @@ def load_model_slots(path, page_dir=None, master_db_path=None, ocr_dir=None, ove
         entry = model_entry_by_player_id.get(to_int(override.get("player_id")))
         if not entry:
             continue
+        entry = model_entry_with_name(entry, override.get("model_name") or entry.get("modelName"))
         key = (fid, slot)
         existing = rows_by_key.get(key, {})
         rows_by_key[key] = {
@@ -2385,8 +2442,8 @@ def build_data(src):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--base-csv-dir", default="/Users/k.nishimura/Desktop/csv data")
-    parser.add_argument("--cc-dir", default="/Users/k.nishimura/Desktop/CC_match_result_csv")
+    parser.add_argument("--base-csv-dir", default=str(Path.home() / "Desktop" / "csv data"))
+    parser.add_argument("--cc-dir", default=str(Path.home() / "Desktop" / "CC_match_result_csv"))
     parser.add_argument(
         "--cc-db",
         default=str(Path.home() / "Desktop" / "CC_match_result_db" / "cc_match_result.sqlite3"),
@@ -2395,7 +2452,7 @@ def main():
     parser.add_argument(
         "--master-db",
         default="",
-        help="Unified master SQLite DB path (if set and exists, this is used as full source)",
+        help="Unified master SQLite DB path. Default: latest wsm_*.sqlite3 under WSC_DATA.",
     )
     parser.add_argument(
         "--model-slot-csv",
@@ -2422,10 +2479,10 @@ def main():
         default=str(DEFAULT_MODEL_CARD_OVERRIDES_CSV),
         help="CSV path for manually confirmed formation model card overrides",
     )
-    parser.add_argument("--out", default="/Users/k.nishimura/work/coding/websoccer-player-search/app/formations_data.json")
+    parser.add_argument("--out", default=str(REPO_ROOT / "app" / "formations_data.json"))
     args = parser.parse_args()
 
-    master_db_path = Path(args.master_db).expanduser().resolve() if args.master_db else None
+    master_db_path = Path(args.master_db).expanduser().resolve() if args.master_db else latest_wsm_file()
     if master_db_path and master_db_path.exists():
         src = load_sources_from_master_db(master_db_path)
         print(f"using master db: {master_db_path}")
