@@ -91,3 +91,5 @@ python3 scripts/run_cc_update_pipeline.py \
 5. `git push`
 
 The script does not commit unrelated working-tree files.
+
+For old CC scripts and future cleanup criteria, see `scripts/CC_LEGACY_README.md`.
