@@ -137,6 +137,13 @@ def quit_apps() -> None:
     time.sleep(2)
 
 
+def mute_system_output() -> None:
+    if run_osascript("set volume with output muted", timeout_sec=3):
+        print("[STEP] Muted system output before launching WebSoccer", flush=True)
+    else:
+        print("[WARN] Could not mute system output before launching WebSoccer", flush=True)
+
+
 def start_charles_recording() -> None:
     script = """
 tell application "Charles" to activate
@@ -333,6 +340,8 @@ def capture_session(args: argparse.Namespace) -> Path:
     if args.quit_first:
         print("[STEP] Quit existing Charles/WebSoccer processes")
         quit_apps()
+
+    mute_system_output()
 
     print("[STEP] Open Charles and start recording")
     open_app(args.charles_app, "Charles")

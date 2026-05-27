@@ -183,6 +183,8 @@ See `docs/git_hygiene.md` for what to commit and where to place scratch outputs.
 ## UpdateFile / Core Data Watch
 
 Codex automation `websoccer-updatefile-and-core-data-watch` checks app update assets hourly.
+Because WebSoccer maintenance runs from 04:00 to 07:00 JST, it skips the 04:00, 05:00, and
+06:00 runs.
 It runs the existing UpdateFile watcher first:
 
 ```bash

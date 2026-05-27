@@ -29,7 +29,7 @@ git status --short
   - Sends Pushover success/failure notifications.
 
 - `websoccer-updatefile-and-core-data-watch`
-  - Hourly.
+  - Runs at minute 0 except during WebSoccer maintenance hours: 04:00, 05:00, and 06:00 JST are skipped.
   - Runs `scripts/watch_updatefile_and_refresh_site.py --commit-push`.
   - Checks Update_core_data with `scripts/fetch_update_core_data.py`.
   - Validates an existing latest core id before deciding whether a fresh key is needed.
