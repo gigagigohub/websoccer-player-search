@@ -51,6 +51,15 @@ CCデータ更新の標準フロー:
    ~/Library/Logs/websoccer-player-search/weekly-cc-update.out.log
    ~/Library/Logs/websoccer-player-search/weekly-cc-update.err.log
 
+引き継ぎファイル自動更新:
+ - Codex cron は停止し、launchd で毎日 05:00 に docs/daily_handoff.md を更新する設定
+ - LaunchAgent: /Users/gigagigo/Library/LaunchAgents/com.gigagigo.websoccer.daily-handoff-refresh.plist
+ - 作業場所: /Users/gigagigo/work/coding/websoccer-player-search
+ - 実体: scripts/run_daily_handoff_refresh.sh
+ - ログ:
+   ~/Library/Logs/websoccer-player-search/daily-handoff-refresh.out.log
+   ~/Library/Logs/websoccer-player-search/daily-handoff-refresh.err.log
+
 主要スクリプト:
  - scripts/run_cc_update_pipeline.py
    Charles/Webサッカー起動、キー取得待ち、CC取得、WSM更新、サイト更新、commit/push、アプリ終了までの統合パイプライン

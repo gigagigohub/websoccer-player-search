@@ -23,7 +23,7 @@ Use `--season 0` when the target is the current season instead of the previous s
 ## Weekly Schedule
 
 The installed launchd job runs every Sunday at 02:00 and fetches the current season.
-Codex cron automation for this task is paused; launchd is the active scheduler.
+Codex cron automations are paused; launchd is the active scheduler for weekly CC, UpdateFile/core-data, and daily handoff refresh.
 Unattended runs use `/Users/gigagigo/work/coding/websoccer-player-search` as the working copy to
 avoid macOS Documents permission prompts:
 
