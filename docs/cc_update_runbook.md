@@ -22,7 +22,10 @@ Use `--season 0` when the target is the current season instead of the previous s
 
 ## Weekly Schedule
 
-The installed launchd job runs every Sunday at 02:00 and fetches the current season:
+The installed launchd job runs every Sunday at 02:00 and fetches the current season.
+Codex cron automation for this task is paused; launchd is the active scheduler.
+Unattended runs use `/Users/gigagigo/work/coding/websoccer-player-search` as the working copy to
+avoid macOS Documents permission prompts:
 
 ```bash
 python3 scripts/install_weekly_cc_update_launch_agent.py
@@ -37,7 +40,7 @@ scripts/run_weekly_cc_current_season_update.sh
 That wrapper calls:
 
 ```bash
-python3 scripts/run_cc_update_pipeline.py --season 0 --commit-push --quit-first --auto-navigate-websoccer --wait-sec 900
+python3 scripts/run_cc_update_pipeline.py --season 0 --commit-push --quit-first --auto-navigate-websoccer --wait-sec 900 --notify-pushover --reuse-valid-session
 ```
 
 Logs are written to:

@@ -43,8 +43,9 @@ CCデータ更新の標準フロー:
  python3 scripts/run_cc_update_pipeline.py --season 0 --quit-first --auto-navigate-websoccer --capture-only --wait-sec 180 --capture-warmup-sec 3
 
 週次自動実行:
- - launchd で毎週日曜 02:00 に現在シーズンを取得する設定
+ - Codex cron は停止し、launchd で毎週日曜 02:00 に現在シーズンを取得する設定
  - LaunchAgent: /Users/gigagigo/Library/LaunchAgents/com.gigagigo.websoccer.cc-current-season-update.plist
+ - 作業場所: /Users/gigagigo/work/coding/websoccer-player-search
  - 実体: scripts/run_weekly_cc_current_season_update.sh
  - ログ:
    ~/Library/Logs/websoccer-player-search/weekly-cc-update.out.log

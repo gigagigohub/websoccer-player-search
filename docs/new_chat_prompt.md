@@ -56,8 +56,8 @@ python3 scripts/fetch_update_core_data.py --dry-run
 
 ## Automations
 
-- `websoccer-current-season-cc-weekly-update`
-- `websoccer-updatefile-and-core-data-watch`
-- `websoccer-daily-handoff-refresh`
+- Codex cron active: `websoccer-daily-handoff-refresh`
+- Codex cron paused: `websoccer-current-season-cc-weekly-update`, `websoccer-updatefile-and-core-data-watch`
+- LaunchAgents active: `com.gigagigo.websoccer.cc-current-season-update`, `com.gigagigo.websoccer.updatefile-core-watch`
 
 After reading this file, use `docs/daily_handoff.md` as the source of truth for the latest state.

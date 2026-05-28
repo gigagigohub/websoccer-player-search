@@ -1,6 +1,6 @@
 # Daily Handoff
 
-Last reviewed: 2026-05-28 11:08 JST
+Last reviewed: 2026-05-28 11:18 JST
 
 ## Start Here
 
@@ -22,16 +22,17 @@ git status --short
 
 ## Dirty Tree Summary
 
-- `docs/daily_handoff.md` is modified by this handoff refresh.
-- `scripts/install_updatefile_and_core_data_launch_agent.py` and `scripts/run_updatefile_and_core_data_watch.sh` are intentional local automation changes from the 2026-05-28 UpdateFile/core-data watch fix.
+- `scripts/install_weekly_cc_update_launch_agent.py` and `scripts/run_weekly_cc_current_season_update.sh` are intentional local automation changes from the 2026-05-28 weekly CC LaunchAgent migration.
 
 ## Active Automations
 
 - `websoccer-current-season-cc-weekly-update`
   - Weekly Sunday 02:00 JST via `~/Library/LaunchAgents/com.gigagigo.websoccer.cc-current-season-update.plist`.
+  - Codex cron automation is paused; the active scheduler is macOS LaunchAgent.
+  - Workdir for unattended runs: `/Users/gigagigo/work/coding/websoccer-player-search`.
   - Wrapper: `scripts/run_weekly_cc_current_season_update.sh`.
   - Expected logs: `~/Library/Logs/websoccer-player-search/weekly-cc-update.out.log` and `.err.log`.
-  - No recent weekly log entries were present during this refresh.
+  - Wrapper uses `--notify-pushover --reuse-valid-session`.
 
 - `websoccer-updatefile-and-core-data-watch`
   - Local LaunchAgent: `~/Library/LaunchAgents/com.gigagigo.websoccer.updatefile-core-watch.plist`.
@@ -61,7 +62,8 @@ python3 scripts/fetch_update_core_data.py --dry-run
 
 - CC:
   - `~/charles_sessions` contains fresh saved sessions through `2026-05-28 00:38 JST`.
-  - No newer weekly CC automation log output was found, so the latest confirmed success signal is still the 2026-05-27 capture/dry-run validation noted in the runbook and prior handoff.
+  - Weekly CC LaunchAgent was reinstalled at `2026-05-28 11:18 JST` to use `/Users/gigagigo/work/coding/websoccer-player-search`.
+  - No full weekly CC run was kicked off during the migration to avoid unintended data update/commit/push outside the Sunday 02:00 schedule.
 
 - UpdateFile:
   - Latest local UpdateFile directory is `../wsc_data/UpdateFile_p40_325`.
@@ -78,7 +80,7 @@ python3 scripts/fetch_update_core_data.py --dry-run
 ## Unresolved Issues
 
 - Verify the WSM/site integration path the first time new `update_core_data` rows appear beyond `3210`.
-- If the weekly CC automation should be considered active, confirm why `~/Library/Logs/websoccer-player-search/weekly-cc-update.*.log` is absent despite the installed LaunchAgent.
+- Confirm the next scheduled weekly CC LaunchAgent run succeeds on Sunday 02:00 JST.
 
 ## Stash And Scratch
 
