@@ -1,6 +1,6 @@
 # Daily Handoff
 
-Last reviewed: 2026-05-28 00:00 JST
+Last reviewed: 2026-05-28 11:08 JST
 
 ## Start Here
 
@@ -20,40 +20,67 @@ git status --short
 - Existing local scratch should go under `app/prepared/local/`, `local/`, `tmp/`, or `artifacts/`.
 - Follow `docs/git_hygiene.md` when deciding whether to commit or keep local.
 
-## Automations
+## Dirty Tree Summary
+
+- `docs/daily_handoff.md` is modified by this handoff refresh.
+- `scripts/install_updatefile_and_core_data_launch_agent.py` and `scripts/run_updatefile_and_core_data_watch.sh` are intentional local automation changes from the 2026-05-28 UpdateFile/core-data watch fix.
+
+## Active Automations
 
 - `websoccer-current-season-cc-weekly-update`
-  - Weekly Sunday 02:00 JST.
-  - Runs current-season CC update.
-  - Uses `--reuse-valid-session`; captures a fresh key only when the existing session fails a CC API check.
-  - Sends Pushover success/failure notifications.
+  - Weekly Sunday 02:00 JST via `~/Library/LaunchAgents/com.gigagigo.websoccer.cc-current-season-update.plist`.
+  - Wrapper: `scripts/run_weekly_cc_current_season_update.sh`.
+  - Expected logs: `~/Library/Logs/websoccer-player-search/weekly-cc-update.out.log` and `.err.log`.
+  - No recent weekly log entries were present during this refresh.
 
 - `websoccer-updatefile-and-core-data-watch`
-  - Runs at minute 0 except during WebSoccer maintenance hours: 04:00, 05:00, and 06:00 JST are skipped.
-  - Runs `scripts/watch_updatefile_and_refresh_site.py --commit-push`.
-  - Checks Update_core_data with `scripts/fetch_update_core_data.py`.
-  - Validates an existing latest core id before deciding whether a fresh key is needed.
+  - Local LaunchAgent: `~/Library/LaunchAgents/com.gigagigo.websoccer.updatefile-core-watch.plist`.
+  - Runs hourly at minute `00`, excluding 04:00, 05:00, and 06:00 JST.
+  - Workdir for unattended runs: `/Users/gigagigo/work/coding/websoccer-player-search`.
+  - Data dir for unattended runs: `/Users/gigagigo/work/coding/wsc_data`.
+  - Wrapper: `scripts/run_updatefile_and_core_data_watch.sh`.
+  - Installer: `scripts/install_updatefile_and_core_data_launch_agent.py`.
+  - Logs: `~/Library/Logs/websoccer-player-search/updatefile-core-watch.out.log` and `.err.log`.
+  - The old Codex cron automation is paused because cron-launched threads were observed with `network_access=false`, causing DNS failures.
 
-## Useful Commands
+- `websoccer-daily-handoff-refresh`
+  - Updates this file for new Codex chats.
+
+## Important Commands
 
 ```bash
 python3 scripts/run_cc_update_pipeline.py --season 0 --commit-push --quit-first --auto-navigate-websoccer --wait-sec 900 --notify-pushover --reuse-valid-session
+python3 scripts/run_cc_update_pipeline.py --season 0 --quit-first --auto-navigate-websoccer --capture-only --wait-sec 180 --capture-warmup-sec 3
 python3 scripts/watch_updatefile_and_refresh_site.py --commit-push
 python3 scripts/fetch_update_core_data.py --auth-check
+python3 scripts/fetch_update_core_data.py --ids 3210 --dry-run
 python3 scripts/fetch_update_core_data.py --dry-run
 ```
 
-## Recent State
+## Recent Status
 
-- Pushover notification test succeeded.
-- CC fresh capture succeeded with Charles Auto Save.
-- CC dry-run reused a valid existing Charles session successfully.
-- Update_core_data fresh-key validation succeeded for existing id `3205`.
-- Update_core_data next id `3211` returned HTTP 500 while existing id worked; treat as no new core data unless future evidence changes.
-- UpdateFile dry-run checked `p326` and found no new archive.
+- CC:
+  - `~/charles_sessions` contains fresh saved sessions through `2026-05-28 00:38 JST`.
+  - No newer weekly CC automation log output was found, so the latest confirmed success signal is still the 2026-05-27 capture/dry-run validation noted in the runbook and prior handoff.
 
-## Open Threads
+- UpdateFile:
+  - Latest local UpdateFile directory is `../wsc_data/UpdateFile_p40_325`.
+  - Manual LaunchAgent kickstart at `2026-05-28 10:21 JST` succeeded from `/Users/gigagigo/work/coding/websoccer-player-search`.
+  - Scheduled LaunchAgent run at `2026-05-28 11:00 JST` also succeeded.
+  - Both runs reported `p326: missing HTTPError 403`, then `no new UpdateFile`.
+  - Historical log context still includes the 2026-05-25 `p325` download and failed site rebuild caused by a missing CC DB path in the older `/Users/k.nishimura/...` environment.
 
-- Commit the intentional automation/support changes when ready.
-- The old stash `pre-cc-update dirty workspace 2026-05-27` still exists for earlier mixed dirty work.
-- Update_core_data saving works at the JSON fetch layer, but the exact WSM/site integration path for newly saved core rows should be verified when new core rows first appear.
+- Update_core_data:
+  - Latest saved snapshot remains `../wsc_data/update_core_data_3205_3210` from `2026-05-21 19:09 JST`.
+  - Manual LaunchAgent kickstart at `2026-05-28 10:21 JST` and scheduled run at `2026-05-28 11:00 JST` extracted API auth, validated latest id `3210`, and probed `3211` through `3220`.
+  - Probe result: HTTP 500 / no new core rows.
+
+## Unresolved Issues
+
+- Verify the WSM/site integration path the first time new `update_core_data` rows appear beyond `3210`.
+- If the weekly CC automation should be considered active, confirm why `~/Library/Logs/websoccer-player-search/weekly-cc-update.*.log` is absent despite the installed LaunchAgent.
+
+## Stash And Scratch
+
+- Stash still present: `stash@{0}: On main: pre-cc-update dirty workspace 2026-05-27`.
+- No local scratch files were found under `app/prepared/local/`, `local/`, `tmp/`, or `artifacts/` during this refresh.
