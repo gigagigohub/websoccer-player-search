@@ -1,6 +1,6 @@
 # Daily Handoff
 
-Last reviewed: 2026-05-28 11:19 JST
+Last reviewed: 2026-05-28 11:40 JST
 
 ## Start Here
 
@@ -37,6 +37,7 @@ git status --short
   - Schedule: daily 05:00 JST
   - Workdir: /Users/gigagigo/work/coding/websoccer-player-search
   - Logs: `~/Library/Logs/websoccer-player-search/daily-handoff-refresh.out.log` and `.err.log`
+  - Pushover: failure-only via `~/.handoff_pushover.env`
 - LaunchAgent `com.gigagigo.websoccer.cc-current-season-update`
   - Schedule: Sunday 02:00 JST
   - Workdir: /Users/gigagigo/work/coding/websoccer-player-search

@@ -34,6 +34,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--message", required=True)
     p.add_argument("--priority", default="0")
     p.add_argument("--sound", default="")
+    p.add_argument("--token-env-var", default="PUSHOVER_APP_TOKEN")
+    p.add_argument("--user-env-var", default="PUSHOVER_USER_KEY")
     return p.parse_args()
 
 
@@ -41,11 +43,11 @@ def main() -> int:
     args = parse_args()
     load_env_file(Path(args.env_file).expanduser())
 
-    token = os.environ.get("PUSHOVER_APP_TOKEN", "")
-    user = os.environ.get("PUSHOVER_USER_KEY", "")
+    token = os.environ.get(args.token_env_var, "")
+    user = os.environ.get(args.user_env_var, "")
     if not token or not user:
         print(
-            "[WARN] Pushover notification skipped: PUSHOVER_APP_TOKEN/PUSHOVER_USER_KEY not configured.",
+            "[WARN] Pushover notification skipped: token/user env vars not configured.",
             file=sys.stderr,
             flush=True,
         )

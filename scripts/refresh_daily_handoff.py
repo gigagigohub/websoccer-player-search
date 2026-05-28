@@ -134,6 +134,7 @@ git status --short
   - Schedule: daily 05:00 JST
   - Workdir: {plist_value(handoff_plist, "WorkingDirectory")}
   - Logs: `~/Library/Logs/websoccer-player-search/daily-handoff-refresh.out.log` and `.err.log`
+  - Pushover: failure-only via `~/.handoff_pushover.env`
 - LaunchAgent `com.gigagigo.websoccer.cc-current-season-update`
   - Schedule: Sunday 02:00 JST
   - Workdir: {plist_value(cc_plist, "WorkingDirectory")}
