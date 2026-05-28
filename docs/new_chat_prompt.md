@@ -32,13 +32,13 @@ sed -n '1,260p' docs/cc_update_runbook.md
 Current-season CC update:
 
 ```bash
-python3 scripts/run_cc_update_pipeline.py --season 0 --commit-push --quit-first --auto-navigate-websoccer --wait-sec 900 --notify-pushover --reuse-valid-session
+python3 scripts/run_cc_update_pipeline.py --season 0 --commit-push --notify-pushover
 ```
 
-CC capture-only:
+CC capture fallback check:
 
 ```bash
-python3 scripts/run_cc_update_pipeline.py --season 0 --quit-first --auto-navigate-websoccer --capture-only --wait-sec 180 --capture-warmup-sec 3
+python3 scripts/run_cc_update_pipeline.py --auth-source session --season 0 --quit-first --auto-navigate-websoccer --capture-only --wait-sec 180 --capture-warmup-sec 3
 ```
 
 UpdateFile watch:

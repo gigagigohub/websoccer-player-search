@@ -10,8 +10,10 @@ from typing import Iterable, Optional, Sequence
 
 from fetch_cc_all_worlds_completed import (
     API_HOST,
+    DEFAULT_WEBSOCCER_CONTAINER,
     DEFAULT_MATCH_ROOT,
     extract_auth_from_session_files,
+    local_auth_from_container,
     request_json,
 )
 
@@ -41,6 +43,13 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--match-root", default=str(DEFAULT_MATCH_ROOT), help=f"CC JSON root (default: {DEFAULT_MATCH_ROOT})")
     p.add_argument("--session-dir", default=str(DEFAULT_SESSION_DIR), help="Directory for saved Charles sessions")
     p.add_argument("--session-file", default="", help="Use this saved Charles session")
+    p.add_argument(
+        "--auth-source",
+        choices=("auto", "local", "session"),
+        default="auto",
+        help="API auth source. auto prefers local generated gate-key and falls back to Charles capture/session.",
+    )
+    p.add_argument("--websoccer-container", default=str(DEFAULT_WEBSOCCER_CONTAINER))
     p.add_argument("--skip-capture", action="store_true", help="Do not launch apps; use --session-file or newest session")
     p.add_argument(
         "--reuse-valid-session",
@@ -186,6 +195,49 @@ end tell
 
 
 def try_click_websoccer_sequence() -> None:
+    def click_first_button_when_text_exists(text_part: str) -> bool:
+        script = f"""
+tell application "Webサッカー" to activate
+delay 0.2
+tell application "System Events"
+  tell process "Webサッカー"
+    set elems to entire contents of window 1
+    set foundText to false
+    repeat with e in elems
+      try
+        if value of e contains "{text_part}" then set foundText to true
+      end try
+      try
+        if description of e contains "{text_part}" then set foundText to true
+      end try
+      try
+        if name of e contains "{text_part}" then set foundText to true
+      end try
+    end repeat
+    if foundText then
+      repeat with e in elems
+        try
+          if role of e is "AXButton" then
+            try
+              perform action "AXPress" of e
+            end try
+            try
+              click e
+            end try
+            return "clicked"
+          end if
+        end try
+      end repeat
+    end if
+  end tell
+end tell
+return "missing"
+"""
+        result = run_osascript_stdout(script, timeout_sec=8)
+        if result:
+            print(f"[AUTO] WebSoccer click first button when text {text_part}: {result}", flush=True)
+        return result == "clicked"
+
     def click_description(description_part: str) -> bool:
         script = f"""
 tell application "Webサッカー" to activate
@@ -240,6 +292,20 @@ return "missing"
             time.sleep(interval_sec)
         return False
 
+    def dismiss_startup_popups(retries: int, interval_sec: float = 0.8) -> None:
+        for _ in range(max(1, retries)):
+            did_click = False
+            if description_exists("ログインボーナス") or description_exists("LOGIN BONUS"):
+                did_click = click_description("btn bg blue") or click_first_button_when_text_exists("ログインボーナス")
+            if description_exists("お知らせ") or description_exists("notice"):
+                did_click = click_description("others header btn close") or click_description("btn bg red") or did_click
+            did_click = click_description("others header btn close") or did_click
+            did_click = click_description("btn bg red") or did_click
+            if did_click:
+                time.sleep(interval_sec)
+                continue
+            time.sleep(interval_sec)
+
     did_start = False
     for _ in range(3):
         if click_description("top btn"):
@@ -252,10 +318,12 @@ return "missing"
     if not did_start:
         run_osascript('tell application "System Events" to tell process "Webサッカー" to key code 36')
         time.sleep(3.0)
-    wait_click("others header btn close", 30, 1.0)
+    dismiss_startup_popups(20, 1.0)
+    wait_click("others header btn close", 10, 1.0)
     time.sleep(1.0)
     wait_click("league results menu btn cc", 45, 1.0)
     time.sleep(2)
+    dismiss_startup_popups(5, 0.8)
     click_description("others header btn close")
 
 
@@ -320,6 +388,29 @@ def session_passes_cc_api_check(args: argparse.Namespace, fp: Path) -> bool:
     return False
 
 
+def local_auth_passes_cc_api_check(args: argparse.Namespace) -> bool:
+    auth = local_auth_from_container(Path(args.websoccer_container).expanduser())
+    if not auth:
+        return False
+    team_id = (args.team_id or auth.local_team_id or auth.gate_key.split(":", 1)[0]).strip()
+    if not team_id.isdigit():
+        return False
+    world_id = first_int_from_spec(args.worlds, 1)
+    group_idx = first_int_from_spec(args.groups, 0)
+    path = f"/cc/preliminary/{team_id}/{world_id}/{group_idx}/{args.season}.json"
+    ok, data = request_json(path, auth, args.timeout_sec)
+    if not ok:
+        print("[INFO] Generated local gate-key failed the CC API check.", flush=True)
+        return False
+    obj = data if isinstance(data, dict) else {}
+    code = str(obj.get("code") or "")
+    if code == "000":
+        print("[INFO] Generated local gate-key passed the CC API check.", flush=True)
+        return True
+    print(f"[INFO] Generated local gate-key did not pass the CC API check: code={code or 'missing'}", flush=True)
+    return False
+
+
 def wait_for_auth_session(root: Path, after_mtime: float, timeout_sec: float, poll_sec: float) -> Path:
     deadline = time.time() + timeout_sec
     while time.time() < deadline:
@@ -379,7 +470,13 @@ def capture_session(args: argparse.Namespace) -> Path:
     return wait_for_auth_session(session_dir, after_mtime, args.wait_sec, args.poll_sec)
 
 
-def resolve_session(args: argparse.Namespace) -> Path:
+def resolve_session(args: argparse.Namespace) -> Optional[Path]:
+    if args.auth_source in {"auto", "local"} and not args.capture_only:
+        if local_auth_passes_cc_api_check(args):
+            return None
+        if args.auth_source == "local":
+            raise RuntimeError("could not use generated local WebSoccer gate-key")
+
     if not args.skip_capture:
         if args.reuse_valid_session and not args.capture_only:
             if args.session_file:
@@ -403,14 +500,13 @@ def resolve_session(args: argparse.Namespace) -> Path:
     return fp
 
 
-def fetch_cc(args: argparse.Namespace, session_file: Path) -> None:
+def fetch_cc(args: argparse.Namespace, session_file: Optional[Path]) -> None:
+    auth_source = "session" if session_file and args.auth_source == "auto" else args.auth_source
     cmd = [
         PYTHON_EXE,
         str(REPO_ROOT / "scripts" / "fetch_cc_completed_season.py"),
         "--match-root",
         str(Path(args.match_root).expanduser()),
-        "--session-file",
-        str(session_file),
         "--worlds",
         args.worlds,
         "--season",
@@ -425,7 +521,13 @@ def fetch_cc(args: argparse.Namespace, session_file: Path) -> None:
         str(args.timeout_sec),
         "--progress-every",
         str(args.progress_every),
+        "--auth-source",
+        auth_source,
+        "--websoccer-container",
+        str(Path(args.websoccer_container).expanduser()),
     ]
+    if session_file:
+        cmd += ["--session-file", str(session_file)]
     if args.team_id:
         cmd += ["--team-id", args.team_id]
     if args.summary_tail:
@@ -501,9 +603,14 @@ def main() -> int:
     args = parse_args()
     rc = 0
     error_detail = ""
+    session_file: Optional[Path] = None
     try:
         session_file = resolve_session(args)
         if args.capture_only:
+            if session_file is None:
+                print("[DONE] capture-only local generated gate-key validated")
+                notify_pushover(args, success=True, detail="capture-only ローカル生成gate-key検証のみ完了。")
+                return 0
             print(f"[DONE] capture-only session validated: {session_file}")
             notify_pushover(args, success=True, detail="capture-only セッション検証のみ完了。")
             return 0
@@ -520,7 +627,7 @@ def main() -> int:
         print(f"[ERROR] {exc}", file=sys.stderr, flush=True)
         rc = 1
     finally:
-        if not args.skip_capture and not args.keep_apps_open:
+        if session_file is not None and not args.skip_capture and not args.keep_apps_open:
             print("[STEP] Quit Charles and WebSoccer")
             quit_apps()
     if rc == 0:

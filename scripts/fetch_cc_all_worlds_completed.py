@@ -13,8 +13,11 @@ from __future__ import annotations
 
 import argparse
 import glob
+import hashlib
 import json
+import plistlib
 import ssl
+import sqlite3
 import time
 import zipfile
 from datetime import datetime
@@ -28,6 +31,8 @@ from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 API_HOST = "api.app.websoccer.jp"
 UA_FALLBACK = "WebSoccer/1.3.28 CFNetwork/3860.400.51 Darwin/25.3.0"
+LOCAL_GATE_KEY_SALT = "waSgu67gYhu234dRft56dTfy890rtyr8cXrtuh98yhHfai3erhcFa"
+DEFAULT_WEBSOCCER_CONTAINER = Path.home() / "Library/Containers/jp.novelapproach.WebSoccer/Data"
 DEFAULT_WSC_DATA = Path(__file__).resolve().parents[2] / "wsc_data"
 DEFAULT_MATCH_ROOTS = [
     DEFAULT_WSC_DATA / "CC_match_result_json",
@@ -43,6 +48,16 @@ class AuthHeaders:
     cookie: str
     gate_key: str
     user_agent: str
+    local_team_id: str = ""
+    local_uuid: str = ""
+    local_salt: str = LOCAL_GATE_KEY_SALT
+
+    def current_gate_key(self) -> str:
+        if not self.local_team_id or not self.local_uuid:
+            return self.gate_key
+        ms = str(int(time.time() * 1000))
+        digest = hashlib.sha1((self.local_team_id + self.local_uuid + ms + self.local_salt).encode()).hexdigest()
+        return f"{self.local_team_id}:{ms}:{digest}"
 
 
 def parse_args() -> argparse.Namespace:
@@ -123,6 +138,36 @@ def session_files(match_root: Path) -> List[Path]:
         key=lambda p: p.stat().st_mtime,
         reverse=True,
     )
+
+
+def local_auth_from_container(container: Path = DEFAULT_WEBSOCCER_CONTAINER) -> Optional[AuthHeaders]:
+    container = container.expanduser().resolve()
+    plist_path = container / "Library/Preferences/jp.novelapproach.WebSoccer.plist"
+    sqlite_path = container / "Documents/Model/Model.sqlite"
+    try:
+        with plist_path.open("rb") as fh:
+            plist = plistlib.load(fh)
+        uuid = str(plist.get("UUID") or "").strip()
+        if not uuid:
+            return None
+        con = sqlite3.connect(f"file:{sqlite_path}?mode=ro", uri=True)
+        try:
+            cur = con.cursor()
+            cols = [row[1] for row in cur.execute("pragma table_info(ZMOTEAMDATA)")]
+            row = cur.execute("select * from ZMOTEAMDATA limit 1").fetchone()
+        finally:
+            con.close()
+        if not row:
+            return None
+        data = dict(zip(cols, row))
+        team_id = str(data.get("ZTEAM_ID") or "").strip()
+        if not team_id.isdigit():
+            return None
+        auth = AuthHeaders(cookie="", gate_key="", user_agent=UA_FALLBACK, local_team_id=team_id, local_uuid=uuid)
+        auth.gate_key = auth.current_gate_key()
+        return auth
+    except Exception:
+        return None
 
 
 def resolve_match_root(raw: str) -> Path:
@@ -275,11 +320,12 @@ def extract_summary_tails_from_session_files(files: Sequence[Path]) -> List[str]
 
 def request_json(path: str, auth: AuthHeaders, timeout_sec: float) -> Tuple[bool, dict | str]:
     url = f"https://{API_HOST}{path}"
+    gate_key = auth.current_gate_key()
     req = urllib.request.Request(
         url,
         headers={
             "Accept": "*/*",
-            "Websoccer-gate-key": auth.gate_key,
+            "Websoccer-gate-key": gate_key,
             "User-Agent": auth.user_agent or UA_FALLBACK,
             "Accept-Language": "en-US,en;q=0.9",
             "Connection": "keep-alive",

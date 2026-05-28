@@ -11,12 +11,14 @@ from typing import Iterable, Sequence
 
 from fetch_cc_all_worlds_completed import (
     API_HOST,
+    DEFAULT_WEBSOCCER_CONTAINER,
     DEFAULT_MATCH_ROOT,
     AuthHeaders,
     extract_auth_from_session_files,
     extract_summary_tails_from_session_files,
     is_completed_row,
     iter_match_rows,
+    local_auth_from_container,
     parse_worlds,
     request_json,
     session_files,
@@ -34,6 +36,13 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Fetch completed CC group-league and tournament summaries.")
     p.add_argument("--match-root", default=str(DEFAULT_MATCH_ROOT), help=f"CC JSON root (default: {DEFAULT_MATCH_ROOT})")
     p.add_argument("--session-file", default="", help="Specific Charles .chlsx/.chlsj/.chlz session")
+    p.add_argument(
+        "--auth-source",
+        choices=("auto", "local", "session"),
+        default="auto",
+        help="API auth source. auto prefers local generated gate-key and falls back to Charles session.",
+    )
+    p.add_argument("--websoccer-container", default=str(DEFAULT_WEBSOCCER_CONTAINER))
     p.add_argument("--team-id", default="", help="Team ID. Default: infer from gate-key prefix")
     p.add_argument("--worlds", default="1-21", help='World range/list, e.g. "1-21" or "1,2,20"')
     p.add_argument("--season", type=int, default=1, help="Season selector: 0=current, 1=previous")
@@ -165,6 +174,13 @@ def fetch_summary(target: MatchTarget, tails: Sequence[str], auth: AuthHeaders, 
 
 
 def resolve_auth(args: argparse.Namespace, match_root: Path) -> tuple[AuthHeaders, list[Path]]:
+    if args.auth_source in {"auto", "local"}:
+        auth = local_auth_from_container(Path(args.websoccer_container))
+        if auth:
+            return auth, []
+        if args.auth_source == "local":
+            raise RuntimeError("could not generate WebSoccer gate-key from local profile")
+
     files = [Path(args.session_file).expanduser().resolve()] if args.session_file else session_files(match_root)
     if not files:
         raise RuntimeError("no .chlsx/.chlsj/.chlz files found")
@@ -191,7 +207,7 @@ def main() -> int:
     match_root.mkdir(parents=True, exist_ok=True)
     auth, files = resolve_auth(args, match_root)
 
-    team_id = (args.team_id or auth.gate_key.split(":", 1)[0]).strip()
+    team_id = (args.team_id or auth.local_team_id or auth.gate_key.split(":", 1)[0]).strip()
     if not team_id.isdigit():
         print(f"[ERROR] invalid team_id: {team_id}", file=sys.stderr)
         return 2
@@ -200,6 +216,7 @@ def main() -> int:
     groups = parse_int_set(args.groups)
     tails = [args.summary_tail] if args.summary_tail else (extract_summary_tails_from_session_files(files) or ["1", "0"])
 
+    print(f"[INFO] auth source: {'local' if auth.local_team_id else 'session'}")
     print(f"[INFO] session files: {len(files)}")
     print(f"[INFO] team_id: {team_id}")
     print(f"[INFO] season: {args.season}")

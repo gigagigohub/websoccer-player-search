@@ -76,6 +76,7 @@ cat "$validate_out"
 if ! grep -q '^\[FOUND\]' "$validate_out"; then
   log "latest core-data validation did not return rows; attempting fresh auth capture"
   python3 scripts/run_cc_update_pipeline.py \
+    --auth-source session \
     --season 0 \
     --quit-first \
     --auto-navigate-websoccer \

@@ -14,9 +14,11 @@ Use this for the normal previous-season CC update:
 python3 scripts/run_cc_update_pipeline.py --commit-push
 ```
 
-The script launches Charles and WebSoccer, waits for a newly saved Charles session containing
-`Websoccer-gate-key`, fetches CC data, updates WSM, regenerates site JSON, then commits and pushes
-the generated site changes. After the run finishes, it quits Charles and WebSoccer.
+As of 2026-05-28, the normal path no longer needs Charles/WebSoccer startup. The pipeline first
+generates `Websoccer-gate-key` locally from the saved WebSoccer profile and validates it with a
+lightweight CC API check, then fetches CC data, updates WSM, regenerates site JSON, and optionally
+commits/pushes the generated site changes. Charles capture remains as a fallback when
+`--auth-source auto` is used and local auth cannot be generated or validated.
 
 Use `--season 0` when the target is the current season instead of the previous season.
 
@@ -43,6 +45,9 @@ That wrapper calls:
 python3 scripts/run_cc_update_pipeline.py --season 0 --commit-push --quit-first --auto-navigate-websoccer --wait-sec 900 --notify-pushover --reuse-valid-session
 ```
 
+Those capture-related flags are now mostly fallback settings; a valid local profile should make the
+job skip Charles/WebSoccer launch and proceed directly to API fetch.
+
 Logs are written to:
 
 ```text
@@ -50,11 +55,11 @@ Logs are written to:
 ~/Library/Logs/websoccer-player-search/weekly-cc-update.err.log
 ```
 
-For fully unattended key capture, the Mac must be logged in with GUI automation available, and
+For fallback unattended key capture, the Mac must be logged in with GUI automation available, and
 Charles must be able to save the captured session automatically or via its Web Interface. Charles
 supports headless mode and a Web Interface for recording/session control; it also has an Auto Save
-tool for periodic session saving. If Auto Save is not enabled, the scheduled job may wait for a
-saved session until `--wait-sec` expires.
+tool for periodic session saving. If Auto Save is not enabled and local auth fails, the scheduled
+job may wait for a saved session until `--wait-sec` expires.
 
 Charles Auto Save is configured on this Mac as:
 
@@ -96,10 +101,16 @@ Persistent setup expected on this Mac:
 When the script prints `[ACTION]`, do this:
 
 1. In Webサッカー, press `START`.
-2. Close the notice with `OK`.
-3. Open `チャンピオンズカップ`.
-4. After the CC screen loads, stop Charles Recording.
-5. Save the Charles session as `.chlz` under `/Users/gigagigo/charles_sessions`.
+2. If the daily login bonus appears, close it.
+3. Close the notice with `OK`.
+4. Open `チャンピオンズカップ`.
+5. After the CC screen loads, stop Charles Recording.
+6. Save the Charles session as `.chlz` under `/Users/gigagigo/charles_sessions`.
+
+The app day rolls over at 04:00 JST. Because maintenance effectively blocks early access, the first
+login after 07:00 JST can show the login bonus before notices and CC navigation. The
+`--auto-navigate-websoccer` path treats the login bonus and notices as optional startup popups and
+clicks through them when they appear.
 
 The script continues automatically after the saved file contains `Websoccer-gate-key`.
 
@@ -117,10 +128,23 @@ python3 scripts/run_cc_update_pipeline.py --commit-push --keep-apps-open
 
 ## Useful Checks
 
+Check the local generated gate-key path without fetching summaries:
+
+```bash
+python3 scripts/run_cc_update_pipeline.py \
+  --auth-source local \
+  --season 0 \
+  --worlds 10 \
+  --groups 0 \
+  --round-max 2 \
+  --dry-run-fetch
+```
+
 Check only whether the latest saved session can be used:
 
 ```bash
 python3 scripts/run_cc_update_pipeline.py \
+  --auth-source session \
   --skip-capture \
   --session-dir /Users/gigagigo/charles_sessions \
   --worlds 10 \
@@ -133,6 +157,7 @@ Use a specific session file:
 
 ```bash
 python3 scripts/run_cc_update_pipeline.py \
+  --auth-source session \
   --skip-capture \
   --session-file /Users/gigagigo/charles_sessions/websoccer_cc_ssl_ok_20260527_2131.chlz \
   --worlds 10 \
@@ -197,11 +222,12 @@ python3 scripts/watch_updatefile_and_refresh_site.py --commit-push
 That watcher downloads new `UpdateFile/pXXX.zip` archives when available, copies site images,
 rebuilds the WSM/site JSON, then commits and pushes intentional site changes.
 
-`Update_core_data` is tracked separately because it requires fresh Websoccer-gate-key / Cookie /
-User-Agent capture from Charles/Webサッカー. Local snapshots live under
+`Update_core_data` is tracked separately from UpdateFile. It now uses the same local generated
+`Websoccer-gate-key` path by default, with Charles session auth available as a fallback. Local
+snapshots live under
 `/Users/gigagigo/Documents/Codex/wsc_data/update_core_data_*`.
 
-Use this to verify that a Charles session has API auth without printing the values:
+Use this to verify that local generated API auth is available without printing the values:
 
 ```bash
 python3 scripts/fetch_update_core_data.py --auth-check
@@ -224,6 +250,7 @@ If no fresh auth exists, capture it first:
 
 ```bash
 python3 scripts/run_cc_update_pipeline.py \
+  --auth-source session \
   --season 0 \
   --quit-first \
   --auto-navigate-websoccer \

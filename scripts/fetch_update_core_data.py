@@ -11,7 +11,14 @@ import urllib.request
 from pathlib import Path
 from typing import Iterable, Optional, Sequence
 
-from fetch_cc_all_worlds_completed import API_HOST, UA_FALLBACK, AuthHeaders, _iter_tx_from_session
+from fetch_cc_all_worlds_completed import (
+    API_HOST,
+    DEFAULT_WEBSOCCER_CONTAINER,
+    UA_FALLBACK,
+    AuthHeaders,
+    _iter_tx_from_session,
+    local_auth_from_container,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -26,6 +33,13 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--core-root", default=str(DEFAULT_CORE_ROOT), help="Directory containing update_core_data_* folders")
     p.add_argument("--session-dir", default=str(DEFAULT_SESSION_DIR))
     p.add_argument("--session-file", default="")
+    p.add_argument(
+        "--auth-source",
+        choices=("auto", "local", "session"),
+        default="auto",
+        help="API auth source. auto prefers local generated gate-key and falls back to Charles session.",
+    )
+    p.add_argument("--websoccer-container", default=str(DEFAULT_WEBSOCCER_CONTAINER))
     p.add_argument("--ids", default="", help='Explicit player ids, e.g. "3211-3220" or "3211,3212"')
     p.add_argument("--start-id", type=int, default=0, help="First id to probe. Default: latest local core id + 1")
     p.add_argument("--max-id", type=int, default=0, help="Last id to probe. Default: start-id + 49")
@@ -83,12 +97,13 @@ def extract_api_auth_from_session_files(files: Sequence[Path]) -> Optional[AuthH
 
 
 def request_json(path: str, auth: AuthHeaders, timeout_sec: float) -> tuple[bool, dict | str]:
+    gate_key = auth.current_gate_key()
     req = urllib.request.Request(
         f"https://{API_HOST}{path}",
         headers={
             "Accept": "*/*",
             "expire": "",
-            "Websoccer-gate-key": auth.gate_key,
+            "Websoccer-gate-key": gate_key,
             "User-Agent": auth.user_agent or UA_FALLBACK,
             "Accept-Language": "en-US,en;q=0.9",
             "Connection": "keep-alive",
@@ -140,12 +155,23 @@ def merge_unique(rows: list[dict], key: str) -> list[dict]:
 def main() -> int:
     args = parse_args()
     core_root = Path(args.core_root).expanduser().resolve()
-    files = [Path(args.session_file).expanduser().resolve()] if args.session_file else newest_session_files(
-        Path(args.session_dir).expanduser().resolve()
-    )
-    auth = extract_api_auth_from_session_files(files)
+    auth: Optional[AuthHeaders] = None
+    if args.auth_source in {"auto", "local"}:
+        auth = local_auth_from_container(Path(args.websoccer_container).expanduser())
+        if auth:
+            print("[INFO] auth source: local")
+        elif args.auth_source == "local":
+            print("[ERROR] could not generate WebSoccer API auth from local profile")
+            return 2
     if not auth:
-        print("[ERROR] could not extract WebSoccer API auth from Charles sessions")
+        files = [Path(args.session_file).expanduser().resolve()] if args.session_file else newest_session_files(
+            Path(args.session_dir).expanduser().resolve()
+        )
+        auth = extract_api_auth_from_session_files(files)
+        if auth:
+            print("[INFO] auth source: session")
+    if not auth:
+        print("[ERROR] could not resolve WebSoccer API auth")
         return 2
     if args.auth_check:
         print(
