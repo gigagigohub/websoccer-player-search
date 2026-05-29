@@ -599,6 +599,7 @@ def import_manual_truth(
     coaches = json.loads(coaches_data_json.read_text(encoding="utf-8"))
 
     players = app.get("players") or []
+    model_rows = {}
     for p in players:
         pid = int(p.get("id") or 0)
         if pid <= 0:
@@ -640,6 +641,31 @@ def import_manual_truth(
                 str(app_data_json),
                 now_jst_iso(),
             ),
+        )
+
+        model_name = str(p.get("modelPlayer") or "")
+        model_source_method = str(p.get("modelPlayerSourceMethod") or "")
+        model_notes = str(p.get("modelPlayerSourceNote") or "")
+        model_manual = 1 if p.get("modelPlayerManual") else 0
+        if model_name or model_source_method or model_notes or model_manual:
+            model_rows[canonical_person_id] = (
+                canonical_person_id,
+                model_name,
+                str(p.get("url") or ""),
+                model_source_method or "manual_update",
+                model_manual,
+                model_notes,
+                now_jst_iso(),
+            )
+
+    for row in sorted(model_rows.values(), key=lambda r: r[0]):
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO manual_player_model
+            (person_id, model_name, source_url, source_method, is_manual, notes, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            row,
         )
 
     for s in app.get("scouts") or []:
