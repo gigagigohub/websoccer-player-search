@@ -96,18 +96,23 @@ def default_product_sqlite() -> Path:
     return Path.home() / "Desktop" / "app original" / "Payload" / "Webサッカー.app" / "Product.sqlite"
 
 
+def default_out_db() -> Path:
+    out_dir = Path.home() / "Desktop" / "websoccer_master_db"
+    stamp = datetime.now(JST).strftime("%y%m%d%H%M")
+    out = out_dir / f"wsm_{stamp}.sqlite3"
+    if not out.exists():
+        return out
+    stamp = datetime.now(JST).strftime("%y%m%d%H%M%S")
+    return out_dir / f"wsm_{stamp}.sqlite3"
+
+
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
         description="Build unified WebSoccer master SQLite DB from CC DB + Product.sqlite + UpdateFile zips + manual truth."
     )
     p.add_argument(
         "--out-db",
-        default=str(
-            Path.home()
-            / "Desktop"
-            / "websoccer_master_db"
-            / f"wsm_{datetime.now(JST).strftime('%y%m%d%H%M')}.sqlite3"
-        ),
+        default=str(default_out_db()),
     )
     p.add_argument(
         "--cc-db",
@@ -143,7 +148,7 @@ def now_jst_iso() -> str:
 def connect(path: Path) -> sqlite3.Connection:
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists():
-        path.unlink()
+        raise FileExistsError(f"output DB already exists: {path}")
     conn = sqlite3.connect(str(path))
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL;")

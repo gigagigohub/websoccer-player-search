@@ -281,6 +281,11 @@ def build_master_db(
     stamp = datetime.now(JST).strftime("%y%m%d%H%M")
     wsm_dir.mkdir(parents=True, exist_ok=True)
     out_db = wsm_dir / f"wsm_{stamp}.sqlite3"
+    if out_db.exists():
+        stamp = datetime.now(JST).strftime("%y%m%d%H%M%S")
+        out_db = wsm_dir / f"wsm_{stamp}.sqlite3"
+    if out_db.exists():
+        raise FileExistsError(f"output WSM already exists: {out_db}")
     run(
         [
             sys.executable,
@@ -317,12 +322,9 @@ def copy_latest_wsm_to_desktop(out_db: Path, desktop_wsm_dir: Path) -> Path:
 
 
 def cleanup_wsm_files(local_dir: Path, desktop_dir: Path) -> None:
-    local_files = sorted(local_dir.glob("wsm_*.sqlite3"), key=lambda p: (p.name, p.stat().st_mtime))
-    for old in local_files[:-3]:
-        old.unlink()
-    desktop_files = sorted(desktop_dir.glob("wsm_*.sqlite3"), key=lambda p: (p.name, p.stat().st_mtime))
-    for old in desktop_files[:-1]:
-        old.unlink()
+    # WSM files are immutable backups. Keep every dated wsm_*.sqlite3 unless
+    # the user explicitly requests manual cleanup outside this automation.
+    return None
 
 
 def refresh_site(

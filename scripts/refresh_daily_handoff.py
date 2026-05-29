@@ -11,6 +11,7 @@ from zoneinfo import ZoneInfo
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DATA_ROOT = REPO_ROOT.parent / "wsc_data"
 HANDOFF_PATH = REPO_ROOT / "docs" / "daily_handoff.md"
+HANDOFF_NOTES_PATH = REPO_ROOT / "docs" / "daily_handoff_notes.md"
 LOG_DIR = Path.home() / "Library" / "Logs" / "websoccer-player-search"
 LAUNCH_AGENTS = Path.home() / "Library" / "LaunchAgents"
 AUTOMATIONS = Path.home() / ".codex" / "automations"
@@ -67,6 +68,13 @@ def last_log_lines(path: Path, markers: tuple[str, ...], limit: int = 8) -> list
 
 def fenced_or_none(text: str) -> str:
     return text if text else "(clean)"
+
+
+def handoff_notes() -> str:
+    if not HANDOFF_NOTES_PATH.exists():
+        return "- No persistent chat notes yet."
+    text = HANDOFF_NOTES_PATH.read_text(encoding="utf-8").strip()
+    return text if text else "- No persistent chat notes yet."
 
 
 def main() -> int:
@@ -173,6 +181,12 @@ python3 scripts/install_updatefile_and_core_data_launch_agent.py
 - Update_core_data:
   - Latest local snapshot: `{latest_matching(DATA_ROOT, "update_core_data_*")}`.
   - New ids should be treated as absent when the latest known id validates and the next ids return HTTP 500.
+
+## Persistent Chat Notes
+
+These notes are maintained in `docs/daily_handoff_notes.md` and are preserved across automatic refreshes.
+
+{handoff_notes()}
 
 ## Unresolved Issues
 

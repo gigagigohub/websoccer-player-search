@@ -34,8 +34,8 @@ def parse_args() -> argparse.Namespace:
         default=0,
         help="CC season to import. Default: latest season found in JSON.",
     )
-    p.add_argument("--keep-local", type=int, default=3, help="How many local wsm_*.sqlite3 files to keep")
-    p.add_argument("--keep-desktop", type=int, default=1, help="How many desktop wsm_*.sqlite3 files to keep")
+    p.add_argument("--keep-local", type=int, default=0, help="How many local wsm_*.sqlite3 files to keep; 0 disables cleanup")
+    p.add_argument("--keep-desktop", type=int, default=0, help="How many desktop wsm_*.sqlite3 files to keep; 0 disables cleanup")
     p.add_argument("--no-cleanup", action="store_true", help="Do not remove older WSM files")
     p.add_argument(
         "--skip-site-update",
@@ -454,21 +454,9 @@ def copy_to_desktop(out_db: Path, desktop_dir: Path) -> Path:
 
 
 def cleanup_wsm_files(directory: Path, keep: int) -> list[Path]:
-    if keep <= 0 or not directory.exists():
-        return []
-    files = [p for p in directory.glob("wsm_*.sqlite3") if is_main_wsm(p)]
-    files = sorted(files, key=wsm_sort_key, reverse=True)
-    kept_names = {p.name for p in files[:keep]}
-    removed: list[Path] = []
-    for path in files[keep:]:
-        path.unlink()
-        removed.append(path)
-    for sidecar in list(directory.glob("wsm_*.sqlite3-wal")) + list(directory.glob("wsm_*.sqlite3-shm")):
-        base_name = sidecar.name.rsplit("-", 1)[0]
-        if base_name not in kept_names:
-            sidecar.unlink()
-            removed.append(sidecar)
-    return removed
+    # WSM files are immutable backups. Keep every dated wsm_*.sqlite3 unless
+    # the user explicitly requests manual cleanup outside this automation.
+    return []
 
 
 def update_site_json(repo_dir: Path, master_db: Path, season: int, out_app_dir: Path) -> None:
@@ -522,7 +510,7 @@ def main() -> int:
     desktop_copy = copy_to_desktop(out_db, desktop_dir)
     removed_local: list[Path] = []
     removed_desktop: list[Path] = []
-    if not args.no_cleanup:
+    if not args.no_cleanup and (args.keep_local > 0 or args.keep_desktop > 0):
         removed_local = cleanup_wsm_files(local_dir, args.keep_local)
         removed_desktop = cleanup_wsm_files(desktop_dir, args.keep_desktop)
 

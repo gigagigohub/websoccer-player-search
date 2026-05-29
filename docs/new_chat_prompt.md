@@ -15,6 +15,7 @@ Start by running:
 ```bash
 git status --short
 sed -n '1,220p' docs/daily_handoff.md
+sed -n '1,220p' docs/daily_handoff_notes.md
 sed -n '1,260p' docs/cc_update_runbook.md
 ```
 
@@ -25,6 +26,8 @@ sed -n '1,260p' docs/cc_update_runbook.md
 - Do not use `git add .`; stage only intentional files.
 - Put one-off analysis HTML/CSV/notebook outputs under `app/prepared/local/`, `local/`, `tmp/`, or `artifacts/`.
 - Use `docs/git_hygiene.md` when deciding whether an artifact should be committed or kept local.
+- `docs/daily_handoff.md` is auto-generated. Add durable chat findings, workflow decisions, and unresolved investigations to `docs/daily_handoff_notes.md`; the daily refresh includes that file.
+- During each chat, append durable findings to `docs/daily_handoff_notes.md` as soon as they become clear. Prefer `python3 scripts/append_daily_handoff_note.py --section "<section>" --note "<note>"` for single-note additions.
 - Quit Charles and Webサッカー after workflows that launched them, unless debugging requires leaving them open.
 
 ## Standard Commands
