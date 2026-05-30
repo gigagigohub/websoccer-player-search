@@ -6,6 +6,7 @@ const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOi
 const APP_UPDATED_AT_JST = "2026-03-30 23:10 JST";
 const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-player-search/commits/main";
 const ROHM_SLOT_DATA_URL = "./rohm_slot_data.json?v=20260510-rohm-peak-avg";
+const V4_CLEAN_UNIFORM_DATA_URL = "./v4_clean_uniform_data.json?v=20260531-tpi-player-effect";
 const CC_AVG_MIN_USES = 15;
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 let ccDataMeta = null;
@@ -123,6 +124,7 @@ let cloudConfig = { url: "", anonKey: "", lineupKey: "" };
 let formations = [];
 let coaches = [];
 let coachesMeta = [];
+let v4CleanUniformData = { matchPower: {} };
 let playerCategoryById = new Map();
 let playerRateById = new Map();
 let playersById = new Map();
@@ -542,6 +544,27 @@ function signedFixed(v, digits = 2) {
   const n = Number(v);
   if (!Number.isFinite(n)) return "-";
   return `${n >= 0 ? "+" : ""}${n.toFixed(digits)}`;
+}
+
+function clampNumber(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function calcTopTeamPowerIndex(team, formation) {
+  const gdi = Number(team?.goalDifferenceIndex);
+  if (!Number.isFinite(gdi)) return Number(team?.teamPowerIndex);
+  const model = v4CleanUniformData?.matchPower || {};
+  const slope = Number(model?.slope);
+  if (!Number.isFinite(slope)) return Number(team?.teamPowerIndex);
+  const formationId = Number(team?.formationId || formation?.id || 0);
+  const coachId = Number(team?.coach?.id || 0);
+  const formationMap = model?.formationWinConversion || {};
+  const coachMap = model?.coachWinConversion || {};
+  const formationConversion = Number(formationMap?.[String(formationId)] ?? formationMap?.[formationId] ?? 0) || 0;
+  const coachConversion = Number(coachMap?.[String(coachId)] ?? coachMap?.[coachId] ?? 0) || 0;
+  const baseMatchPower = clampNumber(slope * gdi, -0.95, 0.95);
+  const matchPower = clampNumber(baseMatchPower + formationConversion + coachConversion, -1, 1);
+  return 50 + 50 * matchPower;
 }
 
 function goalsPer7(v) {
@@ -1153,7 +1176,7 @@ function renderBestTeam(formation) {
   const goalDiff = Number(team?.goalDiff || 0);
   const goalsFor = Number(team?.goalsFor || 0);
   const goalsAgainst = Number(team?.goalsAgainst || 0);
-  const teamPowerIndex = Number(team?.teamPowerIndex);
+  const teamPowerIndex = calcTopTeamPowerIndex(team, formation);
   const finish = String(team?.finish || "-");
   const finishDisplay = finish === "1" ? "Champion" : finish;
   const coach = team?.coach || {};
@@ -2467,11 +2490,12 @@ async function init() {
   buildSortOptions();
   bindEvents();
 
-  const [formationsRes, playersRes, coachesMetaRes] = await Promise.all([
+  const [formationsRes, playersRes, coachesMetaRes, _siteMetaRes, v4CleanUniformRes] = await Promise.all([
     fetch("./formations_data.json?v=20260524-cc2626"),
     fetch("./data.json?v=20260524-cc2626").catch(() => null),
     fetch("./coaches_data.json?v=20260524-cc2626").catch(() => null),
     loadSiteMeta(),
+    fetch(V4_CLEAN_UNIFORM_DATA_URL).catch(() => null),
   ]);
   const formationData = await formationsRes.json();
   formations = Array.isArray(formationData.formations) ? formationData.formations : [];
@@ -2480,6 +2504,14 @@ async function init() {
     try {
       const raw = await coachesMetaRes.json();
       coachesMeta = Array.isArray(raw?.coaches) ? raw.coaches : [];
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+  if (v4CleanUniformRes && v4CleanUniformRes.ok) {
+    try {
+      const raw = await v4CleanUniformRes.json();
+      v4CleanUniformData = { matchPower: raw?.matchPower || {} };
     } catch (e) {
       console.warn(e);
     }

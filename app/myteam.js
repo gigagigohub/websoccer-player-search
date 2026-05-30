@@ -167,7 +167,7 @@ let myTeamSlotNames = Object.fromEntries(
 const cardViewModeById = new Map();
 let formations = [];
 let coaches = [];
-let v4CleanUniformData = { meta: {}, formationPower: {}, coachPower: {}, formationSlotExpectedPts: {}, weights: {}, matchPower: {} };
+let v4CleanUniformData = { meta: {}, formationPower: {}, coachPower: {}, playerEffect: {}, formationSlotExpectedPts: {}, weights: {}, matchPower: {} };
 let latestRenderedTeamTpi = null;
 let myTeamPlayerById = new Map();
 let v4PointContext = null;
@@ -1250,11 +1250,17 @@ function lookupFormationSlotExpected(formationSlotExpected, formationId, slotNo)
   return 0;
 }
 
+function lookupV4PlayerEffect(playerEffectById, playerId) {
+  const direct = Number(playerEffectById?.[String(Number(playerId))] ?? playerEffectById?.[Number(playerId)]);
+  return Number.isFinite(direct) ? direct : null;
+}
+
 function calcTeamV4CleanUniformIndex({
   formationId,
   headcoachId,
   slotPlayerIds,
   playerPointById,
+  playerEffectById = {},
   formationKeySlots,
   formationPower,
   formationSlotExpected = {},
@@ -1296,7 +1302,8 @@ function calcTeamV4CleanUniformIndex({
     }
     const playerPoint = asFiniteNumber(playerPointById[playerId], `playerPointById[${playerId}]`);
     const slotExpectedPoint = lookupFormationSlotExpected(formationSlotExpected, formationId, slotNo);
-    const adjustedPoint = playerPoint - slotExpectedPoint;
+    const modelPlayerEffect = lookupV4PlayerEffect(playerEffectById, playerId);
+    const adjustedPoint = modelPlayerEffect == null ? playerPoint - slotExpectedPoint : modelPlayerEffect;
     const contribution = appliedSlotWeight * adjustedPoint;
     starting11PointSum += playerPoint;
     starting11AdjustedSum += adjustedPoint;
@@ -1306,6 +1313,7 @@ function calcTeamV4CleanUniformIndex({
       playerPoint,
       slotExpectedPoint,
       adjustedPoint,
+      adjustedPointSource: modelPlayerEffect == null ? "point-minus-slot" : "model-player-effect",
       weight: appliedSlotWeight,
       contribution,
       isKeyslot: keySlotNumbers.has(slotNo),
@@ -1322,7 +1330,8 @@ function calcTeamV4CleanUniformIndex({
       const playerId = Number(slotPlayerIds[slotNo]);
       const playerPoint = asFiniteNumber(playerPointById[playerId], `playerPointById[${playerId}]`);
       const slotExpectedPoint = lookupFormationSlotExpected(formationSlotExpected, formationId, slotNo);
-      const adjustedPoint = playerPoint - slotExpectedPoint;
+      const modelPlayerEffect = lookupV4PlayerEffect(playerEffectById, playerId);
+      const adjustedPoint = modelPlayerEffect == null ? playerPoint - slotExpectedPoint : modelPlayerEffect;
       const contribution = appliedKeyWeight * adjustedPoint;
       keyslotPointSum += playerPoint;
       keyslotAdjustedSum += adjustedPoint;
@@ -1333,6 +1342,7 @@ function calcTeamV4CleanUniformIndex({
         playerPoint,
         slotExpectedPoint,
         adjustedPoint,
+        adjustedPointSource: modelPlayerEffect == null ? "point-minus-slot" : "model-player-effect",
         weight: appliedKeyWeight,
         contribution,
       };
@@ -1425,6 +1435,7 @@ function buildMyTeamV4CleanUniformInput() {
       headcoachId: selectedCoach?.coachId == null ? null : Number(selectedCoach.coachId),
       slotPlayerIds,
       playerPointById,
+      playerEffectById: v4CleanUniformData?.playerEffect || {},
       formationKeySlots: selectedFormationKeySlotLookup(),
       formationPower: v4CleanUniformData?.formationPower || {},
       formationSlotExpected: v4CleanUniformData?.formationSlotExpectedPts || {},
@@ -4212,6 +4223,7 @@ async function init() {
         meta: raw?.meta || {},
         formationPower: raw?.formationPower || {},
         coachPower: raw?.coachPower || {},
+        playerEffect: raw?.playerEffect || {},
         formationSlotExpectedPts: raw?.formationSlotExpectedPts || {},
         globalAvg: raw?.globalAvg,
         weights: raw?.weights || {},
@@ -4220,7 +4232,7 @@ async function init() {
         matchPower: raw?.matchPower || {},
       };
     } catch (_) {
-      v4CleanUniformData = { meta: {}, formationPower: {}, coachPower: {}, formationSlotExpectedPts: {}, weights: {}, matchPower: {} };
+      v4CleanUniformData = { meta: {}, formationPower: {}, coachPower: {}, playerEffect: {}, formationSlotExpectedPts: {}, weights: {}, matchPower: {} };
     }
   }
   if (ccRangeRes && ccRangeRes.ok) {

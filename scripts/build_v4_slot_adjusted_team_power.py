@@ -1094,6 +1094,7 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
         "diagnostics": {key: round(float(value), 8) for key, value in model["diagnostics"].items()},  # type: ignore[union-attr]
         "metrics": {key: round(float(value), 6) for key, value in metrics.items()},
         "globalAvg": round(effects.global_avg, 6),
+        "playerEffect": rounded_mapping(effects.player_effect, 6),
         "formationSlotExpectedPts": rounded_mapping(formation_slot_expected, 6),
         "formationSlotSourceCounts": rounded_mapping({f"{fid}:{slot}": count for (fid, slot), count in effects.formation_slot_counts.items()}, 0),
         "formationPower": rounded_mapping(model["formationPower"], 6),  # type: ignore[arg-type]
