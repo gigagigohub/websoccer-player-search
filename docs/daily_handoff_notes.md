@@ -39,6 +39,7 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 
 ## Notifications
 
+- 2026-06-01: 通知系疎通テスト。notify_pushover.py の通常 env (~/.websoccer_pushover.env) 直送、handoff env (~/.handoff_pushover.env + HANDOFF_* vars) 直送、test_trade_pushover_notifications.py の trade 6パターン、watch_updatefile_and_refresh_site.notify の env fallback 経路はいずれも送信成功。run_cc_update_pipeline.py の通知フックは failure 通知送信は確認できたが、成功側 dry-run は事前の local gate-key CC API check が code=304 で止まり成功通知まで到達せず。capture-only + --skip-capture は auth_source=local でも最新 Charles session を見に行く挙動があるため、CC成功通知の疎通確認コマンドとしては使わない。
 - 2026-05-29: Pushover is configured through ~/.websoccer_pushover.env and must not be committed. Notification titles were standardized in English for CC/UpdateFile/core flows; message bodies may remain Japanese. Test notifications were delivered successfully.
 
 ## CC Update
