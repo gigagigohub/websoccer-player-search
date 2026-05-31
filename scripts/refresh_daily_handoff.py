@@ -124,7 +124,7 @@ git status --short
 - Avoid `git add .`; stage only intentional files.
 - Existing local scratch should go under `app/prepared/local/`, `local/`, `tmp/`, or `artifacts/`.
 - Follow `docs/git_hygiene.md` when deciding whether to commit or keep local.
-- Unattended LaunchAgent runs use `/Users/gigagigo/work/coding/websoccer-player-search`.
+- Unattended LaunchAgent runs use `{REPO_ROOT}`.
 
 ## Dirty Tree Summary
 
@@ -155,11 +155,11 @@ git status --short
 ## Important Commands
 
 ```bash
-python3 scripts/run_cc_update_pipeline.py --season 0 --commit-push --quit-first --auto-navigate-websoccer --wait-sec 900 --notify-pushover --reuse-valid-session
-python3 scripts/run_cc_update_pipeline.py --season 0 --quit-first --auto-navigate-websoccer --capture-only --wait-sec 180 --capture-warmup-sec 3
+python3 scripts/run_cc_update_pipeline.py --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current --auth-source local --skip-capture --season 0 --commit-push --notify-pushover
+python3 scripts/run_cc_update_pipeline.py --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current --auth-source local --skip-capture --season 0 --worlds 10 --groups 0 --round-max 1 --dry-run-fetch --skip-wsm-update
 python3 scripts/watch_updatefile_and_refresh_site.py --commit-push
-python3 scripts/fetch_update_core_data.py --auth-check
-python3 scripts/fetch_update_core_data.py --dry-run
+python3 scripts/fetch_update_core_data.py --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current --auth-check
+python3 scripts/fetch_update_core_data.py --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current --dry-run
 python3 scripts/install_daily_handoff_refresh_launch_agent.py
 python3 scripts/install_weekly_cc_update_launch_agent.py
 python3 scripts/install_updatefile_and_core_data_launch_agent.py

@@ -1,7 +1,7 @@
 #!/bin/zsh
 set -eu
 
-REPO_DIR="${WEBSOCCER_PLAYER_SEARCH_REPO:-/Users/gigagigo/Documents/Codex/websoccer-player-search}"
+REPO_DIR="${WEBSOCCER_PLAYER_SEARCH_REPO:-/Users/gigagigo/Codex/WebSoccer/websoccer-player-search}"
 SCRIPT_DIR="${0:A:h}"
 LOG_DIR="$HOME/Library/Logs/websoccer-player-search"
 LOCK_DIR="$HOME/Library/Application Support/websoccer-player-search/daily-handoff-refresh.lock"

@@ -8,7 +8,11 @@ Keep it near the scripts so future cleanup does not require reconstructing old i
 Use this entry point for normal CC updates:
 
 ```bash
-python3 scripts/run_cc_update_pipeline.py --commit-push
+python3 scripts/run_cc_update_pipeline.py \
+  --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current \
+  --auth-source local \
+  --skip-capture \
+  --commit-push
 ```
 
 Current active chain:
@@ -18,8 +22,8 @@ Current active chain:
 3. `update_wsm_cc_from_json.py`
 4. `update_site_from_master_db.py`
 
-`run_cc_update_pipeline.py` is responsible for Charles/WebSoccer capture, fresh key detection,
-fetch, WSM update, site update, git commit/push, and closing Charles/WebSoccer.
+`run_cc_update_pipeline.py` is responsible for local OpenAI-profile auth, fetch, WSM update,
+site update, and optional git commit/push. It must not launch Charles or WebSoccer.
 
 `fetch_cc_completed_season.py` is the canonical CC fetch implementation for completed
 group-league and tournament matches.
@@ -50,7 +54,7 @@ because older manual commands and chat history may still reference them.
 These scripts can be removed or moved to an archive after all conditions are true:
 
 1. `run_cc_update_pipeline.py --commit-push` has completed a real full CC update at least twice.
-2. Fresh Charles/WebSoccer key capture works from a new chat using `docs/cc_update_runbook.md`.
+2. Local OpenAI-profile auth works from a new chat using `docs/cc_update_runbook.md`.
 3. WSM update reports complete CC coverage for the target season.
 4. Site JSON generation and Top Teams verification pass.
 5. No docs, scheduled commands, shell history snippets, or Codex runbooks still call the compatibility-only scripts.
@@ -67,7 +71,7 @@ Recommended cleanup sequence:
 
 Verified on 2026-05-27:
 
-- `fetch_cc_completed_season.py` dry-run against saved Charles session worked.
+- `fetch_cc_completed_season.py` dry-run worked.
 - Small real fetch saved 21/21 JSON files with `code=000` for season `2626`, world `10`.
 - WSM/site verification completed for season `2626`.
 - Imported CC summary: `1323` matches, `21` worlds, `21` complete worlds.

@@ -3,7 +3,7 @@
 This runbook is the handoff for a fresh Codex chat. Work in:
 
 ```bash
-cd /Users/gigagigo/Documents/Codex/websoccer-player-search
+cd /Users/gigagigo/Codex/WebSoccer/websoccer-player-search
 ```
 
 ## One Command
@@ -11,14 +11,21 @@ cd /Users/gigagigo/Documents/Codex/websoccer-player-search
 Use this for the normal previous-season CC update:
 
 ```bash
-python3 scripts/run_cc_update_pipeline.py --commit-push
+python3 scripts/run_cc_update_pipeline.py --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current --commit-push
 ```
 
-As of 2026-05-28, the normal path no longer needs Charles/WebSoccer startup. The pipeline first
-generates `Websoccer-gate-key` locally from the saved WebSoccer profile and validates it with a
-lightweight CC API check, then fetches CC data, updates WSM, regenerates site JSON, and optionally
-commits/pushes the generated site changes. Charles capture remains as a fallback when
-`--auth-source auto` is used and local auth cannot be generated or validated.
+As of 2026-05-30, the normal CC/update_core_data/search auth source is fixed to the stored OpenAI
+profile:
+
+```text
+/Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current
+```
+
+The pipeline generates `Websoccer-gate-key` locally from that saved OpenAI profile and validates it
+with a lightweight CC API check, then fetches CC data, updates WSM, regenerates site JSON, and
+optionally commits/pushes the generated site changes. The default `--auth-source` is `local` so it
+does not silently fall back to another ACTIVE team. Use `--auth-source session` explicitly only for
+manual Charles fallback investigation.
 
 Use `--season 0` when the target is the current season instead of the previous season.
 
@@ -26,7 +33,7 @@ Use `--season 0` when the target is the current season instead of the previous s
 
 The installed launchd job runs every Sunday at 02:00 and fetches the current season.
 Codex cron automations are paused; launchd is the active scheduler for weekly CC, UpdateFile/core-data, and daily handoff refresh.
-Unattended runs use `/Users/gigagigo/work/coding/websoccer-player-search` as the working copy to
+Unattended runs use `/Users/gigagigo/Codex/WebSoccer/websoccer-player-search` as the working copy to
 avoid macOS Documents permission prompts:
 
 ```bash
@@ -42,11 +49,12 @@ scripts/run_weekly_cc_current_season_update.sh
 That wrapper calls:
 
 ```bash
-python3 scripts/run_cc_update_pipeline.py --season 0 --commit-push --quit-first --auto-navigate-websoccer --wait-sec 900 --notify-pushover --reuse-valid-session
+python3 scripts/run_cc_update_pipeline.py --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current --auth-source local --skip-capture --season 0 --commit-push --notify-pushover
 ```
 
-Those capture-related flags are now mostly fallback settings; a valid local profile should make the
-job skip Charles/WebSoccer launch and proceed directly to API fetch.
+The installed wrapper must pass the OpenAI profile explicitly and must use `--auth-source local
+--skip-capture`. Scheduled CC updates are not allowed to launch Charles or Webサッカー. Manual
+fallback investigation should be done outside this automation path.
 
 Logs are written to:
 
@@ -55,76 +63,26 @@ Logs are written to:
 ~/Library/Logs/websoccer-player-search/weekly-cc-update.err.log
 ```
 
-For fallback unattended key capture, the Mac must be logged in with GUI automation available, and
-Charles must be able to save the captured session automatically or via its Web Interface. Charles
-supports headless mode and a Web Interface for recording/session control; it also has an Auto Save
-tool for periodic session saving. If Auto Save is not enabled and local auth fails, the scheduled
-job may wait for a saved session until `--wait-sec` expires.
-
-Charles Auto Save is configured on this Mac as:
-
-- Enable Auto Save: on
-- Enable on startup: on
-- Save interval: 1 minute
-- Save to: `/Users/gigagigo/charles_sessions`
-- Save type: Charles Session (`.chlz`)
-
-Use this to test only the unattended capture path without fetching/updating data:
+Use this to test the scheduled local-auth path without updating WSM/site data:
 
 ```bash
 python3 scripts/run_cc_update_pipeline.py \
+  --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current \
+  --auth-source local \
+  --skip-capture \
   --season 0 \
-  --quit-first \
-  --auto-navigate-websoccer \
-  --capture-only \
-  --wait-sec 180
+  --worlds 10 \
+  --groups 0 \
+  --round-max 1 \
+  --dry-run-fetch \
+  --skip-wsm-update
 ```
 
-Verified unattended capture on 2026-05-27 with:
+## Charles / WebSoccer Capture
 
-- saved session: `/Users/gigagigo/charles_sessions/charles202605272256.chlz`
-- `Websoccer-gate-key`: present
-- current-season dry-run: world `10`, group `0`, round max `4`, completed group targets `6`
-
-## Charles / WebSoccer Capture Steps
-
-The key is treated as same-day/short-lived auth. Capture it fresh each time.
-
-Persistent setup expected on this Mac:
-
-- `/Applications/Charles.app`
-- `/Applications/Webサッカー.app`
-- Charles SSL Proxying includes `api.app.websoccer.jp`
-- Charles Root Certificate is trusted in the login keychain
-- Saved sessions go under `/Users/gigagigo/charles_sessions`
-
-When the script prints `[ACTION]`, do this:
-
-1. In Webサッカー, press `START`.
-2. If the daily login bonus appears, close it.
-3. Close the notice with `OK`.
-4. Open `チャンピオンズカップ`.
-5. After the CC screen loads, stop Charles Recording.
-6. Save the Charles session as `.chlz` under `/Users/gigagigo/charles_sessions`.
-
-The app day rolls over at 04:00 JST. Because maintenance effectively blocks early access, the first
-login after 07:00 JST can show the login bonus before notices and CC navigation. The
-`--auto-navigate-websoccer` path treats the login bonus and notices as optional startup popups and
-clicks through them when they appear.
-
-The script continues automatically after the saved file contains `Websoccer-gate-key`.
-
-If Charles or WebSoccer is stuck, rerun with:
-
-```bash
-python3 scripts/run_cc_update_pipeline.py --quit-first --commit-push
-```
-
-If you want to inspect Charles after the run, keep the apps open:
-
-```bash
-python3 scripts/run_cc_update_pipeline.py --commit-push --keep-apps-open
-```
+The CC/update_core_data automation no longer captures auth via Charles or Webサッカー. The pipeline
+does not contain any app-launch capture path. If local OpenAI profile auth fails, fix the stored
+profile/auth generator or investigate manually outside scheduled automation.
 
 ## Useful Checks
 
@@ -197,11 +155,10 @@ PUSHOVER_APP_TOKEN=...
 PUSHOVER_USER_KEY=...
 ```
 
-The weekly Codex automation passes `--notify-pushover --reuse-valid-session`. The pipeline first
-checks whether the newest Charles session passes a lightweight CC API check. It launches
-Charles/Webサッカー for fresh auth only when the existing session is missing or stale. If the
-Pushover file or variables are missing, the CC update still runs and only the notification is
-skipped.
+The weekly LaunchAgent passes `--auth-source local --skip-capture --notify-pushover`. It should use
+the stored OpenAI profile and should fail rather than launching Charles/Webサッカー if local auth
+breaks. If the Pushover file or variables are missing, the CC update still runs and only the
+notification is skipped.
 
 ## Git Hygiene
 
@@ -222,43 +179,32 @@ python3 scripts/watch_updatefile_and_refresh_site.py --commit-push
 That watcher downloads new `UpdateFile/pXXX.zip` archives when available, copies site images,
 rebuilds the WSM/site JSON, then commits and pushes intentional site changes.
 
-`Update_core_data` is tracked separately from UpdateFile. It now uses the same local generated
-`Websoccer-gate-key` path by default, with Charles session auth available as a fallback. Local
+`Update_core_data` is tracked separately from UpdateFile. It now uses the same OpenAI local generated
+`Websoccer-gate-key` path by default. Local
 snapshots live under
-`/Users/gigagigo/Documents/Codex/wsc_data/update_core_data_*`.
+`/Users/gigagigo/Codex/WebSoccer/wsc_data/update_core_data_*`.
 
 Use this to verify that local generated API auth is available without printing the values:
 
 ```bash
-python3 scripts/fetch_update_core_data.py --auth-check
+python3 scripts/fetch_update_core_data.py --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current --auth-check
 ```
 
 Auth presence alone is not enough. Validate the existing latest local core id explicitly; if it
 returns rows, the key is valid:
 
 ```bash
-python3 scripts/fetch_update_core_data.py --ids <latest-local-core-id> --dry-run
+python3 scripts/fetch_update_core_data.py --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current --ids <latest-local-core-id> --dry-run
 ```
 
 Use this to probe from the latest local core player id + 1 after validation:
 
 ```bash
-python3 scripts/fetch_update_core_data.py --dry-run
+python3 scripts/fetch_update_core_data.py --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current --dry-run
 ```
 
-If no fresh auth exists, capture it first:
-
-```bash
-python3 scripts/run_cc_update_pipeline.py \
-  --auth-source session \
-  --season 0 \
-  --quit-first \
-  --auto-navigate-websoccer \
-  --capture-only \
-  --wait-sec 180 \
-  --capture-warmup-sec 3
-```
-
-Then rerun `fetch_update_core_data.py` without `--dry-run` if new rows were found.
+If local auth fails, do not use Charles/Webサッカー fallback from automation. Fix the OpenAI stored
+profile auth path first. Then rerun `fetch_update_core_data.py` without `--dry-run` if new rows were
+found.
 
 For old CC scripts and future cleanup criteria, see `scripts/CC_LEGACY_README.md`.

@@ -25,6 +25,9 @@ from fetch_cc_all_worlds_completed import (
 )
 
 
+DEFAULT_OPENAI_AUTH_PROFILE = Path("/Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current")
+
+
 @dataclass(frozen=True, order=True)
 class MatchTarget:
     match_id: int
@@ -39,10 +42,14 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--auth-source",
         choices=("auto", "local", "session"),
-        default="auto",
-        help="API auth source. auto prefers local generated gate-key and falls back to Charles session.",
+        default="local",
+        help="API auth source. Default is local OpenAI profile auth; use session explicitly for Charles fallback.",
     )
-    p.add_argument("--websoccer-container", default=str(DEFAULT_WEBSOCCER_CONTAINER))
+    p.add_argument(
+        "--websoccer-container",
+        default=str(DEFAULT_OPENAI_AUTH_PROFILE if DEFAULT_OPENAI_AUTH_PROFILE.exists() else DEFAULT_WEBSOCCER_CONTAINER),
+        help="Profile Data directory used for local API auth. Default is the stored OpenAI profile.",
+    )
     p.add_argument("--team-id", default="", help="Team ID. Default: infer from gate-key prefix")
     p.add_argument("--worlds", default="1-21", help='World range/list, e.g. "1-21" or "1,2,20"')
     p.add_argument("--season", type=int, default=1, help="Season selector: 0=current, 1=previous")

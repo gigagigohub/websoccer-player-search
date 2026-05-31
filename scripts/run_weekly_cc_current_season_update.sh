@@ -1,7 +1,7 @@
 #!/bin/zsh
 set -eu
 
-REPO_DIR="${WEBSOCCER_PLAYER_SEARCH_REPO:-/Users/gigagigo/Documents/Codex/websoccer-player-search}"
+REPO_DIR="${WEBSOCCER_PLAYER_SEARCH_REPO:-/Users/gigagigo/Codex/WebSoccer/websoccer-player-search}"
 LOG_DIR="$HOME/Library/Logs/websoccer-player-search"
 LOCK_DIR="$HOME/Library/Application Support/websoccer-player-search/weekly-cc.lock"
 
@@ -18,11 +18,10 @@ cd "$REPO_DIR"
 
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] weekly current-season CC update start"
 python3 scripts/run_cc_update_pipeline.py \
+  --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current \
+  --auth-source local \
+  --skip-capture \
   --season 0 \
   --commit-push \
-  --quit-first \
-  --auto-navigate-websoccer \
-  --wait-sec 900 \
-  --notify-pushover \
-  --reuse-valid-session
+  --notify-pushover
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] weekly current-season CC update done"

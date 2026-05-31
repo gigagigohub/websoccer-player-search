@@ -5,6 +5,7 @@ import argparse
 import json
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -84,7 +85,7 @@ def main() -> int:
 
     if args.fallback_legacy:
         legacy_cmd = [
-            "python3",
+            sys.executable,
             str(repo / "scripts" / "update_cc_site_data.py"),
             "--json-root",
             args.json_root,
@@ -109,7 +110,7 @@ def main() -> int:
 
     run(
         [
-            "python3",
+            sys.executable,
             str(repo / "scripts" / "export_site_json_from_master_db.py"),
             "--master-db",
             str(master_db),
@@ -124,7 +125,7 @@ def main() -> int:
 
     run(
         [
-            "python3",
+            sys.executable,
             str(repo / "scripts" / "prepare_formations_page_data.py"),
             "--master-db",
             str(master_db),
@@ -134,7 +135,7 @@ def main() -> int:
     )
     run(
         [
-            "python3",
+            sys.executable,
             str(repo / "scripts" / "write_site_meta.py"),
             "--app-dir",
             str(out_app_dir),

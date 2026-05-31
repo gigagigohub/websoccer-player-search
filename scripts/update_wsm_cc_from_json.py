@@ -7,6 +7,7 @@ import re
 import shutil
 import sqlite3
 import subprocess
+import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterable, Optional
@@ -461,7 +462,7 @@ def cleanup_wsm_files(directory: Path, keep: int) -> list[Path]:
 
 def update_site_json(repo_dir: Path, master_db: Path, season: int, out_app_dir: Path) -> None:
     cmd = [
-        "python3",
+        sys.executable,
         str(repo_dir / "scripts" / "update_site_from_master_db.py"),
         "--master-db",
         str(master_db),

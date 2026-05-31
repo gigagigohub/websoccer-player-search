@@ -7,7 +7,7 @@ This file is the startup instruction for a fresh Codex chat.
 Work in:
 
 ```bash
-cd /Users/gigagigo/Documents/Codex/websoccer-player-search
+cd /Users/gigagigo/Codex/WebSoccer/websoccer-player-search
 ```
 
 Start by running:
@@ -29,19 +29,22 @@ sed -n '1,260p' docs/cc_update_runbook.md
 - `docs/daily_handoff.md` is auto-generated. Add durable chat findings, workflow decisions, and unresolved investigations to `docs/daily_handoff_notes.md`; the daily refresh includes that file.
 - During each chat, append durable findings to `docs/daily_handoff_notes.md` as soon as they become clear. Prefer `python3 scripts/append_daily_handoff_note.py --section "<section>" --note "<note>"` for single-note additions.
 - Quit Charles and Webサッカー after workflows that launched them, unless debugging requires leaving them open.
+- For WebSoccer account-transfer or local fresh-state work, use `docs/account_transfer_runbook.md`; append-only handoff notes are not enough for this risky recurring procedure.
+- For restoring or locating saved local WebSoccer team profiles, use `docs/websoccer_local_profiles_inventory.md`.
+- For switching between managed transferred teams, prefer `python3 scripts/restore_websoccer_current_profile.py --team-id <target_team_id>` so the outgoing ACTIVE team is saved back to its canonical `teams/<team>/current` profile before restore.
 
 ## Standard Commands
 
 Current-season CC update:
 
 ```bash
-python3 scripts/run_cc_update_pipeline.py --season 0 --commit-push --notify-pushover
+python3 scripts/run_cc_update_pipeline.py --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current --season 0 --commit-push --notify-pushover
 ```
 
-CC capture fallback check:
+CC local-auth dry-run check:
 
 ```bash
-python3 scripts/run_cc_update_pipeline.py --auth-source session --season 0 --quit-first --auto-navigate-websoccer --capture-only --wait-sec 180 --capture-warmup-sec 3
+python3 scripts/run_cc_update_pipeline.py --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current --auth-source local --skip-capture --season 0 --worlds 10 --groups 0 --round-max 1 --dry-run-fetch --skip-wsm-update
 ```
 
 UpdateFile watch:
@@ -53,8 +56,8 @@ python3 scripts/watch_updatefile_and_refresh_site.py --commit-push
 Update_core_data checks:
 
 ```bash
-python3 scripts/fetch_update_core_data.py --auth-check
-python3 scripts/fetch_update_core_data.py --dry-run
+python3 scripts/fetch_update_core_data.py --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current --auth-check
+python3 scripts/fetch_update_core_data.py --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current --dry-run
 ```
 
 ## Automations

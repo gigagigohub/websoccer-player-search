@@ -25,6 +25,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 WSC_DATA = REPO_ROOT.parent / "wsc_data"
 DEFAULT_CORE_ROOT = WSC_DATA
 DEFAULT_SESSION_DIR = Path.home() / "charles_sessions"
+DEFAULT_OPENAI_AUTH_PROFILE = Path("/Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current")
 SESSION_SUFFIXES = {".chlsx", ".chlsj", ".chlz"}
 
 
@@ -36,10 +37,14 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--auth-source",
         choices=("auto", "local", "session"),
-        default="auto",
-        help="API auth source. auto prefers local generated gate-key and falls back to Charles session.",
+        default="local",
+        help="API auth source. Default is local OpenAI profile auth; use session explicitly for Charles fallback.",
     )
-    p.add_argument("--websoccer-container", default=str(DEFAULT_WEBSOCCER_CONTAINER))
+    p.add_argument(
+        "--websoccer-container",
+        default=str(DEFAULT_OPENAI_AUTH_PROFILE if DEFAULT_OPENAI_AUTH_PROFILE.exists() else DEFAULT_WEBSOCCER_CONTAINER),
+        help="Profile Data directory used for local API auth. Default is the stored OpenAI profile.",
+    )
     p.add_argument("--ids", default="", help='Explicit player ids, e.g. "3211-3220" or "3211,3212"')
     p.add_argument("--start-id", type=int, default=0, help="First id to probe. Default: latest local core id + 1")
     p.add_argument("--max-id", type=int, default=0, help="Last id to probe. Default: start-id + 49")

@@ -1,7 +1,7 @@
 #!/bin/zsh
 set -u
 
-REPO_DIR="${WEBSOCCER_PLAYER_SEARCH_REPO:-/Users/gigagigo/Documents/Codex/websoccer-player-search}"
+REPO_DIR="${WEBSOCCER_PLAYER_SEARCH_REPO:-/Users/gigagigo/Codex/WebSoccer/websoccer-player-search}"
 LOG_DIR="$HOME/Library/Logs/websoccer-player-search"
 LOCK_DIR="$HOME/Library/Application Support/websoccer-player-search/updatefile-core-watch.lock"
 
@@ -63,40 +63,36 @@ if [[ -z "$latest_core_id" || "$latest_core_id" == "0" ]]; then
 fi
 
 log "core-data auth check"
-python3 scripts/fetch_update_core_data.py --auth-check || true
+python3 scripts/fetch_update_core_data.py \
+  --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current \
+  --auth-check || true
 
 validate_out="$(mktemp)"
 probe_out="$(mktemp)"
 trap 'rm -f "$validate_out" "$probe_out"; rmdir "$LOCK_DIR"' EXIT
 
 log "validating latest local core-data id: $latest_core_id"
-python3 scripts/fetch_update_core_data.py --ids "$latest_core_id" --dry-run >"$validate_out" 2>&1
+python3 scripts/fetch_update_core_data.py \
+  --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current \
+  --ids "$latest_core_id" \
+  --dry-run >"$validate_out" 2>&1
 cat "$validate_out"
 
 if ! grep -q '^\[FOUND\]' "$validate_out"; then
-  log "latest core-data validation did not return rows; attempting fresh auth capture"
-  python3 scripts/run_cc_update_pipeline.py \
-    --auth-source session \
-    --season 0 \
-    --quit-first \
-    --auto-navigate-websoccer \
-    --capture-only \
-    --wait-sec 180 \
-    --capture-warmup-sec 3
-
-  log "re-validating latest local core-data id after capture: $latest_core_id"
-  python3 scripts/fetch_update_core_data.py --ids "$latest_core_id" --dry-run >"$validate_out" 2>&1
-  cat "$validate_out"
+  log "latest core-data validation did not return rows with OpenAI auth; skipping Charles fallback to keep auth source fixed"
 fi
 
 if grep -q '^\[FOUND\]' "$validate_out"; then
   log "probing for new core-data rows"
-  python3 scripts/fetch_update_core_data.py --dry-run >"$probe_out" 2>&1
+  python3 scripts/fetch_update_core_data.py \
+    --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current \
+    --dry-run >"$probe_out" 2>&1
   cat "$probe_out"
 
   if grep -q '^\[FOUND\]' "$probe_out"; then
     log "new core-data rows found; saving"
-    python3 scripts/fetch_update_core_data.py
+    python3 scripts/fetch_update_core_data.py \
+      --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current
   else
     log "no new core-data rows found"
   fi
