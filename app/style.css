@@ -2366,7 +2366,7 @@ button.ghost {
 .myteam-slot-name-row {
   margin-top: 6px;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
   gap: 6px;
   align-items: center;
 }
@@ -2400,6 +2400,34 @@ button.ghost {
   font-size: 0.68rem;
   font-weight: 800;
   box-shadow: var(--btn-inset);
+}
+
+.myteam-slot-reset {
+  min-height: 30px;
+  border-radius: 7px;
+  border: 1px solid #8b3246;
+  background: linear-gradient(180deg, var(--btn-danger-top) 0%, var(--btn-danger-bottom) 100%);
+  color: #ffd9df;
+  padding: 5px 9px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  box-shadow: var(--btn-inset);
+}
+
+.myteam-slot-reset:disabled {
+  cursor: default;
+  opacity: 0.45;
+  filter: grayscale(0.25);
+}
+
+@media (max-width: 420px) {
+  .myteam-slot-name-row {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .myteam-slot-reset {
+    grid-column: 3;
+  }
 }
 
 .simulation-actions {

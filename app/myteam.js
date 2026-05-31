@@ -1736,6 +1736,7 @@ function renderMyTeamSlotSwitcher() {
     `;
   }).join("");
   const activeName = String(myTeamSlotNames[activeSlot] || "").trim() || defaultMyTeamSlotName(activeSlot);
+  const resetDisabled = activeMyTeamSlotHasRegistrations() ? "" : " disabled";
   els.myTeamSlotSwitcher.hidden = false;
   els.myTeamSlotSwitcher.innerHTML = `
     <div class="myteam-slot-tabs">${buttons}</div>
@@ -1743,6 +1744,7 @@ function renderMyTeamSlotSwitcher() {
       <label for="myTeamSlotNameInput">Team Name</label>
       <input id="myTeamSlotNameInput" type="text" maxlength="28" value="${escapeHtml(activeName)}" />
       <button type="button" class="myteam-slot-name-save" data-myteam-slot-name-save>Save</button>
+      <button type="button" class="myteam-slot-reset" data-myteam-slot-reset${resetDisabled}>Reset</button>
     </div>
   `;
 }
@@ -1782,6 +1784,45 @@ async function saveActiveMyTeamSlotNameFromInput() {
       window.alert("チーム名のクラウド保存に失敗しました。");
     }
   }
+}
+
+function activeMyTeamSlotHasRegistrations() {
+  return lineup.some((entry) => entry && Number.isInteger(Number(entry.playerId)))
+    || Number.isInteger(Number(selectedFormationId))
+    || (selectedCoach && Number.isInteger(Number(selectedCoach.coachId)));
+}
+
+async function resetActiveMyTeamSlot() {
+  if (IS_SIMULATION_MODE) return;
+  const slot = normalizeMyTeamSlotNo(activeMyTeamSlot);
+  const name = String(myTeamSlotNames[slot] || "").trim() || defaultMyTeamSlotName(slot);
+  const ok = window.confirm(`${name} の登録をすべて消去します。\n選手・監督・フォーメーションが未登録に戻ります。よろしいですか？`);
+  if (!ok) return;
+
+  lineup = Array.from({ length: LINEUP_SIZE }, () => null);
+  selectedFormationId = null;
+  selectedCoach = null;
+  saveLineupLocal();
+  saveSelectedFormationId();
+  saveSelectedCoach();
+
+  if (hasCloudConfig()) {
+    try {
+      await saveCloudLineup("myteam", slot);
+      await saveCloudFormationId("myteam", slot);
+    } catch (e) {
+      console.warn(e);
+      window.alert("Resetのクラウド保存に失敗しました。");
+    }
+  }
+
+  closeFormationEditor();
+  closePlayerCardModal();
+  closeCoachCardModal();
+  buildFormationOptions();
+  renderFormationCurrent();
+  renderLineup();
+  renderMyTeamSlotSwitcher();
 }
 
 function loadCloudConfig() {
@@ -3933,6 +3974,10 @@ async function init() {
       }
       if (e.target.closest("[data-myteam-slot-name-save]")) {
         await saveActiveMyTeamSlotNameFromInput();
+        return;
+      }
+      if (e.target.closest("[data-myteam-slot-reset]")) {
+        await resetActiveMyTeamSlot();
       }
     });
     els.myTeamSlotSwitcher.addEventListener("keydown", async (e) => {
