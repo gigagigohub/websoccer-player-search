@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 
-DEFAULT_WSM_DIR = Path.home() / "work" / "coding" / "wsc_data" / "websoccer_master_db"
+DEFAULT_WSM_DIR = Path("/Users/gigagigo/Codex/WebSoccer/wsc_data/websoccer_master_db")
 
 
 def is_main_wsm(path: Path) -> bool:
