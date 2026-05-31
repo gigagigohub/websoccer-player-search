@@ -13,9 +13,9 @@ from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_DB_DIR = Path("/Users/k.nishimura/work/coding/wsc_data/websoccer_master_db")
+DEFAULT_DB_DIR = Path("/Users/gigagigo/Codex/WebSoccer/wsc_data/websoccer_master_db")
 DEFAULT_CC_RESULT_JSON_DIRS = (
-    Path("/Users/k.nishimura/work/coding/wsc_data/CC_match_result_json"),
+    Path("/Users/gigagigo/Codex/WebSoccer/wsc_data/CC_match_result_json"),
     Path.home() / "Desktop" / "CC_match_result_json",
 )
 FORMATIONS_JSON = ROOT / "app" / "formations_data.json"

@@ -20,7 +20,7 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Refresh coaches_data.obtainable from rohm headcoach page")
     p.add_argument(
         "--coaches-json",
-        default="/Users/k.nishimura/work/coding/websoccer-player-search/app/coaches_data.json",
+        default="/Users/gigagigo/Codex/WebSoccer/websoccer-player-search/app/coaches_data.json",
     )
     p.add_argument(
         "--out",

@@ -27,7 +27,7 @@ def parse_args() -> argparse.Namespace:
     )
     ap.add_argument(
         "--out-app",
-        default="/Users/k.nishimura/work/coding/websoccer-player-search/app/formations_data.json",
+        default="/Users/gigagigo/Codex/WebSoccer/websoccer-player-search/app/formations_data.json",
         help="Output app formations_data.json",
     )
     ap.add_argument("--verbose", action="store_true", help="Verbose ingest progress")

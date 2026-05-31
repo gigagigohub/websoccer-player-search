@@ -10,7 +10,7 @@ from collections import defaultdict
 from pathlib import Path
 
 
-DEFAULT_DB = Path("/Users/k.nishimura/work/coding/wsc_data/websoccer_master_db/wsm_2605042226.sqlite3")
+DEFAULT_DB = Path("/Users/gigagigo/Codex/WebSoccer/wsc_data/websoccer_master_db/wsm_2605042226.sqlite3")
 DEFAULT_OUT_DIR = Path(__file__).resolve().parents[1] / "app" / "prepared"
 MIN_SLOT_USES = 20
 

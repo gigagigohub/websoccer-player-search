@@ -1,7 +1,7 @@
 {
   "meta": {
     "model": "team_power_index_slot_adjusted",
-    "generatedFrom": "/Users/gigagigo/Documents/Codex/wsc_data/websoccer_master_db/wsm_2605301056.sqlite3",
+    "generatedFrom": "/Users/gigagigo/Codex/WebSoccer/wsc_data/websoccer_master_db/wsm_2605301056.sqlite3",
     "ratingDecomposition": "pts = global + player_effect + formation_slot_effect + residual",
     "playerEffectPrior": 35.0,
     "formationSlotEffectPrior": 70.0,

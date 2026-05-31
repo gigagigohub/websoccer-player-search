@@ -9,9 +9,9 @@ import zipfile
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
 
-ROOT = Path('/Users/k.nishimura/work/coding/websoccer-player-search')
-ZIP_DIR = Path('/Users/k.nishimura/work/coding/wsc_data/UpdateFile_p40_322')
-FILLED_CSV = Path('/Users/k.nishimura/work/coding/wsc_data/UpdateFile_inventory/updatefile_ss_events_filled.csv')
+ROOT = Path('/Users/gigagigo/Codex/WebSoccer/websoccer-player-search')
+ZIP_DIR = Path('/Users/gigagigo/Codex/WebSoccer/wsc_data/UpdateFile_p40_322')
+FILLED_CSV = Path('/Users/gigagigo/Codex/WebSoccer/wsc_data/UpdateFile_inventory/updatefile_ss_events_filled.csv')
 
 APP_DATA = ROOT / 'app' / 'data.json'
 

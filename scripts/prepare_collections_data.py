@@ -6,9 +6,9 @@ import sqlite3
 from pathlib import Path
 
 
-DEFAULT_REPO = Path("/Users/k.nishimura/work/coding/websoccer-player-search")
-DEFAULT_WSM_DIR = Path("/Users/k.nishimura/work/coding/wsc_data/websoccer_master_db")
-DEFAULT_RESOURCES = Path("/Users/k.nishimura/work/coding/wsc_data/Resources/img")
+DEFAULT_REPO = Path("/Users/gigagigo/Codex/WebSoccer/websoccer-player-search")
+DEFAULT_WSM_DIR = Path("/Users/gigagigo/Codex/WebSoccer/wsc_data/websoccer_master_db")
+DEFAULT_RESOURCES = Path("/Users/gigagigo/Codex/WebSoccer/wsc_data/Resources/img")
 
 
 def latest_wsm(wsm_dir):

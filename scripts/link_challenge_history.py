@@ -7,8 +7,8 @@ import zipfile
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-ROOT = Path('/Users/k.nishimura/work/coding/websoccer-player-search')
-ZIP_DIR = Path('/Users/k.nishimura/work/coding/wsc_data/UpdateFile_p40_322')
+ROOT = Path('/Users/gigagigo/Codex/WebSoccer/websoccer-player-search')
+ZIP_DIR = Path('/Users/gigagigo/Codex/WebSoccer/wsc_data/UpdateFile_p40_322')
 
 APP_DATA = ROOT / 'app' / 'data.json'
 
