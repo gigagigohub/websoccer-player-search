@@ -1,6 +1,6 @@
 # Daily Handoff
 
-Last reviewed: 2026-06-01 06:50 JST
+Last reviewed: 2026-06-01 17:49 JST
 
 ## Start Here
 
@@ -30,9 +30,9 @@ clean
 ## Active Schedulers
 
 - Codex cron:
-  - `websoccer-daily-handoff-refresh`: PAUSED
-  - `websoccer-current-season-cc-weekly-update`: PAUSED
-  - `websoccer-updatefile-and-core-data-watch`: PAUSED
+  - `websoccer-daily-handoff-refresh`: missing
+  - `websoccer-current-season-cc-weekly-update`: missing
+  - `websoccer-updatefile-and-core-data-watch`: missing
 - LaunchAgent `com.gigagigo.websoccer.daily-handoff-refresh`
   - Schedule: daily 05:00 JST
   - Workdir: /Users/gigagigo/Codex/WebSoccer/websoccer-player-search
@@ -78,14 +78,14 @@ python3 scripts/install_updatefile_and_core_data_launch_agent.py
   - Latest local UpdateFile directory: `/Users/gigagigo/Codex/WebSoccer/wsc_data/UpdateFile_p40_325`.
   - Latest watcher log signals:
 ```text
-[2026-06-01 02:00:06] updatefile/core-data watch done
-[2026-06-01 03:00:04] updatefile/core-data watch start
-[2026-06-01 03:00:05+0900] p326: missing HTTPError 403
-[2026-06-01 03:00:05+0900] no new UpdateFile
-[2026-06-01 03:00:05] validating latest local core-data id: 3210
+[2026-06-01 16:00:06] updatefile/core-data watch done
+[2026-06-01 17:00:05] updatefile/core-data watch start
+[2026-06-01 17:00:05+0900] p326: missing HTTPError 403
+[2026-06-01 17:00:05+0900] no new UpdateFile
+[2026-06-01 17:00:06] validating latest local core-data id: 3210
 [FOUND] 3210: players=1 players_param=16
-[2026-06-01 03:00:06] no new core-data rows found
-[2026-06-01 03:00:06] updatefile/core-data watch done
+[2026-06-01 17:00:06] no new core-data rows found
+[2026-06-01 17:00:06] updatefile/core-data watch done
 ```
 - Update_core_data:
   - Latest local snapshot: `/Users/gigagigo/Codex/WebSoccer/wsc_data/update_core_data_3205_3210`.
@@ -407,6 +407,10 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 ## CC Site Data
 
 - 2026-06-01: 公開サイトのCC表示が2626へ戻っていた件を確認。a2b0ca92 Update CC data and site では app/site_meta.json が seasonEnd=2627/games=15876 だったが、直後の 3d906041 Align TPI calculations across myteam and top teams が app/site_meta.json と app/v4_clean_uniform_data.json を古い wsm_2605301056/seasonEnd=2626/games=14553 ベースで上書きしていた。修正時は canonical latest WSM /Users/gigagigo/Codex/WebSoccer/wsc_data/websoccer_master_db/wsm_260531022039.sqlite3 を使い、.venv/bin/python scripts/update_site_from_master_db.py --master-db ... --require-best-team-season 2627、.venv/bin/python scripts/build_v4_slot_adjusted_team_power.py --db ...、.venv/bin/python scripts/build_cc_range_data.py の順で再生成。検証値: site_meta/formations meta seasonEnd=2627 games=15876、v4 meta seasons=[2616,2627] matchRows=15876、Top Teams season 2627 は32件。
+
+## Login Bonus
+
+- 2026-06-01: 2026-06-01: 未確認仮説。現在の選手/チーム定期更新処理が WebSoccer 側でログイン判定を発生させているなら、ログインボーナスも受け取れている可能性がある。次回確認すること: どのAPI/同期処理がログイン扱いになるか、ログインボーナス受取が自動発火するか、または別エンドポイント/アプリ表示操作が必要か。確認時はボーナス受取前後の所持資金/アイテム/ログインボーナス関連レスポンスを比較する。
 
 ## Unresolved Issues
 

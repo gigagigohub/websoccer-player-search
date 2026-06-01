@@ -310,3 +310,7 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 ## CC Site Data
 
 - 2026-06-01: 公開サイトのCC表示が2626へ戻っていた件を確認。a2b0ca92 Update CC data and site では app/site_meta.json が seasonEnd=2627/games=15876 だったが、直後の 3d906041 Align TPI calculations across myteam and top teams が app/site_meta.json と app/v4_clean_uniform_data.json を古い wsm_2605301056/seasonEnd=2626/games=14553 ベースで上書きしていた。修正時は canonical latest WSM /Users/gigagigo/Codex/WebSoccer/wsc_data/websoccer_master_db/wsm_260531022039.sqlite3 を使い、.venv/bin/python scripts/update_site_from_master_db.py --master-db ... --require-best-team-season 2627、.venv/bin/python scripts/build_v4_slot_adjusted_team_power.py --db ...、.venv/bin/python scripts/build_cc_range_data.py の順で再生成。検証値: site_meta/formations meta seasonEnd=2627 games=15876、v4 meta seasons=[2616,2627] matchRows=15876、Top Teams season 2627 は32件。
+
+## Login Bonus
+
+- 2026-06-01: 2026-06-01: 未確認仮説。現在の選手/チーム定期更新処理が WebSoccer 側でログイン判定を発生させているなら、ログインボーナスも受け取れている可能性がある。次回確認すること: どのAPI/同期処理がログイン扱いになるか、ログインボーナス受取が自動発火するか、または別エンドポイント/アプリ表示操作が必要か。確認時はボーナス受取前後の所持資金/アイテム/ログインボーナス関連レスポンスを比較する。
