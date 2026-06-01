@@ -1,6 +1,6 @@
 # Daily Handoff
 
-Last reviewed: 2026-06-01 20:41 JST
+Last reviewed: 2026-06-01 20:56 JST
 
 ## Start Here
 
@@ -24,9 +24,11 @@ git status --short
 ## Dirty Tree Summary
 
 ```text
- M docs/daily_handoff.md
  M docs/daily_handoff_notes.md
- M scripts/manage_websoccer_present_box.py
+ M scripts/refresh_daily_handoff.py
+?? scripts/install_daily_login_bonus_and_profile_sync_launch_agent.py
+?? scripts/run_all_websoccer_login_bonus.py
+?? scripts/run_daily_login_bonus_and_profile_sync.sh
 ```
 
 ## Active Schedulers
@@ -48,6 +50,11 @@ git status --short
   - Schedule: hourly at minute `00`, excluding 04:00, 05:00, and 06:00 JST
   - Workdir: /Users/gigagigo/Codex/WebSoccer/websoccer-player-search
   - Logs: `~/Library/Logs/websoccer-player-search/updatefile-core-watch.out.log` and `.err.log`
+- LaunchAgent `com.gigagigo.websoccer.daily-login-bonus-sync`
+  - Schedule: daily 07:00 JST
+  - Workdir: /Users/gigagigo/Codex/WebSoccer/websoccer-player-search
+  - Logs: `~/Library/Logs/websoccer-player-search/daily-login-bonus-sync.out.log` and `.err.log`
+  - Scope: login bonus trigger/accept for collected profiles, then full profile sync
 
 ## Important Commands
 
@@ -60,6 +67,7 @@ python3 scripts/fetch_update_core_data.py --websoccer-container /Users/gigagigo/
 python3 scripts/install_daily_handoff_refresh_launch_agent.py
 python3 scripts/install_weekly_cc_update_launch_agent.py
 python3 scripts/install_updatefile_and_core_data_launch_agent.py
+python3 scripts/install_daily_login_bonus_and_profile_sync_launch_agent.py
 ```
 
 ## Recent Status
@@ -412,6 +420,7 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 
 ## Login Bonus
 
+- 2026-06-01: 毎朝7:00のログインボーナス取得 + 全チーム同期を実装。LaunchAgent com.gigagigo.websoccer.daily-login-bonus-sync は scripts/run_daily_login_bonus_and_profile_sync.sh を実行し、(1) scripts/run_all_websoccer_login_bonus.py --execute --notify-pushover で collect_profiles() 対象全 profile に /login/login/<team_id>/<world_id>/325/0.json を明示実行して service_menu_id=6001/status=1 のログインボーナスだけを accept、(2) scripts/sync_all_websoccer_profiles.py --execute --notify-pushover で /sync/all から選手データを含むチームデータを同期し、snapshot/index/roster も再生成する。対象 profile は account_transfer/teams/*/current + local/trade_chain/profiles/*/Data なのでチーム追加に追随する。dry-run 検証では profileCount=59、既存未受取ログインボーナス targetCount=11、failed=0。LaunchAgent は 2026-06-01 にインストール済み、RunAtLoad=false なので手動 kickstart はしていない。
 - 2026-06-01: ログイン判定解析の補足/訂正: 2026-05-31 created のログインボーナスが見つかった はたのっちFC 99 / Team006 / FC虹 は実機起動由来とのユーザー確認あり。したがって更新系だけではログイン判定されない判断でよい。Charles session charles202606012019.chlz の起動通信では GET /creating_team/status/<uuid>.json code=000/status=1 の直後、2026-06-01 20:18:10 に GET /login/login/10052201/1/325/0.json が実行され code=000 login_bonus(position=5, items[5]=type13/detail1) を返し、その後の GET /present_box/index/10052201/1.json に created='2026-06-01 20:18:10' の service_menu_id=6001/type13/detail1/やり手チケット/status=1 が出現。/login/login が present_box に当日ログインボーナスを格納するトリガーと見てよい。scripts/manage_websoccer_present_box.py に opt-in の --trigger-login を追加し、明示時だけ /login/login/<team_id>/<world_id>/325/0.json を先に呼ぶ。
 - 2026-06-01: 2026-05-31 created のログインボーナスが他チームの present_box に格納済みかを read-only で確認。account_transfer current 12件 + trade_chain profiles 48件の計60 profile を GET /present_box/index のみで調査し、ok=59/errors=1 (trade_chain の stale Team006 profile が code 398)。2026-05-31 created の service_menu_id=6001 は3件: はたのっちFC 99 present_id=1728853901 created='2026-05-31 22:33:21' 新人チケットx1 status=2、Team006 present_id=1728705301 created='2026-05-31 19:27:48' 100P status=1、FC虹 present_id=1728550501 created='2026-05-31 15:48:43' 100P status=1。OpenAI は更新対象外だった可能性があるため、OpenAI だけを根拠に更新系とログイン判定の関係を断定しない。
 - 2026-06-01: ログインボーナス自動化方針の補正: 選手/チーム更新や /sync/all とは別に、まず GET /login/login/<team_id>/<world_id>/325/0.json 相当でログイン判定を発生させ、ログインボーナスを present_box に積ませる必要がある。その後 GET /present_box/index/<team_id>/<world_id>.json で status=1/service_menu_id=6001 を確認し、POST /present_box/accept/<team_id>/<world_id>.json で受け取る。OpenAI は更新対象外だった可能性があるため根拠から外し、実機起動由来の5/31ログインボーナス検出と Charles の login/login 解析で判断する。

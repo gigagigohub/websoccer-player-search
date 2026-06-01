@@ -85,6 +85,7 @@ def main() -> int:
     cc_plist = "com.gigagigo.websoccer.cc-current-season-update.plist"
     update_plist = "com.gigagigo.websoccer.updatefile-core-watch.plist"
     handoff_plist = "com.gigagigo.websoccer.daily-handoff-refresh.plist"
+    login_bonus_plist = "com.gigagigo.websoccer.daily-login-bonus-sync.plist"
 
     update_log = last_log_lines(
         LOG_DIR / "updatefile-core-watch.out.log",
@@ -151,6 +152,11 @@ git status --short
   - Schedule: hourly at minute `00`, excluding 04:00, 05:00, and 06:00 JST
   - Workdir: {plist_value(update_plist, "WorkingDirectory")}
   - Logs: `~/Library/Logs/websoccer-player-search/updatefile-core-watch.out.log` and `.err.log`
+- LaunchAgent `com.gigagigo.websoccer.daily-login-bonus-sync`
+  - Schedule: daily 07:00 JST
+  - Workdir: {plist_value(login_bonus_plist, "WorkingDirectory")}
+  - Logs: `~/Library/Logs/websoccer-player-search/daily-login-bonus-sync.out.log` and `.err.log`
+  - Scope: login bonus trigger/accept for collected profiles, then full profile sync
 
 ## Important Commands
 
@@ -163,6 +169,7 @@ python3 scripts/fetch_update_core_data.py --websoccer-container /Users/gigagigo/
 python3 scripts/install_daily_handoff_refresh_launch_agent.py
 python3 scripts/install_weekly_cc_update_launch_agent.py
 python3 scripts/install_updatefile_and_core_data_launch_agent.py
+python3 scripts/install_daily_login_bonus_and_profile_sync_launch_agent.py
 ```
 
 ## Recent Status

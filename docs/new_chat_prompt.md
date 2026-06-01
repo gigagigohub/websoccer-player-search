@@ -64,6 +64,6 @@ python3 scripts/fetch_update_core_data.py --websoccer-container /Users/gigagigo/
 
 - Codex cron active: none
 - Codex cron paused: `websoccer-daily-handoff-refresh`, `websoccer-current-season-cc-weekly-update`, `websoccer-updatefile-and-core-data-watch`
-- LaunchAgents active: `com.gigagigo.websoccer.daily-handoff-refresh`, `com.gigagigo.websoccer.cc-current-season-update`, `com.gigagigo.websoccer.updatefile-core-watch`
+- LaunchAgents active: `com.gigagigo.websoccer.daily-handoff-refresh`, `com.gigagigo.websoccer.cc-current-season-update`, `com.gigagigo.websoccer.updatefile-core-watch`, `com.gigagigo.websoccer.daily-login-bonus-sync`
 
 After reading this file, use `docs/daily_handoff.md` as the source of truth for the latest state.
