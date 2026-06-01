@@ -1,6 +1,6 @@
 # Daily Handoff
 
-Last reviewed: 2026-06-01 21:18 JST
+Last reviewed: 2026-06-01 21:27 JST
 
 ## Start Here
 
@@ -428,6 +428,10 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 - 2026-06-01: Charles session /Users/gigagigo/charles_sessions/charles202606012019.chlz で起動からプレゼントボックス受取までを解析。関連API: GET /login/login/<team_id>/<world_id>/325/0.json は code 000 と login_bonus(position/items) を返すが受取実行ではない。GET /present_box/index/<team_id>/<world_id>.json がプレゼント一覧で、未受取は status=1、受取済みは status=2。ログインボーナスは present.service_menu_id=6001、CM勝利賞品は 3110 で識別できる。受取は POST /present_box/accept/<team_id>/<world_id>.json body json={"present_id":<id>}、成功レスポンスは code 000。今回の未受取5件はログインボーナス3件 + CM勝利賞品2件で、POST後に stored はたのっち profile local auth から present_box/index を再取得すると未受取0件、login-bonus はすべて status=2。/sync/all dry-run では P 2800/B 17700 から P 3100/B 18000 相当に反映され、受取内容 200P + 100P + 300B と一致。追加スクリプト scripts/manage_websoccer_present_box.py は profile DB の world_id を使い、デフォルト dry-run/ログインボーナスのみ、--execute で受取実行、--kind all/cm で対象変更。
 - 2026-06-01: ログインボーナス確認方針。ログインボーナスは受け取りにプレゼントボックスを開く必要があるため、単なる /sync/all 等の定期更新でログイン判定が付いていても、受取処理までは完了していない可能性が高い。次回は実機/アプリでプレゼントボックスを開く通信を Charles で取得し、(1) ボーナスが受け取れる状態かを判定するAPI、(2) 受け取り実行API、(3) 受取後の確認API/資金・アイテム差分、を特定する。API再現時は stored profile local auth で同じ処理を実行できるか、重複受取時のレスポンス、受取対象ID/既読状態の扱いを確認する。
 - 2026-06-01: 未確認仮説。現在の選手/チーム定期更新処理が WebSoccer 側でログイン判定を発生させているなら、ログインボーナスも受け取れている可能性がある。次回確認すること: どのAPI/同期処理がログイン扱いになるか、ログインボーナス受取が自動発火するか、または別エンドポイント/アプリ表示操作が必要か。確認時はボーナス受取前後の所持資金/アイテム/ログインボーナス関連レスポンスを比較する。
+
+## Shop Player
+
+- 2026-06-01: Charles session /Users/gigagigo/charles_sessions/charles202606012121.chlz を解析。ファイル内は1通信のみで、POST /shop_player/acquire/10533001/17.json body json={"listup_id":3863375601,"acquire_id":2558}、response code=000。acquire_id=2558 は フアン・ファーレス (rarity=5, pos_type=1) で、acquire body には放出選手IDは含まれないため、放出対象は listup_id 側のサーバ保持状態に紐づくと見られる。Team005 の直前 players_index と live /sync/all を比較すると、追加は ラミレス player_id=215/acquiredSeason=2628 と フアン・ファーレス player_id=2558/acquiredSeason=2628、削除は チャフ player_id=299 と ロベルト player_id=2736。ユーザー申告のロベルト放出はこの差分で確認できるが、chlz 単体では 2558 獲得がロベルト放出だったことの厳密な証跡は response が code 000 のみのため残らない。FW/MF/DF/GK/おまかせ選択、再提示、破棄のエンドポイントはこの chlz には含まれていないため、全体再現には追加キャプチャが必要。
 
 ## Unresolved Issues
 
