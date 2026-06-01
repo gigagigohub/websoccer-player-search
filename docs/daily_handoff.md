@@ -1,6 +1,6 @@
 # Daily Handoff
 
-Last reviewed: 2026-06-01 20:27 JST
+Last reviewed: 2026-06-01 20:30 JST
 
 ## Start Here
 
@@ -24,9 +24,7 @@ git status --short
 ## Dirty Tree Summary
 
 ```text
- M docs/daily_handoff.md
  M docs/daily_handoff_notes.md
-?? scripts/manage_websoccer_present_box.py
 ```
 
 ## Active Schedulers
@@ -412,6 +410,7 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 
 ## Login Bonus
 
+- 2026-06-01: 中村サッカー倶楽部 stored profile (/Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/9725201_nakamura/current, team_id=9725201, world=9) で scripts/manage_websoccer_present_box.py を実受取テスト。dry-run では未受取ログインボーナス3件のみ (やり手チケットx1, 新人チケットx1, 200P)、CM景品0件。--execute で3件すべて accepted=3/errors=0。再取得で targets=0、--include-accepted では7件すべて status=2。/sync/all dry-run は P 2400 -> 2600、B 12200 のままで 200P 反映を確認。
 - 2026-06-01: Charles session /Users/gigagigo/charles_sessions/charles202606012019.chlz で起動からプレゼントボックス受取までを解析。関連API: GET /login/login/<team_id>/<world_id>/325/0.json は code 000 と login_bonus(position/items) を返すが受取実行ではない。GET /present_box/index/<team_id>/<world_id>.json がプレゼント一覧で、未受取は status=1、受取済みは status=2。ログインボーナスは present.service_menu_id=6001、CM勝利賞品は 3110 で識別できる。受取は POST /present_box/accept/<team_id>/<world_id>.json body json={"present_id":<id>}、成功レスポンスは code 000。今回の未受取5件はログインボーナス3件 + CM勝利賞品2件で、POST後に stored はたのっち profile local auth から present_box/index を再取得すると未受取0件、login-bonus はすべて status=2。/sync/all dry-run では P 2800/B 17700 から P 3100/B 18000 相当に反映され、受取内容 200P + 100P + 300B と一致。追加スクリプト scripts/manage_websoccer_present_box.py は profile DB の world_id を使い、デフォルト dry-run/ログインボーナスのみ、--execute で受取実行、--kind all/cm で対象変更。
 - 2026-06-01: ログインボーナス確認方針。ログインボーナスは受け取りにプレゼントボックスを開く必要があるため、単なる /sync/all 等の定期更新でログイン判定が付いていても、受取処理までは完了していない可能性が高い。次回は実機/アプリでプレゼントボックスを開く通信を Charles で取得し、(1) ボーナスが受け取れる状態かを判定するAPI、(2) 受け取り実行API、(3) 受取後の確認API/資金・アイテム差分、を特定する。API再現時は stored profile local auth で同じ処理を実行できるか、重複受取時のレスポンス、受取対象ID/既読状態の扱いを確認する。
 - 2026-06-01: 未確認仮説。現在の選手/チーム定期更新処理が WebSoccer 側でログイン判定を発生させているなら、ログインボーナスも受け取れている可能性がある。次回確認すること: どのAPI/同期処理がログイン扱いになるか、ログインボーナス受取が自動発火するか、または別エンドポイント/アプリ表示操作が必要か。確認時はボーナス受取前後の所持資金/アイテム/ログインボーナス関連レスポンスを比較する。
