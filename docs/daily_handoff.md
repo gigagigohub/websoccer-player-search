@@ -1,6 +1,6 @@
 # Daily Handoff
 
-Last reviewed: 2026-06-01 17:52 JST
+Last reviewed: 2026-06-01 20:27 JST
 
 ## Start Here
 
@@ -24,7 +24,9 @@ git status --short
 ## Dirty Tree Summary
 
 ```text
-clean
+ M docs/daily_handoff.md
+ M docs/daily_handoff_notes.md
+?? scripts/manage_websoccer_present_box.py
 ```
 
 ## Active Schedulers
@@ -78,14 +80,14 @@ python3 scripts/install_updatefile_and_core_data_launch_agent.py
   - Latest local UpdateFile directory: `/Users/gigagigo/Codex/WebSoccer/wsc_data/UpdateFile_p40_325`.
   - Latest watcher log signals:
 ```text
-[2026-06-01 16:00:06] updatefile/core-data watch done
-[2026-06-01 17:00:05] updatefile/core-data watch start
-[2026-06-01 17:00:05+0900] p326: missing HTTPError 403
-[2026-06-01 17:00:05+0900] no new UpdateFile
-[2026-06-01 17:00:06] validating latest local core-data id: 3210
+[2026-06-01 19:00:07] updatefile/core-data watch done
+[2026-06-01 20:00:05] updatefile/core-data watch start
+[2026-06-01 20:00:05+0900] p326: missing HTTPError 403
+[2026-06-01 20:00:05+0900] no new UpdateFile
+[2026-06-01 20:00:05] validating latest local core-data id: 3210
 [FOUND] 3210: players=1 players_param=16
-[2026-06-01 17:00:06] no new core-data rows found
-[2026-06-01 17:00:06] updatefile/core-data watch done
+[2026-06-01 20:00:06] no new core-data rows found
+[2026-06-01 20:00:06] updatefile/core-data watch done
 ```
 - Update_core_data:
   - Latest local snapshot: `/Users/gigagigo/Codex/WebSoccer/wsc_data/update_core_data_3205_3210`.
@@ -410,8 +412,9 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 
 ## Login Bonus
 
-- 2026-06-01: 2026-06-01: ログインボーナス確認方針。ログインボーナスは受け取りにプレゼントボックスを開く必要があるため、単なる /sync/all 等の定期更新でログイン判定が付いていても、受取処理までは完了していない可能性が高い。次回は実機/アプリでプレゼントボックスを開く通信を Charles で取得し、(1) ボーナスが受け取れる状態かを判定するAPI、(2) 受け取り実行API、(3) 受取後の確認API/資金・アイテム差分、を特定する。API再現時は stored profile local auth で同じ処理を実行できるか、重複受取時のレスポンス、受取対象ID/既読状態の扱いを確認する。
-- 2026-06-01: 2026-06-01: 未確認仮説。現在の選手/チーム定期更新処理が WebSoccer 側でログイン判定を発生させているなら、ログインボーナスも受け取れている可能性がある。次回確認すること: どのAPI/同期処理がログイン扱いになるか、ログインボーナス受取が自動発火するか、または別エンドポイント/アプリ表示操作が必要か。確認時はボーナス受取前後の所持資金/アイテム/ログインボーナス関連レスポンスを比較する。
+- 2026-06-01: Charles session /Users/gigagigo/charles_sessions/charles202606012019.chlz で起動からプレゼントボックス受取までを解析。関連API: GET /login/login/<team_id>/<world_id>/325/0.json は code 000 と login_bonus(position/items) を返すが受取実行ではない。GET /present_box/index/<team_id>/<world_id>.json がプレゼント一覧で、未受取は status=1、受取済みは status=2。ログインボーナスは present.service_menu_id=6001、CM勝利賞品は 3110 で識別できる。受取は POST /present_box/accept/<team_id>/<world_id>.json body json={"present_id":<id>}、成功レスポンスは code 000。今回の未受取5件はログインボーナス3件 + CM勝利賞品2件で、POST後に stored はたのっち profile local auth から present_box/index を再取得すると未受取0件、login-bonus はすべて status=2。/sync/all dry-run では P 2800/B 17700 から P 3100/B 18000 相当に反映され、受取内容 200P + 100P + 300B と一致。追加スクリプト scripts/manage_websoccer_present_box.py は profile DB の world_id を使い、デフォルト dry-run/ログインボーナスのみ、--execute で受取実行、--kind all/cm で対象変更。
+- 2026-06-01: ログインボーナス確認方針。ログインボーナスは受け取りにプレゼントボックスを開く必要があるため、単なる /sync/all 等の定期更新でログイン判定が付いていても、受取処理までは完了していない可能性が高い。次回は実機/アプリでプレゼントボックスを開く通信を Charles で取得し、(1) ボーナスが受け取れる状態かを判定するAPI、(2) 受け取り実行API、(3) 受取後の確認API/資金・アイテム差分、を特定する。API再現時は stored profile local auth で同じ処理を実行できるか、重複受取時のレスポンス、受取対象ID/既読状態の扱いを確認する。
+- 2026-06-01: 未確認仮説。現在の選手/チーム定期更新処理が WebSoccer 側でログイン判定を発生させているなら、ログインボーナスも受け取れている可能性がある。次回確認すること: どのAPI/同期処理がログイン扱いになるか、ログインボーナス受取が自動発火するか、または別エンドポイント/アプリ表示操作が必要か。確認時はボーナス受取前後の所持資金/アイテム/ログインボーナス関連レスポンスを比較する。
 
 ## Unresolved Issues
 
