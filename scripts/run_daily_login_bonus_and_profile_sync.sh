@@ -30,12 +30,12 @@ log "daily login-bonus/profile sync start"
 log "git status before run:"
 git status --short || true
 
-log "login bonus trigger and accept start"
+log "daily login trigger and present-box accept start"
 if python3 scripts/run_all_websoccer_login_bonus.py --execute --notify-pushover; then
-  log "login bonus trigger and accept done"
+  log "daily login trigger and present-box accept done"
 else
   rc=$?
-  log "login bonus trigger and accept failed with exit code $rc"
+  log "daily login trigger and present-box accept failed with exit code $rc"
   overall_rc=1
 fi
 

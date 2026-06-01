@@ -31,7 +31,7 @@ NOTIFY_SCRIPT = REPO_ROOT / "scripts" / "notify_pushover.py"
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
-        description="Trigger and accept login-bonus presents for every stored WebSoccer profile."
+        description="Trigger daily login and accept every unaccepted present-box item for stored WebSoccer profiles."
     )
     p.add_argument(
         "--profile-data",
@@ -41,7 +41,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--execute",
         action="store_true",
-        help="Call /login/login and accept unaccepted login-bonus presents. Without this, the command is read-only.",
+        help="Call /login/login and accept all unaccepted present-box items. Without this, the command is read-only.",
     )
     p.add_argument("--timeout-sec", type=float, default=30.0)
     p.add_argument("--retries", type=int, default=2)
@@ -77,12 +77,16 @@ def get_json_with_retries(
     return last_ok, last_payload, attempts
 
 
-def login_bonus_targets(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    return [
-        item
-        for item in items
-        if item.get("serviceMenuId") == LOGIN_BONUS_SERVICE_MENU_ID and int(item.get("status") or 0) == 1
-    ]
+def unaccepted_targets(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [item for item in items if int(item.get("status") or 0) == 1]
+
+
+def service_menu_breakdown(items: list[dict[str, Any]]) -> dict[str, int]:
+    out: dict[str, int] = {}
+    for item in items:
+        key = str(item.get("serviceMenuId") or "unknown")
+        out[key] = out.get(key, 0) + 1
+    return dict(sorted(out.items(), key=lambda kv: kv[0]))
 
 
 def run_one(profile: Path, args: argparse.Namespace) -> dict[str, Any]:
@@ -139,12 +143,15 @@ def run_one(profile: Path, args: argparse.Namespace) -> dict[str, Any]:
         return result
 
     all_items = [present_info(item) for item in box_payload.get("list") or [] if isinstance(item, dict)]
-    targets = login_bonus_targets(all_items)
+    targets = unaccepted_targets(all_items)
+    login_bonus_targets = [item for item in targets if item.get("serviceMenuId") == LOGIN_BONUS_SERVICE_MENU_ID]
     result["presentBox"].update(
         {
             "totalItems": len(all_items),
             "loginBonusTotal": sum(1 for item in all_items if item.get("serviceMenuId") == LOGIN_BONUS_SERVICE_MENU_ID),
-            "loginBonusTargets": len(targets),
+            "loginBonusTargets": len(login_bonus_targets),
+            "targetCount": len(targets),
+            "targetBreakdownByServiceMenuId": service_menu_breakdown(targets),
             "targetItems": targets,
         }
     )
@@ -161,7 +168,13 @@ def run_one(profile: Path, args: argparse.Namespace) -> dict[str, Any]:
                 payload={"present_id": present_id},
                 timeout_sec=args.timeout_sec,
             )
-            row = {"presentId": present_id, "ok": ok, "response": accept_payload}
+            row = {
+                "presentId": present_id,
+                "serviceMenuId": item.get("serviceMenuId"),
+                "title": item.get("title"),
+                "ok": ok,
+                "response": accept_payload,
+            }
             if ok and isinstance(accept_payload, dict) and str(accept_payload.get("code") or "") == "000":
                 accepted.append(row)
             else:
@@ -179,13 +192,15 @@ def run_one(profile: Path, args: argparse.Namespace) -> dict[str, Any]:
 def notify(summary: dict[str, Any]) -> None:
     failed_count = len(summary.get("failed") or [])
     accepted_count = int(summary.get("acceptedCount") or 0)
+    breakdown = summary.get("targetBreakdownByServiceMenuId") or {}
+    breakdown_text = ", ".join(f"{key}:{value}" for key, value in sorted(breakdown.items())) or "none"
     message = (
-        f"ログインボーナス取得完了: {accepted_count}件 / {summary.get('profileCount')}チーム"
+        f"プレゼント回収完了: {accepted_count}件 / {summary.get('profileCount')}チーム / 内訳 {breakdown_text}"
         if failed_count == 0
-        else f"ログインボーナス取得 要確認: {failed_count}失敗 / {summary.get('profileCount')}チーム / 取得{accepted_count}件"
+        else f"プレゼント回収 要確認: {failed_count}失敗 / {summary.get('profileCount')}チーム / 回収{accepted_count}件 / 内訳 {breakdown_text}"
     )
     subprocess.run(
-        [sys.executable, str(NOTIFY_SCRIPT), "--title", "WebSoccer Login Bonus", "--message", message],
+        [sys.executable, str(NOTIFY_SCRIPT), "--title", "WebSoccer Present Box", "--message", message],
         check=False,
     )
 
@@ -196,12 +211,19 @@ def main() -> int:
     results = [run_one(profile, args) for profile in profiles]
     failed = [item for item in results if not item.get("ok")]
     accepted_count = sum(int(item.get("acceptedCount") or 0) for item in results)
-    target_count = sum(int(((item.get("presentBox") or {}).get("loginBonusTargets")) or 0) for item in results)
+    target_count = sum(int(((item.get("presentBox") or {}).get("targetCount")) or 0) for item in results)
+    login_bonus_target_count = sum(int(((item.get("presentBox") or {}).get("loginBonusTargets")) or 0) for item in results)
+    target_breakdown: dict[str, int] = {}
+    for item in results:
+        for key, value in ((item.get("presentBox") or {}).get("targetBreakdownByServiceMenuId") or {}).items():
+            target_breakdown[str(key)] = target_breakdown.get(str(key), 0) + int(value or 0)
     summary = {
         "execute": bool(args.execute),
         "profileCount": len(profiles),
         "okCount": len(results) - len(failed),
         "targetCount": target_count,
+        "loginBonusTargetCount": login_bonus_target_count,
+        "targetBreakdownByServiceMenuId": dict(sorted(target_breakdown.items(), key=lambda kv: kv[0])),
         "acceptedCount": accepted_count,
         "failed": failed,
         "results": results,

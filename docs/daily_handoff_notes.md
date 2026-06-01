@@ -39,6 +39,7 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 
 ## Notifications
 
+- 2026-06-02: 毎朝7:00の daily-login-bonus-sync は、/login/login でログイン判定を発生させた後、present_box の service_menu_id=6001 だけでなく status=1 の未受取プレゼントを全件 accept する方針に変更。run_all_websoccer_login_bonus.py は targetBreakdownByServiceMenuId と loginBonusTargetCount を出力し、Pushover 通知も WebSoccer Present Box として全回収件数/内訳を送る。LaunchAgent runtime wrapper は再インストール済み。
 - 2026-06-01: 通知系疎通テスト。notify_pushover.py の通常 env (~/.websoccer_pushover.env) 直送、handoff env (~/.handoff_pushover.env + HANDOFF_* vars) 直送、test_trade_pushover_notifications.py の trade 6パターン、watch_updatefile_and_refresh_site.notify の env fallback 経路はいずれも送信成功。run_cc_update_pipeline.py の通知フックは failure 通知送信は確認できたが、成功側 dry-run は事前の local gate-key CC API check が code=304 で止まり成功通知まで到達せず。capture-only + --skip-capture は auth_source=local でも最新 Charles session を見に行く挙動があるため、CC成功通知の疎通確認コマンドとしては使わない。
 - 2026-05-29: Pushover is configured through ~/.websoccer_pushover.env and must not be committed. Notification titles were standardized in English for CC/UpdateFile/core flows; message bodies may remain Japanese. Test notifications were delivered successfully.
 
