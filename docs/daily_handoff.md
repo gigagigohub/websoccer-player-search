@@ -1,6 +1,6 @@
 # Daily Handoff
 
-Last reviewed: 2026-06-01 20:56 JST
+Last reviewed: 2026-06-01 20:57 JST
 
 ## Start Here
 
@@ -24,11 +24,7 @@ git status --short
 ## Dirty Tree Summary
 
 ```text
- M docs/daily_handoff_notes.md
- M scripts/refresh_daily_handoff.py
-?? scripts/install_daily_login_bonus_and_profile_sync_launch_agent.py
-?? scripts/run_all_websoccer_login_bonus.py
-?? scripts/run_daily_login_bonus_and_profile_sync.sh
+(clean)
 ```
 
 ## Active Schedulers
