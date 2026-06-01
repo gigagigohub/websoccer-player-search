@@ -1,6 +1,6 @@
 # Daily Handoff
 
-Last reviewed: 2026-06-01 22:10 JST
+Last reviewed: 2026-06-01 23:12 JST
 
 ## Start Here
 
@@ -25,8 +25,6 @@ git status --short
 
 ```text
  M docs/daily_handoff_notes.md
-?? docs/shop_player_auto_acquire.md
-?? scripts/run_websoccer_shop_player_auto_acquire.py
 ```
 
 ## Active Schedulers
@@ -86,14 +84,14 @@ python3 scripts/install_daily_login_bonus_and_profile_sync_launch_agent.py
   - Latest local UpdateFile directory: `/Users/gigagigo/Codex/WebSoccer/wsc_data/UpdateFile_p40_325`.
   - Latest watcher log signals:
 ```text
-[2026-06-01 21:00:07] updatefile/core-data watch done
-[2026-06-01 22:00:05] updatefile/core-data watch start
-[2026-06-01 22:00:05+0900] p326: missing HTTPError 403
-[2026-06-01 22:00:05+0900] no new UpdateFile
-[2026-06-01 22:00:05] validating latest local core-data id: 3210
-[FOUND] 3210: players=1 players_param=16
-[2026-06-01 22:00:06] no new core-data rows found
 [2026-06-01 22:00:06] updatefile/core-data watch done
+[2026-06-01 23:00:05] updatefile/core-data watch start
+[2026-06-01 23:00:05+0900] p326: missing HTTPError 403
+[2026-06-01 23:00:05+0900] no new UpdateFile
+[2026-06-01 23:00:05] validating latest local core-data id: 3210
+[FOUND] 3210: players=1 players_param=16
+[2026-06-01 23:00:06] no new core-data rows found
+[2026-06-01 23:00:06] updatefile/core-data watch done
 ```
 - Update_core_data:
   - Latest local snapshot: `/Users/gigagigo/Codex/WebSoccer/wsc_data/update_core_data_3205_3210`.
@@ -433,6 +431,7 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 
 ## Shop Player
 
+- 2026-06-01: Ticket inventory finding: /sync/all does not expose ticket/item counts, and local ZMOTEAMTICKET is empty for current managed account_transfer profiles, but GET /shop_player/inquiry/<team_id>/<world_id>.json returns shop ticket counts when present. Observed examples on 2026-06-01: はたのっちFC99 ticket={1:1,2:1,3:0}; FC虹 ticket={1:0,2:0,3:1}; 中村サッカー倶楽部 ticket={1:1,2:1,3:1}; エドリアーノ ticket={1:0,2:0,3:0}. Teams with no ticket object (OpenAI/Team001-005/etc.) appear to have zero tickets or no ticket state returned. The same inquiry also returns existing pending listup for Team005 and used={G, scout}. App binary strings include Scout_LV1_Ticket/Scout_LV2_Ticket/Scout_LV3_Ticket and MOTeamTicket, so ticket keys 1/2/3 likely correspond to scout ticket levels; exact Japanese name mapping beyond observed type13/detail1 やり手チケット remains unresolved.
 - 2026-06-01: Implemented scripts/run_websoccer_shop_player_auto_acquire.py for automated shop-player acquisition. It is read-only by default and only calls paid shop_player/listup/drop/acquire with --execute. It supports ordered wanted players and release block players by id/name/fullName, JSON config or CLI, position auto/fw/mf/df/gk/omakase, reserveP default 100, maxListups safety cap, highest-priority wanted acquisition, drop on blocked release or no wanted offer, and final /sync/all local profile sync with backup. Usage documented in docs/shop_player_auto_acquire.md. Verified py_compile and Team005 dry-run with wanted アルハライ,ニード / blocked サローヤン / position fw; dry-run made no shop mutation calls and saw Team005 P=0.
 - 2026-06-01: Team005 acquire insufficient-P reproduction: after FW listup_id=3863520401 with P=0, POST /shop_player/acquire/10533001/17.json body {listup_id:3863520401, acquire_id:282} for アルハライ returned code=302 message='所持Pが足りません。'. Before/after /sync/all both P=0/B=6400/G=25 and players=21, so no acquisition/release occurred.
 - 2026-06-01: Team005 FW shop_player/listup reproduction on 2026-06-01 21:58 JST succeeded against active/stored Team005 (team_id=10533001, world=17). Before /sync/all P=100/B=6400/G=25; POST /shop_player/listup/10533001/17.json body {type:1,position:1} returned code=000, listup_id=3863520401, szn=2628, r0=614 サローヤン, s1=282 アルハライ, s2=125 ニード, s3=545 アジジ, s4=279 カスティーニョ, position_id=1. After /sync/all P=0/B=6400/G=25, confirming listup cost 100P. No acquire/drop was executed. Synced both stored Team005 current profile and ACTIVE profile from /sync/all with backups; both ZMOTEAMFUNDS now point=0, bonus=6400, gold=25.
