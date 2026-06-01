@@ -275,6 +275,7 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 
 ## Trade Chain
 
+- 2026-06-01: 2026-06-01: Team005 (team_id=10533001) の CCロベルト player_id=2736 / acquiredSeason=2627 / 2期目について、/sync/all で profile を更新後に /trade/index は code 301 一週間ブロック、/trade/regist comment=TEST を試行したところ code 306 'この選手は登録できません。'。OpenAI search でもロベルト listing は0件のまま。CCロベルトはこの profile からトレード登録不可。
 - 2026-05-31: 2026-05-31: トレードリスト表示のユーザー希望: 今後、チャット上で trade listing を表示する際は Markdown 表をデフォルトにし、先頭列名は 'Trade ID' ではなく短い 'ID'、列は ID / 選手名 / 期 / コメント / 提示中 / 登録時刻 の順にする。画像生成やHTML表は使わない。
 - 2026-05-31: 2026-05-31: Individual/manual handling follow-up: user suspected the モントーヤ trade completed, so synced team_id=10565201 profile local/trade_chain/profiles/ガリアーノ_442_20260531_092326_917059/Data with /sync/all using --backup. Before sync it held ヨルセン6期; after sync it holds モントーヤ3期 (player_id=208, acquiredSeason=2626) and no ヨルセン row. Exported profile_snapshot and rebuilt the local player index; index now shows team_id=10565201 with モントーヤ3期 only for the checked pair.
 - 2026-05-31: 2026-05-31: Individual/manual handling: offered the previously canceled ヨルセン6期 from team_id=10565201 to モントーヤ listing trade_id=63621401. /trade/request returned code 000; follow-up モントーヤ search showed 提示中=ヨルセン6期. No scheduler/screen monitor was started.
@@ -299,6 +300,7 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 
 ## Active Profile
 
+- 2026-06-01: Team005 を ACTIVE に切替。実行: python3 scripts/restore_websoccer_current_profile.py --team-id 10533001。切替前 ACTIVE は はたのっちFC 99 (team_id=10052201) で、/Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10052201_hatanocchi/current に保存。safety backup: 10052201_hatanocchi_previous_current_20260601_211740 と active_before_restore_10533001_team005_20260601_211743。切替後 ACTIVE 確認: team_id=10533001, ZNAME=Team005, owner=Owner005, season=2628, world=17, league field=803。ACTIVE local auth dry-run /sync/all は code 000、players=21、P=2100、B=6100、G=25。
 - 2026-05-31: Team006 を ACTIVE に切替済み。切替前 ACTIVE は はたのっちFC 99 (team_id=10052201) で、/Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10052201_hatanocchi/current に保存し、旧 current は safety_backups/10052201_hatanocchi_previous_current_20260531_192658 へ退避。Team006 は Compact profile /Users/gigagigo/Codex/WebSoccer/websoccer_local_profiles/team006_api_entry_fixed_player1693_20260528_2225 から Documents/Model と app preferences をACTIVEへ復元。ACTIVE確認: team_id=10533601, ZNAME=Team006, owner=Owner006, season=2627, ZLEAGUE=752, local_auth ok。
 
 ## Profile Migration
