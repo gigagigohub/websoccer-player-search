@@ -1,6 +1,6 @@
 # Daily Handoff
 
-Last reviewed: 2026-06-01 23:47 JST
+Last reviewed: 2026-06-02 05:00 JST
 
 ## Start Here
 
@@ -24,7 +24,12 @@ git status --short
 ## Dirty Tree Summary
 
 ```text
+ M app/coaches_data.json
+ M app/data.json
+ M app/site_meta.json
  M docs/daily_handoff_notes.md
+ M scripts/build_websoccer_master_db.py
+ M scripts/link_scout_history.py
 ```
 
 ## Active Schedulers
@@ -84,14 +89,14 @@ python3 scripts/install_daily_login_bonus_and_profile_sync_launch_agent.py
   - Latest local UpdateFile directory: `/Users/gigagigo/Codex/WebSoccer/wsc_data/UpdateFile_p40_325`.
   - Latest watcher log signals:
 ```text
-[2026-06-01 22:00:06] updatefile/core-data watch done
-[2026-06-01 23:00:05] updatefile/core-data watch start
-[2026-06-01 23:00:05+0900] p326: missing HTTPError 403
-[2026-06-01 23:00:05+0900] no new UpdateFile
-[2026-06-01 23:00:05] validating latest local core-data id: 3210
+[2026-06-02 02:00:07] updatefile/core-data watch done
+[2026-06-02 03:00:05] updatefile/core-data watch start
+[2026-06-02 03:00:05+0900] p326: missing HTTPError 403
+[2026-06-02 03:00:05+0900] no new UpdateFile
+[2026-06-02 03:00:05] validating latest local core-data id: 3210
 [FOUND] 3210: players=1 players_param=16
-[2026-06-01 23:00:06] no new core-data rows found
-[2026-06-01 23:00:06] updatefile/core-data watch done
+[2026-06-02 03:00:07] no new core-data rows found
+[2026-06-02 03:00:07] updatefile/core-data watch done
 ```
 - Update_core_data:
   - Latest local snapshot: `/Users/gigagigo/Codex/WebSoccer/wsc_data/update_core_data_3205_3210`.
@@ -161,6 +166,7 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 
 ## WSM / Master DB
 
+- 2026-06-02: SS scout event names were missing from site data because latest WSM manual_scout_event.name was blank for all 197 events after the prior WSM/model restore lineage. Restored names into copied WSM wsm_260602002512.sqlite3 from backup wsm_2605241243.sqlite3 for events 8-203, filled new event 204 as bigears based on ss_btn_204 shop button text, regenerated app/data.json/coaches_data.json/formations_data.json/site_meta.json, and verified app/data.json scoutsBlank=0 plus manual_player_model entries for person_id 3205-3208 still present. Added guards so link_scout_history keeps pretty JSON formatting and build_websoccer_master_db can recover scout event names from player scoutHistory when top-level scouts.name is blank.
 - 2026-05-30: Latest SS model-player updates should be applied to a newly copied WSM, then site JSON regenerated from that WSM. On 2026-05-29, wsm_2605291925.sqlite3 was copied from the prior WSM and manual_player_model was populated for person_id 3205-3208: 3205=ウィリアン・パチョ, 3206=ウォーレン・ザイール＝エメリ, 3207=ブラッドリー・バルコラ, 3208=エベレチ・エゼ. app/data.json should then show nonempty modelPlayer values for those ids.
 - 2026-05-29: WSM updates must always create a new copied DB and must not overwrite or mutate prior dated WSM files. Keep past wsm_*.sqlite3 files as backups. Continue using the dated naming convention wsm_yymmddhhss / current 10-digit wsm_YYMMDDHHMM-style filenames; if a timestamp collision occurs, add seconds rather than overwriting.
 

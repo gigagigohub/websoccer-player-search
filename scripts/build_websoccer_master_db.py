@@ -599,6 +599,17 @@ def import_manual_truth(
     coaches = json.loads(coaches_data_json.read_text(encoding="utf-8"))
 
     players = app.get("players") or []
+    scout_history_names = {}
+    for p in players:
+        for h in p.get("scoutHistory") or []:
+            try:
+                event_id = int(h.get("eventId") or 0)
+            except Exception:
+                continue
+            name = str(h.get("name") or "").strip()
+            if event_id > 0 and name and event_id not in scout_history_names:
+                scout_history_names[event_id] = name
+
     model_rows = {}
     for p in players:
         pid = int(p.get("id") or 0)
@@ -672,8 +683,16 @@ def import_manual_truth(
         event_id = int(s.get("eventId") or 0)
         if event_id <= 0:
             continue
-        name_source = str(s.get("nameSource") or "")
-        is_manual = 1 if name_source == "manual_fill" else 0
+        recovered_name = scout_history_names.get(event_id, "")
+        name = str(s.get("name") or recovered_name or "").strip()
+        name_source = str(s.get("nameSource") or ("player_scout_history" if recovered_name else ""))
+        is_manual = 1 if name_source in {
+            "manual",
+            "manual_fill",
+            "manual_override",
+            "manual_from_shop_button",
+            "player_scout_history",
+        } else 0
         conn.execute(
             """
             INSERT INTO manual_scout_event
@@ -683,7 +702,7 @@ def import_manual_truth(
             """,
             (
                 event_id,
-                s.get("name"),
+                name,
                 s.get("start"),
                 s.get("end"),
                 int(s.get("type") or 0),

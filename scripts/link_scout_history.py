@@ -278,7 +278,7 @@ def update_data_json(
     data['scouts'] = scouts
 
     with path.open('w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, separators=(',', ':'))
+        json.dump(data, f, ensure_ascii=False, indent=2)
 
     return changed_to_ss, linked
 
