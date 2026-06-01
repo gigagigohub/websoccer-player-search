@@ -1,6 +1,6 @@
 # Daily Handoff
 
-Last reviewed: 2026-06-01 23:16 JST
+Last reviewed: 2026-06-01 23:47 JST
 
 ## Start Here
 
@@ -431,6 +431,7 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 
 ## Shop Player
 
+- 2026-06-01: Charles ticket-use capture charles202606012345.chlz: 中村サッカー倶楽部 (team_id=9725201, world=9) shop flow. GET /shop/index returned p=2600,b=12200,g=10. GET /shop_player/inquiry returned ticket={1:1,2:1,3:1}. Ticket level 1 listup used POST /shop_player/listup body {type:7,position:3}, returned listup_id=3863769801, r0=3059 ギード, offers 30 オ・サンイン / 630 小林孝俊 / 631 チェ・グノ / 2456 ラコルデール; drop succeeded; follow-up inquiry ticket={1:0,2:1,3:1}. Ticket level 2 listup used body {type:8,position:3}, returned listup_id=3863770401, r0=1020 フロート, offers 139 バイアーノ / 523 コンセイソン / 2246 ビジャロン / 138 バイア; acquire_id=523 succeeded. Live /sync/all shows コンセイソン acquiredSeason=2628 in roster and P/B/G unchanged 2600/12200/10; inquiry after capture shows ticket={1:0,2:0,3:1}. Thus listup_type 7 consumes ticket key 1, listup_type 8 consumes ticket key 2; listup_type 9 likely ticket key 3 but remains unverified. Synced both ACTIVE and teams/9725201_nakamura/current from /sync/all after capture.
 - 2026-06-01: Ticket inventory finding: /sync/all does not expose ticket/item counts, and local ZMOTEAMTICKET is empty for current managed account_transfer profiles, but GET /shop_player/inquiry/<team_id>/<world_id>.json returns shop ticket counts when present. Observed examples on 2026-06-01: はたのっちFC99 ticket={1:1,2:1,3:0}; FC虹 ticket={1:0,2:0,3:1}; 中村サッカー倶楽部 ticket={1:1,2:1,3:1}; エドリアーノ ticket={1:0,2:0,3:0}. Teams with no ticket object (OpenAI/Team001-005/etc.) appear to have zero tickets or no ticket state returned. The same inquiry also returns existing pending listup for Team005 and used={G, scout}. App binary strings include Scout_LV1_Ticket/Scout_LV2_Ticket/Scout_LV3_Ticket and MOTeamTicket, so ticket keys 1/2/3 likely correspond to scout ticket levels; exact Japanese name mapping beyond observed type13/detail1 やり手チケット remains unresolved.
 - 2026-06-01: Implemented scripts/run_websoccer_shop_player_auto_acquire.py for automated shop-player acquisition. It is read-only by default and only calls paid shop_player/listup/drop/acquire with --execute. It supports ordered wanted players and release block players by id/name/fullName, JSON config or CLI, position auto/fw/mf/df/gk/omakase, reserveP default 100, maxListups safety cap, highest-priority wanted acquisition, drop on blocked release or no wanted offer, and final /sync/all local profile sync with backup. Usage documented in docs/shop_player_auto_acquire.md. Verified py_compile and Team005 dry-run with wanted アルハライ,ニード / blocked サローヤン / position fw; dry-run made no shop mutation calls and saw Team005 P=0.
 - 2026-06-01: Team005 acquire insufficient-P reproduction: after FW listup_id=3863520401 with P=0, POST /shop_player/acquire/10533001/17.json body {listup_id:3863520401, acquire_id:282} for アルハライ returned code=302 message='所持Pが足りません。'. Before/after /sync/all both P=0/B=6400/G=25 and players=21, so no acquisition/release occurred.
