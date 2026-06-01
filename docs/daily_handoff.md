@@ -1,6 +1,6 @@
 # Daily Handoff
 
-Last reviewed: 2026-06-01 20:37 JST
+Last reviewed: 2026-06-01 20:41 JST
 
 ## Start Here
 
@@ -24,7 +24,9 @@ git status --short
 ## Dirty Tree Summary
 
 ```text
+ M docs/daily_handoff.md
  M docs/daily_handoff_notes.md
+ M scripts/manage_websoccer_present_box.py
 ```
 
 ## Active Schedulers
@@ -410,8 +412,9 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 
 ## Login Bonus
 
+- 2026-06-01: ログイン判定解析の補足/訂正: 2026-05-31 created のログインボーナスが見つかった はたのっちFC 99 / Team006 / FC虹 は実機起動由来とのユーザー確認あり。したがって更新系だけではログイン判定されない判断でよい。Charles session charles202606012019.chlz の起動通信では GET /creating_team/status/<uuid>.json code=000/status=1 の直後、2026-06-01 20:18:10 に GET /login/login/10052201/1/325/0.json が実行され code=000 login_bonus(position=5, items[5]=type13/detail1) を返し、その後の GET /present_box/index/10052201/1.json に created='2026-06-01 20:18:10' の service_menu_id=6001/type13/detail1/やり手チケット/status=1 が出現。/login/login が present_box に当日ログインボーナスを格納するトリガーと見てよい。scripts/manage_websoccer_present_box.py に opt-in の --trigger-login を追加し、明示時だけ /login/login/<team_id>/<world_id>/325/0.json を先に呼ぶ。
 - 2026-06-01: 2026-05-31 created のログインボーナスが他チームの present_box に格納済みかを read-only で確認。account_transfer current 12件 + trade_chain profiles 48件の計60 profile を GET /present_box/index のみで調査し、ok=59/errors=1 (trade_chain の stale Team006 profile が code 398)。2026-05-31 created の service_menu_id=6001 は3件: はたのっちFC 99 present_id=1728853901 created='2026-05-31 22:33:21' 新人チケットx1 status=2、Team006 present_id=1728705301 created='2026-05-31 19:27:48' 100P status=1、FC虹 present_id=1728550501 created='2026-05-31 15:48:43' 100P status=1。OpenAI は更新対象外だった可能性があるため、OpenAI だけを根拠に更新系とログイン判定の関係を断定しない。
-- 2026-06-01: ログインボーナス自動化方針の補正: 選手/チーム更新や /sync/all とは別に、まず GET /login/login/<team_id>/<world_id>/325/0.json 相当でログイン判定を発生させ、ログインボーナスを present_box に積ませる必要がある。その後 GET /present_box/index/<team_id>/<world_id>.json で status=1/service_menu_id=6001 を確認し、POST /present_box/accept/<team_id>/<world_id>.json で受け取る。OpenAI では 2026-05-28 以降も更新系が走っていたのに 5/27・5/28 created のログインボーナスが未受取で残っていたため、更新系だけではログイン判定/受取処理の代替にならない。
+- 2026-06-01: ログインボーナス自動化方針の補正: 選手/チーム更新や /sync/all とは別に、まず GET /login/login/<team_id>/<world_id>/325/0.json 相当でログイン判定を発生させ、ログインボーナスを present_box に積ませる必要がある。その後 GET /present_box/index/<team_id>/<world_id>.json で status=1/service_menu_id=6001 を確認し、POST /present_box/accept/<team_id>/<world_id>.json で受け取る。OpenAI は更新対象外だった可能性があるため根拠から外し、実機起動由来の5/31ログインボーナス検出と Charles の login/login 解析で判断する。
 - 2026-06-01: OpenAI stored profile (/Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current, team_id=10527301, world=10) で scripts/manage_websoccer_present_box.py を実受取テスト。dry-run は未受取ログインボーナス2件のみ、CM景品0件: present_id=1725934301 created='2026-05-28 19:57:48' 100P、present_id=1725020401 created='2026-05-27 18:18:09' 100B。created は付与作成時刻として見えるが、ログイン対象日そのものかは未断定。--execute で accepted=2/errors=0。再取得で targets=0、--include-accepted で2件とも status=2。/sync/all dry-run は P 2000 -> 2100、B 8600 -> 8700、G 25 unchanged。
 - 2026-06-01: 中村サッカー倶楽部 stored profile (/Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/9725201_nakamura/current, team_id=9725201, world=9) で scripts/manage_websoccer_present_box.py を実受取テスト。dry-run では未受取ログインボーナス3件のみ (やり手チケットx1, 新人チケットx1, 200P)、CM景品0件。--execute で3件すべて accepted=3/errors=0。再取得で targets=0、--include-accepted では7件すべて status=2。/sync/all dry-run は P 2400 -> 2600、B 12200 のままで 200P 反映を確認。
 - 2026-06-01: Charles session /Users/gigagigo/charles_sessions/charles202606012019.chlz で起動からプレゼントボックス受取までを解析。関連API: GET /login/login/<team_id>/<world_id>/325/0.json は code 000 と login_bonus(position/items) を返すが受取実行ではない。GET /present_box/index/<team_id>/<world_id>.json がプレゼント一覧で、未受取は status=1、受取済みは status=2。ログインボーナスは present.service_menu_id=6001、CM勝利賞品は 3110 で識別できる。受取は POST /present_box/accept/<team_id>/<world_id>.json body json={"present_id":<id>}、成功レスポンスは code 000。今回の未受取5件はログインボーナス3件 + CM勝利賞品2件で、POST後に stored はたのっち profile local auth から present_box/index を再取得すると未受取0件、login-bonus はすべて status=2。/sync/all dry-run では P 2800/B 17700 から P 3100/B 18000 相当に反映され、受取内容 200P + 100P + 300B と一致。追加スクリプト scripts/manage_websoccer_present_box.py は profile DB の world_id を使い、デフォルト dry-run/ログインボーナスのみ、--execute で受取実行、--kind all/cm で対象変更。

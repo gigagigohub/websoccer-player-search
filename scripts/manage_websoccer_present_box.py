@@ -15,6 +15,7 @@ from websoccer_trade_api import db_path, profile_metadata, request_json  # noqa:
 
 
 ACTIVE_PROFILE = Path.home() / "Library" / "Containers" / "jp.novelapproach.WebSoccer" / "Data"
+LOGIN_PATH = "/login/login/{team_id}/{world_id}/{app_version}/{login_arg}.json"
 PRESENT_BOX_INDEX = "/present_box/index/{team_id}/{world_id}.json"
 PRESENT_BOX_ACCEPT = "/present_box/accept/{team_id}/{world_id}.json"
 LOGIN_BONUS_SERVICE_MENU_ID = 6001
@@ -48,6 +49,13 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument("--timeout-sec", type=float, default=15.0)
     p.add_argument("--world-id", type=int, help="Override world id. Defaults to ZWORLD_ID from Model.sqlite, then 1.")
+    p.add_argument(
+        "--trigger-login",
+        action="store_true",
+        help="Call /login/login before reading the present box. This can create a new login-bonus present.",
+    )
+    p.add_argument("--login-app-version", type=int, default=325, help="App-version path value for /login/login. Default: 325.")
+    p.add_argument("--login-arg", type=int, default=0, help="Final path value for /login/login. Default: 0.")
     p.add_argument("--json", action="store_true", help="Print machine-readable JSON.")
     return p.parse_args()
 
@@ -106,6 +114,24 @@ def main() -> int:
     meta = profile_metadata(profile)
     world_id = int(args.world_id or profile_world_id(profile))
 
+    login_trigger: dict[str, Any] | None = None
+    if args.trigger_login:
+        login_path = LOGIN_PATH.format(
+            team_id=meta["teamId"],
+            world_id=world_id,
+            app_version=args.login_app_version,
+            login_arg=args.login_arg,
+        )
+        ok, login_payload = request_json("GET", login_path, profile, timeout_sec=args.timeout_sec)
+        login_trigger = {
+            "ok": ok,
+            "path": login_path,
+            "response": login_payload,
+        }
+        if not ok or not isinstance(login_payload, dict) or str(login_payload.get("code") or "") != "000":
+            print(f"[ERROR] login/login failed: {login_payload}", file=sys.stderr)
+            return 1
+
     ok, payload = request_json(
         "GET",
         PRESENT_BOX_INDEX.format(team_id=meta["teamId"], world_id=world_id),
@@ -159,6 +185,7 @@ def main() -> int:
         "totalPresentBoxItems": len(all_items),
         "visibleCount": len(visible),
         "targetCount": len(targets),
+        "loginTrigger": login_trigger,
         "items": visible,
         "accepted": accepted,
         "errors": errors,
@@ -167,6 +194,9 @@ def main() -> int:
         print(json.dumps(result, ensure_ascii=False, indent=2))
     else:
         print(f"team: {meta['teamId']} {meta['teamName']} / {meta['ownerName']} season={meta['season']} world={world_id}")
+        if login_trigger is not None:
+            login_bonus = login_trigger["response"].get("login_bonus") if isinstance(login_trigger["response"], dict) else None
+            print(f"login_trigger=True code={login_trigger['response'].get('code') if isinstance(login_trigger['response'], dict) else None} login_bonus={login_bonus}")
         print(f"kind={args.kind} execute={args.execute} targets={len(targets)} visible={len(visible)} total={len(all_items)}")
         for item in visible:
             status = "unaccepted" if int(item.get("status") or 0) == 1 else "accepted"
