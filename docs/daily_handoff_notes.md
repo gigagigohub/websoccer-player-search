@@ -342,3 +342,7 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 ## Active Team
 
 - 2026-06-01: 2026-06-01 23:16 JST: Restored 中村サッカー倶楽部 to ACTIVE using scripts/restore_websoccer_current_profile.py --team-id 9725201. Previous ACTIVE Team005 (10533001) was saved back to teams/10533001_team005/current; previous Team005 current moved to safety_backups/10533001_team005_previous_current_20260601_231610; pre-restore ACTIVE backup at safety_backups/active_before_restore_9725201_nakamura_20260601_231613. Verified ACTIVE Model.sqlite team_id=9725201, name=中村サッカー倶楽部, owner=ナカムラマサト, season=2628, world=9, funds P=2600/B=12200/G=10. ACTIVE /sync/all dry-run returned code=000, league=433, players=21, headcoach=8.
+
+## Local Profiles
+
+- 2026-06-02: Team001-Team006 and 義務ジノラ were moved out of account_transfer/teams/*/current into /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/archived_teams/excluded_from_management_20260602 for future deletion and exclusion from all sync, login bonus, restore, player-index, roster, and trade automation targets. The stale failed Team006 trade-chain work profile local/trade_chain/profiles/イヴァノフ_626_20260531_092330_650007 was moved to local/trade_chain/archived_profiles/team001_006_20260602. After regeneration, collect_profiles reports 52 profiles (5 managed + 47 trade-chain) and players_index has 1092 rows.
