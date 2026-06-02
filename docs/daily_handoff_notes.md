@@ -277,6 +277,7 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 
 ## Trade Chain
 
+- 2026-06-02: Trade-chain work profiles are now numbered by management order using scripts/build_trade_chain_profile_registry.py. It reads local/trade_chain/profiles folder timestamps, assigns 001-047 by creation order, writes local/trade_chain/profile_registry.json and .md, and creates symlink aliases under local/trade_chain/profiles_by_no/001..047. The numbering is separate from in-game team names and does not change existing profileData paths.
 - 2026-06-01: 2026-06-01: Team005 (team_id=10533001) の CCロベルト player_id=2736 / acquiredSeason=2627 / 2期目について、/sync/all で profile を更新後に /trade/index は code 301 一週間ブロック、/trade/regist comment=TEST を試行したところ code 306 'この選手は登録できません。'。OpenAI search でもロベルト listing は0件のまま。CCロベルトはこの profile からトレード登録不可。
 - 2026-05-31: 2026-05-31: トレードリスト表示のユーザー希望: 今後、チャット上で trade listing を表示する際は Markdown 表をデフォルトにし、先頭列名は 'Trade ID' ではなく短い 'ID'、列は ID / 選手名 / 期 / コメント / 提示中 / 登録時刻 の順にする。画像生成やHTML表は使わない。
 - 2026-05-31: 2026-05-31: Individual/manual handling follow-up: user suspected the モントーヤ trade completed, so synced team_id=10565201 profile local/trade_chain/profiles/ガリアーノ_442_20260531_092326_917059/Data with /sync/all using --backup. Before sync it held ヨルセン6期; after sync it holds モントーヤ3期 (player_id=208, acquiredSeason=2626) and no ヨルセン row. Exported profile_snapshot and rebuilt the local player index; index now shows team_id=10565201 with モントーヤ3期 only for the checked pair.
