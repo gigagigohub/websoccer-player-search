@@ -15,6 +15,10 @@ from typing import Iterable, List, Tuple
 
 
 JST = timezone(timedelta(hours=9))
+SCRIPT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = SCRIPT_DIR.parent
+CODEX_ROOT = REPO_ROOT.parent
+WSC_DATA = CODEX_ROOT / "wsc_data"
 
 SKIP_EXT = {
     ".png",
@@ -39,7 +43,7 @@ SKIP_EXT = {
 
 
 def default_updatefile_dir() -> Path:
-    root = Path.home() / "work" / "coding" / "wsc_data"
+    root = WSC_DATA
     candidates = []
     for p in root.glob("UpdateFile_p*_*"):
         m = re.fullmatch(r"UpdateFile_p(\d+)_(\d+)", p.name)
@@ -72,7 +76,7 @@ def cc_source_stats(path: Path) -> tuple[int, int, int]:
 
 
 def default_cc_db() -> Path:
-    wsc_data = Path.home() / "work" / "coding" / "wsc_data"
+    wsc_data = WSC_DATA
     candidates = [
         wsc_data / "cc_match_result.sqlite3",
         Path.home() / "Desktop" / "CC_match_result_db" / "cc_match_result.sqlite3",
@@ -90,14 +94,14 @@ def default_cc_db() -> Path:
 
 
 def default_product_sqlite() -> Path:
-    local = Path.home() / "work" / "coding" / "wsc_data" / "app original" / "Payload" / "Webサッカー.app" / "Product.sqlite"
+    local = WSC_DATA / "app original" / "Payload" / "Webサッカー.app" / "Product.sqlite"
     if local.exists():
         return local
     return Path.home() / "Desktop" / "app original" / "Payload" / "Webサッカー.app" / "Product.sqlite"
 
 
 def default_out_db() -> Path:
-    out_dir = Path.home() / "Desktop" / "websoccer_master_db"
+    out_dir = WSC_DATA / "websoccer_master_db"
     stamp = datetime.now(JST).strftime("%y%m%d%H%M")
     out = out_dir / f"wsm_{stamp}.sqlite3"
     if not out.exists():
@@ -128,11 +132,11 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument(
         "--app-data-json",
-        default=str(Path.home() / "work" / "coding" / "websoccer-player-search" / "app" / "data.json"),
+        default=str(REPO_ROOT / "app" / "data.json"),
     )
     p.add_argument(
         "--coaches-data-json",
-        default=str(Path.home() / "work" / "coding" / "websoccer-player-search" / "app" / "coaches_data.json"),
+        default=str(REPO_ROOT / "app" / "coaches_data.json"),
     )
     p.add_argument(
         "--verbose",

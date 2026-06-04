@@ -14,9 +14,10 @@ from typing import Iterable, Optional
 
 
 JST = timezone(timedelta(hours=9))
-DEFAULT_LOCAL_DIR = Path.home() / "work" / "coding" / "wsc_data" / "websoccer_master_db"
-DEFAULT_JSON_ROOT = Path.home() / "work" / "coding" / "wsc_data" / "CC_match_result_json"
-DEFAULT_DESKTOP_DIR = Path.home() / "Desktop" / "websoccer_master_db"
+DEFAULT_CODING_ROOT = Path("/Users/gigagigo/Codex/WebSoccer")
+DEFAULT_LOCAL_DIR = DEFAULT_CODING_ROOT / "wsc_data" / "websoccer_master_db"
+DEFAULT_JSON_ROOT = DEFAULT_CODING_ROOT / "wsc_data" / "CC_match_result_json"
+DEFAULT_REPO_DIR = DEFAULT_CODING_ROOT / "websoccer-player-search"
 API_HOST = "api.app.websoccer.jp"
 
 
@@ -26,7 +27,6 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument("--local-dir", default=str(DEFAULT_LOCAL_DIR))
     p.add_argument("--json-root", default=str(DEFAULT_JSON_ROOT))
-    p.add_argument("--desktop-dir", default=str(DEFAULT_DESKTOP_DIR))
     p.add_argument("--source-wsm", default="", help="Source WSM. Default: latest wsm_*.sqlite3 in --local-dir")
     p.add_argument("--out-db", default="", help="Output WSM. Default: --local-dir/wsm_YYMMDDHHMM.sqlite3")
     p.add_argument(
@@ -36,7 +36,6 @@ def parse_args() -> argparse.Namespace:
         help="CC season to import. Default: latest season found in JSON.",
     )
     p.add_argument("--keep-local", type=int, default=0, help="How many local wsm_*.sqlite3 files to keep; 0 disables cleanup")
-    p.add_argument("--keep-desktop", type=int, default=0, help="How many desktop wsm_*.sqlite3 files to keep; 0 disables cleanup")
     p.add_argument("--no-cleanup", action="store_true", help="Do not remove older WSM files")
     p.add_argument(
         "--skip-site-update",
@@ -45,7 +44,7 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument(
         "--repo-dir",
-        default=str(Path.home() / "work" / "coding" / "websoccer-player-search"),
+        default=str(DEFAULT_REPO_DIR),
         help="Repository root used for site JSON update.",
     )
     p.add_argument("--out-app-dir", default="", help="Site app dir. Default: <repo-dir>/app")
@@ -447,13 +446,6 @@ def put_meta_source(conn: sqlite3.Connection, key: str, path: Path, note: str) -
     )
 
 
-def copy_to_desktop(out_db: Path, desktop_dir: Path) -> Path:
-    desktop_dir.mkdir(parents=True, exist_ok=True)
-    dest = desktop_dir / out_db.name
-    shutil.copy2(out_db, dest)
-    return dest
-
-
 def cleanup_wsm_files(directory: Path, keep: int) -> list[Path]:
     # WSM files are immutable backups. Keep every dated wsm_*.sqlite3 unless
     # the user explicitly requests manual cleanup outside this automation.
@@ -480,7 +472,6 @@ def main() -> int:
     args = parse_args()
     local_dir = Path(args.local_dir).expanduser().resolve()
     json_root = Path(args.json_root).expanduser().resolve()
-    desktop_dir = Path(args.desktop_dir).expanduser().resolve()
     repo_dir = Path(args.repo_dir).expanduser().resolve()
     out_app_dir = Path(args.out_app_dir).expanduser().resolve() if args.out_app_dir else repo_dir / "app"
     source = Path(args.source_wsm).expanduser().resolve() if args.source_wsm else latest_wsm(local_dir)
@@ -508,27 +499,20 @@ def main() -> int:
     finally:
         conn.close()
 
-    desktop_copy = copy_to_desktop(out_db, desktop_dir)
     removed_local: list[Path] = []
-    removed_desktop: list[Path] = []
-    if not args.no_cleanup and (args.keep_local > 0 or args.keep_desktop > 0):
+    if not args.no_cleanup and args.keep_local > 0:
         removed_local = cleanup_wsm_files(local_dir, args.keep_local)
-        removed_desktop = cleanup_wsm_files(desktop_dir, args.keep_desktop)
 
     if not args.skip_site_update:
         update_site_json(repo_dir, out_db, season, out_app_dir)
 
     print(f"[DONE] source_wsm={source}")
     print(f"[DONE] out_wsm={out_db}")
-    print(f"[DONE] desktop_copy={desktop_copy}")
     print(f"[DONE] season={season} import_stats={stats}")
     print(f"[DONE] season={season} summary={summary}")
     print(f"[DONE] removed_local={len(removed_local)}")
     for path in removed_local:
         print(f"  removed local {path}")
-    print(f"[DONE] removed_desktop={len(removed_desktop)}")
-    for path in removed_desktop:
-        print(f"  removed desktop {path}")
     return 0
 
 

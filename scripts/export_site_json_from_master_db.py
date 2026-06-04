@@ -9,6 +9,8 @@ import sqlite3
 from collections import OrderedDict, defaultdict
 from pathlib import Path
 
+from paths import latest_wsm_file
+
 JST = dt.timezone(dt.timedelta(hours=9))
 
 METRIC_MAP = OrderedDict(
@@ -70,7 +72,7 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Export site JSON files from unified master DB.")
     p.add_argument(
         "--master-db",
-        default=str(Path.home() / "Desktop" / "websoccer_master_db" / "websoccer_master.sqlite3"),
+        default=str(latest_wsm_file()),
     )
     p.add_argument(
         "--fallback-data-json",

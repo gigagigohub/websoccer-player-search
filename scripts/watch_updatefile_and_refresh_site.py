@@ -5,7 +5,6 @@ import argparse
 import json
 import os
 import re
-import shutil
 import ssl
 import subprocess
 import sys
@@ -27,7 +26,6 @@ DEFAULT_PUSHOVER_CONFIG = Path.home() / ".websoccer_updatefile_watch" / "config.
 DEFAULT_PUSHOVER_USER_KEY_CONFIG = Path.home() / ".yamato_pushover_watch" / "config.json"
 DEFAULT_PUSHOVER_ENV_FILE = Path.home() / ".websoccer_pushover.env"
 DEFAULT_WSM_DIR = WSC_DATA / "websoccer_master_db"
-DEFAULT_DESKTOP_WSM_DIR = Path.home() / "Desktop" / "websoccer_master_db"
 DEFAULT_FILLED_CSV = WSC_DATA / "UpdateFile_inventory" / "updatefile_ss_events_filled.csv"
 DEFAULT_CC_JSON_ROOT = WSC_DATA / "CC_match_result_json"
 DEFAULT_PRODUCT_SQLITE = WSC_DATA / "app original" / "Payload" / "Webサッカー.app" / "Product.sqlite"
@@ -67,7 +65,6 @@ def parse_args() -> argparse.Namespace:
         help="Optional fallback config used only for the Pushover user key.",
     )
     p.add_argument("--wsm-dir", default=str(DEFAULT_WSM_DIR))
-    p.add_argument("--desktop-wsm-dir", default=str(DEFAULT_DESKTOP_WSM_DIR))
     p.add_argument("--filled-csv", default=str(DEFAULT_FILLED_CSV))
     p.add_argument("--cc-db", default=str(default_master_cc_db()))
     p.add_argument("--cc-json-root", default=str(DEFAULT_CC_JSON_ROOT))
@@ -314,14 +311,7 @@ def build_master_db(
     return out_db
 
 
-def copy_latest_wsm_to_desktop(out_db: Path, desktop_wsm_dir: Path) -> Path:
-    desktop_wsm_dir.mkdir(parents=True, exist_ok=True)
-    dest = desktop_wsm_dir / out_db.name
-    shutil.copy2(out_db, dest)
-    return dest
-
-
-def cleanup_wsm_files(local_dir: Path, desktop_dir: Path) -> None:
+def cleanup_wsm_files(local_dir: Path) -> None:
     # WSM files are immutable backups. Keep every dated wsm_*.sqlite3 unless
     # the user explicitly requests manual cleanup outside this automation.
     return None
@@ -330,7 +320,6 @@ def cleanup_wsm_files(local_dir: Path, desktop_dir: Path) -> None:
 def refresh_site(
     update_dir: Path,
     wsm_dir: Path,
-    desktop_wsm_dir: Path,
     filled_csv: Path,
     cc_db: Path,
     cc_json_root: Path,
@@ -352,7 +341,6 @@ def refresh_site(
         ]
     )
     out_db = build_master_db(update_dir, wsm_dir, cc_db, cc_json_root, product_sqlite)
-    copy_latest_wsm_to_desktop(out_db, desktop_wsm_dir)
     run(
         [
             sys.executable,
@@ -376,7 +364,7 @@ def refresh_site(
         ]
     )
     run([sys.executable, str(SCRIPT_DIR / "write_site_meta.py"), "--app-dir", str(app_dir)])
-    cleanup_wsm_files(wsm_dir, desktop_wsm_dir)
+    cleanup_wsm_files(wsm_dir)
     return out_db
 
 
@@ -418,7 +406,6 @@ def main() -> int:
     pushover_user_key_config = Path(args.pushover_user_key_config).expanduser().resolve()
     pushover_env_file = Path(args.pushover_env_file).expanduser().resolve()
     wsm_dir = Path(args.wsm_dir).expanduser().resolve()
-    desktop_wsm_dir = Path(args.desktop_wsm_dir).expanduser().resolve()
     filled_csv = Path(args.filled_csv).expanduser().resolve()
     cc_db = Path(args.cc_db).expanduser().resolve()
     cc_json_root = Path(args.cc_json_root).expanduser().resolve()
@@ -462,7 +449,7 @@ def main() -> int:
             f"static={copied.player_static} action={copied.player_action} scoutButtons={copied.scout_buttons}",
             log_path,
         )
-        out_db = refresh_site(update_dir, wsm_dir, desktop_wsm_dir, filled_csv, cc_db, cc_json_root, product_sqlite)
+        out_db = refresh_site(update_dir, wsm_dir, filled_csv, cc_db, cc_json_root, product_sqlite)
         if args.commit_push:
             git_commit_push(found_versions)
 

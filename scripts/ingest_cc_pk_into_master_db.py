@@ -6,17 +6,19 @@ import json
 import sqlite3
 from pathlib import Path
 
+from paths import WSC_DATA, latest_wsm_file
+
 
 def parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser(description="Ingest CC PK data from raw JSON into master DB.")
     ap.add_argument(
         "--json-root",
-        default=str(Path.home() / "Desktop" / "CC_match_result_json"),
+        default=str(WSC_DATA / "CC_match_result_json"),
         help="Root containing CC match summary JSON files.",
     )
     ap.add_argument(
         "--master-db",
-        default=str(Path.home() / "Desktop" / "websoccer_master_db" / "websoccer_master.sqlite3"),
+        default=str(latest_wsm_file()),
         help="Master DB path.",
     )
     return ap.parse_args()
