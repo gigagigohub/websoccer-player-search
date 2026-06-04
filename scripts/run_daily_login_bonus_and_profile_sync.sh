@@ -34,6 +34,9 @@ overall_rc=0
 LOGIN_JSON="$TMP_DIR/login_bonus_summary.json"
 SYNC_JSON="$TMP_DIR/profile_sync_summary.json"
 NOTIFY_JSON="$TMP_DIR/combined_notification_summary.json"
+MANAGED_LOGIN_JSON="$TMP_DIR/managed_login_bonus_summary.json"
+MANAGED_SYNC_JSON="$TMP_DIR/managed_profile_sync_summary.json"
+MANAGED_NOTIFY_JSON="$TMP_DIR/managed_notification_summary.json"
 
 log "daily login-bonus/profile sync start"
 log "git status before run:"
@@ -71,6 +74,39 @@ else
   overall_rc=1
 fi
 cat "$NOTIFY_JSON"
+
+log "daily login trigger and present-box accept start for managed teams"
+if python3 scripts/run_all_websoccer_login_bonus.py --execute --managed-teams-only --skip-shop-player-inquiry > "$MANAGED_LOGIN_JSON"; then
+  log "managed teams daily login trigger and present-box accept done"
+else
+  rc=$?
+  log "managed teams daily login trigger and present-box accept failed with exit code $rc"
+  overall_rc=1
+fi
+cat "$MANAGED_LOGIN_JSON"
+
+log "managed team profile sync start"
+if python3 scripts/sync_all_websoccer_profiles.py --execute --managed-teams-only > "$MANAGED_SYNC_JSON"; then
+  log "managed team profile sync done"
+else
+  rc=$?
+  log "managed team profile sync failed with exit code $rc"
+  overall_rc=1
+fi
+cat "$MANAGED_SYNC_JSON"
+
+log "managed teams daily notification start"
+if python3 scripts/notify_daily_managed_team_sync_summary.py \
+  --login-summary "$MANAGED_LOGIN_JSON" \
+  --sync-summary "$MANAGED_SYNC_JSON" \
+  --notify-pushover > "$MANAGED_NOTIFY_JSON"; then
+  log "managed teams daily notification done"
+else
+  rc=$?
+  log "managed teams daily notification failed with exit code $rc"
+  overall_rc=1
+fi
+cat "$MANAGED_NOTIFY_JSON"
 
 log "git status after run:"
 git status --short || true

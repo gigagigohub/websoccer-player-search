@@ -23,7 +23,11 @@ from manage_websoccer_present_box import (  # noqa: E402
     present_info,
     profile_world_id,
 )
-from sync_all_websoccer_profiles import collect_numbered_trade_profiles, collect_profiles  # noqa: E402
+from sync_all_websoccer_profiles import (  # noqa: E402
+    collect_managed_team_profiles,
+    collect_numbered_trade_profiles,
+    collect_profiles,
+)
 from websoccer_trade_api import profile_metadata, request_json  # noqa: E402
 
 
@@ -67,6 +71,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Run only trade-chain profiles referenced by local/trade_chain/profiles_by_no.",
     )
+    p.add_argument(
+        "--managed-teams-only",
+        action="store_true",
+        help="Run only managed account-transfer teams under account_transfer/teams/*/current.",
+    )
     p.add_argument("--notify-pushover", action="store_true")
     return p.parse_args()
 
@@ -76,6 +85,8 @@ def selected_profiles(args: argparse.Namespace) -> list[Path]:
         return [Path(item).expanduser().resolve() for item in args.profile_data]
     if args.numbered_trade_profiles_only:
         return collect_numbered_trade_profiles()
+    if args.managed_teams_only:
+        return collect_managed_team_profiles()
     return collect_profiles()
 
 
@@ -345,6 +356,8 @@ def save_ticket_inventory(summary: dict[str, Any], out_dir: Path) -> dict[str, A
 
 def main() -> int:
     args = parse_args()
+    if args.numbered_trade_profiles_only and args.managed_teams_only:
+        raise SystemExit("[ERROR] --numbered-trade-profiles-only and --managed-teams-only cannot be combined")
     profiles = selected_profiles(args)
     results = [run_one(profile, args) for profile in profiles]
     failed = [item for item in results if not item.get("ok")]

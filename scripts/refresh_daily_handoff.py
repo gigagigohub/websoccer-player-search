@@ -156,7 +156,7 @@ git status --short
   - Schedule: daily 07:00 JST
   - Workdir: {plist_value(login_bonus_plist, "WorkingDirectory")}
   - Logs: `~/Library/Logs/websoccer-player-search/daily-login-bonus-sync.out.log` and `.err.log`
-  - Scope: login bonus trigger/accept for collected profiles, then full profile sync
+  - Scope: Numbered Teams login/present accept + sync with ticket/P summary, then managed teams login/present accept + sync with a separate concise notification
 
 ## Important Commands
 

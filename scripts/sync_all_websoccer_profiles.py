@@ -40,6 +40,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Sync only trade-chain profiles referenced by local/trade_chain/profiles_by_no.",
     )
+    p.add_argument(
+        "--managed-teams-only",
+        action="store_true",
+        help="Sync only managed account-transfer teams under account_transfer/teams/*/current.",
+    )
     return p.parse_args()
 
 
@@ -98,9 +103,28 @@ def collect_numbered_trade_profiles() -> list[Path]:
     return out
 
 
-def collect_profiles(*, numbered_trade_profiles_only: bool = False) -> list[Path]:
+def collect_managed_team_profiles() -> list[Path]:
+    out: list[Path] = []
+    seen: set[Path] = set()
+    for profile in sorted(MANAGED_TEAMS_ROOT.glob("*/current")):
+        if not db_path(profile).exists():
+            continue
+        try:
+            key = profile.resolve()
+        except Exception:
+            key = profile
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(profile)
+    return out
+
+
+def collect_profiles(*, numbered_trade_profiles_only: bool = False, managed_teams_only: bool = False) -> list[Path]:
     if numbered_trade_profiles_only:
         return collect_numbered_trade_profiles()
+    if managed_teams_only:
+        return collect_managed_team_profiles()
 
     paths: list[Path] = []
     paths.extend(sorted(MANAGED_TEAMS_ROOT.glob("*/current")))
@@ -225,7 +249,12 @@ def notify(result: dict[str, Any]) -> None:
 
 def main() -> int:
     args = parse_args()
-    profiles = collect_profiles(numbered_trade_profiles_only=bool(args.numbered_trade_profiles_only))
+    if args.numbered_trade_profiles_only and args.managed_teams_only:
+        raise SystemExit("[ERROR] --numbered-trade-profiles-only and --managed-teams-only cannot be combined")
+    profiles = collect_profiles(
+        numbered_trade_profiles_only=bool(args.numbered_trade_profiles_only),
+        managed_teams_only=bool(args.managed_teams_only),
+    )
     results = [sync_with_retries(profile, args) for profile in profiles]
     failed = [item for item in results if not item.get("ok")]
     skipped = [item for item in results if item.get("skipped")]

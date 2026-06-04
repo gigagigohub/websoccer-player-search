@@ -1,6 +1,6 @@
 # Daily Handoff
 
-Last reviewed: 2026-06-04 12:20 JST
+Last reviewed: 2026-06-04 19:28 JST
 
 ## Start Here
 
@@ -24,8 +24,14 @@ git status --short
 ## Dirty Tree Summary
 
 ```text
+ M docs/daily_handoff.md
  M docs/daily_handoff_notes.md
- M scripts/run_updatefile_and_core_data_watch.sh
+ M docs/new_chat_prompt.md
+ M scripts/refresh_daily_handoff.py
+ M scripts/run_all_websoccer_login_bonus.py
+ M scripts/run_daily_login_bonus_and_profile_sync.sh
+ M scripts/sync_all_websoccer_profiles.py
+?? scripts/notify_daily_managed_team_sync_summary.py
 ```
 
 ## Active Schedulers
@@ -51,7 +57,7 @@ git status --short
   - Schedule: daily 07:00 JST
   - Workdir: /Users/gigagigo/Codex/WebSoccer/websoccer-player-search
   - Logs: `~/Library/Logs/websoccer-player-search/daily-login-bonus-sync.out.log` and `.err.log`
-  - Scope: login bonus trigger/accept for collected profiles, then full profile sync
+  - Scope: Numbered Teams login/present accept + sync with ticket/P summary, then managed teams login/present accept + sync with a separate concise notification
 
 ## Important Commands
 
@@ -85,14 +91,14 @@ python3 scripts/install_daily_login_bonus_and_profile_sync_launch_agent.py
   - Latest local UpdateFile directory: `/Users/gigagigo/Codex/WebSoccer/wsc_data/UpdateFile_p40_325`.
   - Latest watcher log signals:
 ```text
-[2026-06-04 11:00:06] updatefile/core-data watch done
-[2026-06-04 12:00:02] updatefile/core-data watch start
-[2026-06-04 12:00:03+0900] p326: missing HTTPError 403
-[2026-06-04 12:00:03+0900] no new UpdateFile
-[2026-06-04 12:00:03] validating latest local core-data id: 3210
+[2026-06-04 18:00:07] updatefile/core-data watch done
+[2026-06-04 19:00:02] updatefile/core-data watch start
+[2026-06-04 19:00:02+0900] p326: missing HTTPError 403
+[2026-06-04 19:00:02+0900] no new UpdateFile
+[2026-06-04 19:00:02] validating latest local core-data id: 3210
 [FOUND] 3210: players=1 players_param=16
-[2026-06-04 12:00:05] no new core-data rows found
-[2026-06-04 12:00:05] updatefile/core-data watch done
+[2026-06-04 19:00:04] no new core-data rows found
+[2026-06-04 19:00:04] updatefile/core-data watch done
 ```
 - Update_core_data:
   - Latest local snapshot: `/Users/gigagigo/Codex/WebSoccer/wsc_data/update_core_data_3205_3210`.
@@ -146,6 +152,7 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 
 ## Notifications
 
+- 2026-06-04: daily-login-bonus-sync now runs two separate daily 07:00 flows: Numbered Teams remain unchanged with ticket/P totals in the WebSoccer Numbered Teams summary, then the 5 managed account-transfer teams run login/present-box accept and profile sync with --managed-teams-only. Managed-team notifications are separate and concise via WebSoccer Managed Teams, with no P total or ticket totals. Reinstalled com.gigagigo.websoccer.daily-login-bonus-sync so the copied runtime wrapper includes the managed-team flow.
 - 2026-06-04: Verified the first live 07:00 daily-login-bonus-sync run after changing the scope to Numbered Teams and combining notifications. LaunchAgent log showed 52 Numbered Teams processed, login-bonus targets 52, presents accepted 52, sync 52/52 successful, sync skipped 0, failed 0, shop_player/inquiry ticket total 0 with 0 inquiry failures, and the combined Pushover notification sent successfully. local/shop_player_ticket_inventory/latest.json was written at 2026-06-04T07:00:32+09:00 with profileCount=52/okCount=52.
 - 2026-06-03: Treat Japanese shorthand 'ナンバーチーム' as equivalent to the user-facing 'Numbered Teams' name for profiles_by_no / management-number teams. In chat, interpret ナンバーチーム requests as targeting the Numbered Teams set unless the user says otherwise.
 - 2026-06-03: Use 'Numbered Teams' as the user-facing name for profiles_by_no / management-number teams in daily-login-bonus-sync notifications and related summaries; avoid the awkward Japanese label 採番チーム in notification text.
