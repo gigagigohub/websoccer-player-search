@@ -19,6 +19,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 ACCOUNT_TRANSFER_ROOT = Path.home() / "Codex/WebSoccer/websoccer_local_backups/account_transfer"
 MANAGED_TEAMS_ROOT = ACCOUNT_TRANSFER_ROOT / "teams"
 TRADE_PROFILE_ROOT = REPO_ROOT / "local" / "trade_chain" / "profiles"
+NUMBERED_PROFILE_ALIAS_ROOT = REPO_ROOT / "local" / "trade_chain" / "profiles_by_no"
 INDEX_SCRIPT = REPO_ROOT / "scripts" / "build_websoccer_local_player_index.py"
 ROSTER_REPORT_SCRIPT = REPO_ROOT / "scripts" / "build_websoccer_local_roster_report.py"
 SNAPSHOT_SCRIPT = REPO_ROOT / "scripts" / "export_websoccer_local_profile_snapshot.py"
@@ -34,6 +35,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--retry-delay-sec", type=int, default=5)
     p.add_argument("--notify-pushover", action="store_true")
     p.add_argument("--no-snapshots", action="store_true", help="Skip profile snapshots and index rebuild after --execute.")
+    p.add_argument(
+        "--numbered-trade-profiles-only",
+        action="store_true",
+        help="Sync only trade-chain profiles referenced by local/trade_chain/profiles_by_no.",
+    )
     return p.parse_args()
 
 
@@ -72,7 +78,30 @@ def current_team_summary(profile: Path) -> dict[str, Any]:
         con.close()
 
 
-def collect_profiles() -> list[Path]:
+def collect_numbered_trade_profiles() -> list[Path]:
+    out: list[Path] = []
+    seen: set[Path] = set()
+    for alias in sorted(NUMBERED_PROFILE_ALIAS_ROOT.iterdir() if NUMBERED_PROFILE_ALIAS_ROOT.exists() else []):
+        if not alias.name.isdigit():
+            continue
+        profile = alias / "Data"
+        if not db_path(profile).exists():
+            continue
+        try:
+            key = profile.resolve()
+        except Exception:
+            key = profile
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(profile)
+    return out
+
+
+def collect_profiles(*, numbered_trade_profiles_only: bool = False) -> list[Path]:
+    if numbered_trade_profiles_only:
+        return collect_numbered_trade_profiles()
+
     paths: list[Path] = []
     paths.extend(sorted(MANAGED_TEAMS_ROOT.glob("*/current")))
     paths.extend(sorted(TRADE_PROFILE_ROOT.glob("*/Data")))
@@ -196,7 +225,7 @@ def notify(result: dict[str, Any]) -> None:
 
 def main() -> int:
     args = parse_args()
-    profiles = collect_profiles()
+    profiles = collect_profiles(numbered_trade_profiles_only=bool(args.numbered_trade_profiles_only))
     results = [sync_with_retries(profile, args) for profile in profiles]
     failed = [item for item in results if not item.get("ok")]
     skipped = [item for item in results if item.get("skipped")]

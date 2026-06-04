@@ -1,6 +1,6 @@
 # Daily Handoff
 
-Last reviewed: 2026-06-02 05:00 JST
+Last reviewed: 2026-06-04 12:15 JST
 
 ## Start Here
 
@@ -24,12 +24,12 @@ git status --short
 ## Dirty Tree Summary
 
 ```text
- M app/coaches_data.json
- M app/data.json
- M app/site_meta.json
+ M docs/daily_handoff.md
  M docs/daily_handoff_notes.md
- M scripts/build_websoccer_master_db.py
- M scripts/link_scout_history.py
+ M scripts/run_all_websoccer_login_bonus.py
+ M scripts/run_daily_login_bonus_and_profile_sync.sh
+ M scripts/sync_all_websoccer_profiles.py
+?? scripts/notify_daily_login_bonus_and_profile_sync_summary.py
 ```
 
 ## Active Schedulers
@@ -89,14 +89,14 @@ python3 scripts/install_daily_login_bonus_and_profile_sync_launch_agent.py
   - Latest local UpdateFile directory: `/Users/gigagigo/Codex/WebSoccer/wsc_data/UpdateFile_p40_325`.
   - Latest watcher log signals:
 ```text
-[2026-06-02 02:00:07] updatefile/core-data watch done
-[2026-06-02 03:00:05] updatefile/core-data watch start
-[2026-06-02 03:00:05+0900] p326: missing HTTPError 403
-[2026-06-02 03:00:05+0900] no new UpdateFile
-[2026-06-02 03:00:05] validating latest local core-data id: 3210
+[2026-06-04 11:00:06] updatefile/core-data watch done
+[2026-06-04 12:00:02] updatefile/core-data watch start
+[2026-06-04 12:00:03+0900] p326: missing HTTPError 403
+[2026-06-04 12:00:03+0900] no new UpdateFile
+[2026-06-04 12:00:03] validating latest local core-data id: 3210
 [FOUND] 3210: players=1 players_param=16
-[2026-06-02 03:00:07] no new core-data rows found
-[2026-06-02 03:00:07] updatefile/core-data watch done
+[2026-06-04 12:00:05] no new core-data rows found
+[2026-06-04 12:00:05] updatefile/core-data watch done
 ```
 - Update_core_data:
   - Latest local snapshot: `/Users/gigagigo/Codex/WebSoccer/wsc_data/update_core_data_3205_3210`.
@@ -119,6 +119,8 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 
 ## Team Creation / League Assignment
 
+- 2026-06-03: 2026-06-03: Compared all 52 Numbered Teams by world and league. Every world with multiple Numbered Teams had exactly one distinct current leagueId, always class=0/group=0/name=エントリーリーグ: e.g. world4 カナード teams 018/019/039/042/044/051 all leagueId=151; world11 ピピット teams 004/008/041/052 all leagueId=501. This supports interpreting differing leagueIds across teams as world-specific entry-league IDs, not future main-league assignment hints.
+- 2026-06-03: 2026-06-03: Checked Numbered Teams 051/052 creation/sync data for future main-league assignment hints. ZMOTEAMDATA only exposes ZWORLD_ID and ZLEAGUE, where ZLEAGUE maps to ZMOLEAGUE entry-league rows (051 world=4 leagueId=151 class=0 group=0; 052 world=11 leagueId=501 class=0 group=0). ZMOLEAGUE contains the world's main-league candidate rows (class 2/3/4, group 1-16), but no team-specific future group/class field was found in ZMOTEAMDATA, profile_snapshot, or preferences. If promotion destination is predetermined, it is not exposed in the current local creation/sync data checked here.
 - 2026-05-29: For API-only team creation, keep wanted_world_id=0 to match real-device behavior. Generate headcoach_id randomly from existing coach ids. Generate formation_ids randomly from WSM formation ids after excluding formations that have no available coach. Keep player_id explicitly specified until the real-device player list selection logic is understood.
 - 2026-05-29: Local CoreData detail: ZMOTEAMDATA.ZLEAGUE is a relationship to ZMOLEAGUE.Z_PK, not the WebSoccer league id. When building or repairing a local profile, set ZLEAGUE to the ZMOLEAGUE.Z_PK row whose ZID equals the server/informal league_id.
 - 2026-05-29: Team006 verification: created API-only with selected player_id 1693; server /sync/all returned world=16, season=2627, name=Team006, league=751. Local profile maps ZLEAGUE Z_PK=752 to ZMOLEAGUE.ZID=751, ZCLASS_ID=0, ZGROUP_ID=0, ZGROUP_NAME=エントリーリーグ, and the app displayed エントリーリーグB.
@@ -147,6 +149,12 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 
 ## Notifications
 
+- 2026-06-04: Verified the first live 07:00 daily-login-bonus-sync run after changing the scope to Numbered Teams and combining notifications. LaunchAgent log showed 52 Numbered Teams processed, login-bonus targets 52, presents accepted 52, sync 52/52 successful, sync skipped 0, failed 0, shop_player/inquiry ticket total 0 with 0 inquiry failures, and the combined Pushover notification sent successfully. local/shop_player_ticket_inventory/latest.json was written at 2026-06-04T07:00:32+09:00 with profileCount=52/okCount=52.
+- 2026-06-03: Treat Japanese shorthand 'ナンバーチーム' as equivalent to the user-facing 'Numbered Teams' name for profiles_by_no / management-number teams. In chat, interpret ナンバーチーム requests as targeting the Numbered Teams set unless the user says otherwise.
+- 2026-06-03: Use 'Numbered Teams' as the user-facing name for profiles_by_no / management-number teams in daily-login-bonus-sync notifications and related summaries; avoid the awkward Japanese label 採番チーム in notification text.
+- 2026-06-03: daily-login-bonus-sync scope changed to numbered trade-chain profiles only: scripts/run_daily_login_bonus_and_profile_sync.sh now passes --numbered-trade-profiles-only to run_all_websoccer_login_bonus.py and sync_all_websoccer_profiles.py, suppresses their individual Pushover notifications, and sends one combined WebSoccer Daily Sync notification via notify_daily_login_bonus_and_profile_sync_summary.py. The combined notification includes sync success count, login-bonus target count, present accepted count, numbered-profile total P after sync, and shop_player/inquiry ticket totals with 1/2/3 breakdown. LaunchAgent runtime wrapper was reinstalled; first live verification remains the next 07:00 scheduled run.
+- 2026-06-03: daily-login-bonus-sync now also collects read-only shop_player/inquiry ticket inventory for every collect_profiles() target after login/present-box handling. run_all_websoccer_login_bonus.py saves local/shop_player_ticket_inventory/latest.json and a timestamped ticket_inventory_*.json with ticketTotalsByType/ticketTotalCount; Pushover summary includes ticket totals and ticket inquiry failure count. First live verification is expected at the next 07:00 scheduled run because this was implemented during maintenance without API execution.
+- 2026-06-02: 毎朝7:00の daily-login-bonus-sync は、/login/login でログイン判定を発生させた後、present_box の service_menu_id=6001 だけでなく status=1 の未受取プレゼントを全件 accept する方針に変更。run_all_websoccer_login_bonus.py は targetBreakdownByServiceMenuId と loginBonusTargetCount を出力し、Pushover 通知も WebSoccer Present Box として全回収件数/内訳を送る。LaunchAgent runtime wrapper は再インストール済み。
 - 2026-06-01: 通知系疎通テスト。notify_pushover.py の通常 env (~/.websoccer_pushover.env) 直送、handoff env (~/.handoff_pushover.env + HANDOFF_* vars) 直送、test_trade_pushover_notifications.py の trade 6パターン、watch_updatefile_and_refresh_site.notify の env fallback 経路はいずれも送信成功。run_cc_update_pipeline.py の通知フックは failure 通知送信は確認できたが、成功側 dry-run は事前の local gate-key CC API check が code=304 で止まり成功通知まで到達せず。capture-only + --skip-capture は auth_source=local でも最新 Charles session を見に行く挙動があるため、CC成功通知の疎通確認コマンドとしては使わない。
 - 2026-05-29: Pushover is configured through ~/.websoccer_pushover.env and must not be committed. Notification titles were standardized in English for CC/UpdateFile/core flows; message bodies may remain Japanese. Test notifications were delivered successfully.
 
@@ -321,6 +329,9 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 
 ## Chat Notes
 
+- 2026-06-03: Created Numbered Teams 051 and 052 and completed the requested FC虹 trades. 051: profile local/trade_chain/profiles/カラバッジォ_46_20260603_172518_298054/Data, team_id=10592801, teamName=HFYkNPNGe, owner=uPlMpR, initial NR カラバッジォ player_id=46 was trade_regist code=000, verified by OpenAI trade search as trade_id=63772101 because the new team's own trade/index is one-week blocked code=301; FC虹 offered SS カラバッジォ player_id=2164 acquiredSeason=2625, request_trade_id=71965401, 051 trade_execute code=000. 052: profile local/trade_chain/profiles/アルフォンス_2146_20260603_172634_349661/Data, team_id=10593001, teamName=AeoBjaYhpK, owner=BdFEYfpONc, initial NR アルフォンス player_id=2146 was verified as trade_id=63772201; FC虹 offered SS リヴェラーニ player_id=1561 acquiredSeason=2625, request_trade_id=71965501, 052 trade_execute code=000. Synced 051/052 and FC虹, exported snapshots, rebuilt players_index/rosters, and rebuilt profile_registry/profiles_by_no now count=52.
+- 2026-06-02: Created trade-chain managementNo 050 as a new random-name team with initial NR ガリアーノ player_id=442. Profile: local/trade_chain/profiles/ガリアーノ_442_20260602_235726_960208/Data. Result team_id=10590601, teamName=XpyQKaPRS, ownerName=VfnFRAX, season=2628, worldId=15. Synced profile has ガリアーノ player_id=442 acquiredSeason=2628 termNo=1 rosterNo=19. Regenerated profile snapshot, players_index/rosters, and trade-chain profile_registry/profiles_by_no; collect_profiles now reports 55 profiles, registry count is 50, and players_index has 1155 rows.
+- 2026-06-02: Created trade-chain managementNo 049 as a new random-name team with initial NR クロイツ player_id=460. Profile: local/trade_chain/profiles/クロイツ_460_20260602_231314_227189/Data. Result team_id=10590401, teamName=SKGMtoHa, ownerName=yBRKikr, season=2628, worldId=8. Synced profile has クロイツ player_id=460 acquiredSeason=2628 termNo=1 rosterNo=17. Regenerated profile snapshot, players_index/rosters, and trade-chain profile_registry/profiles_by_no; collect_profiles now reports 54 profiles, registry count is 49, and players_index has 1134 rows.
 - 2026-05-31: 2026-05-31: 全チーム状況を最新化。scripts/sync_all_websoccer_profiles.py --execute --backup --timeout-sec 30 --retries 2 --retry-delay-sec 5 で account_transfer/teams/*/current 12件 + local/trade_chain/profiles/*/Data 47件、計59プロフィールを /sync/all 同期。結果は成功59/失敗0/スキップ0、postSync snapshot/player_index/roster_report も returncode 0。players_index は canonical roots=/Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer と /Users/gigagigo/Codex/WebSoccer/websoccer-player-search/local/trade_chain/profiles で再生成し、1239行=59チーム×21人、skipped 0。build_websoccer_local_player_index.py と build_websoccer_local_roster_report.py の既定パスも古い work/coding から canonical Codex/WebSoccer 側へ修正。
 - 2026-05-31: 2026-05-31 trade_chain: Adjusted same-player and open-offer fallback logic. Named comments that specify the same player as the listed/search target now use normal offer logic instead of same_player_offer_not_allowed; existing same_player_offer_not_allowed skippedListings are retryable. Blank/open-comment offers that fail with code 301 message indicating the other team cannot acquire the selected player are retryable and the same cycle tries the next rotation candidate. Verified on active ヨルセン4/5: ヨルセン6 named comments were requested successfully, and the prior カヌー-failed open listing 63327501 retried with next rotation ヒメネス and succeeded. Restarted screen monitor trade_chain_yorsen45, new log local/trade_chain/logs/trade_chain_scheduler_20260531_125457_trade_chain_yorsen45.log.
 - 2026-05-31: 2026-05-31 trade_chain: Started ヨルセン4期 and ヨルセン5期. ヨルセン4: skipped two same-player comment requests because no 若返り, requested 63494901 with エルデラ successfully. ヨルセン5: requested 63449301 with ジャミ successfully, one カヌー open-offer attempt to 63327501 failed code 301 other team cannot acquire selected player, skipped one same-player request, requested 63437101 with カヌー successfully. Open-offer rotation advanced to nextIndex=1 after successful カヌー use. Started detached screen monitor trade_chain_yorsen45 for queries ヨルセン:4 and ヨルセン:5, log local/trade_chain/logs/trade_chain_scheduler_20260531_124858_trade_chain_yorsen45.log.
@@ -384,6 +395,9 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 
 ## Trade Chain
 
+- 2026-06-02: Created trade-chain managementNo 048 as a new random-name team with initial NR ビーティー player_id=458. Profile: local/trade_chain/profiles/ビーティー_458_20260602_225425_979305/Data. Result team_id=10590301, teamName=uoNTCqZW, ownerName=LOANPMKF, season=2628, worldId=15. Synced profile has ビーティー player_id=458 acquiredSeason=2628 termNo=1. Regenerated profile snapshot, players_index/rosters, and trade-chain profile_registry/profiles_by_no; collect_profiles now reports 53 profiles and registry count is 48.
+- 2026-06-02: When the user refers to 001, 003, etc. in trade-chain context, interpret those as trade-chain profile managementNo values from local/trade_chain/profile_registry.json and profiles_by_no, not archived Team001/Team003 account-transfer profiles. Avoid mixing this numbering with old Team001-Team006 names.
+- 2026-06-02: Trade-chain work profiles are now numbered by management order using scripts/build_trade_chain_profile_registry.py. It reads local/trade_chain/profiles folder timestamps, assigns 001-047 by creation order, writes local/trade_chain/profile_registry.json and .md, and creates symlink aliases under local/trade_chain/profiles_by_no/001..047. The numbering is separate from in-game team names and does not change existing profileData paths.
 - 2026-06-01: 2026-06-01: Team005 (team_id=10533001) の CCロベルト player_id=2736 / acquiredSeason=2627 / 2期目について、/sync/all で profile を更新後に /trade/index は code 301 一週間ブロック、/trade/regist comment=TEST を試行したところ code 306 'この選手は登録できません。'。OpenAI search でもロベルト listing は0件のまま。CCロベルトはこの profile からトレード登録不可。
 - 2026-05-31: 2026-05-31: トレードリスト表示のユーザー希望: 今後、チャット上で trade listing を表示する際は Markdown 表をデフォルトにし、先頭列名は 'Trade ID' ではなく短い 'ID'、列は ID / 選手名 / 期 / コメント / 提示中 / 登録時刻 の順にする。画像生成やHTML表は使わない。
 - 2026-05-31: 2026-05-31: Individual/manual handling follow-up: user suspected the モントーヤ trade completed, so synced team_id=10565201 profile local/trade_chain/profiles/ガリアーノ_442_20260531_092326_917059/Data with /sync/all using --backup. Before sync it held ヨルセン6期; after sync it holds モントーヤ3期 (player_id=208, acquiredSeason=2626) and no ヨルセン row. Exported profile_snapshot and rebuilt the local player index; index now shows team_id=10565201 with モントーヤ3期 only for the checked pair.
@@ -449,6 +463,10 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 ## Active Team
 
 - 2026-06-01: 2026-06-01 23:16 JST: Restored 中村サッカー倶楽部 to ACTIVE using scripts/restore_websoccer_current_profile.py --team-id 9725201. Previous ACTIVE Team005 (10533001) was saved back to teams/10533001_team005/current; previous Team005 current moved to safety_backups/10533001_team005_previous_current_20260601_231610; pre-restore ACTIVE backup at safety_backups/active_before_restore_9725201_nakamura_20260601_231613. Verified ACTIVE Model.sqlite team_id=9725201, name=中村サッカー倶楽部, owner=ナカムラマサト, season=2628, world=9, funds P=2600/B=12200/G=10. ACTIVE /sync/all dry-run returned code=000, league=433, players=21, headcoach=8.
+
+## Local Profiles
+
+- 2026-06-02: Team001-Team006 and 義務ジノラ were moved out of account_transfer/teams/*/current into /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/archived_teams/excluded_from_management_20260602 for future deletion and exclusion from all sync, login bonus, restore, player-index, roster, and trade automation targets. The stale failed Team006 trade-chain work profile local/trade_chain/profiles/イヴァノフ_626_20260531_092330_650007 was moved to local/trade_chain/archived_profiles/team001_006_20260602. After regeneration, collect_profiles reports 52 profiles (5 managed + 47 trade-chain) and players_index has 1092 rows.
 
 ## Unresolved Issues
 
