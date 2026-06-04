@@ -16,6 +16,17 @@ log() {
   echo "[$(timestamp)] $*"
 }
 
+notify_pushover() {
+  local title="$1"
+  local message="$2"
+  if python3 scripts/notify_pushover.py --title "$title" --message "$message"; then
+    log "Pushover notification sent: $title"
+  else
+    local rc=$?
+    log "Pushover notification skipped/failed for $title with exit code $rc"
+  fi
+}
+
 hour="$(date '+%H')"
 case "$hour" in
   04|05|06)
@@ -69,7 +80,8 @@ python3 scripts/fetch_update_core_data.py \
 
 validate_out="$(mktemp)"
 probe_out="$(mktemp)"
-trap 'rm -f "$validate_out" "$probe_out"; rmdir "$LOCK_DIR"' EXIT
+save_out="$(mktemp)"
+trap 'rm -f "$validate_out" "$probe_out" "$save_out"; rmdir "$LOCK_DIR"' EXIT
 
 log "validating latest local core-data id: $latest_core_id"
 python3 scripts/fetch_update_core_data.py \
@@ -90,9 +102,28 @@ if grep -q '^\[FOUND\]' "$validate_out"; then
   cat "$probe_out"
 
   if grep -q '^\[FOUND\]' "$probe_out"; then
+    found_line="$(grep '^\[FOUND\]' "$probe_out" | paste -sd ';' -)"
+    output_line="$(grep '^\[INFO\] output:' "$probe_out" | tail -n 1 | sed 's/^\[INFO\] output: //')"
     log "new core-data rows found; saving"
+    notify_pushover \
+      "WebSoccer Core Data" \
+      "新しい update_core_data が見つかりました: ${found_line:-details unavailable}"
     python3 scripts/fetch_update_core_data.py \
-      --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current
+      --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current \
+      >"$save_out" 2>&1
+    save_rc=$?
+    cat "$save_out"
+    if [[ "$save_rc" -eq 0 ]]; then
+      done_line="$(grep '^\[DONE\] saved core rows:' "$save_out" | tail -n 1)"
+      saved_output_line="$(grep '^\[INFO\] output:' "$save_out" | tail -n 1 | sed 's/^\[INFO\] output: //')"
+      notify_pushover \
+        "WebSoccer Core Data Complete" \
+        "${done_line:-update_core_data の保存が完了しました}${saved_output_line:+ / output: $saved_output_line}"
+    else
+      notify_pushover \
+        "WebSoccer Core Data Failed" \
+        "update_core_data の保存に失敗しました: exit=$save_rc${output_line:+ / planned output: $output_line}"
+    fi
   else
     log "no new core-data rows found"
   fi

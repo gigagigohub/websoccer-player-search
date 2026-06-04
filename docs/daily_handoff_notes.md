@@ -36,6 +36,7 @@ Use this file for durable context learned during chats. `scripts/refresh_daily_h
 
 ## UpdateFile / Core Data
 
+- 2026-06-04: Update_core_data watcher now sends Pushover notifications when new core-data rows are detected: WebSoccer Core Data on discovery, WebSoccer Core Data Complete after successful save, and WebSoccer Core Data Failed if the save command exits nonzero. No-new-core-data runs remain silent. The LaunchAgent runtime wrapper execs the repo-side scripts/run_updatefile_and_core_data_watch.sh, so no reinstall is required for this script-only change.
 - 2026-05-29: UpdateFile/core-data automation skips the 04:00, 05:00, and 06:00 JST runs because Webサッカー maintenance is 04:00-07:00. UpdateFile pXXX.zip checks are non-GUI, but Update_core_data may need fresh WebSoccer auth; validate an existing latest core id first before deciding to capture a new key.
 - 2026-05-29: Update_core_data endpoint behavior: existing ids are fetched via /update_core_data/player/<ids>/.json and /update_core_data/players_param/<ids>/.json. A fresh valid session fetched existing id 3205 successfully, while next unissued id 3211 returned HTTP 500; treat HTTP 500 for only the next id as no-new-core-data when the latest existing id still returns rows.
 
