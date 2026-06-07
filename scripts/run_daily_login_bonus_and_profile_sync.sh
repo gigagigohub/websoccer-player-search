@@ -33,6 +33,7 @@ cd "$REPO_DIR" || exit 1
 overall_rc=0
 LOGIN_JSON="$TMP_DIR/login_bonus_summary.json"
 SYNC_JSON="$TMP_DIR/profile_sync_summary.json"
+TRADE_COMPLETION_JSON="$TMP_DIR/trade_completion_summary.json"
 NOTIFY_JSON="$TMP_DIR/combined_notification_summary.json"
 MANAGED_LOGIN_JSON="$TMP_DIR/managed_login_bonus_summary.json"
 MANAGED_SYNC_JSON="$TMP_DIR/managed_profile_sync_summary.json"
@@ -62,10 +63,23 @@ else
 fi
 cat "$SYNC_JSON"
 
+log "numbered trade-chain daily completion detection start"
+if python3 scripts/detect_daily_trade_chain_completions.py \
+  --sync-summary "$SYNC_JSON" \
+  --execute > "$TRADE_COMPLETION_JSON"; then
+  log "numbered trade-chain daily completion detection done"
+else
+  rc=$?
+  log "numbered trade-chain daily completion detection failed with exit code $rc"
+  overall_rc=1
+fi
+cat "$TRADE_COMPLETION_JSON"
+
 log "combined daily notification start"
 if python3 scripts/notify_daily_login_bonus_and_profile_sync_summary.py \
   --login-summary "$LOGIN_JSON" \
   --sync-summary "$SYNC_JSON" \
+  --trade-completion-summary "$TRADE_COMPLETION_JSON" \
   --notify-pushover > "$NOTIFY_JSON"; then
   log "combined daily notification done"
 else

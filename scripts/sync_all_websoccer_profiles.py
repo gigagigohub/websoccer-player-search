@@ -83,6 +83,42 @@ def current_team_summary(profile: Path) -> dict[str, Any]:
         con.close()
 
 
+def current_roster(profile: Path) -> dict[str, str]:
+    db = db_path(profile)
+    if not db.exists():
+        return {}
+    con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+    try:
+        rows = con.execute(
+            """
+            select p.ZPLAYER_ID, p.ZNAME
+            from ZMOTEAMSPLAYER tp
+            join ZMOPLAYER p on p.Z_PK = tp.ZPLAYER
+            """
+        ).fetchall()
+        return {str(int(pid)): str(name or pid) for pid, name in rows if pid is not None}
+    finally:
+        con.close()
+
+
+def payload_roster(payload: dict[str, Any]) -> dict[str, str]:
+    players = ((payload.get("team_data") or {}).get("players") or [])
+    out: dict[str, str] = {}
+    for player in players:
+        try:
+            player_id = str(int(player["id"]))
+        except Exception:
+            continue
+        out[player_id] = str(player.get("name") or player_id)
+    return out
+
+
+def roster_diff(before: dict[str, str], after: dict[str, str]) -> dict[str, list[dict[str, Any]]]:
+    added = [{"playerId": int(pid), "playerName": after[pid]} for pid in sorted(set(after) - set(before), key=int)]
+    removed = [{"playerId": int(pid), "playerName": before[pid]} for pid in sorted(set(before) - set(after), key=int)]
+    return {"added": added, "removed": removed}
+
+
 def collect_numbered_trade_profiles() -> list[Path]:
     out: list[Path] = []
     seen: set[Path] = set()
@@ -150,6 +186,7 @@ def collect_profiles(*, numbered_trade_profiles_only: bool = False, managed_team
 
 def sync_one(profile: Path, args: argparse.Namespace) -> dict[str, Any]:
     before = current_team_summary(profile)
+    roster_before = current_roster(profile)
     auth = local_auth_from_container(profile)
     if not auth:
         return {"profileData": str(profile), "ok": False, "error": "could not generate auth", "before": before}
@@ -179,6 +216,10 @@ def sync_one(profile: Path, args: argparse.Namespace) -> dict[str, Any]:
             "players": len((payload.get("team_data") or {}).get("players") or []),
         },
     }
+    roster_after = payload_roster(payload)
+    result["rosterBefore"] = roster_before
+    result["rosterAfter"] = roster_after
+    result["rosterDiff"] = roster_diff(roster_before, roster_after)
     if not args.execute:
         return result
 

@@ -24,6 +24,7 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Send one daily summary notification for numbered trade-chain profiles.")
     p.add_argument("--login-summary", required=True, help="JSON output from run_all_websoccer_login_bonus.py.")
     p.add_argument("--sync-summary", required=True, help="JSON output from sync_all_websoccer_profiles.py.")
+    p.add_argument("--trade-completion-summary", default="", help="JSON output from detect_daily_trade_chain_completions.py.")
     p.add_argument("--notify-pushover", action="store_true", help="Send the combined Pushover notification.")
     return p.parse_args()
 
@@ -54,7 +55,7 @@ def format_ticket_totals(totals: dict[str, Any]) -> str:
     return ", ".join(f"{key}:{value}" for key, value in sorted(normalized.items()))
 
 
-def build_summary(login: dict[str, Any], sync: dict[str, Any]) -> dict[str, Any]:
+def build_summary(login: dict[str, Any], sync: dict[str, Any], trade_completion: dict[str, Any] | None = None) -> dict[str, Any]:
     point_profile_count, point_total = total_points()
     login_failed = login.get("failed") or []
     ticket_failed = login.get("ticketInquiryFailed") or []
@@ -70,6 +71,9 @@ def build_summary(login: dict[str, Any], sync: dict[str, Any]) -> dict[str, Any]
         f" / 合計P {point_total:,}"
         f" / チケット {login.get('ticketTotalCount', 0)}枚 ({format_ticket_totals(ticket_totals)})"
     )
+    trade_completion = trade_completion or {}
+    if trade_completion.get("completedCount"):
+        message += f" / {trade_completion.get('message')}"
     issue_parts: list[str] = []
     if login_failed:
         issue_parts.append(f"ログイン/受取失敗{len(login_failed)}")
@@ -90,6 +94,8 @@ def build_summary(login: dict[str, Any], sync: dict[str, Any]) -> dict[str, Any]
         "acceptedCount": int(login.get("acceptedCount") or 0),
         "syncOkCount": int(sync.get("okCount") or 0),
         "syncSkippedCount": len(sync_skipped),
+        "tradeCompletedCount": int(trade_completion.get("completedCount") or 0),
+        "tradeCompletionMessage": str(trade_completion.get("message") or ""),
         "failedCount": len(login_failed) + len(ticket_failed) + len(sync_failed),
         "message": message,
     }
@@ -105,7 +111,8 @@ def notify(message: str) -> int:
 
 def main() -> int:
     args = parse_args()
-    summary = build_summary(load_json(args.login_summary), load_json(args.sync_summary))
+    trade_completion = load_json(args.trade_completion_summary) if args.trade_completion_summary else None
+    summary = build_summary(load_json(args.login_summary), load_json(args.sync_summary), trade_completion)
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     if args.notify_pushover:
         return notify(summary["message"])
