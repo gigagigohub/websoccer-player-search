@@ -56,6 +56,19 @@ The installed wrapper must pass the OpenAI profile explicitly and must use `--au
 --skip-capture`. Scheduled CC updates are not allowed to launch Charles or Webサッカー. Manual
 fallback investigation should be done outside this automation path.
 
+If the Sunday 02:00 job is missed and you manually catch up after the Sunday 04:00 season rollover,
+use `--season 1` instead of the scheduled `--season 0`.
+
+```bash
+python3 scripts/run_cc_update_pipeline.py \
+  --websoccer-container /Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current \
+  --auth-source local \
+  --skip-capture \
+  --season 1 \
+  --commit-push \
+  --notify-pushover
+```
+
 Logs are written to:
 
 ```text

@@ -183,7 +183,7 @@ def local_auth_passes_cc_api_check(args: argparse.Namespace) -> bool:
 
 
 def resolve_session(args: argparse.Namespace) -> Optional[Path]:
-    if args.auth_source in {"auto", "local"} and not args.capture_only:
+    if args.auth_source in {"auto", "local"}:
         if local_auth_passes_cc_api_check(args):
             return None
         if args.auth_source == "local":
@@ -265,7 +265,7 @@ def update_wsm_and_site(args: argparse.Namespace) -> None:
     run(cmd)
 
 
-def git_commit_push(args: argparse.Namespace) -> None:
+def git_commit_push(args: argparse.Namespace, progress: dict[str, bool] | None = None) -> None:
     tracked = run(["git", "ls-files", *SITE_GIT_PATHS], capture=True).stdout.splitlines()
     paths = [p for p in tracked if (REPO_ROOT / p).exists()]
     if not paths:
@@ -279,19 +279,44 @@ def git_commit_push(args: argparse.Namespace) -> None:
 
     run(["git", "add", "--", *paths])
     run(["git", "commit", "-m", args.commit_message])
+    if progress is not None:
+        progress["committed"] = True
     if not args.skip_push:
         run(["git", "push"])
+        if progress is not None:
+            progress["pushed"] = True
 
 
-def notify_pushover(args: argparse.Namespace, *, success: bool, detail: str) -> None:
+def cc_season_label(args: argparse.Namespace) -> str:
+    if args.season == 0:
+        return "現シーズン"
+    if args.season == 1:
+        return "昨シーズン"
+    return f"{args.season}シーズン前"
+
+
+def notify_pushover(
+    args: argparse.Namespace,
+    *,
+    success: bool,
+    detail: str,
+    site_updated: bool = False,
+) -> None:
     if not args.notify_pushover:
         return
-    title = "WebSoccer CC Update Complete" if success else "WebSoccer CC Update Failed"
-    message = (
-        f"現シーズンCCデータ取得とサイト更新が完了しました。{detail}"
-        if success
-        else f"現シーズンCC更新に失敗しました。{detail}"
-    )
+    season_label = cc_season_label(args)
+    if success:
+        title = "WebSoccer CC Update Complete"
+        message = f"{season_label}CCデータ取得とサイト更新が完了しました。{detail}"
+        priority = "0"
+    elif site_updated:
+        title = "WebSoccer CC Publish Failed"
+        message = f"{season_label}CCデータ取得とサイト更新は完了しましたが、commit/push段階で失敗しました。{detail}"
+        priority = "1"
+    else:
+        title = "WebSoccer CC Update Failed"
+        message = f"{season_label}CC更新に失敗しました。{detail}"
+        priority = "1"
     cp = run(
         [
             PYTHON_EXE,
@@ -303,7 +328,7 @@ def notify_pushover(args: argparse.Namespace, *, success: bool, detail: str) -> 
             "--message",
             message,
             "--priority",
-            "0" if success else "1",
+            priority,
         ],
         check=False,
     )
@@ -316,6 +341,12 @@ def main() -> int:
     rc = 0
     error_detail = ""
     session_file: Optional[Path] = None
+    progress = {
+        "fetched": False,
+        "site_updated": False,
+        "committed": False,
+        "pushed": False,
+    }
     try:
         session_file = resolve_session(args)
         if args.capture_only:
@@ -327,13 +358,15 @@ def main() -> int:
             notify_pushover(args, success=True, detail="capture-only セッション検証のみ完了。")
             return 0
         fetch_cc(args, session_file)
+        progress["fetched"] = True
         if args.dry_run_fetch:
             print("[DONE] dry-run fetch completed; WSM/site/git steps skipped.")
         else:
             if not args.skip_wsm_update:
                 update_wsm_and_site(args)
+                progress["site_updated"] = True
             if args.commit_push:
-                git_commit_push(args)
+                git_commit_push(args, progress)
     except Exception as exc:  # noqa: BLE001
         error_detail = str(exc)
         print(f"[ERROR] {exc}", file=sys.stderr, flush=True)
@@ -344,7 +377,7 @@ def main() -> int:
         notify_pushover(args, success=True, detail="commit/push 実行オプションに従って処理済み。")
         print("[DONE] CC update pipeline completed.")
     else:
-        notify_pushover(args, success=False, detail=error_detail[:500])
+        notify_pushover(args, success=False, detail=error_detail[:500], site_updated=progress["site_updated"])
     return rc
 
 
