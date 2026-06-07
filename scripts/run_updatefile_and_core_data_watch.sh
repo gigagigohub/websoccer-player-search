@@ -4,6 +4,7 @@ set -u
 REPO_DIR="${WEBSOCCER_PLAYER_SEARCH_REPO:-/Users/gigagigo/Codex/WebSoccer/websoccer-player-search}"
 LOG_DIR="$HOME/Library/Logs/websoccer-player-search"
 LOCK_DIR="$HOME/Library/Application Support/websoccer-player-search/updatefile-core-watch.lock"
+ORDINARY_PUSHOVER_ENV="${WEBSOCCER_ORDINARY_PUSHOVER_ENV:-$HOME/.websoccer_ordinary_pushover.env}"
 
 mkdir -p "$LOG_DIR"
 mkdir -p "$(dirname "$LOCK_DIR")"
@@ -19,7 +20,7 @@ log() {
 notify_pushover() {
   local title="$1"
   local message="$2"
-  if python3 scripts/notify_pushover.py --title "$title" --message "$message"; then
+  if python3 scripts/notify_pushover.py --env-file "$ORDINARY_PUSHOVER_ENV" --title "$title" --message "$message"; then
     log "Pushover notification sent: $title"
   else
     local rc=$?

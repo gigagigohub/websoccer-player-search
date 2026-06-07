@@ -24,6 +24,7 @@ PYTHON_EXE = str(PYTHON if PYTHON.exists() else Path(sys.executable))
 SESSION_SUFFIXES = {".chlsx", ".chlsj", ".chlz"}
 DEFAULT_SESSION_DIR = Path.home() / "charles_sessions"
 DEFAULT_OPENAI_AUTH_PROFILE = Path("/Users/gigagigo/Codex/WebSoccer/websoccer_local_backups/account_transfer/teams/10527301_openai/current")
+DEFAULT_ORDINARY_PUSHOVER_ENV = Path.home() / ".websoccer_ordinary_pushover.env"
 SITE_GIT_PATHS = [
     "app/data.json",
     "app/coaches_data.json",
@@ -83,7 +84,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--commit-message", default="Update CC data and site")
     p.add_argument("--skip-push", action="store_true", help="Commit only, without git push")
     p.add_argument("--notify-pushover", action="store_true", help="Send Pushover notification on success/failure")
-    p.add_argument("--pushover-env-file", default=str(Path.home() / ".websoccer_pushover.env"))
+    p.add_argument(
+        "--pushover-env-file",
+        default=str(DEFAULT_ORDINARY_PUSHOVER_ENV),
+        help=f"Pushover secret env file for WSC Ordinary notifications (default: {DEFAULT_ORDINARY_PUSHOVER_ENV})",
+    )
     return p.parse_args()
 
 

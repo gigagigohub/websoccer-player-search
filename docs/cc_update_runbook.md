@@ -160,7 +160,7 @@ python3 scripts/run_cc_update_pipeline.py --season 0 --commit-push --notify-push
 Create this local secret file on the Mac. Do not commit the values:
 
 ```bash
-~/.websoccer_pushover.env
+~/.websoccer_ordinary_pushover.env
 ```
 
 ```text
@@ -168,10 +168,10 @@ PUSHOVER_APP_TOKEN=...
 PUSHOVER_USER_KEY=...
 ```
 
-The weekly LaunchAgent passes `--auth-source local --skip-capture --notify-pushover`. It should use
-the stored OpenAI profile and should fail rather than launching Charles/Webサッカー if local auth
-breaks. If the Pushover file or variables are missing, the CC update still runs and only the
-notification is skipped.
+Use the WSC Ordinary Pushover App Key for `PUSHOVER_APP_TOKEN`. The weekly LaunchAgent passes
+`--auth-source local --skip-capture --notify-pushover`. It should use the stored OpenAI profile and
+should fail rather than launching Charles/Webサッカー if local auth breaks. If the Pushover file or
+variables are missing, the CC update still runs and only the notification is skipped.
 
 ## Git Hygiene
 
