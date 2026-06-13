@@ -9,9 +9,23 @@ import zipfile
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
 
-ROOT = Path('/Users/gigagigo/Codex/WebSoccer/websoccer-player-search')
-ZIP_DIR = Path('/Users/gigagigo/Codex/WebSoccer/wsc_data/UpdateFile_p40_322')
-FILLED_CSV = Path('/Users/gigagigo/Codex/WebSoccer/wsc_data/UpdateFile_inventory/updatefile_ss_events_filled.csv')
+ROOT = Path(__file__).resolve().parent.parent
+WSC_DATA = ROOT.parent / 'wsc_data'
+
+
+def latest_updatefile_dir() -> Path:
+    def key(path: Path) -> tuple[int, str]:
+        nums = [int(x) for x in re.findall(r'\d+', path.name)]
+        return (nums[-1] if nums else -1, path.name)
+
+    dirs = sorted(WSC_DATA.glob('UpdateFile_p*'), key=key)
+    if not dirs:
+        return WSC_DATA / 'UpdateFile_p40_322'
+    return dirs[-1]
+
+
+ZIP_DIR = latest_updatefile_dir()
+FILLED_CSV = WSC_DATA / 'UpdateFile_inventory' / 'updatefile_ss_events_filled.csv'
 
 APP_DATA = ROOT / 'app' / 'data.json'
 

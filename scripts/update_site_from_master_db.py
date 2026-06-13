@@ -10,6 +10,7 @@ from pathlib import Path
 
 
 DEFAULT_WSM_DIR = Path("/Users/gigagigo/Codex/WebSoccer/wsc_data/websoccer_master_db")
+WSC_DATA = Path("/Users/gigagigo/Codex/WebSoccer/wsc_data")
 
 
 def is_main_wsm(path: Path) -> bool:
@@ -21,6 +22,17 @@ def latest_wsm(wsm_dir: Path) -> Path:
     if not files:
         raise FileNotFoundError(f"no wsm_*.sqlite3 found in {wsm_dir}")
     return sorted(files, key=lambda p: (p.name, p.stat().st_mtime))[-1]
+
+
+def latest_updatefile_dir() -> Path:
+    def key(path: Path) -> tuple[int, str]:
+        nums = [int(x) for x in re.findall(r"\d+", path.name)]
+        return (nums[-1] if nums else -1, path.name)
+
+    dirs = sorted(WSC_DATA.glob("UpdateFile_p*"), key=key)
+    if not dirs:
+        raise FileNotFoundError(f"no UpdateFile_p* directory found in {WSC_DATA}")
+    return dirs[-1]
 
 
 def parse_args() -> argparse.Namespace:
@@ -45,6 +57,26 @@ def parse_args() -> argparse.Namespace:
         "--fallback-legacy",
         action="store_true",
         help="Run the previous legacy updater instead of master-db flow.",
+    )
+    p.add_argument(
+        "--skip-scout-history",
+        action="store_true",
+        help="Do not re-attach per-player scoutHistory after exporting master DB data.",
+    )
+    p.add_argument(
+        "--update-zip-dir",
+        default="",
+        help="UpdateFile_p* directory used to rebuild scoutHistory. Default: latest under wsc_data.",
+    )
+    p.add_argument(
+        "--filled-csv",
+        default=str(WSC_DATA / "UpdateFile_inventory" / "updatefile_ss_events_filled.csv"),
+        help="Manual scout-event title CSV used by link_scout_history.py.",
+    )
+    p.add_argument(
+        "--blank-missing-title",
+        action="store_true",
+        help="Keep scout event names blank when they are absent from metadata.",
     )
 
     # Legacy args (used only with --fallback-legacy)
@@ -133,6 +165,25 @@ def main() -> int:
             str(out_app_dir / "formations_data.json"),
         ]
     )
+    if not args.skip_scout_history:
+        update_zip_dir = (
+            Path(args.update_zip_dir).expanduser().resolve()
+            if args.update_zip_dir
+            else latest_updatefile_dir()
+        )
+        link_cmd = [
+            sys.executable,
+            str(repo / "scripts" / "link_scout_history.py"),
+            "--zip-dir",
+            str(update_zip_dir),
+            "--filled-csv",
+            str(Path(args.filled_csv).expanduser().resolve()),
+            "--app-data",
+            str(out_app_dir / "data.json"),
+        ]
+        if args.blank_missing_title:
+            link_cmd.append("--blank-missing-title")
+        run(link_cmd)
     run(
         [
             sys.executable,
