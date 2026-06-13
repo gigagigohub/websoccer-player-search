@@ -37,6 +37,11 @@ POS_TYPE_MAP = {
     3: 'DF',
     4: 'GK',
 }
+NATION_NAME_FALLBACKS = {
+    138: 'ガボン',
+    143: 'ギニア',
+    178: '北アイルランド',
+}
 RETIRED_PLAYER_IDS = {
     29, 33, 48, 49, 55, 106, 134, 163, 203, 211, 220, 221, 222, 235, 242, 245,
     250, 335, 459, 467, 494, 520, 529, 531, 567, 568, 646, 569, 571, 580, 581, 584, 596, 616,
@@ -45,6 +50,12 @@ RETIRED_PLAYER_IDS = {
     2329, 2410, 2765,
 }
 CC_RETIRED_PLAYER_IDS = {459, 467, 646}
+
+
+def nation_name_from_id(nation_lookup: dict, nation_id: int) -> str:
+    if not nation_id:
+        return ''
+    return nation_lookup.get(nation_id) or NATION_NAME_FALLBACKS.get(nation_id) or f"国籍ID:{nation_id}"
 
 def normalize_category_for_retired(player_id: int, category: str, membership: list[str]):
     is_legacy_rt = category == 'RT' or 'RT' in membership
@@ -211,7 +222,7 @@ def convert_players(input_players: list, nation_lookup: dict):
         )
         info = src.get('info') or {}
         nation_id = int(p.get('NATION_ID', 0) or 0)
-        nation_name = nation_lookup.get(nation_id) or f"国籍ID:{nation_id}"
+        nation_name = nation_name_from_id(nation_lookup, nation_id)
 
         periods = make_periods(params)
         metric_values, best_total = pick_peak_metrics(periods)

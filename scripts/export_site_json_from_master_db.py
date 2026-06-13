@@ -46,6 +46,11 @@ POS_TYPE_MAP = {
     3: "DF",
     4: "GK",
 }
+NATION_NAME_FALLBACKS = {
+    138: "ガボン",
+    143: "ギニア",
+    178: "北アイルランド",
+}
 RETIRED_PLAYER_IDS = {
     29, 33, 48, 49, 55, 106, 134, 163, 203, 211, 220, 221, 222, 235, 242, 245,
     250, 335, 459, 467, 494, 520, 529, 531, 567, 568, 646, 569, 571, 580, 581, 584, 596, 616,
@@ -54,6 +59,12 @@ RETIRED_PLAYER_IDS = {
     2329, 2410, 2765,
 }
 CC_RETIRED_PLAYER_IDS = {459, 467, 646}
+
+
+def nation_name_from_id(nations: dict[int, str], nation_id: int) -> str:
+    if not nation_id:
+        return ""
+    return nations.get(nation_id) or NATION_NAME_FALLBACKS.get(nation_id) or f"国籍ID:{nation_id}"
 
 def normalize_category_for_retired(player_id: int, category: str, membership: list[str], retired: bool = False, retired_reason: str = ""):
     is_legacy_rt = category == "RT" or "RT" in membership
@@ -421,7 +432,7 @@ def build_players(
             segments, by_season = make_heatmaps(period_rows, pos_type)
 
             nation_id = to_int(core.get("ZNATION_ID", 0))
-            nation_name = nations.get(nation_id) or f"国籍ID:{nation_id}"
+            nation_name = nation_name_from_id(nations, nation_id)
             info = infos.get(to_int(core.get("ZINFO", 0)), {"playType": "", "description": ""})
             person_id_raw = identity["raw"] or to_int(core.get("ZPERSON_ID", 0))
             person_id = identity["canonical"]
@@ -519,7 +530,7 @@ def build_players(
             if fb_nation_id > 0:
                 fb["nationId"] = fb_nation_id
                 if not fb.get("nationality") or str(fb.get("nationality", "")).startswith("国籍ID:"):
-                    fb["nationality"] = nations.get(fb_nation_id) or f"国籍ID:{fb_nation_id}"
+                    fb["nationality"] = nation_name_from_id(nations, fb_nation_id)
             model_info = model_map.get(fb_person, {})
             if model_info:
                 fb["modelPlayer"] = model_info.get("name", "")
