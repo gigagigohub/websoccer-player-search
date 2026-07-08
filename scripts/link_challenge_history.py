@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import datetime as dt
 import json
 import plistlib
@@ -7,9 +8,8 @@ import zipfile
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-ROOT = Path('/Users/gigagigo/Codex/WebSoccer/websoccer-player-search')
-ZIP_DIR = Path('/Users/gigagigo/Codex/WebSoccer/wsc_data/UpdateFile_p40_322')
-
+ROOT = Path(__file__).resolve().parents[1]
+ZIP_DIR = Path('/Users/gigagigo/Codex/websoccer/wsc_data/UpdateFile_p40_328')
 APP_DATA = ROOT / 'app' / 'data.json'
 
 ZIP_RE = re.compile(r'p(\d+)\.zip$')
@@ -52,10 +52,17 @@ def _extract_present_player_ids(row: dict) -> List[int]:
     return out
 
 
-def _build_cm_data() -> Tuple[List[dict], Dict[int, List[dict]]]:
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description='Link Challenge Match lists from UpdateFile pXXX.zip into app/data.json.')
+    parser.add_argument('--zip-dir', default=str(ZIP_DIR), help='Directory containing pXXX.zip UpdateFile archives.')
+    parser.add_argument('--app-data', default=str(APP_DATA), help='Target app/data.json to update.')
+    return parser.parse_args()
+
+
+def _build_cm_data(zip_dir: Path) -> Tuple[List[dict], Dict[int, List[dict]]]:
     latest_events: Dict[int, dict] = {}
 
-    for zp in sorted(ZIP_DIR.glob('p*.zip')):
+    for zp in sorted(zip_dir.glob('p*.zip')):
         m = ZIP_RE.search(zp.name)
         if not m:
             continue
@@ -200,19 +207,25 @@ def _update_data_json(path: Path, cm_events: List[dict], cm_history: Dict[int, L
     data['cmEvents'] = cm_events
 
     with path.open('w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, separators=(',', ':'))
+        json.dump(data, f, ensure_ascii=False, indent=2)
+        f.write('\n')
 
     return linked, changed_to_cm, changed_to_cmss
 
 
 def main() -> None:
+    args = parse_args()
+    zip_dir = Path(args.zip_dir).expanduser().resolve()
+    app_data = Path(args.app_data).expanduser().resolve()
     jst = dt.timezone(dt.timedelta(hours=9))
     now = dt.datetime.now(jst)
     now_iso = now.isoformat(timespec='seconds')
 
-    cm_events, cm_history = _build_cm_data()
-    app_linked, app_to_cm, app_to_cmss = _update_data_json(APP_DATA, cm_events, cm_history, now_iso)
+    cm_events, cm_history = _build_cm_data(zip_dir)
+    app_linked, app_to_cm, app_to_cmss = _update_data_json(app_data, cm_events, cm_history, now_iso)
 
+    print(f'zip dir: {zip_dir}')
+    print(f'app data: {app_data}')
     print(f'cm events: {len(cm_events)}')
     print(f'players with cm history: {len(cm_history)}')
     print(f'app: linked={app_linked} changed_to_cm={app_to_cm} changed_to_cmss={app_to_cmss}')
