@@ -13,117 +13,110 @@
     ],
     "teamRows": 50274,
     "matchRows": 25137,
-    "championTpiAverage": 69.637211,
-    "championTpiMedian": 70.255089,
+    "championTpiAverage": 69.320721,
+    "championTpiMedian": 70.283359,
     "championTpiSampleCount": 399,
     "championTpiSkippedFinals": 0,
     "championTpiPkResolvedFinals": 45,
     "championTpiGridStep": 5.0,
+    "championTpiTopBucketStart": 90.0,
+    "championTpiMethod": "leave_one_season_out",
+    "championTpiDefinition": "mean_of_three_group_stage_lineups",
     "championTpiGridStats": [
       {
         "label": "0〜5",
         "champions": 0,
-        "totalTeams": 9
+        "totalTeams": 7
       },
       {
         "label": "5〜10",
         "champions": 0,
-        "totalTeams": 24
+        "totalTeams": 19
       },
       {
         "label": "10〜15",
         "champions": 0,
-        "totalTeams": 70
+        "totalTeams": 49
       },
       {
         "label": "15〜20",
         "champions": 0,
-        "totalTeams": 167
+        "totalTeams": 186
       },
       {
         "label": "20〜25",
         "champions": 0,
-        "totalTeams": 343
+        "totalTeams": 337
       },
       {
         "label": "25〜30",
         "champions": 0,
-        "totalTeams": 632
+        "totalTeams": 598
       },
       {
         "label": "30〜35",
-        "champions": 1,
-        "totalTeams": 943
+        "champions": 2,
+        "totalTeams": 967
       },
       {
         "label": "35〜40",
-        "champions": 4,
-        "totalTeams": 1238
+        "champions": 3,
+        "totalTeams": 1230
       },
       {
         "label": "40〜45",
-        "champions": 4,
-        "totalTeams": 1517
+        "champions": 6,
+        "totalTeams": 1543
       },
       {
         "label": "45〜50",
-        "champions": 5,
-        "totalTeams": 1634
+        "champions": 4,
+        "totalTeams": 1639
       },
       {
         "label": "50〜55",
         "champions": 19,
-        "totalTeams": 1546
+        "totalTeams": 1537
       },
       {
         "label": "55〜60",
         "champions": 38,
-        "totalTeams": 1355
+        "totalTeams": 1366
       },
       {
         "label": "60〜65",
-        "champions": 50,
-        "totalTeams": 1158
+        "champions": 54,
+        "totalTeams": 1160
       },
       {
         "label": "65〜70",
-        "champions": 72,
-        "totalTeams": 929
+        "champions": 71,
+        "totalTeams": 928
       },
       {
         "label": "70〜75",
-        "champions": 70,
-        "totalTeams": 600
+        "champions": 68,
+        "totalTeams": 599
       },
       {
         "label": "75〜80",
-        "champions": 84,
-        "totalTeams": 408
+        "champions": 86,
+        "totalTeams": 407
       },
       {
         "label": "80〜85",
-        "champions": 35,
-        "totalTeams": 145
+        "champions": 33,
+        "totalTeams": 147
       },
       {
         "label": "85〜90",
-        "champions": 11,
-        "totalTeams": 34
+        "champions": 10,
+        "totalTeams": 33
       },
       {
-        "label": "90〜95",
-        "champions": 4,
-        "totalTeams": 12
-      },
-      {
-        "label": "95〜",
-        "champions": 1,
-        "totalTeams": 3
-      },
-      {
-        "label": "100〜",
-        "champions": 1,
-        "totalTeams": 1
+        "label": "90以上",
+        "champions": 5,
+        "totalTeams": 16
       }
     ]
   },

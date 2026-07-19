@@ -2658,6 +2658,12 @@ button.ghost {
   -webkit-overflow-scrolling: touch;
 }
 
+.tpi-info-benchmark-note {
+  color: #94a8c8;
+  font-size: 0.64rem;
+  line-height: 1.45;
+}
+
 .tpi-champion-cell {
   flex: 0 0 92px;
   border: 1px solid rgba(83, 119, 181, 0.35);

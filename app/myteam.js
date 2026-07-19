@@ -1605,11 +1605,11 @@ function closeTpiInfoModal() {
   if (els.tpiInfoModal) els.tpiInfoModal.hidden = true;
 }
 
-function tpiGridLabelFromValue(value, step = 0.25) {
+function tpiGridLabelFromValue(value, step = 0.25, topBucketStart = 90) {
   const idx = Math.floor(value / step);
   const start = idx * step;
   const end = start + step;
-  if (start >= 95) return `${Math.round(start)}〜`;
+  if (start >= topBucketStart) return `${Math.round(topBucketStart)}以上`;
   return `${Math.round(start)}〜${Math.round(end)}`;
 }
 
@@ -1617,8 +1617,9 @@ function renderTpiInfoBenchmark() {
   const rows = Array.isArray(ccRangeData?.rows) ? ccRangeData.rows : [];
   const skippedFinals = Number(ccRangeData?.skippedFinals || 0);
   const gridStep = Number(ccRangeData?.step || 5);
-  const currentTpi = Number(latestRenderedTeamTpi);
-  const activeLabel = Number.isFinite(currentTpi) ? tpiGridLabelFromValue(currentTpi, gridStep) : null;
+  const topBucketStart = Number(v4CleanUniformData?.meta?.championTpiTopBucketStart || 90);
+  const currentTpi = latestRenderedTeamTpi == null ? Number.NaN : Number(latestRenderedTeamTpi);
+  const activeLabel = Number.isFinite(currentTpi) ? tpiGridLabelFromValue(currentTpi, gridStep, topBucketStart) : null;
 
   document.querySelectorAll("[data-tpi-champion-benchmark]").forEach((box) => {
     if (!rows.length) {
@@ -1634,8 +1635,10 @@ function renderTpiInfoBenchmark() {
     if (noteEl) {
       const championCount = rows.reduce((acc, row) => acc + Number(row?.champions || 0), 0);
       const totalCount = rows.reduce((acc, row) => acc + Number(row?.totalTeams || 0), 0);
+      const seasons = Array.isArray(v4CleanUniformData?.meta?.seasons) ? v4CleanUniformData.meta.seasons : [];
+      const seasonText = seasons.length >= 2 ? ` / CC${seasons[0]}〜${seasons[seasons.length - 1]}` : "";
       const skipText = skippedFinals > 0 ? ` / PK不明の同点決勝${skippedFinals}件を除外` : "";
-      noteEl.textContent = `出場${totalCount} teams / 優勝${championCount} teams${skipText}`;
+      noteEl.textContent = `出場${totalCount} teams / 優勝${championCount} teams${seasonText}${skipText}`;
     }
     if (gridEl) {
       const rowsKey = JSON.stringify(rows);
@@ -4219,12 +4222,12 @@ async function init() {
 
   loadSiteMeta();
   const [dataRes, formationsRes, coachesMetaRes, v4CleanUniformRes, rohmRes, ccRangeRes] = await Promise.all([
-    fetchWithTimeout("./data.json?v=20260601-cc2627"),
-    fetchWithTimeout("./formations_data.json?v=20260601-cc2627").catch(() => null),
-    fetchWithTimeout("./coaches_data.json?v=20260601-cc2627").catch(() => null),
-    fetchWithTimeout("./v4_clean_uniform_data.json?v=20260601-cc2627").catch(() => null),
+    fetchWithTimeout("./data.json?v=20260719-site-data"),
+    fetchWithTimeout("./formations_data.json?v=20260719-site-data").catch(() => null),
+    fetchWithTimeout("./coaches_data.json?v=20260719-site-data").catch(() => null),
+    fetchWithTimeout("./v4_clean_uniform_data.json?v=20260719-tpi-oof-v1").catch(() => null),
     fetchWithTimeout(ROHM_SLOT_DATA_URL).catch(() => null),
-    fetchWithTimeout("./cc_range_data.json?v=20260601-cc2627").catch(() => null),
+    fetchWithTimeout("./cc_range_data.json?v=20260719-tpi-oof-v1").catch(() => null),
   ]);
   const data = await dataRes.json();
   players = data.players || [];

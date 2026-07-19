@@ -6,7 +6,7 @@ const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOi
 const APP_UPDATED_AT_JST = "2026-03-30 23:10 JST";
 const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-player-search/commits/main";
 const ROHM_SLOT_DATA_URL = "./rohm_slot_data.json?v=20260510-rohm-peak-avg";
-const V4_CLEAN_UNIFORM_DATA_URL = "./v4_clean_uniform_data.json?v=20260601-cc2627-tpi-player-effect";
+const V4_CLEAN_UNIFORM_DATA_URL = "./v4_clean_uniform_data.json?v=20260719-tpi-oof-v1";
 const CC_AVG_MIN_USES = 15;
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 let ccDataMeta = null;
@@ -2491,9 +2491,9 @@ async function init() {
   bindEvents();
 
   const [formationsRes, playersRes, coachesMetaRes, _siteMetaRes, v4CleanUniformRes] = await Promise.all([
-    fetch("./formations_data.json?v=20260601-cc2627"),
-    fetch("./data.json?v=20260601-cc2627").catch(() => null),
-    fetch("./coaches_data.json?v=20260601-cc2627").catch(() => null),
+    fetch("./formations_data.json?v=20260719-site-data"),
+    fetch("./data.json?v=20260719-site-data").catch(() => null),
+    fetch("./coaches_data.json?v=20260719-site-data").catch(() => null),
     loadSiteMeta(),
     fetch(V4_CLEAN_UNIFORM_DATA_URL).catch(() => null),
   ]);

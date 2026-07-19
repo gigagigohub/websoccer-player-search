@@ -205,13 +205,14 @@
         <button id="tpiInfoClose" type="button" class="season-close" aria-label="閉じる">×</button>
       </div>
       <div class="tpi-info-body">
-        <p>TPIは、GDI（平均的なCCチームに対する得失点差期待値）を、過去CC実績の勝敗傾向とフォーメーション別の勝率変換補正で換算したチームの勝ちやすさ指数です。50付近がCC平均で、数値が高いほど勝ちに結びつきやすい構成を示します。</p>
+        <p>TPIは、GDI（平均的なCCチームに対する得失点差期待値）を、過去CC実績の勝敗傾向とフォーメーション・監督別の勝率変換補正で換算したチームの勝ちやすさ指数です。50付近がCC平均で、数値が高いほど勝ちに結びつきやすい構成を示します。</p>
         <div class="tpi-info-benchmark" data-tpi-champion-benchmark hidden>
           <div class="tpi-info-benchmark-head">
-            <span>CC優勝確率</span>
+            <span>過去CC優勝率（TPI帯別）</span>
             <small data-tpi-champion-note></small>
           </div>
           <div class="tpi-champion-grid" data-tpi-champion-grid></div>
+          <p class="tpi-info-benchmark-note">過去CC出場チームをTPI帯別に集計した実績値です。各シーズンのTPIはそのシーズンを学習から外して算出し、過去チームはGS3試合の平均を使います。現在の編成TPIは1編成の値で、将来の優勝を保証する予測確率ではありません。少数帯は参考値です。</p>
         </div>
         <dl>
           <div><dt>GDI</dt><dd>平均的なCCチームに対してどれだけ得失点差を上振れさせるかの基礎指数です。</dd></div>
@@ -225,6 +226,6 @@
     </div>
   </div>
 
-  <script src="./myteam.js?v=20260601-cc2627"></script>
+  <script src="./myteam.js?v=20260719-tpi-oof-v1"></script>
 </body>
 </html>

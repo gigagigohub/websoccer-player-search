@@ -9,8 +9,8 @@ import sys
 from pathlib import Path
 
 
-DEFAULT_WSM_DIR = Path("/Users/gigagigo/Codex/WebSoccer/wsc_data/websoccer_master_db")
-WSC_DATA = Path("/Users/gigagigo/Codex/WebSoccer/wsc_data")
+DEFAULT_WSM_DIR = Path("/Users/gigagigo/Codex/websoccer/wsc_data/websoccer_master_db")
+WSC_DATA = Path("/Users/gigagigo/Codex/websoccer/wsc_data")
 
 
 def is_main_wsm(path: Path) -> bool:
@@ -62,6 +62,11 @@ def parse_args() -> argparse.Namespace:
         "--skip-scout-history",
         action="store_true",
         help="Do not re-attach per-player scoutHistory after exporting master DB data.",
+    )
+    p.add_argument(
+        "--skip-tpi-update",
+        action="store_true",
+        help="Do not regenerate v4_clean_uniform_data.json and cc_range_data.json from the master DB.",
     )
     p.add_argument(
         "--update-zip-dir",
@@ -165,6 +170,35 @@ def main() -> int:
             str(out_app_dir / "formations_data.json"),
         ]
     )
+    if not args.skip_tpi_update:
+        prepared_dir = out_app_dir / "prepared"
+        prepared_dir.mkdir(parents=True, exist_ok=True)
+        run(
+            [
+                sys.executable,
+                str(repo / "scripts" / "build_v4_slot_adjusted_team_power.py"),
+                "--db",
+                str(master_db),
+                "--formations-json",
+                str(out_app_dir / "formations_data.json"),
+                "--output-json",
+                str(out_app_dir / "v4_clean_uniform_data.json"),
+                "--report-html",
+                str(prepared_dir / "team_power_index_reestimate.html"),
+                "--report-csv",
+                str(prepared_dir / "team_power_index_reestimate_metrics.csv"),
+            ]
+        )
+        run(
+            [
+                sys.executable,
+                str(repo / "scripts" / "build_cc_range_data.py"),
+                "--source",
+                str(out_app_dir / "v4_clean_uniform_data.json"),
+                "--dest",
+                str(out_app_dir / "cc_range_data.json"),
+            ]
+        )
     if not args.skip_scout_history:
         update_zip_dir = (
             Path(args.update_zip_dir).expanduser().resolve()

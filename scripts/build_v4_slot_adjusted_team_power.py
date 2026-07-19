@@ -13,9 +13,9 @@ from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_DB_DIR = Path("/Users/gigagigo/Codex/WebSoccer/wsc_data/websoccer_master_db")
+DEFAULT_DB_DIR = Path("/Users/gigagigo/Codex/websoccer/wsc_data/websoccer_master_db")
 DEFAULT_CC_RESULT_JSON_DIRS = (
-    Path("/Users/gigagigo/Codex/WebSoccer/wsc_data/CC_match_result_json"),
+    Path("/Users/gigagigo/Codex/websoccer/wsc_data/CC_match_result_json"),
     Path.home() / "Desktop" / "CC_match_result_json",
 )
 FORMATIONS_JSON = ROOT / "app" / "formations_data.json"
@@ -31,6 +31,7 @@ ITERATIONS = 32
 MATCH_POWER_FORMATION_PRIOR = 180.0
 MATCH_POWER_COACH_PRIOR = 220.0
 CHAMPION_TPI_GRID_STEP = 5.0
+CHAMPION_TPI_TOP_BUCKET_START = 90.0
 
 
 @dataclass(frozen=True)
@@ -810,8 +811,8 @@ def tpi_grid_label(value: float, step: float = CHAMPION_TPI_GRID_STEP) -> str:
     idx = math.floor(value / step)
     start = idx * step
     end = start + step
-    if start >= 95.0:
-        return f"{int(start)}〜"
+    if start >= CHAMPION_TPI_TOP_BUCKET_START:
+        return f"{int(CHAMPION_TPI_TOP_BUCKET_START)}以上"
     return f"{int(start)}〜{int(end)}"
 
 
@@ -830,7 +831,7 @@ def champion_tpi_summary(
     key_slots_by_formation: Mapping[int, Mapping[int, int]],
     model: Mapping[str, object],
     match_power_model: Mapping[str, object],
-) -> Dict[str, float]:
+) -> Dict[str, object]:
     effects: FixedEffects = model["effects"]  # type: ignore[assignment]
     weights: Mapping[str, float] = model["weights"]  # type: ignore[assignment]
     formation_power: Mapping[int, float] = model["formationPower"]  # type: ignore[assignment]
@@ -914,11 +915,13 @@ def champion_tpi_summary(
     if not champion_indexes:
         return {
             "average": 0.0,
+            "median": 0.0,
             "sampleCount": 0.0,
             "skippedFinals": float(skipped),
             "pkResolvedFinals": float(pk_resolved),
             "gridStep": CHAMPION_TPI_GRID_STEP,
             "gridStats": [],
+            "championIndexes": [],
         }
     champion_indexes.sort()
     return {
@@ -934,16 +937,74 @@ def champion_tpi_summary(
             {"label": str(row["label"]), "champions": int(row["champions"]), "totalTeams": int(row["totalTeams"])}
             for row in sorted(tpi_grid_counts.values(), key=lambda row: float(row["_sort"]))
         ],
+        "championIndexes": champion_indexes,
     }
 
 
-def season_holdout_metrics(
+def combine_champion_tpi_summaries(summaries: Sequence[Mapping[str, object]]) -> Dict[str, object]:
+    champion_indexes: List[float] = []
+    grid_counts: Dict[str, Dict[str, int]] = {}
+    skipped = 0
+    pk_resolved = 0
+    for summary in summaries:
+        champion_indexes.extend(float(value) for value in (summary.get("championIndexes") or []))
+        skipped += int(summary.get("skippedFinals") or 0)
+        pk_resolved += int(summary.get("pkResolvedFinals") or 0)
+        for raw_row in summary.get("gridStats") or []:
+            if not isinstance(raw_row, Mapping):
+                continue
+            label = str(raw_row.get("label") or "")
+            if not label:
+                continue
+            row = grid_counts.setdefault(label, {"champions": 0, "totalTeams": 0})
+            row["champions"] += int(raw_row.get("champions") or 0)
+            row["totalTeams"] += int(raw_row.get("totalTeams") or 0)
+
+    champion_indexes.sort()
+    grid_stats = [
+        {
+            "label": label,
+            "champions": values["champions"],
+            "totalTeams": values["totalTeams"],
+        }
+        for label, values in sorted(
+            grid_counts.items(),
+            key=lambda item: float(item[0].split("〜", 1)[0].split("以上", 1)[0]),
+        )
+    ]
+    if not champion_indexes:
+        return {
+            "average": 0.0,
+            "median": 0.0,
+            "sampleCount": 0.0,
+            "skippedFinals": float(skipped),
+            "pkResolvedFinals": float(pk_resolved),
+            "gridStep": CHAMPION_TPI_GRID_STEP,
+            "gridStats": grid_stats,
+            "championIndexes": [],
+        }
+    return {
+        "average": sum(champion_indexes) / len(champion_indexes),
+        "median": champion_indexes[len(champion_indexes) // 2],
+        "min": champion_indexes[0],
+        "max": champion_indexes[-1],
+        "sampleCount": float(len(champion_indexes)),
+        "skippedFinals": float(skipped),
+        "pkResolvedFinals": float(pk_resolved),
+        "gridStep": CHAMPION_TPI_GRID_STEP,
+        "gridStats": grid_stats,
+        "championIndexes": champion_indexes,
+    }
+
+
+def season_holdout_analysis(
     teams: Mapping[Tuple[int, int, int, str], TeamRow],
     players_by_team: Mapping[Tuple[int, int, int, str], Sequence[PlayerRow]],
     key_slots_by_formation: Mapping[int, Mapping[int, int]],
-) -> List[Dict[str, float]]:
+) -> Tuple[List[Dict[str, float]], Dict[str, object]]:
     seasons = sorted({key[0] for key in teams})
     output: List[Dict[str, float]] = []
+    champion_summaries: List[Mapping[str, object]] = []
     for season in seasons:
         train_seasons = set(seasons) - {season}
         model = fit_model(teams, players_by_team, key_slots_by_formation, train_seasons)
@@ -975,7 +1036,27 @@ def season_holdout_metrics(
                 "corr": corr(pairs),
             }
         )
-    return output
+        held_teams = {key: team for key, team in teams.items() if key[0] == season}
+        match_power_model = build_match_power_model(model)
+        champion_summaries.append(
+            champion_tpi_summary(
+                held_teams,
+                players_by_team,
+                key_slots_by_formation,
+                model,
+                match_power_model,
+            )
+        )
+    return output, combine_champion_tpi_summaries(champion_summaries)
+
+
+def season_holdout_metrics(
+    teams: Mapping[Tuple[int, int, int, str], TeamRow],
+    players_by_team: Mapping[Tuple[int, int, int, str], Sequence[PlayerRow]],
+    key_slots_by_formation: Mapping[int, Mapping[int, int]],
+) -> List[Dict[str, float]]:
+    metrics, _champion_tpi = season_holdout_analysis(teams, players_by_team, key_slots_by_formation)
+    return metrics
 
 
 def rounded_mapping(mapping: Mapping[object, float], digits: int = 6) -> Dict[str, float]:
@@ -1062,8 +1143,7 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
     model = fit_model(teams, players_by_team, key_slots)
     metrics = evaluate_model(model)
     match_power_model = build_match_power_model(model)
-    holdout = season_holdout_metrics(teams, players_by_team, key_slots)
-    champion_tpi = champion_tpi_summary(teams, players_by_team, key_slots, model, match_power_model)
+    holdout, champion_tpi = season_holdout_analysis(teams, players_by_team, key_slots)
 
     effects: FixedEffects = model["effects"]  # type: ignore[assignment]
     formation_slot_expected = {
@@ -1088,6 +1168,9 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
             "championTpiSkippedFinals": int(champion_tpi.get("skippedFinals", 0)),
             "championTpiPkResolvedFinals": int(champion_tpi.get("pkResolvedFinals", 0)),
             "championTpiGridStep": float(champion_tpi.get("gridStep", CHAMPION_TPI_GRID_STEP)),
+            "championTpiTopBucketStart": CHAMPION_TPI_TOP_BUCKET_START,
+            "championTpiMethod": "leave_one_season_out",
+            "championTpiDefinition": "mean_of_three_group_stage_lineups",
             "championTpiGridStats": champion_tpi.get("gridStats", []),
         },
         "weights": {key: round(float(value), 8) for key, value in model["weights"].items()},  # type: ignore[union-attr]
