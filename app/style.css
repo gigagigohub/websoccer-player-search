@@ -4374,7 +4374,7 @@ body.modal-scroll-lock #formationModal .formation-dialog {
 
 .best-team-title-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
@@ -4383,7 +4383,7 @@ body.modal-scroll-lock #formationModal .formation-dialog {
 .best-team-title-row > div:first-child {
   min-width: 0;
   display: grid;
-  flex: 1 1 140px;
+  flex: 1 1 0;
   gap: 2px;
 }
 
@@ -4395,14 +4395,20 @@ body.modal-scroll-lock #formationModal .formation-dialog {
 .best-team-rank-switch {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 4px;
-  flex: 0 1 210px;
-  width: min(100%, 210px);
+  gap: 2px;
+  flex: 0 0 164px;
+  width: 164px;
   margin-left: auto;
   border: 1px solid #263a59;
   border-radius: 9px;
   background: #0d1728;
-  padding: 3px;
+  padding: 2px;
+}
+
+.best-team-rank-switch .slot-top-sort-btn {
+  min-height: 24px;
+  padding: 3px 1px;
+  font-size: 9px;
 }
 
 .best-team-score-grid {
