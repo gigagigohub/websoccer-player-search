@@ -54,6 +54,7 @@ MODEL_CARD_CATEGORY_PRIORITY = {
     "CM": 2,
     "CC": 3,
 }
+TOP_TEAMS_LIMIT = 10
 
 
 def to_int(v, default=0):
@@ -2149,7 +2150,7 @@ def build_data(src):
                 int(x.get("teamId") or 0),
             )
         )
-        for idx, team in enumerate(best_teams[fid][:5], start=1):
+        for idx, team in enumerate(best_teams[fid][:TOP_TEAMS_LIMIT], start=1):
             team["rank"] = idx
 
     # Formation vs formation matchup stats (with significance filter).
@@ -2404,7 +2405,7 @@ def build_data(src):
             },
             "coachStats": coach_stats[fid],
             "matchups": matchup_stats[fid],
-            "bestTeams": best_teams[fid][:5],
+            "bestTeams": best_teams[fid][:TOP_TEAMS_LIMIT],
             "modelSlots": model_slots_by_formation.get(fid, []),
         }
         formations.append(f_item)
