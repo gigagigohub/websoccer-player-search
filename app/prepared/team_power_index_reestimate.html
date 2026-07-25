@@ -26,17 +26,17 @@
   <section>
     <h2>Final Weights</h2>
     <div class="grid">
-      <div class="metric"><span>Starting Member adjusted</span><strong>0.565824</strong></div>
-      <div class="metric"><span>Key Slots adjusted</span><strong>0.036324</strong></div>
-      <div class="metric"><span>Formation raw scale</span><strong>1.123512</strong></div>
-      <div class="metric"><span>Coach raw scale</span><strong>1.214779</strong></div>
+      <div class="metric"><span>Starting Member adjusted</span><strong>0.565810</strong></div>
+      <div class="metric"><span>Key Slots adjusted</span><strong>0.039519</strong></div>
+      <div class="metric"><span>Formation raw scale</span><strong>1.128381</strong></div>
+      <div class="metric"><span>Coach raw scale</span><strong>1.208095</strong></div>
     </div>
   </section>
   <section>
     <h2>In-sample Fit</h2>
     <div class="grid">
-      <div class="metric"><span>Matches</span><strong>25137</strong></div>
-      <div class="metric"><span>Actual GD RMSE</span><strong>1.946</strong></div>
+      <div class="metric"><span>Matches</span><strong>26460</strong></div>
+      <div class="metric"><span>Actual GD RMSE</span><strong>1.945</strong></div>
       <div class="metric"><span>Actual GD Corr</span><strong>0.493</strong></div>
       <div class="metric"><span>Clean GD Corr</span><strong>0.627</strong></div>
     </div>
@@ -46,33 +46,34 @@
     <p>監督評価差は試合後評価なのでTeam Power Index本体には直接入れず、係数推計時に得失点差の上振れ/下振れを分離するためだけに使っています。</p>
     <table>
       <tr><th>Item</th><th>Value</th></tr>
-      <tr><td>Expected coach rating diff slope vs base index</td><td>0.485093</td></tr>
-      <tr><td>Goal diff residual slope vs coach surprise</td><td>0.643826</td></tr>
+      <tr><td>Expected coach rating diff slope vs base index</td><td>0.485790</td></tr>
+      <tr><td>Goal diff residual slope vs coach surprise</td><td>0.643164</td></tr>
     </table>
   </section>
   <section>
     <h2>Season Holdout</h2>
     <table>
       <thead><tr><th>Season</th><th>Matches</th><th>RMSE</th><th>MAE</th><th>Corr</th></tr></thead>
-      <tbody><tr><td>2616</td><td>1323</td><td>2.007</td><td>1.586</td><td>0.471</td></tr>
-<tr><td>2617</td><td>1323</td><td>2.014</td><td>1.603</td><td>0.469</td></tr>
-<tr><td>2618</td><td>1323</td><td>2.004</td><td>1.594</td><td>0.470</td></tr>
-<tr><td>2619</td><td>1323</td><td>1.977</td><td>1.567</td><td>0.470</td></tr>
-<tr><td>2620</td><td>1323</td><td>1.947</td><td>1.536</td><td>0.506</td></tr>
-<tr><td>2621</td><td>1323</td><td>1.956</td><td>1.542</td><td>0.489</td></tr>
-<tr><td>2622</td><td>1323</td><td>1.938</td><td>1.534</td><td>0.479</td></tr>
+      <tbody><tr><td>2616</td><td>1323</td><td>2.007</td><td>1.587</td><td>0.471</td></tr>
+<tr><td>2617</td><td>1323</td><td>2.012</td><td>1.602</td><td>0.470</td></tr>
+<tr><td>2618</td><td>1323</td><td>2.005</td><td>1.594</td><td>0.470</td></tr>
+<tr><td>2619</td><td>1323</td><td>1.977</td><td>1.568</td><td>0.470</td></tr>
+<tr><td>2620</td><td>1323</td><td>1.946</td><td>1.535</td><td>0.507</td></tr>
+<tr><td>2621</td><td>1323</td><td>1.955</td><td>1.541</td><td>0.489</td></tr>
+<tr><td>2622</td><td>1323</td><td>1.937</td><td>1.535</td><td>0.480</td></tr>
 <tr><td>2623</td><td>1323</td><td>1.938</td><td>1.547</td><td>0.483</td></tr>
-<tr><td>2624</td><td>1323</td><td>2.002</td><td>1.598</td><td>0.478</td></tr>
-<tr><td>2625</td><td>1323</td><td>1.915</td><td>1.523</td><td>0.496</td></tr>
-<tr><td>2626</td><td>1323</td><td>1.943</td><td>1.541</td><td>0.484</td></tr>
+<tr><td>2624</td><td>1323</td><td>2.002</td><td>1.598</td><td>0.477</td></tr>
+<tr><td>2625</td><td>1323</td><td>1.914</td><td>1.522</td><td>0.497</td></tr>
+<tr><td>2626</td><td>1323</td><td>1.941</td><td>1.539</td><td>0.486</td></tr>
 <tr><td>2627</td><td>1323</td><td>1.951</td><td>1.545</td><td>0.464</td></tr>
-<tr><td>2628</td><td>1323</td><td>1.936</td><td>1.534</td><td>0.471</td></tr>
-<tr><td>2629</td><td>1323</td><td>1.948</td><td>1.557</td><td>0.467</td></tr>
-<tr><td>2630</td><td>1323</td><td>1.921</td><td>1.503</td><td>0.490</td></tr>
-<tr><td>2631</td><td>1323</td><td>2.013</td><td>1.593</td><td>0.478</td></tr>
-<tr><td>2632</td><td>1323</td><td>1.909</td><td>1.504</td><td>0.472</td></tr>
-<tr><td>2633</td><td>1323</td><td>1.960</td><td>1.556</td><td>0.512</td></tr>
-<tr><td>2634</td><td>1323</td><td>1.999</td><td>1.591</td><td>0.470</td></tr></tbody>
+<tr><td>2628</td><td>1323</td><td>1.936</td><td>1.533</td><td>0.471</td></tr>
+<tr><td>2629</td><td>1323</td><td>1.947</td><td>1.555</td><td>0.468</td></tr>
+<tr><td>2630</td><td>1323</td><td>1.922</td><td>1.504</td><td>0.490</td></tr>
+<tr><td>2631</td><td>1323</td><td>2.012</td><td>1.593</td><td>0.478</td></tr>
+<tr><td>2632</td><td>1323</td><td>1.909</td><td>1.503</td><td>0.472</td></tr>
+<tr><td>2633</td><td>1323</td><td>1.958</td><td>1.554</td><td>0.513</td></tr>
+<tr><td>2634</td><td>1323</td><td>1.998</td><td>1.589</td><td>0.471</td></tr>
+<tr><td>2635</td><td>1323</td><td>1.936</td><td>1.529</td><td>0.497</td></tr></tbody>
     </table>
   </section>
 </main>

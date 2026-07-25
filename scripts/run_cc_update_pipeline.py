@@ -30,7 +30,10 @@ SITE_GIT_PATHS = [
     "app/coaches_data.json",
     "app/formations_data.json",
     "app/collections_data.json",
+    "app/v4_clean_uniform_data.json",
     "app/cc_range_data.json",
+    "app/prepared/team_power_index_reestimate.html",
+    "app/prepared/team_power_index_reestimate_metrics.csv",
     "app/site_meta.json",
 ]
 
