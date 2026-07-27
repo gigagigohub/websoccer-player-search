@@ -278,6 +278,18 @@ def load_fallback_players(path: Path) -> dict[int, dict]:
     return result
 
 
+def load_fallback_scouts(path: Path) -> dict[int, dict]:
+    if not path.exists():
+        return {}
+    obj = json.loads(path.read_text(encoding="utf-8"))
+    result = {}
+    for scout in obj.get("scouts", []):
+        event_id = to_int(scout.get("eventId"), -1)
+        if event_id > 0:
+            result[event_id] = scout
+    return result
+
+
 def load_fallback_coaches(path: Path) -> dict[int, dict]:
     if not path.exists():
         return {}
@@ -550,8 +562,13 @@ def build_players(
     return out
 
 
-def build_scouts(conn: sqlite3.Connection, scout_button_event_ids: set[int] | None = None) -> list[dict]:
+def build_scouts(
+    conn: sqlite3.Connection,
+    scout_button_event_ids: set[int] | None = None,
+    fallback_scouts: dict[int, dict] | None = None,
+) -> list[dict]:
     scout_button_event_ids = scout_button_event_ids or set()
+    fallback_scouts = fallback_scouts or {}
     rows = conn.execute(
         """
         SELECT
@@ -564,19 +581,20 @@ def build_scouts(conn: sqlite3.Connection, scout_button_event_ids: set[int] | No
     out = []
     for r in rows:
         event_id = to_int(r["event_id"])
+        fallback = fallback_scouts.get(event_id, {})
         ids = [to_int(x) for x in parse_json_list(r["player_ids_json"])]
         shop_button_image = f"./images/Shop/btn/ss_btn_{event_id}.png" if event_id in scout_button_event_ids else ""
         out.append(
             {
                 "eventId": event_id,
-                "name": r["name"] or "",
+                "name": r["name"] or fallback.get("name") or "",
                 "start": r["start"] or "",
                 "end": r["end"] or "",
                 "type": to_int(r["type"], 0),
                 "version": to_int(r["version"], 0),
                 "notes": r["notes"] or "",
-                "nameRaw": r["name_raw"] or "",
-                "nameSource": r["name_source"] or "",
+                "nameRaw": r["name_raw"] or fallback.get("nameRaw") or "",
+                "nameSource": r["name_source"] or fallback.get("nameSource") or "",
                 "playerCount": to_int(r["player_count"], len(ids)),
                 "playerIds": ids,
                 "shopButtonImage": shop_button_image,
@@ -688,7 +706,9 @@ def main() -> int:
     if not master_db.exists():
         raise FileNotFoundError(f"master db not found: {master_db}")
 
-    fallback_data = load_fallback_players(Path(args.fallback_data_json).expanduser().resolve())
+    fallback_data_path = Path(args.fallback_data_json).expanduser().resolve()
+    fallback_data = load_fallback_players(fallback_data_path)
+    fallback_scouts = load_fallback_scouts(fallback_data_path)
     fallback_coaches = load_fallback_coaches(Path(args.fallback_coaches_json).expanduser().resolve())
 
     out_app_dir = Path(args.out_app_dir).expanduser().resolve()
@@ -700,7 +720,7 @@ def main() -> int:
     try:
         generated_at = now_jst_iso()
         players = build_players(conn, fallback_data, image_available_player_ids)
-        scouts = build_scouts(conn, scout_button_event_ids)
+        scouts = build_scouts(conn, scout_button_event_ids, fallback_scouts)
         cm_events = build_cm_events(conn)
         coaches = build_coaches(conn, fallback_coaches)
     finally:
