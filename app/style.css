@@ -4109,6 +4109,19 @@ body.modal-scroll-lock #formationModal .formation-dialog {
 .matchup-criteria {
   margin-top: 8px;
   font-size: 11px;
+  line-height: 1.55;
+}
+
+.matchup-method-note {
+  margin: 0 0 8px;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.matchup-subline {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
 }
 
 .formation-param-grid {

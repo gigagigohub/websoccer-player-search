@@ -13,6 +13,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 
 from paths import REPO_ROOT, WSC_DATA, latest_wsm_file
+import formation_matchup_model as matchup_model
 
 try:
     import build_v4_slot_adjusted_team_power as tpi_model
@@ -2358,6 +2359,27 @@ def build_data(src):
             },
         }
 
+    # Replace the legacy formation-only residual ranking above with the
+    # bias-aware primary analysis.  The primary scope is CC group play; team
+    # season, coach, home advantage, repeated team pairs, guard activations,
+    # shrinkage, clustered uncertainty, and FDR are handled by the helper.
+    matchup_analysis = matchup_model.build_bias_aware_matchups(
+        team_rows,
+        match_rows,
+        guard_exclusions=src.get("matchup_guard_exclusions") or set(),
+        guard_meta=src.get("matchup_guard_meta") or {},
+    )
+    matchup_criteria = (matchup_analysis.get("meta") or {}).get("criteria") or {}
+    matchup_stats = defaultdict(
+        lambda: {
+            "strongAgainst": [],
+            "weakAgainst": [],
+            "criteria": matchup_criteria,
+        }
+    )
+    for fid, rows in (matchup_analysis.get("byFormation") or {}).items():
+        matchup_stats[int(fid)] = rows
+
     formations = []
     for fid in sorted(formation_by_id):
         f = formation_by_id[fid]
@@ -2435,6 +2457,7 @@ def build_data(src):
                 "totalTeamRowsForUsage": total_team_rows,
             },
             "ccData": cc_data_meta,
+            "matchupAnalysis": matchup_analysis.get("meta") or {},
         },
         "formations": formations,
         "coaches": coaches,
@@ -2481,6 +2504,11 @@ def main():
         help="CSV path for manually confirmed formation model card overrides",
     )
     parser.add_argument("--out", default=str(REPO_ROOT / "app" / "formations_data.json"))
+    parser.add_argument(
+        "--match-guard-artifacts-dir",
+        default=str(matchup_model.DEFAULT_GUARD_ARTIFACTS_DIR),
+        help="Team Agent match-guard artifact directory used for exact CC exclusions.",
+    )
     args = parser.parse_args()
 
     master_db_path = Path(args.master_db).expanduser().resolve() if args.master_db else latest_wsm_file()
@@ -2495,6 +2523,16 @@ def main():
             print(f"using cc db: {cc_db_path}")
         else:
             print(f"cc db not found, fallback csv: {Path(args.cc_dir).expanduser().resolve()}")
+    guard_exclusions, guard_meta = matchup_model.load_guard_exclusions(
+        args.match_guard_artifacts_dir
+    )
+    src["matchup_guard_exclusions"] = guard_exclusions
+    src["matchup_guard_meta"] = guard_meta
+    print(
+        "matchup guard exclusions: "
+        f"evidence={guard_meta.get('evidenceRows', 0)} "
+        f"unique={guard_meta.get('uniqueMatches', 0)}"
+    )
     model_slots = load_model_slots(
         args.model_slot_csv,
         args.model_page_dir,

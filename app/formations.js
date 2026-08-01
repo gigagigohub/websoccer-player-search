@@ -10,6 +10,7 @@ const V4_CLEAN_UNIFORM_DATA_URL = "./v4_clean_uniform_data.json?v=20260719-tpi-o
 const CC_AVG_MIN_USES = 15;
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 let ccDataMeta = null;
+let matchupAnalysisMeta = null;
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織",
@@ -1938,7 +1939,9 @@ function openFormationModal(formation, options = {}) {
 }
 
 function matchupRowsHtml(rows = []) {
-  if (!Array.isArray(rows) || !rows.length) return `<p class="dim">No statistically significant matchup yet.</p>`;
+  if (!Array.isArray(rows) || !rows.length) {
+    return `<p class="dim">No matchup survives the bias, coverage, uncertainty, and FDR checks yet.</p>`;
+  }
   const nameColWidthCh = (() => {
     let maxLen = 12;
     for (const f of formations || []) {
@@ -1957,9 +1960,10 @@ function matchupRowsHtml(rows = []) {
           <col />
           <col />
           <col />
+          <col />
         </colgroup>
         <thead>
-          <tr><th>Formation</th><th>W-D-L</th><th>Pts</th><th>ΔAdjPts</th><th>N</th></tr>
+          <tr><th>Formation</th><th>W-D-L</th><th>Raw Pts</th><th>Adjusted matchup</th><th>Evidence</th><th>Coverage</th></tr>
         </thead>
         <tbody>
           ${rows.map((row) => {
@@ -1968,18 +1972,35 @@ function matchupRowsHtml(rows = []) {
             const name = f ? `${f.name}${y ? ` ${y}` : ""}` : `Formation ${row?.formationId}`;
             const delta = Number(row?.delta || 0);
             const pts = Number(row?.pointsPerMatch || 0);
-            const expPts = Number(row?.expectedPointsPerMatch || 0);
             const w = Number(row?.wins || 0);
             const d = Number(row?.draws || 0);
             const l = Number(row?.losses || 0);
-            const confidence = String(row?.confidence || "").trim();
+            const ciLow = Number(row?.ciLow || 0);
+            const ciHigh = Number(row?.ciHigh || 0);
+            const evidence = String(row?.evidence || "").trim();
+            const qValue = Number(row?.qValue || 0);
+            const effectiveN = Number(row?.effectiveMatches || 0);
+            const uniquePairs = Number(row?.uniqueTeamPairs || 0);
+            const seasonCount = Number(row?.seasonCount || 0);
+            const worldCount = Number(row?.worldCount || 0);
+            const allStageDelta = row?.allStageDelta == null ? Number.NaN : Number(row.allStageDelta);
+            const recentDelta = row?.recentDelta == null ? Number.NaN : Number(row.recentDelta);
+            const sensitivity = [
+              Number.isFinite(allStageDelta) ? `All ${allStageDelta >= 0 ? "+" : ""}${allStageDelta.toFixed(2)}` : "",
+              Number.isFinite(recentDelta) ? `Recent ${recentDelta >= 0 ? "+" : ""}${recentDelta.toFixed(2)}` : "",
+            ].filter(Boolean).join(" / ");
             return `
               <tr>
                 <td><button type="button" class="inline-pill matchup-formation-link" data-formation-id="${row?.formationId}">${name}</button></td>
                 <td>${w}-${d}-${l}</td>
-                <td>${pts.toFixed(2)} <span class="dim">(Exp ${expPts.toFixed(2)})</span></td>
-                <td class="${delta >= 0 ? "matchup-pos" : "matchup-neg"}">${delta >= 0 ? "+" : ""}${delta.toFixed(2)}</td>
-                <td>${row?.matches}${confidence ? ` <span class="dim">(${confidence})</span>` : ""}</td>
+                <td>${pts.toFixed(2)}</td>
+                <td class="${delta >= 0 ? "matchup-pos" : "matchup-neg"}">
+                  ${delta >= 0 ? "+" : ""}${delta.toFixed(2)}
+                  <span class="dim">[${ciLow.toFixed(2)}, ${ciHigh.toFixed(2)}]</span>
+                  ${sensitivity ? `<span class="matchup-subline dim">${sensitivity}</span>` : ""}
+                </td>
+                <td>${evidence || "-"}<span class="matchup-subline dim">q=${qValue.toFixed(3)}</span></td>
+                <td>${row?.matches} raw / ${effectiveN.toFixed(1)} eff<span class="matchup-subline dim">${uniquePairs} pairs / ${seasonCount} seasons / ${worldCount} worlds</span></td>
               </tr>
             `;
           }).join("")}
@@ -1995,17 +2016,26 @@ function openMatchupModal(formation) {
   els.matchupTitle.textContent = `${formation.name}${y ? ` ${y}` : ""} Matchups`;
   const m = formation.matchups || {};
   const criteria = m.criteria || {};
+  const guardExcluded = Number(matchupAnalysisMeta?.guardExcludedMatches || 0);
+  const primaryMatches = Number(matchupAnalysisMeta?.primary?.matches || 0);
   els.matchupDetail.innerHTML = `
+    <p class="dim matchup-method-note">
+      Primary: CC group stage only. Adjusted matchup is the shrunk 3-point result edge after controlling for team-season strength,
+      overall formation strength, coach, and home advantage. Repeated team pairs are capped; ${guardExcluded} confirmed A-X guard matches were excluded.
+    </p>
     <div class="formation-block">
-      <h3>Best Matchups</h3>
+      <h3>Supported favorable matchups</h3>
       ${matchupRowsHtml(m.strongAgainst)}
     </div>
     <div class="formation-block">
-      <h3>Worst Matchups</h3>
+      <h3>Supported unfavorable matchups</h3>
       ${matchupRowsHtml(m.weakAgainst)}
     </div>
     <p class="dim matchup-criteria">
-      Minimum N: ${Number(criteria.minMatches || 0)} / ranked by adjusted points difference (Low: 15-24, Mid: 25-39, High: 40+)
+      ${primaryMatches.toLocaleString()} eligible group matches / minimum ${Number(criteria.minMatches || 0)} raw and ${Number(criteria.minEffectiveMatches || 0)} effective matches /
+      ${Number(criteria.minUniqueTeamPairs || 0)} team pairs / ${Number(criteria.minUniqueTeamsEach || 0)} teams per formation /
+      ${Number(criteria.minSeasons || 0)} seasons / ${Number(criteria.minWorlds || 0)} worlds / FDR q≤${Number(criteria.maxFdr || 0).toFixed(2)}.
+      All = all-round sensitivity; Recent = latest ${Number(criteria.recentSeasons || 0)} seasons. This is adjusted observational evidence, not a causal guarantee.
     </p>
   `;
   els.matchupModal.hidden = false;
@@ -2491,7 +2521,7 @@ async function init() {
   bindEvents();
 
   const [formationsRes, playersRes, coachesMetaRes, _siteMetaRes, v4CleanUniformRes] = await Promise.all([
-    fetch("./formations_data.json?v=20260719-top-teams-10-v1"),
+    fetch("./formations_data.json?v=20260801-matchup-bias-v1"),
     fetch("./data.json?v=20260719-site-data").catch(() => null),
     fetch("./coaches_data.json?v=20260719-site-data").catch(() => null),
     loadSiteMeta(),
@@ -2500,6 +2530,7 @@ async function init() {
   const formationData = await formationsRes.json();
   formations = Array.isArray(formationData.formations) ? formationData.formations : [];
   coaches = Array.isArray(formationData.coaches) ? formationData.coaches : [];
+  matchupAnalysisMeta = formationData?.meta?.matchupAnalysis || null;
   if (coachesMetaRes && coachesMetaRes.ok) {
     try {
       const raw = await coachesMetaRes.json();
