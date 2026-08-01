@@ -1999,16 +1999,16 @@ function matchupRowsHtml(rows = []) {
             ].filter(Boolean).join(" / ");
             return `
               <tr>
-                <td><button type="button" class="inline-pill matchup-formation-link" data-formation-id="${row?.formationId}">${name}</button></td>
-                <td>${w}-${d}-${l}</td>
-                <td>${pts.toFixed(2)}</td>
-                <td class="${delta >= 0 ? "matchup-pos" : "matchup-neg"}">
+                <td data-label="Formation"><button type="button" class="inline-pill matchup-formation-link" data-formation-id="${row?.formationId}">${name}</button></td>
+                <td data-label="W-D-L">${w}-${d}-${l}</td>
+                <td data-label="Raw Pts">${pts.toFixed(2)}</td>
+                <td data-label="Adjusted" class="${delta >= 0 ? "matchup-pos" : "matchup-neg"}">
                   ${delta >= 0 ? "+" : ""}${delta.toFixed(2)}
                   <span class="dim">[${ciLow.toFixed(2)}, ${ciHigh.toFixed(2)}]</span>
                   ${sensitivity ? `<span class="matchup-subline dim">${sensitivity}</span>` : ""}
                 </td>
-                <td>${evidence || "-"}<span class="matchup-subline dim">q=${qValue.toFixed(3)}</span></td>
-                <td>${row?.matches} raw / ${effectiveN.toFixed(1)} eff<span class="matchup-subline dim">${uniquePairs} pairs / ${seasonCount} seasons / ${worldCount} worlds</span></td>
+                <td data-label="Evidence">${evidence || "-"}<span class="matchup-subline dim">q=${qValue.toFixed(3)}</span></td>
+                <td data-label="Coverage">${row?.matches} raw / ${effectiveN.toFixed(1)} eff<span class="matchup-subline dim">${uniquePairs} pairs / ${seasonCount} seasons / ${worldCount} worlds</span></td>
               </tr>
             `;
           }).join("")}
@@ -2268,15 +2268,15 @@ function templateMatchupRowsHtml(rows = []) {
             const statusClass = row.supported ? "is-supported" : row.eligible ? "is-exploratory" : "is-sparse";
             return `
               <tr>
-                <td><button type="button" class="inline-pill matchup-formation-link" data-formation-id="${row.formationId}">${name}</button></td>
-                <td>${row.wins}-${row.draws}-${row.losses}</td>
-                <td>${Number(row.pointsPerMatch || 0).toFixed(2)}</td>
-                <td class="${row.delta >= 0 ? "matchup-pos" : "matchup-neg"}">
+                <td data-label="Formation"><button type="button" class="inline-pill matchup-formation-link" data-formation-id="${row.formationId}">${name}</button></td>
+                <td data-label="W-D-L">${row.wins}-${row.draws}-${row.losses}</td>
+                <td data-label="Pts">${Number(row.pointsPerMatch || 0).toFixed(2)}</td>
+                <td data-label="Adjusted" class="${row.delta >= 0 ? "matchup-pos" : "matchup-neg"}">
                   ${row.delta >= 0 ? "+" : ""}${Number(row.delta || 0).toFixed(2)}
                   <span class="matchup-subline dim">${finiteCi ? `[${row.ciLow.toFixed(2)}, ${row.ciHigh.toFixed(2)}]` : "CI算出不可"}</span>
                 </td>
-                <td><span class="template-matchup-status ${statusClass}">${status}</span>${row.eligible ? `<span class="matchup-subline dim">q=${Number(row.qValue || 0).toFixed(3)}</span>` : ""}</td>
-                <td>${row.matches} raw / ${Number(row.effectiveMatches || 0).toFixed(1)} eff<span class="matchup-subline dim">${row.uniqueTeamPairs} pairs / ${row.seasonCount} seasons / ${row.worldCount} worlds</span></td>
+                <td data-label="判定"><span class="template-matchup-status ${statusClass}">${status}</span>${row.eligible ? `<span class="matchup-subline dim">q=${Number(row.qValue || 0).toFixed(3)}</span>` : ""}</td>
+                <td data-label="Coverage">${row.matches} raw / ${Number(row.effectiveMatches || 0).toFixed(1)} eff<span class="matchup-subline dim">${row.uniqueTeamPairs} pairs / ${row.seasonCount} seasons / ${row.worldCount} worlds</span></td>
               </tr>
             `;
           }).join("")}

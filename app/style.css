@@ -3986,6 +3986,11 @@ body.modal-scroll-lock #formationModal .formation-dialog {
   right: 6px;
 }
 
+#matchupModal .season-close {
+  top: 6px;
+  right: 6px;
+}
+
 .formation-dialog .season-head h2 {
   font-size: 1.18rem;
 }
@@ -4125,12 +4130,15 @@ body.modal-scroll-lock #formationModal .formation-dialog {
 }
 
 .template-matchup-explorer {
+  min-width: 0;
+  max-width: 100%;
   border-color: rgba(85, 190, 255, 0.42);
   background: linear-gradient(180deg, rgba(25, 56, 88, 0.96), rgba(18, 36, 62, 0.98));
 }
 
 .template-matchup-heading {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
@@ -4153,6 +4161,8 @@ body.modal-scroll-lock #formationModal .formation-dialog {
 
 .template-matchup-controls {
   display: grid;
+  min-width: 0;
+  max-width: 100%;
   grid-template-columns: minmax(200px, 1fr) auto auto auto;
   align-items: end;
   gap: 10px 14px;
@@ -4212,6 +4222,11 @@ body.modal-scroll-lock #formationModal .formation-dialog {
 }
 
 .template-matchup-check input {
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+  min-width: 14px;
+  padding: 0;
   margin: 0;
   accent-color: #55c9ff;
 }
@@ -4289,6 +4304,69 @@ body.modal-scroll-lock #formationModal .formation-dialog {
 
   .template-matchup-check {
     white-space: normal;
+  }
+
+  #matchupModal .matchup-table-wrap {
+    overflow: visible;
+  }
+
+  #matchupModal .matchup-table {
+    width: 100%;
+    min-width: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  #matchupModal .matchup-table colgroup,
+  #matchupModal .matchup-table thead {
+    display: none;
+  }
+
+  #matchupModal .matchup-table tbody {
+    display: grid;
+    gap: 8px;
+  }
+
+  #matchupModal .matchup-table tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px 12px;
+    min-width: 0;
+    padding: 9px;
+    border: 1px solid var(--line-soft);
+    border-radius: 8px;
+    background: rgba(8, 22, 42, 0.34);
+  }
+
+  #matchupModal .matchup-table td,
+  #matchupModal .matchup-table td:first-child {
+    display: block;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    padding: 0;
+    border: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  #matchupModal .matchup-table td:first-child {
+    grid-column: 1 / -1;
+  }
+
+  #matchupModal .matchup-table td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 3px;
+    color: var(--text-sub);
+    font-size: 9px;
+    font-weight: 700;
+  }
+
+  #matchupModal .matchup-table td .inline-pill {
+    width: 100%;
+    white-space: normal;
+    text-align: left;
   }
 }
 
