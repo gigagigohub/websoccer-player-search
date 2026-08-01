@@ -16,6 +16,7 @@ let templateMatchupMaxDifferences = 2;
 let templateMatchupRequireCoach = true;
 let templateMatchupExcludeCc = true;
 let currentMatchupFormation = null;
+let matchupReturnsToFormation = false;
 const templateMatchupScenarioCache = new Map();
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
@@ -2356,17 +2357,22 @@ function renderMatchupModalDetail(formation) {
 
 function openMatchupModal(formation) {
   if (!formation || !els.matchupModal || !els.matchupTitle || !els.matchupDetail) return;
+  matchupReturnsToFormation = Boolean(els.formationModal && !els.formationModal.hidden);
   currentMatchupFormation = formation;
   const y = formatFormationYearLabel(formation.year, formation.stride);
   els.matchupTitle.textContent = `${formation.name}${y ? ` ${y}` : ""} Matchups`;
   renderMatchupModalDetail(formation);
   els.matchupModal.hidden = false;
+  if (matchupReturnsToFormation) els.formationModal.hidden = true;
 }
 
-function closeMatchupModal() {
+function closeMatchupModal({ restoreFormation = true } = {}) {
   if (!els.matchupModal) return;
+  const shouldRestoreFormation = restoreFormation && matchupReturnsToFormation;
   els.matchupModal.hidden = true;
   currentMatchupFormation = null;
+  matchupReturnsToFormation = false;
+  if (shouldRestoreFormation && els.formationModal) els.formationModal.hidden = false;
 }
 
 function closeFormationModal() {
@@ -2811,6 +2817,10 @@ function bindEvents() {
 
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
+    if (els.matchupModal && !els.matchupModal.hidden) {
+      closeMatchupModal();
+      return;
+    }
     closeMenuPanel();
     closeLoginModal();
     closeSignupModal();
@@ -2847,7 +2857,7 @@ function bindEvents() {
       if (!Number.isInteger(fid)) return;
       const f = formations.find((x) => Number(x?.id) === fid);
       if (!f) return;
-      closeMatchupModal();
+      closeMatchupModal({ restoreFormation: false });
       openFormationModal(f);
     });
   }
@@ -2862,7 +2872,7 @@ async function init() {
   bindEvents();
 
   const [formationsRes, playersRes, coachesMetaRes, _siteMetaRes, v4CleanUniformRes] = await Promise.all([
-    fetch("./formations_data.json?v=20260801-template-matchup-v1"),
+    fetch("./formations_data.json?v=20260801-template-matchup-v2"),
     fetch("./data.json?v=20260719-site-data").catch(() => null),
     fetch("./coaches_data.json?v=20260719-site-data").catch(() => null),
     loadSiteMeta(),
