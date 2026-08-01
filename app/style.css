@@ -4153,7 +4153,7 @@ body.modal-scroll-lock #formationModal .formation-dialog {
 
 .template-matchup-controls {
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) auto auto;
+  grid-template-columns: minmax(200px, 1fr) auto auto auto;
   align-items: end;
   gap: 10px 14px;
   margin-top: 12px;
@@ -4268,6 +4268,17 @@ body.modal-scroll-lock #formationModal .formation-dialog {
 .template-matchup-status.is-sparse {
   color: #d6e0ec;
   background: #52657a;
+}
+
+@media (max-width: 900px) {
+  .template-matchup-controls {
+    grid-template-columns: minmax(220px, 1fr) 1fr;
+    align-items: stretch;
+  }
+
+  .template-matchup-check {
+    white-space: normal;
+  }
 }
 
 @media (max-width: 720px) {

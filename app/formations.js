@@ -13,6 +13,7 @@ let ccDataMeta = null;
 let matchupAnalysisMeta = null;
 let templateMatchupExplorer = { meta: {}, matches: [] };
 let templateMatchupMaxDifferences = 2;
+let templateMatchupMode = "secondary_usage_10";
 let templateMatchupRequireCoach = true;
 let templateMatchupExcludeCc = true;
 let currentMatchupFormation = null;
@@ -2072,6 +2073,7 @@ function templateNormalTwoSidedP(value, standardError) {
 
 function aggregateTemplateMatchupScenario() {
   const cacheKey = [
+    templateMatchupMode,
     templateMatchupMaxDifferences,
     templateMatchupRequireCoach ? 1 : 0,
     templateMatchupExcludeCc ? 1 : 0,
@@ -2085,18 +2087,29 @@ function aggregateTemplateMatchupScenario() {
   let coachExcludedMatches = 0;
   let ccExcludedMatches = 0;
   let matches = 0;
+  const useSecondary = templateMatchupMode === "secondary_usage_10";
 
   sourceRows.forEach((row) => {
-    const homeDifference = Number(row?.homeDifference ?? 99);
-    const awayDifference = Number(row?.awayDifference ?? 99);
+    const homeDifference = Number(
+      useSecondary ? row?.homeSecondaryDifference ?? 99 : row?.homeDifference ?? 99
+    );
+    const awayDifference = Number(
+      useSecondary ? row?.awaySecondaryDifference ?? 99 : row?.awayDifference ?? 99
+    );
     if (Math.max(homeDifference, awayDifference) > templateMatchupMaxDifferences) return;
     distanceMatches += 1;
     if (templateMatchupRequireCoach && !(row?.homeCoachExact && row?.awayCoachExact)) {
       coachExcludedMatches += 1;
       return;
     }
+    const homeCcUpgradeCount = Number(
+      useSecondary ? row?.homeSecondaryCcUpgradeCount || 0 : row?.homeCcUpgradeCount || 0
+    );
+    const awayCcUpgradeCount = Number(
+      useSecondary ? row?.awaySecondaryCcUpgradeCount || 0 : row?.awayCcUpgradeCount || 0
+    );
     if (templateMatchupExcludeCc && (
-      Number(row?.homeCcUpgradeCount || 0) > 0 || Number(row?.awayCcUpgradeCount || 0) > 0
+      homeCcUpgradeCount > 0 || awayCcUpgradeCount > 0
     )) {
       ccExcludedMatches += 1;
       return;
@@ -2290,6 +2303,9 @@ function templateMatchupExplorerHtml(formation) {
   const unfavorable = directionalRows.filter((row) => row.delta < 0).sort((a, b) => prioritySort(a, b, -1)).slice(0, 5);
   const meta = templateMatchupExplorer?.meta || {};
   const categoryAvailable = Boolean(meta.categoryDataAvailable);
+  const secondaryAvailable = Boolean(meta?.templateModes?.secondary_usage_10);
+  const useSecondary = templateMatchupMode === "secondary_usage_10" && secondaryAvailable;
+  const templateModeLabel = useSecondary ? "準テンプレ" : "usage 1位のみ";
   const excludedText = [
     templateMatchupRequireCoach && scenario.coachExcludedMatches > 0 ? `監督不一致 ${scenario.coachExcludedMatches}試合` : "",
     templateMatchupExcludeCc && scenario.ccExcludedMatches > 0 ? `CC差し替え ${scenario.ccExcludedMatches}試合` : "",
@@ -2297,8 +2313,8 @@ function templateMatchupExplorerHtml(formation) {
   return `
     <div class="formation-block template-matchup-explorer">
       <div class="template-matchup-heading">
-        <h3>Usage #1 Ideal Template Explorer</h3>
-        <span class="template-matchup-distance-badge">両軍とも ${templateMatchupMaxDifferences}人以内</span>
+        <h3>Usage Template Explorer</h3>
+        <span class="template-matchup-distance-badge">${templateModeLabel} / 両軍とも ${templateMatchupMaxDifferences}人以内</span>
       </div>
       <div class="template-matchup-controls">
         <label class="template-matchup-range-label">
@@ -2307,6 +2323,7 @@ function templateMatchupExplorerHtml(formation) {
           <input type="range" min="0" max="${Number(meta.maxDifferences || 5)}" step="1" value="${templateMatchupMaxDifferences}" data-template-matchup-distance aria-label="テンプレからの許容人数" />
           <span class="template-matchup-range-scale" aria-hidden="true"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></span>
         </label>
+        <label class="template-matchup-check"><input type="checkbox" data-template-matchup-secondary ${useSecondary ? "checked" : ""} ${secondaryAvailable ? "" : "disabled"} />usage 10%以上の2・3位も一致</label>
         <label class="template-matchup-check"><input type="checkbox" data-template-matchup-coach ${templateMatchupRequireCoach ? "checked" : ""} />監督もusage 1位</label>
         <label class="template-matchup-check"><input type="checkbox" data-template-matchup-cc ${templateMatchupExcludeCc ? "checked" : ""} ${categoryAvailable ? "" : "disabled"} />CC差し替え除外</label>
       </div>
@@ -2315,7 +2332,10 @@ function templateMatchupExplorerHtml(formation) {
         ${excludedText ? `<span class="matchup-subline dim">現在のチェックで除外: ${excludedText}</span>` : ""}
       </p>
       <p class="dim template-matchup-help">
-        各slotのusage 1位を合成した理想形との差です。差人数はslotごとのplayerId不一致。CC除外は、非CCのテンプレ枠をCCカードへ替えた試合を除外します。
+        ${useSecondary
+          ? "各slotのusage 1位は常に一致、2・3位は自身のusageが10%以上なら一致です。1位のusage割合とは比較しません。"
+          : "各slotのusage 1位を合成した理想形だけを一致扱いします。"}
+        差人数はslotごとのplayerId不一致。CC除外は、候補にCCがないslotへCCカードを入れた試合を除外します。
         N不足も参考表示しますが、支持された相性とは扱いません。
       </p>
       <div class="template-matchup-result-grid">
@@ -2842,10 +2862,12 @@ function bindEvents() {
     });
     els.matchupDetail.addEventListener("change", (e) => {
       const slider = e.target.closest("[data-template-matchup-distance]");
+      const secondary = e.target.closest("[data-template-matchup-secondary]");
       const coach = e.target.closest("[data-template-matchup-coach]");
       const cc = e.target.closest("[data-template-matchup-cc]");
-      if (!slider && !coach && !cc) return;
+      if (!slider && !secondary && !coach && !cc) return;
       if (slider) templateMatchupMaxDifferences = Math.max(0, Math.min(5, Number(slider.value || 0)));
+      if (secondary) templateMatchupMode = secondary.checked ? "secondary_usage_10" : "strict";
       if (coach) templateMatchupRequireCoach = Boolean(coach.checked);
       if (cc) templateMatchupExcludeCc = Boolean(cc.checked);
       if (currentMatchupFormation) renderMatchupModalDetail(currentMatchupFormation);
@@ -2872,7 +2894,7 @@ async function init() {
   bindEvents();
 
   const [formationsRes, playersRes, coachesMetaRes, _siteMetaRes, v4CleanUniformRes] = await Promise.all([
-    fetch("./formations_data.json?v=20260801-template-matchup-v2"),
+    fetch("./formations_data.json?v=20260801-secondary-template-v1"),
     fetch("./data.json?v=20260719-site-data").catch(() => null),
     fetch("./coaches_data.json?v=20260719-site-data").catch(() => null),
     loadSiteMeta(),
