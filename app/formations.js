@@ -11,6 +11,12 @@ const CC_AVG_MIN_USES = 15;
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 let ccDataMeta = null;
 let matchupAnalysisMeta = null;
+let templateMatchupExplorer = { meta: {}, matches: [] };
+let templateMatchupMaxDifferences = 2;
+let templateMatchupRequireCoach = true;
+let templateMatchupExcludeCc = true;
+let currentMatchupFormation = null;
+const templateMatchupScenarioCache = new Map();
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
   "PK", "FK", "CK", "CP", "知性", "感性", "個人", "組織",
@@ -2010,25 +2016,333 @@ function matchupRowsHtml(rows = []) {
   `;
 }
 
-function openMatchupModal(formation) {
-  if (!formation || !els.matchupModal || !els.matchupTitle || !els.matchupDetail) return;
-  const y = formatFormationYearLabel(formation.year, formation.stride);
-  els.matchupTitle.textContent = `${formation.name}${y ? ` ${y}` : ""} Matchups`;
+function templateEffectiveN(weights = []) {
+  const valid = weights.map(Number).filter((value) => Number.isFinite(value) && value > 0);
+  const total = valid.reduce((sum, value) => sum + value, 0);
+  const squares = valid.reduce((sum, value) => sum + value * value, 0);
+  return squares > 0 ? (total * total) / squares : 0;
+}
+
+function templateClusteredStandardError(observations = [], mean = 0) {
+  const clusters = new Map();
+  observations.forEach((observation) => {
+    const key = String(observation.cluster || "");
+    if (!clusters.has(key)) clusters.set(key, []);
+    clusters.get(key).push(observation);
+  });
+  const rows = [];
+  clusters.forEach((items) => {
+    const weight = items.reduce((sum, item) => sum + Number(item.weight || 0), 0);
+    if (!(weight > 0)) return;
+    rows.push({
+      weight,
+      value: items.reduce((sum, item) => sum + Number(item.value || 0) * Number(item.weight || 0), 0) / weight,
+    });
+  });
+  if (rows.length < 2) return { standardError: Number.POSITIVE_INFINITY, effectiveClusters: rows.length };
+  const totalWeight = rows.reduce((sum, row) => sum + row.weight, 0);
+  const squaredWeights = rows.reduce((sum, row) => sum + row.weight * row.weight, 0);
+  const effectiveClusters = squaredWeights > 0 ? (totalWeight * totalWeight) / squaredWeights : 0;
+  const varianceDenominator = totalWeight - squaredWeights / totalWeight;
+  if (!(varianceDenominator > 0) || !(effectiveClusters > 1)) {
+    return { standardError: Number.POSITIVE_INFINITY, effectiveClusters };
+  }
+  const variance = rows.reduce(
+    (sum, row) => sum + row.weight * (row.value - mean) ** 2,
+    0,
+  ) / varianceDenominator;
+  return {
+    standardError: Math.sqrt(Math.max(0, variance) / effectiveClusters),
+    effectiveClusters,
+  };
+}
+
+function templateNormalTwoSidedP(value, standardError) {
+  if (!Number.isFinite(standardError) || !(standardError > 0)) return 1;
+  const z = Math.abs(Number(value || 0) / standardError);
+  const t = 1 / (1 + 0.2316419 * z);
+  const density = 0.3989422804014327 * Math.exp(-(z * z) / 2);
+  const tail = density * t * (
+    0.319381530
+    + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429)))
+  );
+  return Math.max(0, Math.min(1, 2 * tail));
+}
+
+function aggregateTemplateMatchupScenario() {
+  const cacheKey = [
+    templateMatchupMaxDifferences,
+    templateMatchupRequireCoach ? 1 : 0,
+    templateMatchupExcludeCc ? 1 : 0,
+  ].join(":");
+  if (templateMatchupScenarioCache.has(cacheKey)) return templateMatchupScenarioCache.get(cacheKey);
+
+  const sourceRows = Array.isArray(templateMatchupExplorer?.matches) ? templateMatchupExplorer.matches : [];
+  const criteria = templateMatchupExplorer?.meta?.criteria || {};
+  const buckets = new Map();
+  let distanceMatches = 0;
+  let coachExcludedMatches = 0;
+  let ccExcludedMatches = 0;
+  let matches = 0;
+
+  sourceRows.forEach((row) => {
+    const homeDifference = Number(row?.homeDifference ?? 99);
+    const awayDifference = Number(row?.awayDifference ?? 99);
+    if (Math.max(homeDifference, awayDifference) > templateMatchupMaxDifferences) return;
+    distanceMatches += 1;
+    if (templateMatchupRequireCoach && !(row?.homeCoachExact && row?.awayCoachExact)) {
+      coachExcludedMatches += 1;
+      return;
+    }
+    if (templateMatchupExcludeCc && (
+      Number(row?.homeCcUpgradeCount || 0) > 0 || Number(row?.awayCcUpgradeCount || 0) > 0
+    )) {
+      ccExcludedMatches += 1;
+      return;
+    }
+    matches += 1;
+    const homeFormation = Number(row?.homeFormation || 0);
+    const awayFormation = Number(row?.awayFormation || 0);
+    if (!(homeFormation > 0) || !(awayFormation > 0) || homeFormation === awayFormation) return;
+    const lowFormation = Math.min(homeFormation, awayFormation);
+    const highFormation = Math.max(homeFormation, awayFormation);
+    const key = `${lowFormation}:${highFormation}`;
+    if (!buckets.has(key)) {
+      buckets.set(key, {
+        lowFormation,
+        highFormation,
+        observations: [],
+        weights: [],
+        matches: 0,
+        winsLow: 0,
+        draws: 0,
+        lossesLow: 0,
+        teamPairs: new Set(),
+        teamSeasons: new Set(),
+        lowTeams: new Set(),
+        highTeams: new Set(),
+        seasons: new Set(),
+        worlds: new Set(),
+      });
+    }
+    const bucket = buckets.get(key);
+    const lowIsHome = homeFormation === lowFormation;
+    const sign = lowIsHome ? 1 : -1;
+    const lowTeam = Number(lowIsHome ? row?.homeTeam : row?.awayTeam);
+    const highTeam = Number(lowIsHome ? row?.awayTeam : row?.homeTeam);
+    const teamPair = `${Math.min(lowTeam, highTeam)}:${Math.max(lowTeam, highTeam)}`;
+    const weight = Number(row?.weight || 1);
+    const outcome = sign * Number(row?.outcome || 0);
+    bucket.observations.push({ value: sign * Number(row?.residual || 0), weight, cluster: teamPair });
+    bucket.weights.push(weight);
+    bucket.matches += 1;
+    bucket.teamPairs.add(teamPair);
+    bucket.teamSeasons.add(`${Number(row?.season || 0)}:${lowTeam}`);
+    bucket.teamSeasons.add(`${Number(row?.season || 0)}:${highTeam}`);
+    bucket.lowTeams.add(lowTeam);
+    bucket.highTeams.add(highTeam);
+    bucket.seasons.add(Number(row?.season || 0));
+    bucket.worlds.add(Number(row?.world || 0));
+    if (outcome > 0.5) bucket.winsLow += 1;
+    else if (outcome < -0.5) bucket.lossesLow += 1;
+    else bucket.draws += 1;
+  });
+
+  const pairRows = [];
+  buckets.forEach((bucket) => {
+    const totalWeight = bucket.observations.reduce((sum, row) => sum + row.weight, 0);
+    if (!(totalWeight > 0)) return;
+    const rawEdge = bucket.observations.reduce((sum, row) => sum + row.value * row.weight, 0) / totalWeight;
+    const clustered = templateClusteredStandardError(bucket.observations, rawEdge);
+    const shrinkage = totalWeight / (totalWeight + Number(criteria.matchupPrior || 12));
+    const edge = rawEdge * shrinkage;
+    const standardError = clustered.standardError * shrinkage;
+    const effectiveMatches = templateEffectiveN(bucket.weights);
+    const eligible = (
+      bucket.matches >= Number(criteria.minMatches || 15)
+      && effectiveMatches >= Number(criteria.minEffectiveMatches || 8)
+      && bucket.teamPairs.size >= Number(criteria.minUniqueTeamPairs || 6)
+      && bucket.lowTeams.size >= Number(criteria.minUniqueTeamsEach || 3)
+      && bucket.highTeams.size >= Number(criteria.minUniqueTeamsEach || 3)
+      && bucket.seasons.size >= Number(criteria.minSeasons || 3)
+      && bucket.worlds.size >= Number(criteria.minWorlds || 3)
+      && Number.isFinite(standardError)
+    );
+    pairRows.push({
+      ...bucket,
+      totalWeight,
+      effectiveMatches,
+      edge,
+      standardError,
+      ciLow: Number.isFinite(standardError) ? edge - 1.96 * standardError : Number.NEGATIVE_INFINITY,
+      ciHigh: Number.isFinite(standardError) ? edge + 1.96 * standardError : Number.POSITIVE_INFINITY,
+      pValue: templateNormalTwoSidedP(rawEdge, clustered.standardError),
+      qValue: 1,
+      eligible,
+      supported: false,
+    });
+  });
+
+  const eligibleRows = pairRows.filter((row) => row.eligible).sort((a, b) => a.pValue - b.pValue);
+  let runningQ = 1;
+  for (let index = eligibleRows.length - 1; index >= 0; index -= 1) {
+    const rank = index + 1;
+    runningQ = Math.min(runningQ, eligibleRows[index].pValue * eligibleRows.length / rank);
+    eligibleRows[index].qValue = Math.min(1, runningQ);
+  }
+  pairRows.forEach((row) => {
+    row.supported = Boolean(
+      row.eligible
+      && (row.ciLow > 0 || row.ciHigh < 0)
+      && row.qValue <= Number(criteria.maxFdr || 0.2)
+    );
+  });
+
+  const result = {
+    matches,
+    distanceMatches,
+    coachExcludedMatches,
+    ccExcludedMatches,
+    observedPairCount: pairRows.length,
+    eligiblePairCount: pairRows.filter((row) => row.eligible).length,
+    supportedPairCount: pairRows.filter((row) => row.supported).length,
+    pairRows,
+  };
+  templateMatchupScenarioCache.set(cacheKey, result);
+  return result;
+}
+
+function directionalTemplateMatchupRow(pair, formationId) {
+  const ownIsLow = Number(formationId) === Number(pair.lowFormation);
+  const sign = ownIsLow ? 1 : -1;
+  const wins = Number(ownIsLow ? pair.winsLow : pair.lossesLow);
+  const losses = Number(ownIsLow ? pair.lossesLow : pair.winsLow);
+  const draws = Number(pair.draws || 0);
+  return {
+    formationId: ownIsLow ? pair.highFormation : pair.lowFormation,
+    wins,
+    draws,
+    losses,
+    pointsPerMatch: pair.matches > 0 ? (3 * wins + draws) / pair.matches : 0,
+    delta: sign * Number(pair.edge || 0) * 3,
+    ciLow: (ownIsLow ? pair.ciLow : -pair.ciHigh) * 3,
+    ciHigh: (ownIsLow ? pair.ciHigh : -pair.ciLow) * 3,
+    matches: pair.matches,
+    effectiveMatches: pair.effectiveMatches,
+    uniqueTeamPairs: pair.teamPairs.size,
+    seasonCount: pair.seasons.size,
+    worldCount: pair.worlds.size,
+    qValue: pair.qValue,
+    eligible: pair.eligible,
+    supported: pair.supported,
+  };
+}
+
+function templateMatchupRowsHtml(rows = []) {
+  if (!rows.length) return `<p class="dim">この条件では該当対戦がありません。</p>`;
+  return `
+    <div class="matchup-table-wrap">
+      <table class="matchup-table template-matchup-table">
+        <thead><tr><th>Formation</th><th>W-D-L</th><th>Pts</th><th>Adjusted matchup</th><th>判定</th><th>Coverage</th></tr></thead>
+        <tbody>
+          ${rows.map((row) => {
+            const formation = formations.find((item) => Number(item?.id) === Number(row?.formationId));
+            const year = formatFormationYearLabel(formation?.year, formation?.stride);
+            const name = formation ? `${formation.name}${year ? ` ${year}` : ""}` : `Formation ${row?.formationId}`;
+            const finiteCi = Number.isFinite(row.ciLow) && Number.isFinite(row.ciHigh);
+            const status = row.supported ? "支持" : row.eligible ? "参考" : "N不足";
+            const statusClass = row.supported ? "is-supported" : row.eligible ? "is-exploratory" : "is-sparse";
+            return `
+              <tr>
+                <td><button type="button" class="inline-pill matchup-formation-link" data-formation-id="${row.formationId}">${name}</button></td>
+                <td>${row.wins}-${row.draws}-${row.losses}</td>
+                <td>${Number(row.pointsPerMatch || 0).toFixed(2)}</td>
+                <td class="${row.delta >= 0 ? "matchup-pos" : "matchup-neg"}">
+                  ${row.delta >= 0 ? "+" : ""}${Number(row.delta || 0).toFixed(2)}
+                  <span class="matchup-subline dim">${finiteCi ? `[${row.ciLow.toFixed(2)}, ${row.ciHigh.toFixed(2)}]` : "CI算出不可"}</span>
+                </td>
+                <td><span class="template-matchup-status ${statusClass}">${status}</span>${row.eligible ? `<span class="matchup-subline dim">q=${Number(row.qValue || 0).toFixed(3)}</span>` : ""}</td>
+                <td>${row.matches} raw / ${Number(row.effectiveMatches || 0).toFixed(1)} eff<span class="matchup-subline dim">${row.uniqueTeamPairs} pairs / ${row.seasonCount} seasons / ${row.worldCount} worlds</span></td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function templateMatchupExplorerHtml(formation) {
+  const available = Array.isArray(templateMatchupExplorer?.matches) && templateMatchupExplorer.matches.length > 0;
+  if (!available) return "";
+  const scenario = aggregateTemplateMatchupScenario();
+  const directionalRows = scenario.pairRows
+    .filter((pair) => Number(pair.lowFormation) === Number(formation.id) || Number(pair.highFormation) === Number(formation.id))
+    .map((pair) => directionalTemplateMatchupRow(pair, formation.id));
+  const prioritySort = (a, b, direction) => (
+    Number(b.supported) - Number(a.supported)
+    || Number(b.eligible) - Number(a.eligible)
+    || Number(b.matches) - Number(a.matches)
+    || direction * (Number(b.delta) - Number(a.delta))
+  );
+  const favorable = directionalRows.filter((row) => row.delta > 0).sort((a, b) => prioritySort(a, b, 1)).slice(0, 5);
+  const unfavorable = directionalRows.filter((row) => row.delta < 0).sort((a, b) => prioritySort(a, b, -1)).slice(0, 5);
+  const meta = templateMatchupExplorer?.meta || {};
+  const categoryAvailable = Boolean(meta.categoryDataAvailable);
+  const excludedText = [
+    templateMatchupRequireCoach && scenario.coachExcludedMatches > 0 ? `監督不一致 ${scenario.coachExcludedMatches}試合` : "",
+    templateMatchupExcludeCc && scenario.ccExcludedMatches > 0 ? `CC差し替え ${scenario.ccExcludedMatches}試合` : "",
+  ].filter(Boolean).join(" / ");
+  return `
+    <div class="formation-block template-matchup-explorer">
+      <div class="template-matchup-heading">
+        <h3>Usage #1 Ideal Template Explorer</h3>
+        <span class="template-matchup-distance-badge">両軍とも ${templateMatchupMaxDifferences}人以内</span>
+      </div>
+      <div class="template-matchup-controls">
+        <label class="template-matchup-range-label">
+          <span>テンプレからの許容差</span>
+          <output data-template-matchup-output>${templateMatchupMaxDifferences}人</output>
+          <input type="range" min="0" max="${Number(meta.maxDifferences || 5)}" step="1" value="${templateMatchupMaxDifferences}" data-template-matchup-distance aria-label="テンプレからの許容人数" />
+          <span class="template-matchup-range-scale" aria-hidden="true"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></span>
+        </label>
+        <label class="template-matchup-check"><input type="checkbox" data-template-matchup-coach ${templateMatchupRequireCoach ? "checked" : ""} />監督もusage 1位</label>
+        <label class="template-matchup-check"><input type="checkbox" data-template-matchup-cc ${templateMatchupExcludeCc ? "checked" : ""} ${categoryAvailable ? "" : "disabled"} />CC差し替え除外</label>
+      </div>
+      <p class="template-matchup-summary">
+        該当 <strong>${scenario.matches.toLocaleString()}</strong>試合 / 観測 ${scenario.observedPairCount}ペア / 検定可能 ${scenario.eligiblePairCount}ペア / 支持 ${scenario.supportedPairCount}ペア
+        ${excludedText ? `<span class="matchup-subline dim">現在のチェックで除外: ${excludedText}</span>` : ""}
+      </p>
+      <p class="dim template-matchup-help">
+        各slotのusage 1位を合成した理想形との差です。差人数はslotごとのplayerId不一致。CC除外は、非CCのテンプレ枠をCCカードへ替えた試合を除外します。
+        N不足も参考表示しますが、支持された相性とは扱いません。
+      </p>
+      <div class="template-matchup-result-grid">
+        <div><h4>Favorable</h4>${templateMatchupRowsHtml(favorable)}</div>
+        <div><h4>Unfavorable</h4>${templateMatchupRowsHtml(unfavorable)}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderMatchupModalDetail(formation) {
+  if (!formation || !els.matchupDetail) return;
   const m = formation.matchups || {};
   const criteria = m.criteria || {};
   const guardExcluded = Number(matchupAnalysisMeta?.guardExcludedMatches || 0);
   const primaryMatches = Number(matchupAnalysisMeta?.primary?.matches || 0);
   els.matchupDetail.innerHTML = `
+    ${templateMatchupExplorerHtml(formation)}
     <p class="dim matchup-method-note">
       Primary: CC group stage only. Adjusted matchup is the shrunk 3-point result edge after controlling for team-season strength,
       overall formation strength, coach, and home advantage. Repeated team pairs are capped; ${guardExcluded} confirmed A-X guard matches were excluded.
     </p>
     <div class="formation-block">
-      <h3>Supported favorable matchups</h3>
+      <h3>Supported favorable matchups (all lineups)</h3>
       ${matchupRowsHtml(m.strongAgainst)}
     </div>
     <div class="formation-block">
-      <h3>Supported unfavorable matchups</h3>
+      <h3>Supported unfavorable matchups (all lineups)</h3>
       ${matchupRowsHtml(m.weakAgainst)}
     </div>
     <p class="dim matchup-criteria">
@@ -2038,12 +2352,21 @@ function openMatchupModal(formation) {
       All = all-round sensitivity; Recent = latest ${Number(criteria.recentSeasons || 0)} seasons. This is adjusted observational evidence, not a causal guarantee.
     </p>
   `;
+}
+
+function openMatchupModal(formation) {
+  if (!formation || !els.matchupModal || !els.matchupTitle || !els.matchupDetail) return;
+  currentMatchupFormation = formation;
+  const y = formatFormationYearLabel(formation.year, formation.stride);
+  els.matchupTitle.textContent = `${formation.name}${y ? ` ${y}` : ""} Matchups`;
+  renderMatchupModalDetail(formation);
   els.matchupModal.hidden = false;
 }
 
 function closeMatchupModal() {
   if (!els.matchupModal) return;
   els.matchupModal.hidden = true;
+  currentMatchupFormation = null;
 }
 
 function closeFormationModal() {
@@ -2499,6 +2822,24 @@ function bindEvents() {
   });
 
   if (els.matchupDetail) {
+    els.matchupDetail.addEventListener("input", (e) => {
+      const slider = e.target.closest("[data-template-matchup-distance]");
+      if (!slider) return;
+      const value = Math.max(0, Math.min(5, Number(slider.value || 0)));
+      templateMatchupMaxDifferences = value;
+      const output = els.matchupDetail.querySelector("[data-template-matchup-output]");
+      if (output) output.textContent = `${value}人`;
+    });
+    els.matchupDetail.addEventListener("change", (e) => {
+      const slider = e.target.closest("[data-template-matchup-distance]");
+      const coach = e.target.closest("[data-template-matchup-coach]");
+      const cc = e.target.closest("[data-template-matchup-cc]");
+      if (!slider && !coach && !cc) return;
+      if (slider) templateMatchupMaxDifferences = Math.max(0, Math.min(5, Number(slider.value || 0)));
+      if (coach) templateMatchupRequireCoach = Boolean(coach.checked);
+      if (cc) templateMatchupExcludeCc = Boolean(cc.checked);
+      if (currentMatchupFormation) renderMatchupModalDetail(currentMatchupFormation);
+    });
     els.matchupDetail.addEventListener("click", (e) => {
       const fbtn = e.target.closest("[data-formation-id]");
       if (!fbtn) return;
@@ -2521,7 +2862,7 @@ async function init() {
   bindEvents();
 
   const [formationsRes, playersRes, coachesMetaRes, _siteMetaRes, v4CleanUniformRes] = await Promise.all([
-    fetch("./formations_data.json?v=20260801-matchup-bias-v1"),
+    fetch("./formations_data.json?v=20260801-template-matchup-v1"),
     fetch("./data.json?v=20260719-site-data").catch(() => null),
     fetch("./coaches_data.json?v=20260719-site-data").catch(() => null),
     loadSiteMeta(),
@@ -2531,6 +2872,8 @@ async function init() {
   formations = Array.isArray(formationData.formations) ? formationData.formations : [];
   coaches = Array.isArray(formationData.coaches) ? formationData.coaches : [];
   matchupAnalysisMeta = formationData?.meta?.matchupAnalysis || null;
+  templateMatchupExplorer = formationData?.templateMatchupExplorer || { meta: {}, matches: [] };
+  templateMatchupScenarioCache.clear();
   if (coachesMetaRes && coachesMetaRes.ok) {
     try {
       const raw = await coachesMetaRes.json();

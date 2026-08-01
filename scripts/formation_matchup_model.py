@@ -694,3 +694,290 @@ def build_bias_aware_matchups(
             ],
         },
     }
+
+
+def build_usage_templates(
+    slot_stats: Mapping[int, Mapping[int, Sequence[Mapping[str, Any]]]],
+    coach_stats: Mapping[int, Sequence[Mapping[str, Any]]],
+) -> tuple[dict[int, dict[str, Any]], list[dict[str, Any]]]:
+    """Build feasible 11-player usage templates plus the usage-rank-1 coach.
+
+    A handful of formations have the same player ranked first in two slots.
+    Those cannot form a real eleven, so the duplicate stays in the slot where
+    replacing it would lose the most usage share and the other slot advances to
+    its best currently unused candidate.
+    """
+
+    templates: dict[int, dict[str, Any]] = {}
+    overrides: list[dict[str, Any]] = []
+    formation_ids = sorted(set(slot_stats) | set(coach_stats))
+    for formation_id in formation_ids:
+        slots = slot_stats.get(formation_id) or {}
+        coaches = coach_stats.get(formation_id) or []
+        if len(slots) != 11 or not coaches:
+            continue
+        ranked_by_slot: dict[int, list[Mapping[str, Any]]] = {}
+        picks: dict[int, int] = {}
+        complete = True
+        for slot in range(1, 12):
+            ranked = sorted(
+                slots.get(slot) or [],
+                key=lambda row: (
+                    -_to_float(row.get("usageRate")),
+                    -_to_int(row.get("uses")),
+                    -_to_float(row.get("avgPts")),
+                    _to_int(row.get("playerId")),
+                ),
+            )
+            ranked = [row for row in ranked if _to_int(row.get("playerId")) > 0]
+            if not ranked:
+                complete = False
+                break
+            ranked_by_slot[slot] = ranked
+            picks[slot] = _to_int(ranked[0].get("playerId"))
+        if not complete:
+            continue
+
+        while len(set(picks.values())) < 11:
+            counts = Counter(picks.values())
+            duplicate_id = next(player_id for player_id, count in counts.items() if count > 1)
+            duplicate_slots = [slot for slot, player_id in picks.items() if player_id == duplicate_id]
+            occupied = set(picks.values())
+            alternatives: list[tuple[float, int, int, int]] = []
+            for slot in duplicate_slots:
+                replacement = next(
+                    (
+                        (rank, row)
+                        for rank, row in enumerate(ranked_by_slot[slot], start=1)
+                        if _to_int(row.get("playerId")) not in occupied
+                    ),
+                    None,
+                )
+                if replacement is None:
+                    complete = False
+                    break
+                rank, row = replacement
+                loss = _to_float(ranked_by_slot[slot][0].get("usageRate")) - _to_float(
+                    row.get("usageRate")
+                )
+                alternatives.append((loss, slot, _to_int(row.get("playerId")), rank))
+            if not complete:
+                break
+            # Keep the duplicate in the slot with the most expensive fallback.
+            alternatives.sort(key=lambda item: (-item[0], item[1]))
+            for loss, slot, replacement_id, rank in alternatives[1:]:
+                previous_id = picks[slot]
+                picks[slot] = replacement_id
+                overrides.append(
+                    {
+                        "formationId": formation_id,
+                        "slot": slot,
+                        "defaultPlayerId": previous_id,
+                        "selectedPlayerId": replacement_id,
+                        "selectedUsageRank": rank,
+                        "usageRateLoss": round(loss, 8),
+                    }
+                )
+        if not complete or len(set(picks.values())) != 11:
+            continue
+
+        ranked_coaches = sorted(
+            (row for row in coaches if _to_int(row.get("coachId")) > 0),
+            key=lambda row: (
+                -_to_float(row.get("usageRate")),
+                -_to_int(row.get("uses")),
+                -_to_float(row.get("avgPts")),
+                _to_int(row.get("coachId")),
+            ),
+        )
+        if not ranked_coaches:
+            continue
+        templates[formation_id] = {
+            "formationId": formation_id,
+            "players": [picks[slot] for slot in range(1, 12)],
+            "coachId": _to_int(ranked_coaches[0].get("coachId")),
+        }
+    return templates, overrides
+
+
+def build_template_matchup_explorer(
+    team_rows: Sequence[Mapping[str, Any]],
+    match_rows: Sequence[Mapping[str, Any]],
+    player_rows: Sequence[Mapping[str, Any]],
+    slot_stats: Mapping[int, Mapping[int, Sequence[Mapping[str, Any]]]],
+    coach_stats: Mapping[int, Sequence[Mapping[str, Any]]],
+    player_categories: Mapping[int, str] | None = None,
+    guard_exclusions: set[MatchKey] | None = None,
+    guard_meta: Mapping[str, Any] | None = None,
+    config: MatchupConfig | None = None,
+    max_differences: int = 5,
+) -> dict[str, Any]:
+    """Return compact match rows for the interactive usage-template explorer."""
+
+    config = config or MatchupConfig()
+    guard_exclusions = guard_exclusions or set()
+    categories = {
+        _to_int(player_id): str(category or "").strip().upper()
+        for player_id, category in (player_categories or {}).items()
+        if _to_int(player_id) > 0
+    }
+    templates, overrides = build_usage_templates(slot_stats, coach_stats)
+
+    lineups: MutableMapping[tuple[int, int, int, str], dict[int, int]] = defaultdict(dict)
+    for row in player_rows:
+        if _to_int(row.get("is_starting11")) != 1:
+            continue
+        slot = _to_int(row.get("member_order"))
+        player_id = _to_int(row.get("player_id"))
+        side = str(row.get("side") or "").strip().lower()
+        if not (1 <= slot <= 11) or player_id <= 0 or side not in {"home", "away"}:
+            continue
+        key = (
+            _to_int(row.get("season")),
+            _to_int(row.get("world_id")),
+            _to_int(row.get("match_id")),
+            side,
+        )
+        lineups[key][slot] = player_id
+
+    built, skipped = build_match_rows(team_rows, match_rows)
+    clean_group = [
+        row
+        for row in built
+        if row["stage"] == "group" and row["key"] not in guard_exclusions
+    ]
+    weighted = assign_capped_weights(clean_group, config.repeated_team_pair_cap)
+    baseline, scored = fit_regularized_baseline(weighted, config)
+
+    compact_matches: list[dict[str, Any]] = []
+    complete_template_matches = 0
+    scenario_counts: MutableMapping[tuple[int, bool, bool], int] = defaultdict(int)
+    for row in scored:
+        side_values: dict[str, dict[str, Any]] = {}
+        for side in ("home", "away"):
+            formation_id = _to_int(row.get(f"{side}Formation"))
+            template = templates.get(formation_id)
+            lineup = lineups.get((*row["key"], side)) or {}
+            if template is None or len(lineup) != 11 or set(lineup) != set(range(1, 12)):
+                side_values = {}
+                break
+            template_players = template["players"]
+            different_slots = [
+                slot
+                for slot in range(1, 12)
+                if lineup[slot] != template_players[slot - 1]
+            ]
+            cc_upgrades = sum(
+                categories.get(lineup[slot], "") == "CC"
+                and categories.get(template_players[slot - 1], "") != "CC"
+                for slot in different_slots
+            )
+            side_values[side] = {
+                "difference": len(different_slots),
+                "coachExact": _to_int(row.get(f"{side}Coach")) == _to_int(template["coachId"]),
+                "ccUpgradeCount": cc_upgrades,
+            }
+        if len(side_values) != 2:
+            continue
+        complete_template_matches += 1
+        highest_difference = max(
+            side_values["home"]["difference"], side_values["away"]["difference"]
+        )
+        for allowed in range(max_differences + 1):
+            if highest_difference > allowed:
+                continue
+            for require_coach in (False, True):
+                if require_coach and not (
+                    side_values["home"]["coachExact"] and side_values["away"]["coachExact"]
+                ):
+                    continue
+                for exclude_cc in (False, True):
+                    if exclude_cc and (
+                        side_values["home"]["ccUpgradeCount"]
+                        or side_values["away"]["ccUpgradeCount"]
+                    ):
+                        continue
+                    scenario_counts[(allowed, require_coach, exclude_cc)] += 1
+        if highest_difference > max_differences:
+            continue
+        compact_matches.append(
+            {
+                "season": _to_int(row.get("season")),
+                "world": _to_int(row.get("world")),
+                "matchId": _to_int(row.get("matchId")),
+                "homeFormation": _to_int(row.get("homeFormation")),
+                "awayFormation": _to_int(row.get("awayFormation")),
+                "homeTeam": _to_int(row.get("homeTeam")),
+                "awayTeam": _to_int(row.get("awayTeam")),
+                "homeDifference": side_values["home"]["difference"],
+                "awayDifference": side_values["away"]["difference"],
+                "homeCoachExact": side_values["home"]["coachExact"],
+                "awayCoachExact": side_values["away"]["coachExact"],
+                "homeCcUpgradeCount": side_values["home"]["ccUpgradeCount"],
+                "awayCcUpgradeCount": side_values["away"]["ccUpgradeCount"],
+                "outcome": round(_to_float(row.get("y")), 8),
+                "residual": round(_to_float(row.get("residual")), 8),
+                "weight": round(_to_float(row.get("weight"), 1.0), 8),
+            }
+        )
+
+    template_cc_count = sum(
+        any(categories.get(player_id, "") == "CC" for player_id in template["players"])
+        for template in templates.values()
+    )
+    counts = [
+        {
+            "maxDifferences": allowed,
+            "requireCoachMatch": require_coach,
+            "excludeCcUpgrades": exclude_cc,
+            "matches": scenario_counts[(allowed, require_coach, exclude_cc)],
+        }
+        for allowed in range(max_differences + 1)
+        for require_coach in (False, True)
+        for exclude_cc in (False, True)
+    ]
+    return {
+        "meta": {
+            "method": "usage_template_matchup_explorer_v1",
+            "primaryScope": "CC group stage regulation-time results",
+            "maxDifferences": max_differences,
+            "templateCount": len(templates),
+            "duplicateResolvedFormationCount": len(
+                {row["formationId"] for row in overrides}
+            ),
+            "duplicateResolutionCount": len(overrides),
+            "templateWithCcCount": template_cc_count,
+            "categoryDataAvailable": bool(categories),
+            "builtMatches": len(built),
+            "cleanGroupMatches": len(clean_group),
+            "completeTemplateMatches": complete_template_matches,
+            "explorerMatches": len(compact_matches),
+            "guardEvidence": dict(guard_meta or {}),
+            "guardExcludedMatches": sum(
+                row["stage"] == "group" and row["key"] in guard_exclusions
+                for row in built
+            ),
+            "skipped": skipped,
+            "baseline": baseline,
+            "criteria": {
+                "matchupPrior": config.matchup_prior,
+                "minMatches": config.min_matches,
+                "minEffectiveMatches": config.min_effective_matches,
+                "minUniqueTeamPairs": config.min_unique_team_pairs,
+                "minUniqueTeamsEach": config.min_unique_teams_each,
+                "minSeasons": config.min_seasons,
+                "minWorlds": config.min_worlds,
+                "maxFdr": config.max_fdr,
+            },
+            "scenarioCounts": counts,
+            "caveats": [
+                "Player difference counts are slot-specific playerId mismatches against a feasible usage template.",
+                "Coach matching is a separate optional filter.",
+                "CC exclusion removes a match when a mismatched slot upgrades from a non-CC template card to CC.",
+                "Sparse rows remain exploratory and are not promoted to supported matchup evidence.",
+            ],
+        },
+        "templates": list(templates.values()),
+        "duplicateResolutions": overrides,
+        "matches": compact_matches,
+    }

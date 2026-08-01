@@ -4124,6 +4124,163 @@ body.modal-scroll-lock #formationModal .formation-dialog {
   font-size: 10px;
 }
 
+.template-matchup-explorer {
+  border-color: rgba(85, 190, 255, 0.42);
+  background: linear-gradient(180deg, rgba(25, 56, 88, 0.96), rgba(18, 36, 62, 0.98));
+}
+
+.template-matchup-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.template-matchup-heading h3 {
+  margin: 0;
+}
+
+.template-matchup-distance-badge {
+  flex: 0 0 auto;
+  border: 1px solid rgba(112, 216, 255, 0.55);
+  border-radius: 999px;
+  padding: 3px 8px;
+  color: #bcecff;
+  background: rgba(23, 106, 153, 0.28);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.template-matchup-controls {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto auto;
+  align-items: end;
+  gap: 10px 14px;
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid rgba(126, 175, 216, 0.28);
+  border-radius: 9px;
+  background: rgba(8, 22, 42, 0.46);
+}
+
+.template-matchup-range-label {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 5px 10px;
+  color: var(--text-main);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.template-matchup-range-label output {
+  color: #8edfff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.template-matchup-range-label input[type="range"] {
+  grid-column: 1 / -1;
+  width: 100%;
+  margin: 2px 0 0;
+  accent-color: #55c9ff;
+}
+
+.template-matchup-range-scale {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-sub);
+  font-size: 9px;
+  font-weight: 500;
+}
+
+.template-matchup-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 6px 9px;
+  border: 1px solid rgba(126, 175, 216, 0.32);
+  border-radius: 8px;
+  color: var(--text-main);
+  background: rgba(18, 43, 70, 0.78);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.template-matchup-check input {
+  margin: 0;
+  accent-color: #55c9ff;
+}
+
+.template-matchup-summary {
+  margin: 10px 0 0;
+  color: var(--text-main);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.template-matchup-summary strong {
+  color: #8edfff;
+  font-size: 15px;
+}
+
+.template-matchup-help {
+  margin: 5px 0 0;
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+.template-matchup-result-grid {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.template-matchup-result-grid h4 {
+  margin: 0 0 5px;
+  color: var(--text-main);
+  font-size: 12px;
+}
+
+.template-matchup-status {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.template-matchup-status.is-supported {
+  color: #071c11;
+  background: #70e58b;
+}
+
+.template-matchup-status.is-exploratory {
+  color: #2d2300;
+  background: #f6d66a;
+}
+
+.template-matchup-status.is-sparse {
+  color: #d6e0ec;
+  background: #52657a;
+}
+
+@media (max-width: 720px) {
+  .template-matchup-controls {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .template-matchup-check {
+    white-space: normal;
+  }
+}
+
 .formation-param-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

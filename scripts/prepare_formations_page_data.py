@@ -1486,6 +1486,17 @@ def load_sources_from_master_db(master_db_path):
                     """
                 ).fetchall()
             ],
+            "player_category": [
+                dict(r)
+                for r in conn.execute(
+                    """
+                    SELECT
+                      player_id,
+                      category
+                    FROM manual_player_category
+                    """
+                ).fetchall()
+            ],
             "team_level": [
                 dict(r)
                 for r in conn.execute(
@@ -1665,6 +1676,11 @@ def build_data(src):
     match_rows = src.get("match_level", [])
     team_rows = src["team_level"]
     player_rows = src["player_level"]
+    player_categories = {
+        to_int(row.get("player_id")): str(row.get("category") or "").strip().upper()
+        for row in src.get("player_category", [])
+        if to_int(row.get("player_id")) > 0
+    }
     goal_rows = src.get("goal_level", [])
     match_keys = {
         (to_int(row.get("season")), to_int(row.get("world_id")), to_int(row.get("match_id")))
@@ -1983,6 +1999,17 @@ def build_data(src):
         })
     for fid in coach_stats:
         coach_stats[fid].sort(key=lambda x: (-x["usageRate"], -x["uses"], -x["avgPts"], x["coachId"]))
+
+    template_matchup_explorer = matchup_model.build_template_matchup_explorer(
+        team_rows,
+        match_rows,
+        player_rows,
+        slot_stats,
+        coach_stats,
+        player_categories=player_categories,
+        guard_exclusions=src.get("matchup_guard_exclusions") or set(),
+        guard_meta=src.get("matchup_guard_meta") or {},
+    )
 
     best_team_groups = {}
     for instance_key, members in starting_members_by_instance.items():
@@ -2461,6 +2488,7 @@ def build_data(src):
         },
         "formations": formations,
         "coaches": coaches,
+        "templateMatchupExplorer": template_matchup_explorer,
     }
 
 
@@ -2528,6 +2556,14 @@ def main():
     )
     src["matchup_guard_exclusions"] = guard_exclusions
     src["matchup_guard_meta"] = guard_meta
+    if not src.get("player_category"):
+        app_data_path = REPO_ROOT / "app" / "data.json"
+        if app_data_path.exists():
+            app_players = json.loads(app_data_path.read_text(encoding="utf-8")).get("players") or []
+            src["player_category"] = [
+                {"player_id": player.get("id"), "category": player.get("category")}
+                for player in app_players
+            ]
     print(
         "matchup guard exclusions: "
         f"evidence={guard_meta.get('evidenceRows', 0)} "
