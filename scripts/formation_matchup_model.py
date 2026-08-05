@@ -800,6 +800,59 @@ def build_usage_templates(
     return templates, overrides
 
 
+def build_usage_candidate_sets(
+    slot_stats: Mapping[int, Mapping[int, Sequence[Mapping[str, Any]]]],
+    strict_templates: Mapping[int, Mapping[str, Any]],
+    max_usage_rank: int = 3,
+    secondary_min_usage_rate: float = 0.10,
+) -> dict[int, dict[int, list[int]]]:
+    """Return slot candidates for the broad template definition.
+
+    The top-usage player is always accepted. Usage ranks 2 and 3 are accepted
+    when their own usage rate is at least 10%, regardless of the top player's
+    share. The feasible strict-template pick is also retained so broad mode can
+    never be narrower than strict mode when duplicate top players were resolved.
+    """
+
+    candidate_sets: dict[int, dict[int, list[int]]] = {}
+    for formation_id, strict_template in strict_templates.items():
+        slots = slot_stats.get(formation_id) or {}
+        if len(slots) != 11:
+            continue
+        by_slot: dict[int, list[int]] = {}
+        complete = True
+        for slot in range(1, 12):
+            ranked = sorted(
+                (
+                    row
+                    for row in slots.get(slot) or []
+                    if _to_int(row.get("playerId")) > 0
+                ),
+                key=lambda row: (
+                    -_to_float(row.get("usageRate")),
+                    -_to_int(row.get("uses")),
+                    -_to_float(row.get("avgPts")),
+                    _to_int(row.get("playerId")),
+                ),
+            )
+            if not ranked:
+                complete = False
+                break
+            accepted = [_to_int(ranked[0].get("playerId"))]
+            accepted.extend(
+                _to_int(row.get("playerId"))
+                for row in ranked[1:max_usage_rank]
+                if _to_float(row.get("usageRate")) >= secondary_min_usage_rate
+            )
+            strict_player = _to_int(strict_template["players"][slot - 1])
+            if strict_player > 0:
+                accepted.append(strict_player)
+            by_slot[slot] = list(dict.fromkeys(accepted))
+        if complete:
+            candidate_sets[formation_id] = by_slot
+    return candidate_sets
+
+
 def build_template_matchup_explorer(
     team_rows: Sequence[Mapping[str, Any]],
     match_rows: Sequence[Mapping[str, Any]],
@@ -811,6 +864,8 @@ def build_template_matchup_explorer(
     guard_meta: Mapping[str, Any] | None = None,
     config: MatchupConfig | None = None,
     max_differences: int = 5,
+    secondary_max_usage_rank: int = 3,
+    secondary_min_usage_rate: float = 0.10,
 ) -> dict[str, Any]:
     """Return compact match rows for the interactive usage-template explorer."""
 
@@ -822,6 +877,12 @@ def build_template_matchup_explorer(
         if _to_int(player_id) > 0
     }
     templates, overrides = build_usage_templates(slot_stats, coach_stats)
+    secondary_candidates = build_usage_candidate_sets(
+        slot_stats,
+        templates,
+        max_usage_rank=secondary_max_usage_rank,
+        secondary_min_usage_rate=secondary_min_usage_rate,
+    )
 
     lineups: MutableMapping[tuple[int, int, int, str], dict[int, int]] = defaultdict(dict)
     for row in player_rows:
@@ -851,7 +912,7 @@ def build_template_matchup_explorer(
 
     compact_matches: list[dict[str, Any]] = []
     complete_template_matches = 0
-    scenario_counts: MutableMapping[tuple[int, bool, bool], int] = defaultdict(int)
+    scenario_counts: MutableMapping[tuple[str, int, bool, bool], int] = defaultdict(int)
     for row in scored:
         side_values: dict[str, dict[str, Any]] = {}
         for side in ("home", "away"):
@@ -862,43 +923,70 @@ def build_template_matchup_explorer(
                 side_values = {}
                 break
             template_players = template["players"]
-            different_slots = [
+            strict_different_slots = [
                 slot
                 for slot in range(1, 12)
                 if lineup[slot] != template_players[slot - 1]
             ]
-            cc_upgrades = sum(
+            strict_cc_upgrades = sum(
                 categories.get(lineup[slot], "") == "CC"
                 and categories.get(template_players[slot - 1], "") != "CC"
-                for slot in different_slots
+                for slot in strict_different_slots
+            )
+            formation_candidates = secondary_candidates.get(formation_id) or {}
+            if len(formation_candidates) != 11:
+                side_values = {}
+                break
+            secondary_different_slots = [
+                slot
+                for slot in range(1, 12)
+                if lineup[slot] not in formation_candidates[slot]
+            ]
+            secondary_cc_upgrades = sum(
+                categories.get(lineup[slot], "") == "CC"
+                and not any(
+                    categories.get(candidate_id, "") == "CC"
+                    for candidate_id in formation_candidates[slot]
+                )
+                for slot in secondary_different_slots
             )
             side_values[side] = {
-                "difference": len(different_slots),
+                "difference": len(strict_different_slots),
+                "secondaryDifference": len(secondary_different_slots),
                 "coachExact": _to_int(row.get(f"{side}Coach")) == _to_int(template["coachId"]),
-                "ccUpgradeCount": cc_upgrades,
+                "ccUpgradeCount": strict_cc_upgrades,
+                "secondaryCcUpgradeCount": secondary_cc_upgrades,
             }
         if len(side_values) != 2:
             continue
         complete_template_matches += 1
-        highest_difference = max(
-            side_values["home"]["difference"], side_values["away"]["difference"]
-        )
-        for allowed in range(max_differences + 1):
-            if highest_difference > allowed:
-                continue
-            for require_coach in (False, True):
-                if require_coach and not (
-                    side_values["home"]["coachExact"] and side_values["away"]["coachExact"]
-                ):
+        highest_differences = {
+            "strict": max(
+                side_values["home"]["difference"], side_values["away"]["difference"]
+            ),
+            "secondary_usage_10": max(
+                side_values["home"]["secondaryDifference"],
+                side_values["away"]["secondaryDifference"],
+            ),
+        }
+        for template_mode, highest_difference in highest_differences.items():
+            cc_field = "ccUpgradeCount" if template_mode == "strict" else "secondaryCcUpgradeCount"
+            for allowed in range(max_differences + 1):
+                if highest_difference > allowed:
                     continue
-                for exclude_cc in (False, True):
-                    if exclude_cc and (
-                        side_values["home"]["ccUpgradeCount"]
-                        or side_values["away"]["ccUpgradeCount"]
+                for require_coach in (False, True):
+                    if require_coach and not (
+                        side_values["home"]["coachExact"] and side_values["away"]["coachExact"]
                     ):
                         continue
-                    scenario_counts[(allowed, require_coach, exclude_cc)] += 1
-        if highest_difference > max_differences:
+                    for exclude_cc in (False, True):
+                        if exclude_cc and (
+                            side_values["home"][cc_field]
+                            or side_values["away"][cc_field]
+                        ):
+                            continue
+                        scenario_counts[(template_mode, allowed, require_coach, exclude_cc)] += 1
+        if min(highest_differences.values()) > max_differences:
             continue
         compact_matches.append(
             {
@@ -911,10 +999,14 @@ def build_template_matchup_explorer(
                 "awayTeam": _to_int(row.get("awayTeam")),
                 "homeDifference": side_values["home"]["difference"],
                 "awayDifference": side_values["away"]["difference"],
+                "homeSecondaryDifference": side_values["home"]["secondaryDifference"],
+                "awaySecondaryDifference": side_values["away"]["secondaryDifference"],
                 "homeCoachExact": side_values["home"]["coachExact"],
                 "awayCoachExact": side_values["away"]["coachExact"],
                 "homeCcUpgradeCount": side_values["home"]["ccUpgradeCount"],
                 "awayCcUpgradeCount": side_values["away"]["ccUpgradeCount"],
+                "homeSecondaryCcUpgradeCount": side_values["home"]["secondaryCcUpgradeCount"],
+                "awaySecondaryCcUpgradeCount": side_values["away"]["secondaryCcUpgradeCount"],
                 "outcome": round(_to_float(row.get("y")), 8),
                 "residual": round(_to_float(row.get("residual")), 8),
                 "weight": round(_to_float(row.get("weight"), 1.0), 8),
@@ -927,20 +1019,34 @@ def build_template_matchup_explorer(
     )
     counts = [
         {
+            "templateMode": template_mode,
             "maxDifferences": allowed,
             "requireCoachMatch": require_coach,
             "excludeCcUpgrades": exclude_cc,
-            "matches": scenario_counts[(allowed, require_coach, exclude_cc)],
+            "matches": scenario_counts[(template_mode, allowed, require_coach, exclude_cc)],
         }
+        for template_mode in ("strict", "secondary_usage_10")
         for allowed in range(max_differences + 1)
         for require_coach in (False, True)
         for exclude_cc in (False, True)
     ]
     return {
         "meta": {
-            "method": "usage_template_matchup_explorer_v1",
+            "method": "usage_template_matchup_explorer_v2",
             "primaryScope": "CC group stage regulation-time results",
             "maxDifferences": max_differences,
+            "defaultTemplateMode": "secondary_usage_10",
+            "templateModes": {
+                "strict": {
+                    "maxUsageRank": 1,
+                    "description": "Feasible usage-rank-1 eleven.",
+                },
+                "secondary_usage_10": {
+                    "maxUsageRank": secondary_max_usage_rank,
+                    "secondaryMinUsageRate": secondary_min_usage_rate,
+                    "description": "Usage rank 1 plus ranks 2-3 when their own usage is at least 10%.",
+                },
+            },
             "templateCount": len(templates),
             "duplicateResolvedFormationCount": len(
                 {row["formationId"] for row in overrides}
@@ -952,6 +1058,8 @@ def build_template_matchup_explorer(
             "cleanGroupMatches": len(clean_group),
             "completeTemplateMatches": complete_template_matches,
             "explorerMatches": len(compact_matches),
+            "strictExplorerMatches": scenario_counts[("strict", max_differences, False, False)],
+            "secondaryExplorerMatches": scenario_counts[("secondary_usage_10", max_differences, False, False)],
             "guardEvidence": dict(guard_meta or {}),
             "guardExcludedMatches": sum(
                 row["stage"] == "group" and row["key"] in guard_exclusions
@@ -972,12 +1080,23 @@ def build_template_matchup_explorer(
             "scenarioCounts": counts,
             "caveats": [
                 "Player difference counts are slot-specific playerId mismatches against a feasible usage template.",
+                "Secondary mode accepts usage rank 1 plus ranks 2-3 whose own usage rate is at least 10%; rank-1 share is not part of the threshold.",
                 "Coach matching is a separate optional filter.",
                 "CC exclusion removes a match when a mismatched slot upgrades from a non-CC template card to CC.",
                 "Sparse rows remain exploratory and are not promoted to supported matchup evidence.",
             ],
         },
         "templates": list(templates.values()),
+        "secondaryTemplates": [
+            {
+                "formationId": formation_id,
+                "slots": {
+                    str(slot): player_ids
+                    for slot, player_ids in sorted(slots.items())
+                },
+            }
+            for formation_id, slots in sorted(secondary_candidates.items())
+        ],
         "duplicateResolutions": overrides,
         "matches": compact_matches,
     }
