@@ -16,14 +16,7 @@ const els = {
   stockSummary: document.querySelector("#stockSummary"),
   shortageNotice: document.querySelector("#shortageNotice"),
   stockQuery: document.querySelector("#stockQuery"),
-  stockPosition: document.querySelector("#stockPosition"),
-  stockTerm: document.querySelector("#stockTerm"),
-  stockCategory: document.querySelector("#stockCategory"),
-  stockMinUsage: document.querySelector("#stockMinUsage"),
-  stockSort: document.querySelector("#stockSort"),
-  stockPeakOnly: document.querySelector("#stockPeakOnly"),
-  stockTemplateOnly: document.querySelector("#stockTemplateOnly"),
-  stockReset: document.querySelector("#stockReset"),
+  stockSuggestions: document.querySelector("#stockSuggestions"),
   stockCount: document.querySelector("#stockCount"),
   stockList: document.querySelector("#stockList"),
 };
@@ -31,6 +24,8 @@ const els = {
 let payload = null;
 let stocks = [];
 let filteredStocks = [];
+let playerSuggestions = [];
+let highlightedSuggestion = -1;
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({
@@ -130,71 +125,94 @@ function renderSummary() {
     : "";
 }
 
-function populateFilters() {
-  const terms = [...new Set(stocks.map((row) => Number(row.currentTerm || 0)).filter(Boolean))].sort((a, b) => a - b);
-  const categories = [...new Set(stocks.flatMap((row) => row.categoryMembership?.length ? row.categoryMembership : [row.category]).filter(Boolean))].sort();
-  els.stockTerm.insertAdjacentHTML("beforeend", terms.map((term) => `<option value="${term}">${term}期</option>`).join(""));
-  els.stockCategory.insertAdjacentHTML("beforeend", categories.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`).join(""));
+function buildPlayerSuggestions() {
+  const byName = new Map();
+  stocks.forEach((row) => {
+    const key = normalize(row.name);
+    if (!key) return;
+    if (!byName.has(key)) {
+      byName.set(key, {
+        name: String(row.name),
+        fullNames: new Set(),
+        cards: 0,
+        terms: new Set(),
+      });
+    }
+    const item = byName.get(key);
+    if (row.fullName) item.fullNames.add(String(row.fullName));
+    item.cards += Number(row.count || 0);
+    item.terms.add(Number(row.currentTerm || 0));
+  });
+  playerSuggestions = [...byName.values()].map((item) => ({
+    name: item.name,
+    fullNames: [...item.fullNames],
+    cards: item.cards,
+    termCount: item.terms.size,
+  })).sort((a, b) => String(a.name).localeCompare(String(b.name), "ja"));
 }
 
-function stockHaystack(row) {
-  return normalize([
-    row.playerId,
-    row.name,
-    row.fullName,
-    row.playType,
-    row.position,
-    row.category,
-    ...(row.categoryMembership || []),
-    ...(row.managementNos || []).flatMap((no) => [no, `No.${no}`]),
-  ].join(" "));
+function matchingSuggestions(query) {
+  const normalizedQuery = normalize(query);
+  if (!normalizedQuery) return [];
+  return playerSuggestions
+    .filter((item) => normalize([item.name, ...item.fullNames].join(" ")).includes(normalizedQuery))
+    .sort((a, b) => {
+      const aStarts = normalize(a.name).startsWith(normalizedQuery) ? 0 : 1;
+      const bStarts = normalize(b.name).startsWith(normalizedQuery) ? 0 : 1;
+      return aStarts - bStarts || String(a.name).localeCompare(String(b.name), "ja");
+    })
+    .slice(0, 12);
 }
 
-function compareStocks(a, b) {
-  const reserveOrder = Number(Number(b.externalReserveCount || 0) > 0)
-    - Number(Number(a.externalReserveCount || 0) > 0);
-  if (reserveOrder) return reserveOrder;
-  const mode = els.stockSort.value;
-  if (mode === "termAsc") {
-    return Number(a.currentTerm) - Number(b.currentTerm)
-      || Number(b.templateUsageRate) - Number(a.templateUsageRate)
-      || String(a.name).localeCompare(String(b.name), "ja");
+function closeSuggestions() {
+  highlightedSuggestion = -1;
+  els.stockSuggestions.hidden = true;
+  els.stockSuggestions.innerHTML = "";
+  els.stockQuery.setAttribute("aria-expanded", "false");
+}
+
+function updateSuggestionHighlight() {
+  const buttons = [...els.stockSuggestions.querySelectorAll("button")];
+  buttons.forEach((button, index) => {
+    const selected = index === highlightedSuggestion;
+    button.classList.toggle("is-highlighted", selected);
+    button.setAttribute("aria-selected", selected ? "true" : "false");
+    if (selected) button.scrollIntoView({ block: "nearest" });
+  });
+}
+
+function renderSuggestions() {
+  const matches = matchingSuggestions(els.stockQuery.value);
+  highlightedSuggestion = -1;
+  if (!matches.length) {
+    closeSuggestions();
+    return;
   }
-  if (mode === "stockDesc") {
-    return Number(b.count) - Number(a.count)
-      || Number(b.templateUsageRate) - Number(a.templateUsageRate)
-      || Number(a.currentTerm) - Number(b.currentTerm);
-  }
-  if (mode === "nameAsc") {
-    return String(a.name).localeCompare(String(b.name), "ja")
-      || Number(a.currentTerm) - Number(b.currentTerm);
-  }
-  return Number(b.templateUsageRate) - Number(a.templateUsageRate)
-    || Number(a.currentTerm) - Number(b.currentTerm)
-    || String(a.name).localeCompare(String(b.name), "ja");
+  els.stockSuggestions.innerHTML = matches.map((item) => `
+    <button type="button" role="option" data-player-name="${escapeHtml(item.name)}" aria-selected="false">
+      <span><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.fullNames[0] || "")}</small></span>
+      <em>${formatNumber(item.termCount)} terms · ${formatNumber(item.cards)} cards</em>
+    </button>
+  `).join("");
+  els.stockSuggestions.hidden = false;
+  els.stockQuery.setAttribute("aria-expanded", "true");
+}
+
+function selectSuggestion(name) {
+  els.stockQuery.value = String(name || "");
+  closeSuggestions();
+  applyFilters();
+  els.stockQuery.focus();
 }
 
 function applyFilters() {
   const query = normalize(els.stockQuery.value);
-  const position = els.stockPosition.value;
-  const term = Number(els.stockTerm.value || 0);
-  const category = els.stockCategory.value;
-  const minUsage = Number(els.stockMinUsage.value || 0);
-  const peakOnly = els.stockPeakOnly.checked;
-  const templateOnly = els.stockTemplateOnly.checked;
-
-  filteredStocks = stocks.filter((row) => {
-    if (query && !stockHaystack(row).includes(query)) return false;
-    if (position && row.position !== position) return false;
-    if (term && Number(row.currentTerm) !== term) return false;
-    const memberships = row.categoryMembership?.length ? row.categoryMembership : [row.category];
-    if (category && !memberships.includes(category)) return false;
-    const isExternalReserve = Number(row.externalReserveCount || 0) > 0;
-    if (!isExternalReserve && peakOnly && !row.isPeak) return false;
-    if (!isExternalReserve && templateOnly && Number(row.templateUsageRate || 0) <= 0) return false;
-    if (!isExternalReserve && Number(row.templateUsageRate || 0) < minUsage) return false;
-    return true;
-  }).sort(compareStocks);
+  filteredStocks = query
+    ? stocks.filter((row) => normalize([row.name, row.fullName].join(" ")).includes(query))
+      .sort((a, b) => String(a.name).localeCompare(String(b.name), "ja")
+        || Number(a.currentTerm) - Number(b.currentTerm)
+        || Number(a.playerId) - Number(b.playerId))
+    : [];
   renderStocks();
 }
 
@@ -248,19 +266,7 @@ function renderStocks() {
   els.stockCount.textContent = `${formatNumber(filteredStocks.length)} types / ${formatNumber(totalCards)} cards`;
   els.stockList.innerHTML = filteredStocks.length
     ? filteredStocks.map(renderStockCard).join("")
-    : '<div class="stock-empty">条件に一致する外在庫はありません。</div>';
-}
-
-function resetFilters() {
-  els.stockQuery.value = "";
-  els.stockPosition.value = "";
-  els.stockTerm.value = "";
-  els.stockCategory.value = "";
-  els.stockMinUsage.value = "0";
-  els.stockSort.value = "templateDesc";
-  els.stockPeakOnly.checked = false;
-  els.stockTemplateOnly.checked = false;
-  applyFilters();
+    : `<div class="stock-empty">${normalize(els.stockQuery.value) ? "一致する選手在庫はありません。" : "選手名を入力してください。"}</div>`;
 }
 
 function bindEvents() {
@@ -281,26 +287,47 @@ function bindEvents() {
   });
   document.addEventListener("click", (event) => {
     if (!els.menuPanel.contains(event.target) && event.target !== els.menuButton) closeMenuPanel();
+    if (!els.stockSuggestions.contains(event.target) && event.target !== els.stockQuery) closeSuggestions();
   });
-  [els.stockQuery, els.stockPosition, els.stockTerm, els.stockCategory, els.stockMinUsage, els.stockSort, els.stockPeakOnly, els.stockTemplateOnly]
-    .forEach((element) => {
-      element.addEventListener("input", () => applyFilters());
-      element.addEventListener("change", () => applyFilters());
-    });
-  els.stockReset.addEventListener("click", resetFilters);
+  els.stockQuery.addEventListener("input", () => {
+    renderSuggestions();
+    applyFilters();
+  });
+  els.stockQuery.addEventListener("focus", renderSuggestions);
+  els.stockQuery.addEventListener("keydown", (event) => {
+    const buttons = [...els.stockSuggestions.querySelectorAll("button")];
+    if (event.key === "ArrowDown" && buttons.length) {
+      event.preventDefault();
+      highlightedSuggestion = Math.min(highlightedSuggestion + 1, buttons.length - 1);
+      updateSuggestionHighlight();
+    } else if (event.key === "ArrowUp" && buttons.length) {
+      event.preventDefault();
+      highlightedSuggestion = Math.max(highlightedSuggestion - 1, 0);
+      updateSuggestionHighlight();
+    } else if (event.key === "Enter" && highlightedSuggestion >= 0 && buttons[highlightedSuggestion]) {
+      event.preventDefault();
+      selectSuggestion(buttons[highlightedSuggestion].dataset.playerName);
+    } else if (event.key === "Escape") {
+      closeSuggestions();
+    }
+  });
+  els.stockSuggestions.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-player-name]");
+    if (button) selectSuggestion(button.dataset.playerName);
+  });
 }
 
 async function init() {
   updateMenuState();
   bindEvents();
   try {
-    const response = await fetch("./ax_external_stock_data.json?v=20260809-search-stocks-v2", { cache: "no-store" });
+    const response = await fetch("./ax_external_stock_data.json?v=20260809-search-stocks-v3", { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     payload = await response.json();
     stocks = Array.isArray(payload.stocks) ? payload.stocks : [];
     renderMeta();
     renderSummary();
-    populateFilters();
+    buildPlayerSuggestions();
     applyFilters();
   } catch (error) {
     els.metaText.textContent = "Stock data unavailable";

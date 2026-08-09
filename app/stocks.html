@@ -12,7 +12,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=20260324-013653" />
   <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png?v=20260324-013653" />
   <link rel="shortcut icon" href="./favicon.ico?v=20260324-013653" />
-  <link rel="stylesheet" href="./style.css?v=20260809-search-stocks-v2" />
+  <link rel="stylesheet" href="./style.css?v=20260809-search-stocks-v3" />
 </head>
 <body class="stocks-page">
   <main class="container">
@@ -47,74 +47,35 @@
     </section>
 
     <section class="panel stock-filter-panel">
-      <div class="stock-filter-grid">
-        <div class="stock-query-field">
-          <label class="label" for="stockQuery">Search</label>
-          <input id="stockQuery" type="search" enterkeyhint="search" placeholder="選手名・タイプ・ID・管理番号" />
-        </div>
-        <div>
-          <label class="label" for="stockPosition">Position</label>
-          <select id="stockPosition">
-            <option value="">ALL</option>
-            <option value="GK">GK</option>
-            <option value="DF">DF</option>
-            <option value="MF">MF</option>
-            <option value="FW">FW</option>
-          </select>
-        </div>
-        <div>
-          <label class="label" for="stockTerm">Term</label>
-          <select id="stockTerm"><option value="">ALL</option></select>
-        </div>
-        <div>
-          <label class="label" for="stockCategory">Category</label>
-          <select id="stockCategory"><option value="">ALL</option></select>
-        </div>
-        <div>
-          <label class="label" for="stockMinUsage">Template usage</label>
-          <select id="stockMinUsage">
-            <option value="0">No minimum</option>
-            <option value="0.1">10%+</option>
-            <option value="0.2">20%+</option>
-            <option value="0.3">30%+</option>
-            <option value="0.5">50%+</option>
-          </select>
-        </div>
-        <div>
-          <label class="label" for="stockSort">Sort</label>
-          <select id="stockSort">
-            <option value="templateDesc">Template usage</option>
-            <option value="termAsc">Younger term</option>
-            <option value="stockDesc">Stock count</option>
-            <option value="nameAsc">Name</option>
-          </select>
-        </div>
+      <label class="label" for="stockQuery">Player Name</label>
+      <div class="stock-suggest-wrap">
+        <input
+          id="stockQuery"
+          type="search"
+          enterkeyhint="search"
+          placeholder="選手名を入力"
+          autocomplete="off"
+          aria-autocomplete="list"
+          aria-controls="stockSuggestions"
+          aria-expanded="false"
+        />
+        <div id="stockSuggestions" class="stock-suggestions" role="listbox" hidden></div>
       </div>
-      <div class="stock-filter-actions">
-        <label class="stock-toggle">
-          <input id="stockPeakOnly" type="checkbox" checked />
-          <span>全盛期のみ</span>
-        </label>
-        <label class="stock-toggle">
-          <input id="stockTemplateOnly" type="checkbox" checked />
-          <span>テンプレ採用あり</span>
-        </label>
-        <button id="stockReset" type="button" class="ghost stock-reset">Reset</button>
-      </div>
+      <p class="stock-search-hint">入力すると候補を表示します。選択後、その選手の全期在庫を一覧にします。</p>
     </section>
 
     <section class="panel">
       <div class="result-head stock-result-head">
-        <h2>Available Stock</h2>
+        <h2>Player Stock</h2>
         <span id="stockCount">0 types / 0 cards</span>
       </div>
       <div id="stockList" class="stock-list" aria-live="polite">
-        <div class="stock-empty">Loading...</div>
+        <div class="stock-empty">選手名を入力してください。</div>
       </div>
       <p class="stock-data-note">RESERVEは外部予備として確保している在庫です。検索・表示には常に含めますが、トレードに使う場合は予備枠の不足に注意してください。各チームの当期トレード残枠・出品中・交渉中の状態はまだ反映していません。</p>
     </section>
   </main>
 
-  <script src="./stocks.js?v=20260809-search-stocks-v2"></script>
+  <script src="./stocks.js?v=20260809-search-stocks-v3"></script>
 </body>
 </html>
