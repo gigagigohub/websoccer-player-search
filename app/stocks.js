@@ -51,12 +51,6 @@ function formatNumber(value) {
   return new Intl.NumberFormat("ja-JP").format(Number(value || 0));
 }
 
-function formatPercent(value) {
-  const percent = Number(value || 0) * 100;
-  if (percent <= 0) return "–";
-  return `${percent.toFixed(percent >= 10 ? 1 : 2).replace(/\.0$/, "")}%`;
-}
-
 function formatJst(iso) {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return String(iso || "");
@@ -224,40 +218,76 @@ function applyExactNameFilter(rawQuery = els.stockQuery.value) {
   renderStocks();
 }
 
-function renderTemplateUses(row) {
-  const uses = (row.templateUses || []).slice(0, 3);
-  if (!uses.length) return '<span class="stock-template-empty">テンプレ採用なし</span>';
-  return uses.map((use) => `
-    <span>${escapeHtml(use.formation)} slot${escapeHtml(use.slot)} · ${formatPercent(use.usageRate)}</span>
+function positionClass(position) {
+  const normalized = String(position || "").toLowerCase();
+  return ["gk", "df", "mf", "fw"].includes(normalized) ? `pos-${normalized}` : "";
+}
+
+function categoryClass(row, category) {
+  if (category === "NR") {
+    const rate = Number(row.rate || 0);
+    if (rate === 7) return "cat-nr-r7";
+    if (rate === 5 || rate === 6) return "cat-nr-r56";
+    if (rate === 4) return "cat-nr-r4";
+    return "cat-nr-r13";
+  }
+  if (category === "SS") return "cat-ss";
+  if (category === "CM") return "cat-cm";
+  if (category === "CM/SS") return "cat-cmss";
+  if (category === "CC") return "cat-cc";
+  return "cat-na";
+}
+
+function renderCategoryBadges(row) {
+  const primary = String(row.category || "");
+  const memberships = (row.categoryMembership || []).map(String);
+  if (primary === "CM/SS") {
+    return '<span class="badge type-badge cat-ss">SS</span><span class="badge type-badge cat-cm">CM</span>';
+  }
+  if (primary === "NR" && memberships.includes("CM")) {
+    return `<span class="badge type-badge ${categoryClass(row, "NR")}">NR</span><span class="badge type-badge cat-cm">CM</span>`;
+  }
+  const categories = primary ? [primary] : memberships.slice(0, 1);
+  return categories.map((category) => `
+    <span class="badge type-badge ${categoryClass(row, category)}">${escapeHtml(category)}</span>
   `).join("");
 }
 
-function renderStockCard(row) {
-  const categories = row.categoryMembership?.length ? row.categoryMembership : [row.category].filter(Boolean);
-  const reserveManagementNos = new Set(row.externalReserveManagementNos || []);
+function playerImageSrc(row, kind) {
+  if (row.imagePending) return "./images/chara/players/pending.svg";
+  const safeKind = kind === "action" ? "action" : "static";
+  return `./images/chara/players/${safeKind}/${encodeURIComponent(row.playerId)}.gif`;
+}
+
+function renderMetric(metric, value) {
+  const labels = { "スピ": "S", "テク": "T", "パワ": "P", "スタ": "ST", "個性": "個" };
+  const classes = { "スピ": "m-speed", "テク": "m-tech", "パワ": "m-power", "スタ": "m-stamina", "個性": "m-unique" };
+  const numericValue = Number(value);
+  const displayValue = Number.isFinite(numericValue) ? numericValue : "–";
   return `
-    <article class="stock-card">
-      <div class="stock-card-main">
-        <div class="stock-player-line">
-          <div class="stock-player-copy">
-            <div class="stock-player-name">${escapeHtml(row.name)}</div>
-            <div class="stock-player-full">${escapeHtml(row.fullName)} · ID ${escapeHtml(row.playerId)}</div>
-          </div>
-          <div class="stock-term">${escapeHtml(row.currentTerm)}<small>期</small></div>
-        </div>
-        <div class="stock-badges">
-          ${row.position ? `<span class="stock-badge position-${escapeHtml(row.position.toLowerCase())}">${escapeHtml(row.position)}</span>` : ""}
-          ${categories.map((category) => `<span class="stock-badge">${escapeHtml(category)}</span>`).join("")}
-          ${row.playType ? `<span class="stock-badge stock-type-badge">${escapeHtml(row.playType)}</span>` : ""}
-          ${row.isPeak ? '<span class="stock-badge stock-peak-badge">PEAK</span>' : ""}
-          ${Number(row.externalReserveCount || 0) > 0 ? `<span class="stock-badge stock-reserve-badge">RESERVE ×${formatNumber(row.externalReserveCount)}</span>` : ""}
-        </div>
-        <div class="stock-template-line">
-          <strong>TPL ${formatPercent(row.templateUsageRate)}</strong>
-          <div>${renderTemplateUses(row)}</div>
+    <div class="stock-metric ${classes[metric] || ""}" title="${escapeHtml(metric)}">
+      <span>${labels[metric] || escapeHtml(metric)}</span>
+      <strong>${escapeHtml(displayValue)}</strong>
+    </div>
+  `;
+}
+
+function renderTermStock(row) {
+  const reserveManagementNos = new Set(row.externalReserveManagementNos || []);
+  const metrics = row.termMetrics || {};
+  return `
+    <section class="stock-term-row">
+      <div class="stock-term-summary">
+        <div class="stock-term">${escapeHtml(row.currentTerm)}<small>期</small></div>
+        <div class="stock-term-badges">
+          ${row.isPeak ? '<span class="stock-state-badge stock-peak-badge">PEAK</span>' : ""}
+          ${Number(row.externalReserveCount || 0) > 0 ? `<span class="stock-state-badge stock-reserve-badge">RESERVE ×${formatNumber(row.externalReserveCount)}</span>` : ""}
         </div>
       </div>
-      <div class="stock-availability">
+      <div class="stock-term-metrics">
+        ${["スピ", "テク", "パワ", "スタ", "個性"].map((metric) => renderMetric(metric, metrics[metric])).join("")}
+      </div>
+      <div class="stock-term-inventory">
         <div class="stock-count-block"><strong>${formatNumber(row.count)}</strong><span>cards</span></div>
         <div class="stock-management-nos">
           ${(row.managementNos || []).map((no) => reserveManagementNos.has(no)
@@ -265,13 +295,50 @@ function renderStockCard(row) {
             : `<span>No.${escapeHtml(no)}</span>`).join("")}
         </div>
       </div>
+    </section>
+  `;
+}
+
+function renderPlayerStockCard(rows) {
+  const orderedRows = [...rows].sort((a, b) => Number(a.currentTerm) - Number(b.currentTerm));
+  const player = orderedRows[0];
+  const pos = String(player.position || "–").toUpperCase();
+  return `
+    <article class="stock-player-card" data-player-id="${escapeHtml(player.playerId)}">
+      <div class="stock-player-card-head">
+        <h3 class="stock-player-card-name">
+          ${player.position ? `<span class="badge pos-badge ${positionClass(pos)}">${escapeHtml(pos)}</span>` : ""}
+          ${renderCategoryBadges(player)}
+          <span>${escapeHtml(player.name)}</span>
+        </h3>
+        <span class="stock-player-card-id">ID: ${escapeHtml(player.playerId)}</span>
+      </div>
+      <div class="stock-player-profile">
+        <div class="stock-player-images">
+          <img loading="lazy" src="${playerImageSrc(player, "static")}" alt="${escapeHtml(player.name)} 静止" />
+          <img loading="lazy" src="${playerImageSrc(player, "action")}" alt="${escapeHtml(player.name)} アクション" />
+        </div>
+        <div class="stock-player-details">
+          <div class="stock-player-full-name">${escapeHtml(player.fullName || player.name)}</div>
+          ${player.playType ? `<div class="stock-player-play-type">${escapeHtml(player.playType)}</div>` : ""}
+        </div>
+      </div>
+      <div class="stock-term-list">
+        ${orderedRows.map(renderTermStock).join("")}
+      </div>
     </article>
   `;
 }
 
 function renderStocks() {
   const totalCards = filteredStocks.reduce((sum, row) => sum + Number(row.count || 0), 0);
-  els.stockCount.textContent = `${formatNumber(filteredStocks.length)} types / ${formatNumber(totalCards)} cards`;
+  const groupedRows = new Map();
+  filteredStocks.forEach((row) => {
+    const key = String(row.playerId);
+    if (!groupedRows.has(key)) groupedRows.set(key, []);
+    groupedRows.get(key).push(row);
+  });
+  els.stockCount.textContent = `${formatNumber(groupedRows.size)} players / ${formatNumber(filteredStocks.length)} terms / ${formatNumber(totalCards)} cards`;
   const inputQuery = toHiragana(els.stockQuery.value);
   const emptyMessage = committedQuery
     ? "一致する選手在庫はありません。"
@@ -279,7 +346,7 @@ function renderStocks() {
       ? "候補から選手を選択してください。"
       : "選手名を入力してください。";
   els.stockList.innerHTML = filteredStocks.length
-    ? filteredStocks.map(renderStockCard).join("")
+    ? [...groupedRows.values()].map(renderPlayerStockCard).join("")
     : `<div class="stock-empty">${emptyMessage}</div>`;
 }
 
@@ -342,7 +409,7 @@ async function init() {
   updateMenuState();
   bindEvents();
   try {
-    const response = await fetch("./ax_external_stock_data.json?v=20260809-search-stocks-v4", { cache: "no-store" });
+    const response = await fetch("./ax_external_stock_data.json?v=20260810-search-stocks-v5", { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     payload = await response.json();
     stocks = Array.isArray(payload.stocks) ? payload.stocks : [];
