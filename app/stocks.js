@@ -14,7 +14,6 @@ const els = {
   logoutButton: document.querySelector("#logoutButton"),
   planSeasonBadge: document.querySelector("#planSeasonBadge"),
   stockSummary: document.querySelector("#stockSummary"),
-  shortageNotice: document.querySelector("#shortageNotice"),
   stockQuery: document.querySelector("#stockQuery"),
   stockSuggestions: document.querySelector("#stockSuggestions"),
   stockCount: document.querySelector("#stockCount"),
@@ -26,6 +25,7 @@ let stocks = [];
 let filteredStocks = [];
 let playerSuggestions = [];
 let highlightedSuggestion = -1;
+let committedQuery = "";
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({
@@ -37,8 +37,14 @@ function escapeHtml(value) {
   }[char]));
 }
 
-function normalize(value) {
-  return String(value ?? "").normalize("NFKC").trim().toLowerCase();
+function toHiragana(value) {
+  return String(value ?? "")
+    .normalize("NFKC")
+    .trim()
+    .toLowerCase()
+    .replace(/[\u30a1-\u30f6]/g, (char) => String.fromCharCode(char.charCodeAt(0) - 0x60))
+    .replace(/[・･·\.．]/g, "")
+    .replace(/\s+/g, "");
 }
 
 function formatNumber(value) {
@@ -117,34 +123,31 @@ function renderSummary() {
     </div>
   `).join("");
 
-  const shortages = payload.shortages || [];
-  if (!els.shortageNotice) return;
-  els.shortageNotice.hidden = shortages.length === 0;
-  els.shortageNotice.innerHTML = shortages.length
-    ? `<strong>Protected quota shortage:</strong> ${shortages.map((row) => `${escapeHtml(row.name)} ${row.currentTerm}期 ×${row.shortage}`).join(" / ")}`
-    : "";
 }
 
 function buildPlayerSuggestions() {
   const byName = new Map();
   stocks.forEach((row) => {
-    const key = normalize(row.name);
+    const key = toHiragana(row.name);
     if (!key) return;
     if (!byName.has(key)) {
       byName.set(key, {
         name: String(row.name),
+        nameRubies: new Set(),
         fullNames: new Set(),
         cards: 0,
         terms: new Set(),
       });
     }
     const item = byName.get(key);
+    if (row.nameRuby) item.nameRubies.add(String(row.nameRuby));
     if (row.fullName) item.fullNames.add(String(row.fullName));
     item.cards += Number(row.count || 0);
     item.terms.add(Number(row.currentTerm || 0));
   });
   playerSuggestions = [...byName.values()].map((item) => ({
     name: item.name,
+    nameRubies: [...item.nameRubies],
     fullNames: [...item.fullNames],
     cards: item.cards,
     termCount: item.terms.size,
@@ -152,13 +155,13 @@ function buildPlayerSuggestions() {
 }
 
 function matchingSuggestions(query) {
-  const normalizedQuery = normalize(query);
+  const normalizedQuery = toHiragana(query);
   if (!normalizedQuery) return [];
   return playerSuggestions
-    .filter((item) => normalize([item.name, ...item.fullNames].join(" ")).includes(normalizedQuery))
+    .filter((item) => toHiragana([item.name, ...item.nameRubies].join("")).includes(normalizedQuery))
     .sort((a, b) => {
-      const aStarts = normalize(a.name).startsWith(normalizedQuery) ? 0 : 1;
-      const bStarts = normalize(b.name).startsWith(normalizedQuery) ? 0 : 1;
+      const aStarts = toHiragana(a.name).startsWith(normalizedQuery) ? 0 : 1;
+      const bStarts = toHiragana(b.name).startsWith(normalizedQuery) ? 0 : 1;
       return aStarts - bStarts || String(a.name).localeCompare(String(b.name), "ja");
     })
     .slice(0, 12);
@@ -201,14 +204,19 @@ function renderSuggestions() {
 function selectSuggestion(name) {
   els.stockQuery.value = String(name || "");
   closeSuggestions();
-  applyFilters();
+  applyExactNameFilter(name);
   els.stockQuery.focus();
 }
 
-function applyFilters() {
-  const query = normalize(els.stockQuery.value);
+function applyExactNameFilter(rawQuery = els.stockQuery.value) {
+  const query = toHiragana(rawQuery);
+  committedQuery = query;
   filteredStocks = query
-    ? stocks.filter((row) => normalize([row.name, row.fullName].join(" ")).includes(query))
+    ? stocks.filter((row) => {
+      const playerName = toHiragana(row.name);
+      const playerNameRuby = toHiragana(row.nameRuby);
+      return playerName === query || (playerNameRuby && playerNameRuby === query);
+    })
       .sort((a, b) => String(a.name).localeCompare(String(b.name), "ja")
         || Number(a.currentTerm) - Number(b.currentTerm)
         || Number(a.playerId) - Number(b.playerId))
@@ -264,9 +272,15 @@ function renderStockCard(row) {
 function renderStocks() {
   const totalCards = filteredStocks.reduce((sum, row) => sum + Number(row.count || 0), 0);
   els.stockCount.textContent = `${formatNumber(filteredStocks.length)} types / ${formatNumber(totalCards)} cards`;
+  const inputQuery = toHiragana(els.stockQuery.value);
+  const emptyMessage = committedQuery
+    ? "一致する選手在庫はありません。"
+    : inputQuery
+      ? "候補から選手を選択してください。"
+      : "選手名を入力してください。";
   els.stockList.innerHTML = filteredStocks.length
     ? filteredStocks.map(renderStockCard).join("")
-    : `<div class="stock-empty">${normalize(els.stockQuery.value) ? "一致する選手在庫はありません。" : "選手名を入力してください。"}</div>`;
+    : `<div class="stock-empty">${emptyMessage}</div>`;
 }
 
 function bindEvents() {
@@ -290,8 +304,10 @@ function bindEvents() {
     if (!els.stockSuggestions.contains(event.target) && event.target !== els.stockQuery) closeSuggestions();
   });
   els.stockQuery.addEventListener("input", () => {
+    committedQuery = "";
+    filteredStocks = [];
     renderSuggestions();
-    applyFilters();
+    renderStocks();
   });
   els.stockQuery.addEventListener("focus", renderSuggestions);
   els.stockQuery.addEventListener("keydown", (event) => {
@@ -304,9 +320,14 @@ function bindEvents() {
       event.preventDefault();
       highlightedSuggestion = Math.max(highlightedSuggestion - 1, 0);
       updateSuggestionHighlight();
-    } else if (event.key === "Enter" && highlightedSuggestion >= 0 && buttons[highlightedSuggestion]) {
+    } else if (event.key === "Enter" && !event.isComposing && event.keyCode !== 229) {
       event.preventDefault();
-      selectSuggestion(buttons[highlightedSuggestion].dataset.playerName);
+      if (highlightedSuggestion >= 0 && buttons[highlightedSuggestion]) {
+        selectSuggestion(buttons[highlightedSuggestion].dataset.playerName);
+      } else {
+        closeSuggestions();
+        applyExactNameFilter();
+      }
     } else if (event.key === "Escape") {
       closeSuggestions();
     }
@@ -321,14 +342,14 @@ async function init() {
   updateMenuState();
   bindEvents();
   try {
-    const response = await fetch("./ax_external_stock_data.json?v=20260809-search-stocks-v3", { cache: "no-store" });
+    const response = await fetch("./ax_external_stock_data.json?v=20260809-search-stocks-v4", { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     payload = await response.json();
     stocks = Array.isArray(payload.stocks) ? payload.stocks : [];
     renderMeta();
     renderSummary();
     buildPlayerSuggestions();
-    applyFilters();
+    renderStocks();
   } catch (error) {
     els.metaText.textContent = "Stock data unavailable";
     els.stockList.innerHTML = `<div class="stock-empty stock-error">在庫データを読み込めませんでした。${escapeHtml(error.message || error)}</div>`;

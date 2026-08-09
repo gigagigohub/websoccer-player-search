@@ -119,20 +119,6 @@
   font-size: 0.62rem;
 }
 
-.stock-shortage {
-  margin-top: 10px;
-  border: 1px solid rgba(204, 126, 58, 0.6);
-  border-radius: 9px;
-  background: rgba(96, 52, 21, 0.42);
-  color: #ffd3a3;
-  padding: 8px 10px;
-  font-size: 0.76rem;
-}
-
-.stock-shortage[hidden] {
-  display: none;
-}
-
 .stock-filter-panel {
   display: grid;
   gap: 6px;
