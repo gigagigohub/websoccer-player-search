@@ -26,7 +26,7 @@ const els = {
   formationsButton: document.querySelector("#formationsButton"),
   collectionsButton: document.querySelector("#collectionsButton"),
   myTeamButton: document.querySelector("#myTeamButton"),
-  simulationButton: document.querySelector("#simulationButton"),
+  stocksButton: document.querySelector("#stocksButton"),
   loginButton: document.querySelector("#loginButton"),
   logoutButton: document.querySelector("#logoutButton"),
   coachNameQuery: document.querySelector("#coachNameQuery"),
@@ -741,7 +741,7 @@ function bindEvents() {
   if (els.formationsButton) els.formationsButton.addEventListener("click", () => { closeMenuPanel(); window.location.href = "./formations.html"; });
   if (els.collectionsButton) els.collectionsButton.addEventListener("click", () => { closeMenuPanel(); window.location.href = "./collections.html"; });
   if (els.myTeamButton) els.myTeamButton.addEventListener("click", () => { closeMenuPanel(); window.location.href = "./myteam.html"; });
-  if (els.simulationButton) els.simulationButton.addEventListener("click", () => { closeMenuPanel(); window.location.href = "./simulation.html"; });
+  if (els.stocksButton) els.stocksButton.addEventListener("click", () => { closeMenuPanel(); window.location.href = "./stocks.html"; });
   if (els.coachesButton) els.coachesButton.addEventListener("click", closeMenuPanel);
 
   if (els.loginButton) els.loginButton.addEventListener("click", () => { closeMenuPanel(); openLoginModal(); });

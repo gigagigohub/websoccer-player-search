@@ -81,7 +81,7 @@ const els = {
   loginButton: document.querySelector("#loginButton"),
   collectionsButton: document.querySelector("#collectionsButton"),
   myTeamButton: document.querySelector("#myTeamButton"),
-  simulationButton: document.querySelector("#simulationButton"),
+  stocksButton: document.querySelector("#stocksButton"),
   logoutButton: document.querySelector("#logoutButton"),
   formationNameQuery: document.querySelector("#formationNameQuery"),
   formationNameSuggest: document.querySelector("#formationNameSuggest"),
@@ -2572,10 +2572,10 @@ function bindEvents() {
       window.location.href = "./myteam.html";
     });
   }
-  if (els.simulationButton) {
-    els.simulationButton.addEventListener("click", () => {
+  if (els.stocksButton) {
+    els.stocksButton.addEventListener("click", () => {
       closeMenuPanel();
-      window.location.href = "./simulation.html";
+      window.location.href = "./stocks.html";
     });
   }
   if (els.logoutButton) {

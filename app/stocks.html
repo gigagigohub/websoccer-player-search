@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WebSoccer Ordinary - Search Stocks</title>
+  <meta property="og:title" content="WebSoccer Ordinary - Search Stocks" />
+  <meta property="og:site_name" content="WebSoccer Ordinary" />
+  <meta name="twitter:title" content="WebSoccer Ordinary - Search Stocks" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=20260324-013653" />
+  <link rel="icon" type="image/x-icon" href="./favicon.ico?v=20260324-013653" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=20260324-013653" />
+  <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png?v=20260324-013653" />
+  <link rel="shortcut icon" href="./favicon.ico?v=20260324-013653" />
+  <link rel="stylesheet" href="./style.css?v=20260809-search-stocks-v1" />
+</head>
+<body class="stocks-page">
+  <main class="container">
+    <header class="hero">
+      <button id="menuButton" type="button" class="menu-button" aria-label="メニュー">☰</button>
+      <div id="menuPanel" class="menu-panel">
+        <div id="menuLoginId" class="menu-login-id" hidden></div>
+        <button id="playersButton" type="button" class="menu-item">Players</button>
+        <button id="coachesButton" type="button" class="menu-item">Coaches</button>
+        <button id="formationsButton" type="button" class="menu-item">Formations</button>
+        <button id="collectionsButton" type="button" class="menu-item">Collections</button>
+        <button id="myTeamButton" type="button" class="menu-item">My Team</button>
+        <button id="stocksButton" type="button" class="menu-item is-current" aria-current="page">Search Stocks</button>
+        <button id="loginButton" type="button" class="menu-item">Login</button>
+        <button id="logoutButton" type="button" class="menu-item logout" hidden>Logout</button>
+      </div>
+      <h1>WebSoccer Ordinary</h1>
+      <p class="meta" id="metaText">Loading stocks...</p>
+    </header>
+
+    <section class="panel stock-overview-panel">
+      <div class="stock-kicker">NUMBERED TEAM INVENTORY</div>
+      <div class="stock-title-row">
+        <div>
+          <h2>Search Stocks</h2>
+          <p>A–Xの将来計画と外部予備枠を確保したうえで、交換候補に使える外在庫を検索します。</p>
+        </div>
+        <span id="planSeasonBadge" class="stock-plan-badge">Plan S–</span>
+      </div>
+      <div id="stockSummary" class="stock-summary" aria-live="polite"></div>
+      <div id="shortageNotice" class="stock-shortage" hidden></div>
+    </section>
+
+    <section class="panel stock-filter-panel">
+      <div class="stock-filter-grid">
+        <div class="stock-query-field">
+          <label class="label" for="stockQuery">Search</label>
+          <input id="stockQuery" type="search" enterkeyhint="search" placeholder="選手名・タイプ・ID・管理番号" />
+        </div>
+        <div>
+          <label class="label" for="stockPosition">Position</label>
+          <select id="stockPosition">
+            <option value="">ALL</option>
+            <option value="GK">GK</option>
+            <option value="DF">DF</option>
+            <option value="MF">MF</option>
+            <option value="FW">FW</option>
+          </select>
+        </div>
+        <div>
+          <label class="label" for="stockTerm">Term</label>
+          <select id="stockTerm"><option value="">ALL</option></select>
+        </div>
+        <div>
+          <label class="label" for="stockCategory">Category</label>
+          <select id="stockCategory"><option value="">ALL</option></select>
+        </div>
+        <div>
+          <label class="label" for="stockMinUsage">Template usage</label>
+          <select id="stockMinUsage">
+            <option value="0">No minimum</option>
+            <option value="0.1">10%+</option>
+            <option value="0.2">20%+</option>
+            <option value="0.3">30%+</option>
+            <option value="0.5">50%+</option>
+          </select>
+        </div>
+        <div>
+          <label class="label" for="stockSort">Sort</label>
+          <select id="stockSort">
+            <option value="templateDesc">Template usage</option>
+            <option value="termAsc">Younger term</option>
+            <option value="stockDesc">Stock count</option>
+            <option value="nameAsc">Name</option>
+          </select>
+        </div>
+      </div>
+      <div class="stock-filter-actions">
+        <label class="stock-toggle">
+          <input id="stockPeakOnly" type="checkbox" checked />
+          <span>全盛期のみ</span>
+        </label>
+        <label class="stock-toggle">
+          <input id="stockTemplateOnly" type="checkbox" checked />
+          <span>テンプレ採用あり</span>
+        </label>
+        <button id="stockReset" type="button" class="ghost stock-reset">Reset</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="result-head stock-result-head">
+        <h2>Available Stock</h2>
+        <span id="stockCount">0 types / 0 cards</span>
+      </div>
+      <div id="stockList" class="stock-list" aria-live="polite">
+        <div class="stock-empty">Loading...</div>
+      </div>
+      <div id="stockMoreWrap" class="result-more" hidden>
+        <button id="stockMore" type="button" class="ghost">Show more</button>
+      </div>
+      <p class="stock-data-note">在庫は表示時刻の静的スナップショットです。各チームの当期トレード残枠・出品中・交渉中の状態はまだ反映していません。</p>
+    </section>
+  </main>
+
+  <script src="./stocks.js?v=20260809-search-stocks-v1"></script>
+</body>
+</html>

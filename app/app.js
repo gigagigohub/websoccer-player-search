@@ -109,7 +109,7 @@ const els = {
   formationsButton: document.querySelector("#formationsButton"),
   collectionsButton: document.querySelector("#collectionsButton"),
   myTeamButton: document.querySelector("#myTeamButton"),
-  simulationButton: document.querySelector("#simulationButton"),
+  stocksButton: document.querySelector("#stocksButton"),
   logoutButton: document.querySelector("#logoutButton"),
   nameQuery: document.querySelector("#nameQuery"),
   nameSuggest: document.querySelector("#nameSuggest"),
@@ -2788,10 +2788,10 @@ async function init() {
       window.location.href = "./collections.html";
     });
   }
-  if (els.simulationButton) {
-    els.simulationButton.addEventListener("click", () => {
+  if (els.stocksButton) {
+    els.stocksButton.addEventListener("click", () => {
       closeMenuPanel();
-      window.location.href = "./simulation.html";
+      window.location.href = "./stocks.html";
     });
   }
   if (els.loginButton) {
