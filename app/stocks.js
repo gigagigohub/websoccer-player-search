@@ -128,21 +128,18 @@ function buildPlayerSuggestions() {
       byName.set(key, {
         name: String(row.name),
         nameRubies: new Set(),
-        fullNames: new Set(),
         cards: 0,
         terms: new Set(),
       });
     }
     const item = byName.get(key);
     if (row.nameRuby) item.nameRubies.add(String(row.nameRuby));
-    if (row.fullName) item.fullNames.add(String(row.fullName));
     item.cards += Number(row.count || 0);
     item.terms.add(Number(row.currentTerm || 0));
   });
   playerSuggestions = [...byName.values()].map((item) => ({
     name: item.name,
     nameRubies: [...item.nameRubies],
-    fullNames: [...item.fullNames],
     cards: item.cards,
     termCount: item.terms.size,
   })).sort((a, b) => String(a.name).localeCompare(String(b.name), "ja"));
@@ -187,7 +184,7 @@ function renderSuggestions() {
   }
   els.stockSuggestions.innerHTML = matches.map((item) => `
     <button type="button" role="option" data-player-name="${escapeHtml(item.name)}" aria-selected="false">
-      <span><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.fullNames[0] || "")}</small></span>
+      <strong>${escapeHtml(item.name)}</strong>
       <em>${formatNumber(item.termCount)} terms · ${formatNumber(item.cards)} cards</em>
     </button>
   `).join("");
@@ -260,14 +257,23 @@ function playerImageSrc(row, kind) {
 }
 
 function renderMetric(metric, value) {
-  const labels = { "スピ": "S", "テク": "T", "パワ": "P", "スタ": "ST", "個性": "個" };
-  const classes = { "スピ": "m-speed", "テク": "m-tech", "パワ": "m-power", "スタ": "m-stamina", "個性": "m-unique" };
+  const labels = { "パワ": "パワー", "テク": "テクニック", "スピ": "スピード" };
+  const classes = { "パワ": "m-power", "テク": "m-tech", "スピ": "m-speed" };
   const numericValue = Number(value);
-  const displayValue = Number.isFinite(numericValue) ? numericValue : "–";
+  const hasValue = Number.isFinite(numericValue);
+  const displayValue = hasValue ? numericValue : "–";
+  const bounded = hasValue ? Math.max(0, Math.min(10, Math.round(numericValue))) : 0;
+  const cells = Array.from({ length: 10 }, (_, index) =>
+    `<span class="gauge-cell${index < bounded ? " on" : ""}"></span>`
+  ).join("");
+  const label = labels[metric] || String(metric || "");
   return `
-    <div class="stock-metric ${classes[metric] || ""}" title="${escapeHtml(metric)}">
-      <span>${labels[metric] || escapeHtml(metric)}</span>
-      <strong>${escapeHtml(displayValue)}</strong>
+    <div class="stock-metric ${classes[metric] || ""}" aria-label="${escapeHtml(label)} ${escapeHtml(displayValue)}">
+      <span class="stock-metric-key">${escapeHtml(label)}</span>
+      <div class="stock-metric-body">
+        <div class="gauge" aria-hidden="true">${cells}</div>
+        <strong>${escapeHtml(displayValue)}</strong>
+      </div>
     </div>
   `;
 }
@@ -285,7 +291,7 @@ function renderTermStock(row) {
         </div>
       </div>
       <div class="stock-term-metrics">
-        ${["スピ", "テク", "パワ", "スタ", "個性"].map((metric) => renderMetric(metric, metrics[metric])).join("")}
+        ${["パワ", "テク", "スピ"].map((metric) => renderMetric(metric, metrics[metric])).join("")}
       </div>
       <div class="stock-term-inventory">
         <div class="stock-count-block"><strong>${formatNumber(row.count)}</strong><span>cards</span></div>
@@ -318,10 +324,7 @@ function renderPlayerStockCard(rows) {
           <img loading="lazy" src="${playerImageSrc(player, "static")}" alt="${escapeHtml(player.name)} 静止" />
           <img loading="lazy" src="${playerImageSrc(player, "action")}" alt="${escapeHtml(player.name)} アクション" />
         </div>
-        <div class="stock-player-details">
-          <div class="stock-player-full-name">${escapeHtml(player.fullName || player.name)}</div>
-          ${player.playType ? `<div class="stock-player-play-type">${escapeHtml(player.playType)}</div>` : ""}
-        </div>
+        ${player.playType ? `<div class="stock-player-play-type">${escapeHtml(player.playType)}</div>` : ""}
       </div>
       <div class="stock-term-list">
         ${orderedRows.map(renderTermStock).join("")}
@@ -409,7 +412,7 @@ async function init() {
   updateMenuState();
   bindEvents();
   try {
-    const response = await fetch("./ax_external_stock_data.json?v=20260810-search-stocks-v5", { cache: "no-store" });
+    const response = await fetch("./ax_external_stock_data.json?v=20260810-search-stocks-v6", { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     payload = await response.json();
     stocks = Array.isArray(payload.stocks) ? payload.stocks : [];
