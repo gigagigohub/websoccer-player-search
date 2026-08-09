@@ -12,7 +12,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=20260324-013653" />
   <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png?v=20260324-013653" />
   <link rel="shortcut icon" href="./favicon.ico?v=20260324-013653" />
-  <link rel="stylesheet" href="./style.css?v=20260809-search-stocks-v1" />
+  <link rel="stylesheet" href="./style.css?v=20260809-search-stocks-v2" />
 </head>
 <body class="stocks-page">
   <main class="container">
@@ -38,7 +38,7 @@
       <div class="stock-title-row">
         <div>
           <h2>Search Stocks</h2>
-          <p>A–Xの将来計画と外部予備枠を確保したうえで、交換候補に使える外在庫を検索します。</p>
+          <p>A–Xの将来計画への割当分だけを除き、外部予備を含むすべてのA–X利用外在庫を検索します。</p>
         </div>
         <span id="planSeasonBadge" class="stock-plan-badge">Plan S–</span>
       </div>
@@ -111,13 +111,10 @@
       <div id="stockList" class="stock-list" aria-live="polite">
         <div class="stock-empty">Loading...</div>
       </div>
-      <div id="stockMoreWrap" class="result-more" hidden>
-        <button id="stockMore" type="button" class="ghost">Show more</button>
-      </div>
-      <p class="stock-data-note">在庫は表示時刻の静的スナップショットです。各チームの当期トレード残枠・出品中・交渉中の状態はまだ反映していません。</p>
+      <p class="stock-data-note">RESERVEは外部予備として確保している在庫です。検索・表示には常に含めますが、トレードに使う場合は予備枠の不足に注意してください。各チームの当期トレード残枠・出品中・交渉中の状態はまだ反映していません。</p>
     </section>
   </main>
 
-  <script src="./stocks.js?v=20260809-search-stocks-v1"></script>
+  <script src="./stocks.js?v=20260809-search-stocks-v2"></script>
 </body>
 </html>

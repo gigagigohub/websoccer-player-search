@@ -298,6 +298,12 @@ button.stock-reset {
   color: #ffc47e;
 }
 
+.stock-reserve-badge {
+  border-color: #9a78d6;
+  background: rgba(74, 47, 119, 0.48);
+  color: #d9c4ff;
+}
+
 .stock-template-line {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -372,6 +378,12 @@ button.stock-reset {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.64rem;
   white-space: nowrap;
+}
+
+.stock-management-nos span.is-reserve {
+  border-color: #8364ba;
+  background: #29203f;
+  color: #dfcfff;
 }
 
 .stock-empty {

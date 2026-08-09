@@ -1,6 +1,4 @@
 const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
-const PAGE_SIZE = 80;
-
 const els = {
   metaText: document.querySelector("#metaText"),
   menuButton: document.querySelector("#menuButton"),
@@ -28,14 +26,11 @@ const els = {
   stockReset: document.querySelector("#stockReset"),
   stockCount: document.querySelector("#stockCount"),
   stockList: document.querySelector("#stockList"),
-  stockMoreWrap: document.querySelector("#stockMoreWrap"),
-  stockMore: document.querySelector("#stockMore"),
 };
 
 let payload = null;
 let stocks = [];
 let filteredStocks = [];
-let visibleLimit = PAGE_SIZE;
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({
@@ -114,9 +109,9 @@ function renderSummary() {
   if (!payload || !els.stockSummary) return;
   const summary = payload.summary || {};
   const items = [
-    ["Outside stock", summary.stockCards, "cards"],
+    ["Outside A-X", summary.stockCards, "cards"],
+    ["External reserve", summary.externalReserveCards, "cards"],
     ["Player × term", summary.stockTypes, "types"],
-    ["Players", summary.distinctPlayers, "names"],
     ["Numbered Teams", summary.teamsWithStock, "teams"],
   ];
   els.stockSummary.innerHTML = items.map(([label, value, unit]) => `
@@ -156,6 +151,9 @@ function stockHaystack(row) {
 }
 
 function compareStocks(a, b) {
+  const reserveOrder = Number(Number(b.externalReserveCount || 0) > 0)
+    - Number(Number(a.externalReserveCount || 0) > 0);
+  if (reserveOrder) return reserveOrder;
   const mode = els.stockSort.value;
   if (mode === "termAsc") {
     return Number(a.currentTerm) - Number(b.currentTerm)
@@ -176,7 +174,7 @@ function compareStocks(a, b) {
     || String(a.name).localeCompare(String(b.name), "ja");
 }
 
-function applyFilters({ resetLimit = true } = {}) {
+function applyFilters() {
   const query = normalize(els.stockQuery.value);
   const position = els.stockPosition.value;
   const term = Number(els.stockTerm.value || 0);
@@ -191,12 +189,12 @@ function applyFilters({ resetLimit = true } = {}) {
     if (term && Number(row.currentTerm) !== term) return false;
     const memberships = row.categoryMembership?.length ? row.categoryMembership : [row.category];
     if (category && !memberships.includes(category)) return false;
-    if (peakOnly && !row.isPeak) return false;
-    if (templateOnly && Number(row.templateUsageRate || 0) <= 0) return false;
-    if (Number(row.templateUsageRate || 0) < minUsage) return false;
+    const isExternalReserve = Number(row.externalReserveCount || 0) > 0;
+    if (!isExternalReserve && peakOnly && !row.isPeak) return false;
+    if (!isExternalReserve && templateOnly && Number(row.templateUsageRate || 0) <= 0) return false;
+    if (!isExternalReserve && Number(row.templateUsageRate || 0) < minUsage) return false;
     return true;
   }).sort(compareStocks);
-  if (resetLimit) visibleLimit = PAGE_SIZE;
   renderStocks();
 }
 
@@ -210,6 +208,7 @@ function renderTemplateUses(row) {
 
 function renderStockCard(row) {
   const categories = row.categoryMembership?.length ? row.categoryMembership : [row.category].filter(Boolean);
+  const reserveManagementNos = new Set(row.externalReserveManagementNos || []);
   return `
     <article class="stock-card">
       <div class="stock-card-main">
@@ -225,6 +224,7 @@ function renderStockCard(row) {
           ${categories.map((category) => `<span class="stock-badge">${escapeHtml(category)}</span>`).join("")}
           ${row.playType ? `<span class="stock-badge stock-type-badge">${escapeHtml(row.playType)}</span>` : ""}
           ${row.isPeak ? '<span class="stock-badge stock-peak-badge">PEAK</span>' : ""}
+          ${Number(row.externalReserveCount || 0) > 0 ? `<span class="stock-badge stock-reserve-badge">RESERVE ×${formatNumber(row.externalReserveCount)}</span>` : ""}
         </div>
         <div class="stock-template-line">
           <strong>TPL ${formatPercent(row.templateUsageRate)}</strong>
@@ -234,7 +234,9 @@ function renderStockCard(row) {
       <div class="stock-availability">
         <div class="stock-count-block"><strong>${formatNumber(row.count)}</strong><span>cards</span></div>
         <div class="stock-management-nos">
-          ${(row.managementNos || []).map((no) => `<span>No.${escapeHtml(no)}</span>`).join("")}
+          ${(row.managementNos || []).map((no) => reserveManagementNos.has(no)
+            ? `<span class="is-reserve" title="外部予備">R · No.${escapeHtml(no)}</span>`
+            : `<span>No.${escapeHtml(no)}</span>`).join("")}
         </div>
       </div>
     </article>
@@ -244,13 +246,9 @@ function renderStockCard(row) {
 function renderStocks() {
   const totalCards = filteredStocks.reduce((sum, row) => sum + Number(row.count || 0), 0);
   els.stockCount.textContent = `${formatNumber(filteredStocks.length)} types / ${formatNumber(totalCards)} cards`;
-  const visible = filteredStocks.slice(0, visibleLimit);
-  els.stockList.innerHTML = visible.length
-    ? visible.map(renderStockCard).join("")
+  els.stockList.innerHTML = filteredStocks.length
+    ? filteredStocks.map(renderStockCard).join("")
     : '<div class="stock-empty">条件に一致する外在庫はありません。</div>';
-  const hasMore = visibleLimit < filteredStocks.length;
-  els.stockMoreWrap.hidden = !hasMore;
-  if (hasMore) els.stockMore.textContent = `Show more (${formatNumber(filteredStocks.length - visibleLimit)})`;
 }
 
 function resetFilters() {
@@ -290,17 +288,13 @@ function bindEvents() {
       element.addEventListener("change", () => applyFilters());
     });
   els.stockReset.addEventListener("click", resetFilters);
-  els.stockMore.addEventListener("click", () => {
-    visibleLimit += PAGE_SIZE;
-    renderStocks();
-  });
 }
 
 async function init() {
   updateMenuState();
   bindEvents();
   try {
-    const response = await fetch("./ax_external_stock_data.json?v=20260809-search-stocks-v1", { cache: "no-store" });
+    const response = await fetch("./ax_external_stock_data.json?v=20260809-search-stocks-v2", { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     payload = await response.json();
     stocks = Array.isArray(payload.stocks) ? payload.stocks : [];
