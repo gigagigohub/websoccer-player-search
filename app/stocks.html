@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>WebSoccer Ordinary - Search Stocks</title>
-  <meta property="og:title" content="WebSoccer Ordinary - Search Stocks" />
+  <title>WebSoccer Ordinary - Player Inventory</title>
+  <meta property="og:title" content="WebSoccer Ordinary - Player Inventory" />
   <meta property="og:site_name" content="WebSoccer Ordinary" />
-  <meta name="twitter:title" content="WebSoccer Ordinary - Search Stocks" />
+  <meta name="twitter:title" content="WebSoccer Ordinary - Player Inventory" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=20260324-013653" />
   <link rel="icon" type="image/x-icon" href="./favicon.ico?v=20260324-013653" />
   <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=20260324-013653" />
   <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png?v=20260324-013653" />
   <link rel="shortcut icon" href="./favicon.ico?v=20260324-013653" />
-  <link rel="stylesheet" href="./style.css?v=20260810-search-stocks-v7" />
+  <link rel="stylesheet" href="./style.css?v=20260810-player-inventory-v8" />
 </head>
 <body class="stocks-page">
   <main class="container">
@@ -25,19 +25,19 @@
         <button id="formationsButton" type="button" class="menu-item">Formations</button>
         <button id="collectionsButton" type="button" class="menu-item">Collections</button>
         <button id="myTeamButton" type="button" class="menu-item">My Team</button>
-        <button id="stocksButton" type="button" class="menu-item is-current" aria-current="page">Search Stocks</button>
+        <button id="stocksButton" type="button" class="menu-item is-current" aria-current="page">Player Inventory</button>
         <button id="loginButton" type="button" class="menu-item">Login</button>
         <button id="logoutButton" type="button" class="menu-item logout" hidden>Logout</button>
       </div>
       <h1>WebSoccer Ordinary</h1>
-      <p class="meta" id="metaText">Loading stocks...</p>
+      <p class="meta" id="metaText">Loading inventory...</p>
     </header>
 
     <section class="panel stock-overview-panel">
       <div class="stock-kicker">NUMBERED TEAM INVENTORY</div>
       <div class="stock-title-row">
         <div>
-          <h2>Search Stocks</h2>
+          <h2>Player Inventory</h2>
           <p>A–Xの将来割当を除いたNumbered Team在庫（外部予備を含む）。</p>
         </div>
         <span id="planSeasonBadge" class="stock-plan-badge">Plan S–</span>
@@ -64,7 +64,7 @@
 
     <section class="panel">
       <div class="result-head stock-result-head">
-        <h2>Player Stock</h2>
+        <h2>Held Cards</h2>
         <span id="stockCount">0 types / 0 cards</span>
       </div>
       <div id="stockList" class="stock-list" aria-live="polite">
@@ -74,6 +74,6 @@
     </section>
   </main>
 
-  <script src="./stocks.js?v=20260810-search-stocks-v7"></script>
+  <script src="./stocks.js?v=20260810-player-inventory-v8"></script>
 </body>
 </html>

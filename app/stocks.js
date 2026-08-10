@@ -94,7 +94,7 @@ function renderMeta() {
   if (!payload || !els.metaText) return;
   const source = payload.source || {};
   els.metaText.innerHTML = [
-    `<span class="meta-line">Stocks: ${escapeHtml(formatJst(payload.generatedAt))}</span>`,
+    `<span class="meta-line">Inventory: ${escapeHtml(formatJst(payload.generatedAt))}</span>`,
     `<span class="meta-line">Game S${escapeHtml(source.gameSeason)} / Plan S${escapeHtml(source.planSeason)}</span>`,
   ].join("");
   if (els.planSeasonBadge) els.planSeasonBadge.textContent = `Plan S${source.planSeason || "–"}`;
@@ -293,7 +293,7 @@ function renderTermStock(row) {
         </div>
       </div>
       <div class="stock-term-metrics">
-        ${["パワ", "テク", "スピ"].map((metric) => renderMetric(metric, metrics[metric])).join("")}
+        ${["スピ", "テク", "パワ"].map((metric) => renderMetric(metric, metrics[metric])).join("")}
       </div>
       <div class="stock-term-inventory">
         <div class="stock-count-block"><strong>${formatNumber(row.count)}</strong><span>cards</span></div>
@@ -418,7 +418,7 @@ async function init() {
   updateMenuState();
   bindEvents();
   try {
-    const response = await fetch("./ax_external_stock_data.json?v=20260810-search-stocks-v7", { cache: "no-store" });
+    const response = await fetch("./ax_external_stock_data.json?v=20260810-player-inventory-v8", { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     payload = await response.json();
     stocks = Array.isArray(payload.stocks) ? payload.stocks : [];

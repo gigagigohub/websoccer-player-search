@@ -31,9 +31,11 @@
   --btn-inset: inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.22);
 }
 
-/* Search Stocks page */
+/* Player Inventory page */
 .stock-overview-panel {
-  overflow: hidden;
+  position: relative;
+  overflow: visible;
+  z-index: 10;
   background:
     radial-gradient(circle at 100% 0, rgba(45, 120, 137, 0.24), transparent 42%),
     linear-gradient(145deg, #151f32 0%, #101827 72%);
@@ -131,7 +133,7 @@
 
 .stock-suggest-wrap > input {
   min-height: 40px;
-  font-size: 0.94rem;
+  font-size: 16px;
 }
 
 .stock-suggestions {
@@ -147,7 +149,7 @@
   background: #0e1828;
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.52);
   padding: 5px;
-  z-index: 40;
+  z-index: 200;
 }
 
 .stock-suggestions[hidden] {
