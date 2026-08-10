@@ -3232,7 +3232,7 @@ async function init() {
 
   loadSiteMeta();
   const [res, formationsRes, rohmRes] = await Promise.all([
-    fetchWithTimeout("./data.json?v=20260601-cc2627"),
+    fetchWithTimeout("./data.json?v=20260811-cm331-v1"),
     fetchWithTimeout("./formations_data.json?v=20260601-cc2627").catch(() => null),
     fetchWithTimeout(ROHM_SLOT_DATA_URL).catch(() => null),
   ]);
