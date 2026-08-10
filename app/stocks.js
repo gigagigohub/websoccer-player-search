@@ -12,7 +12,6 @@ const els = {
   stocksButton: document.querySelector("#stocksButton"),
   loginButton: document.querySelector("#loginButton"),
   logoutButton: document.querySelector("#logoutButton"),
-  planSeasonBadge: document.querySelector("#planSeasonBadge"),
   stockSummary: document.querySelector("#stockSummary"),
   stockQuery: document.querySelector("#stockQuery"),
   stockSuggestions: document.querySelector("#stockSuggestions"),
@@ -95,9 +94,8 @@ function renderMeta() {
   const source = payload.source || {};
   els.metaText.innerHTML = [
     `<span class="meta-line">Inventory: ${escapeHtml(formatJst(payload.generatedAt))}</span>`,
-    `<span class="meta-line">Game S${escapeHtml(source.gameSeason)} / Plan S${escapeHtml(source.planSeason)}</span>`,
+    `<span class="meta-line">Game S${escapeHtml(source.gameSeason)}</span>`,
   ].join("");
-  if (els.planSeasonBadge) els.planSeasonBadge.textContent = `Plan S${source.planSeason || "–"}`;
 }
 
 function renderSummary() {
@@ -418,7 +416,7 @@ async function init() {
   updateMenuState();
   bindEvents();
   try {
-    const response = await fetch("./ax_external_stock_data.json?v=20260810-player-inventory-v8", { cache: "no-store" });
+    const response = await fetch("./ax_external_stock_data.json?v=20260810-player-inventory-v10", { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     payload = await response.json();
     stocks = Array.isArray(payload.stocks) ? payload.stocks : [];
