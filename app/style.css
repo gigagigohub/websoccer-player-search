@@ -41,30 +41,16 @@
     linear-gradient(145deg, #151f32 0%, #101827 72%);
 }
 
-.stock-kicker {
-  color: #72c7d4;
-  font-size: 0.68rem;
-  font-weight: 900;
-  letter-spacing: 0.16em;
-}
-
 .stock-title-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-top: 5px;
-}
-
-.stock-title-row h2 {
-  margin: 0;
-  font-size: 1.45rem;
-  letter-spacing: -0.02em;
 }
 
 .stock-title-row p {
   max-width: 660px;
-  margin: 6px 0 0;
+  margin: 0;
   color: #9fb1d1;
   font-size: 0.84rem;
   line-height: 1.65;
@@ -474,10 +460,6 @@
   .stock-title-row {
     flex-wrap: wrap;
     gap: 8px;
-  }
-
-  .stock-title-row h2 {
-    font-size: 1.24rem;
   }
 
   .stock-summary {
