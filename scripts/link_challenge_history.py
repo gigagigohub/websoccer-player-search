@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 ROOT = Path(__file__).resolve().parents[1]
-ZIP_DIR = Path('/Users/gigagigo/Codex/websoccer/wsc_data/UpdateFile_p40_328')
+WSC_DATA = Path('/Users/gigagigo/Codex/websoccer/wsc_data')
 APP_DATA = ROOT / 'app' / 'data.json'
 
 ZIP_RE = re.compile(r'p(\d+)\.zip$')
@@ -52,9 +52,20 @@ def _extract_present_player_ids(row: dict) -> List[int]:
     return out
 
 
+def _latest_updatefile_dir() -> Path:
+    def key(path: Path) -> Tuple[int, str]:
+        match = re.search(r'p(?:40_)?(\d+)$', path.name)
+        return (int(match.group(1)) if match else -1, path.name)
+
+    directories = sorted(WSC_DATA.glob('UpdateFile_p*'), key=key)
+    if not directories:
+        raise FileNotFoundError(f'no UpdateFile_p* directory found in {WSC_DATA}')
+    return directories[-1]
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='Link Challenge Match lists from UpdateFile pXXX.zip into app/data.json.')
-    parser.add_argument('--zip-dir', default=str(ZIP_DIR), help='Directory containing pXXX.zip UpdateFile archives.')
+    parser.add_argument('--zip-dir', default='', help='Directory containing pXXX.zip UpdateFile archives. Default: latest under wsc_data.')
     parser.add_argument('--app-data', default=str(APP_DATA), help='Target app/data.json to update.')
     return parser.parse_args()
 
@@ -215,13 +226,15 @@ def _update_data_json(path: Path, cm_events: List[dict], cm_history: Dict[int, L
 
 def main() -> None:
     args = parse_args()
-    zip_dir = Path(args.zip_dir).expanduser().resolve()
+    zip_dir = Path(args.zip_dir).expanduser().resolve() if args.zip_dir else _latest_updatefile_dir()
     app_data = Path(args.app_data).expanduser().resolve()
     jst = dt.timezone(dt.timedelta(hours=9))
     now = dt.datetime.now(jst)
     now_iso = now.isoformat(timespec='seconds')
 
     cm_events, cm_history = _build_cm_data(zip_dir)
+    if not cm_events:
+        raise RuntimeError(f'no Challenge Match events found in {zip_dir}')
     app_linked, app_to_cm, app_to_cmss = _update_data_json(app_data, cm_events, cm_history, now_iso)
 
     print(f'zip dir: {zip_dir}')
