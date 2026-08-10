@@ -12,7 +12,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=20260324-013653" />
   <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png?v=20260324-013653" />
   <link rel="shortcut icon" href="./favicon.ico?v=20260324-013653" />
-  <link rel="stylesheet" href="./style.css?v=20260810-search-stocks-v6" />
+  <link rel="stylesheet" href="./style.css?v=20260810-search-stocks-v7" />
 </head>
 <body class="stocks-page">
   <main class="container">
@@ -38,29 +38,28 @@
       <div class="stock-title-row">
         <div>
           <h2>Search Stocks</h2>
-          <p>A–Xの将来計画への割当分だけを除き、外部予備を含むすべてのA–X利用外在庫を検索します。</p>
+          <p>A–Xの将来割当を除いたNumbered Team在庫（外部予備を含む）。</p>
         </div>
         <span id="planSeasonBadge" class="stock-plan-badge">Plan S–</span>
       </div>
       <div id="stockSummary" class="stock-summary" aria-live="polite"></div>
-    </section>
-
-    <section class="panel stock-filter-panel">
-      <label class="label" for="stockQuery">Player Name</label>
-      <div class="stock-suggest-wrap">
-        <input
-          id="stockQuery"
-          type="search"
-          enterkeyhint="search"
-          placeholder="選手名を入力"
-          autocomplete="off"
-          aria-autocomplete="list"
-          aria-controls="stockSuggestions"
-          aria-expanded="false"
-        />
-        <div id="stockSuggestions" class="stock-suggestions" role="listbox" hidden></div>
+      <div class="stock-inline-search">
+        <label class="label" for="stockQuery">Player Name</label>
+        <div class="stock-suggest-wrap">
+          <input
+            id="stockQuery"
+            type="search"
+            enterkeyhint="search"
+            placeholder="選手名を入力"
+            autocomplete="off"
+            aria-autocomplete="list"
+            aria-controls="stockSuggestions"
+            aria-expanded="false"
+          />
+          <div id="stockSuggestions" class="stock-suggestions" role="listbox" hidden></div>
+        </div>
+        <p class="stock-search-hint">かな入力対応。候補を選ぶと全期在庫を表示します。</p>
       </div>
-      <p class="stock-search-hint">ひらがな・カタカナで候補を検索できます。選択後、その選手の全期在庫だけを一覧にします。</p>
     </section>
 
     <section class="panel">
@@ -75,6 +74,6 @@
     </section>
   </main>
 
-  <script src="./stocks.js?v=20260810-search-stocks-v6"></script>
+  <script src="./stocks.js?v=20260810-search-stocks-v7"></script>
 </body>
 </html>

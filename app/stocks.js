@@ -257,7 +257,8 @@ function playerImageSrc(row, kind) {
 }
 
 function renderMetric(metric, value) {
-  const labels = { "パワ": "パワー", "テク": "テクニック", "スピ": "スピード" };
+  const labels = { "パワ": "P", "テク": "T", "スピ": "S" };
+  const fullLabels = { "パワ": "パワー", "テク": "テクニック", "スピ": "スピード" };
   const classes = { "パワ": "m-power", "テク": "m-tech", "スピ": "m-speed" };
   const numericValue = Number(value);
   const hasValue = Number.isFinite(numericValue);
@@ -267,9 +268,10 @@ function renderMetric(metric, value) {
     `<span class="gauge-cell${index < bounded ? " on" : ""}"></span>`
   ).join("");
   const label = labels[metric] || String(metric || "");
+  const fullLabel = fullLabels[metric] || label;
   return `
-    <div class="stock-metric ${classes[metric] || ""}" aria-label="${escapeHtml(label)} ${escapeHtml(displayValue)}">
-      <span class="stock-metric-key">${escapeHtml(label)}</span>
+    <div class="stock-metric ${classes[metric] || ""}" aria-label="${escapeHtml(fullLabel)} ${escapeHtml(displayValue)}">
+      <span class="stock-metric-key" aria-hidden="true">${escapeHtml(label)}</span>
       <div class="stock-metric-body">
         <div class="gauge" aria-hidden="true">${cells}</div>
         <strong>${escapeHtml(displayValue)}</strong>
@@ -309,22 +311,26 @@ function renderPlayerStockCard(rows) {
   const orderedRows = [...rows].sort((a, b) => Number(a.currentTerm) - Number(b.currentTerm));
   const player = orderedRows[0];
   const pos = String(player.position || "–").toUpperCase();
+  const totalCards = orderedRows.reduce((sum, row) => sum + Number(row.count || 0), 0);
   return `
     <article class="stock-player-card" data-player-id="${escapeHtml(player.playerId)}">
       <div class="stock-player-card-head">
-        <h3 class="stock-player-card-name">
-          ${player.position ? `<span class="badge pos-badge ${positionClass(pos)}">${escapeHtml(pos)}</span>` : ""}
-          ${renderCategoryBadges(player)}
-          <span>${escapeHtml(player.name)}</span>
-        </h3>
-        <span class="stock-player-card-id">ID: ${escapeHtml(player.playerId)}</span>
-      </div>
-      <div class="stock-player-profile">
         <div class="stock-player-images">
           <img loading="lazy" src="${playerImageSrc(player, "static")}" alt="${escapeHtml(player.name)} 静止" />
           <img loading="lazy" src="${playerImageSrc(player, "action")}" alt="${escapeHtml(player.name)} アクション" />
         </div>
-        ${player.playType ? `<div class="stock-player-play-type">${escapeHtml(player.playType)}</div>` : ""}
+        <div class="stock-player-identity">
+          <h3 class="stock-player-card-name">
+            ${player.position ? `<span class="badge pos-badge ${positionClass(pos)}">${escapeHtml(pos)}</span>` : ""}
+            ${renderCategoryBadges(player)}
+            <span>${escapeHtml(player.name)}</span>
+          </h3>
+          <div class="stock-player-card-meta">
+            <span>ID ${escapeHtml(player.playerId)}</span>
+            <span>${formatNumber(orderedRows.length)} terms</span>
+            <span>${formatNumber(totalCards)} cards</span>
+          </div>
+        </div>
       </div>
       <div class="stock-term-list">
         ${orderedRows.map(renderTermStock).join("")}
@@ -412,7 +418,7 @@ async function init() {
   updateMenuState();
   bindEvents();
   try {
-    const response = await fetch("./ax_external_stock_data.json?v=20260810-search-stocks-v6", { cache: "no-store" });
+    const response = await fetch("./ax_external_stock_data.json?v=20260810-search-stocks-v7", { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     payload = await response.json();
     stocks = Array.isArray(payload.stocks) ? payload.stocks : [];
