@@ -416,7 +416,7 @@ async function init() {
   updateMenuState();
   bindEvents();
   try {
-    const response = await fetch("./ax_external_stock_data.json?v=20260816-player-inventory-v17", { cache: "no-store" });
+    const response = await fetch("./ax_external_stock_data.json?v=20260816-player-inventory-v18", { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     payload = await response.json();
     stocks = Array.isArray(payload.stocks) ? payload.stocks : [];
