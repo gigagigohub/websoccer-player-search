@@ -50,6 +50,7 @@ UpdateFile の選手画像をサイトへ反映する場合は、通常選手画
 - `analyze_cc_team_power_logic.py` - チームパワー指標の分析。
 - `analyze_cc_world_strength.py` - ワールド別強度分析。
 - `build_rohm_slot_data.py` - Rohm slot ranking データの生成。
+- `build_browser_cc_slot_data.py` - Yahoo!/mixi版CCをスマホ版フォーメーションへ対応付けたslot集計JSONの生成。
 
 ## Player Data
 

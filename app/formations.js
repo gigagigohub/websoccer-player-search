@@ -6,6 +6,7 @@ const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOi
 const APP_UPDATED_AT_JST = "2026-03-30 23:10 JST";
 const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-player-search/commits/main";
 const ROHM_SLOT_DATA_URL = "./rohm_slot_data.json?v=20260510-rohm-peak-avg";
+const BROWSER_CC_SLOT_DATA_URL = "./browser_cc_slot_data.json?v=20260823-platform-filter-v1";
 const V4_CLEAN_UNIFORM_DATA_URL = "./v4_clean_uniform_data.json?v=20260719-tpi-oof-v1";
 const CC_AVG_MIN_USES = 15;
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
@@ -142,6 +143,7 @@ let filteredAndSorted = [];
 let currentFormation = null;
 let slotTopSortMode = "usage";
 let slotDetailSourceMode = "cc";
+let slotCcPlatformEnabled = { ios: true, ymbga: true, mixi: true };
 let currentSlotDetailSlot = null;
 let coachRankingMode = "usage";
 const bestTeamIndexByFormation = new Map();
@@ -149,6 +151,9 @@ let selectedPlayerId = null;
 let rohmSlotData = null;
 let rohmSlotDataPromise = null;
 let rohmSlotDataError = "";
+let browserCcSlotData = null;
+let browserCcSlotDataPromise = null;
+let browserCcSlotDataError = "";
 const coachTabModeById = new Map();
 const cardViewModeById = new Map();
 let modalScrollLockY = 0;
@@ -1094,6 +1099,35 @@ function loadRohmSlotData() {
       rohmSlotDataPromise = null;
     });
   return rohmSlotDataPromise;
+}
+
+function getBrowserCcSlotData(formation, platform, slot) {
+  const fid = String(Number(formation?.id || 0));
+  const sid = String(Number(slot || 0));
+  return browserCcSlotData?.formations?.[fid]?.platforms?.[platform]?.slots?.[sid] || null;
+}
+
+function loadBrowserCcSlotData() {
+  if (browserCcSlotData) return Promise.resolve(browserCcSlotData);
+  if (browserCcSlotDataPromise) return browserCcSlotDataPromise;
+  browserCcSlotDataError = "";
+  browserCcSlotDataPromise = fetch(BROWSER_CC_SLOT_DATA_URL)
+    .then((res) => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    })
+    .then((data) => {
+      browserCcSlotData = data;
+      return data;
+    })
+    .catch((err) => {
+      browserCcSlotDataError = err?.message || "failed";
+      throw err;
+    })
+    .finally(() => {
+      browserCcSlotDataPromise = null;
+    });
+  return browserCcSlotDataPromise;
 }
 
 function renderModelSlots(formation) {
@@ -2427,15 +2461,108 @@ function renderSlotDetailSourceSwitch() {
   `;
 }
 
+function renderCcPlatformFilters() {
+  const options = [
+    ["ios", "iOS"],
+    ["ymbga", "Y!"],
+    ["mixi", "mixi"],
+  ];
+  return `
+    <fieldset class="slot-cc-platform-filter" aria-label="CC集計媒体">
+      <legend>CC集計対象</legend>
+      ${options.map(([platform, label]) => `
+        <label class="slot-cc-platform-option" data-slot-cc-platform="${platform}">
+          <input
+            type="checkbox"
+            data-slot-cc-platform="${platform}"
+            ${slotCcPlatformEnabled[platform] ? "checked" : ""}
+          />
+          <span>${label}</span>
+        </label>
+      `).join("")}
+    </fieldset>
+  `;
+}
+
 function slotDetailSortButton(label, mode) {
   return `<button type="button" class="slot-table-sort-btn${slotTopSortMode === mode ? " is-active" : ""}" data-slot-detail-sort="${mode}" aria-label="${label}順に並び替え">${label}</button>`;
 }
 
+function addCcSlotAggregateRow(aggregate, sourceRow, source) {
+  const uses = Number(sourceRow?.uses || 0);
+  if (!(uses > 0)) return;
+  const sourcePlayerId = source === "ios"
+    ? Number(sourceRow?.playerId || 0)
+    : Number(sourceRow?.localPlayerId || 0);
+  const localPlayerId = Number.isInteger(sourcePlayerId) && sourcePlayerId > 0 && playersById.has(sourcePlayerId)
+    ? sourcePlayerId
+    : null;
+  const legacyPlayerId = Number(sourceRow?.legacyPlayerId || 0);
+  const key = localPlayerId
+    ? `smartphone:${localPlayerId}`
+    : `legacy:${legacyPlayerId || sourceRow?.playerName || "unknown"}`;
+  if (!aggregate.has(key)) {
+    aggregate.set(key, {
+      playerId: localPlayerId,
+      legacyPlayerId: legacyPlayerId || null,
+      playerName: String(sourceRow?.playerName || sourceRow?.playerFullName || "-"),
+      playerFullName: String(sourceRow?.playerFullName || sourceRow?.playerName || "-"),
+      rohmCategory: String(sourceRow?.rohmCategory || "-"),
+      uses: 0,
+      ptsSum: 0,
+      goals: 0,
+    });
+  }
+  const target = aggregate.get(key);
+  target.uses += uses;
+  const rawPtsSum = Number(sourceRow?.ptsSum);
+  target.ptsSum += Number.isFinite(rawPtsSum)
+    ? rawPtsSum
+    : Number(sourceRow?.avgPts || 0) * uses;
+  target.goals += Number(sourceRow?.goals || 0);
+  if (localPlayerId) {
+    const localPlayer = playersById.get(localPlayerId);
+    target.playerId = localPlayerId;
+    target.playerName = String(localPlayer?.name || target.playerName);
+    target.playerFullName = String(localPlayer?.fullName || target.playerFullName);
+  }
+}
+
+function combinedCcSlotRows(slot) {
+  const aggregate = new Map();
+  let totalUses = 0;
+  if (slotCcPlatformEnabled.ios) {
+    const iosRows = currentFormation.slotStats?.[String(slot)] || [];
+    totalUses += iosRows.reduce((sum, row) => sum + Number(row?.uses || 0), 0);
+    iosRows.forEach((row) => addCcSlotAggregateRow(aggregate, row, "ios"));
+  }
+  ["ymbga", "mixi"].forEach((platform) => {
+    if (!slotCcPlatformEnabled[platform]) return;
+    const browserSlot = getBrowserCcSlotData(currentFormation, platform, slot);
+    totalUses += Number(browserSlot?.totalUses || 0);
+    (browserSlot?.rows || []).forEach((row) => addCcSlotAggregateRow(aggregate, row, platform));
+  });
+  return [...aggregate.values()].map((row) => ({
+    ...row,
+    usageRate: totalUses > 0 ? row.uses / totalUses : 0,
+    avgPts: row.uses > 0 ? row.ptsSum / row.uses : 0,
+    goalsPer7: row.uses > 0 ? row.goals / row.uses * 7 : 0,
+  }));
+}
+
 function renderCcSlotDetail(slot) {
-  const allRows = currentFormation.slotStats?.[String(slot)] || [];
+  const hasBrowserSelection = slotCcPlatformEnabled.ymbga || slotCcPlatformEnabled.mixi;
+  if (hasBrowserSelection && !browserCcSlotData) {
+    if (browserCcSlotDataError) {
+      return `<p class="dim">Yahoo!/mixi CC data could not be loaded. (${escapeHtml(browserCcSlotDataError)})</p>`;
+    }
+    return `<p class="dim">Loading Yahoo!/mixi CC data...</p>`;
+  }
+  const allRows = combinedCcSlotRows(slot);
   const rows = sortSlotRows(allRows, slotTopSortMode).slice(0, 20);
   if (!rows.length) {
-    return `<p class="dim">No CC slot data.</p>`;
+    const anyPlatformSelected = Object.values(slotCcPlatformEnabled).some(Boolean);
+    return `<p class="dim">${anyPlatformSelected ? "No CC slot data." : "Select at least one CC platform."}</p>`;
   }
   return `
     <div class="slot-table-wrap">
@@ -2445,18 +2572,20 @@ function renderCcSlotDetail(slot) {
         </thead>
         <tbody>
           ${rows
-            .map(
-              (r, idx) => `
-                <tr class="slot-player-row" data-player-id="${r.playerId}">
+            .map((r, idx) => {
+              const playerId = Number(r?.playerId || 0);
+              const isLinked = Number.isInteger(playerId) && playerId > 0;
+              return `
+                <tr class="${isLinked ? "slot-player-row" : "rohm-unlinked-row browser-unimplemented-row"}" ${isLinked ? `data-player-id="${playerId}"` : ""}>
                   <td>${idx + 1}</td>
-                  <td>${r.playerName}</td>
-                  <td>${categoryBadgeHtmlByPlayerId(r.playerId)}</td>
+                  <td>${escapeHtml(r.playerName)}</td>
+                  <td>${isLinked ? categoryBadgeHtmlByPlayerId(playerId) : rohmCategoryBadgeHtml(r)}</td>
                   <td>${pct(r.usageRate)} (${r.uses})</td>
                   <td>${avg(r.avgPts)}</td>
                   <td>${goalsPer7(r.goalsPer7)}</td>
                 </tr>
-              `
-            )
+              `;
+            })
             .join("")}
         </tbody>
       </table>
@@ -2511,7 +2640,10 @@ function renderSlotModalContent(slot) {
   if (!els.slotDetail) return;
   els.slotDetail.innerHTML = `
     ${renderSlotDetailSourceSwitch()}
-    ${slotDetailSourceMode === "rohm" ? renderRohmSlotDetail(slot) : renderCcSlotDetail(slot)}
+    <div class="slot-detail-body${slotDetailSourceMode === "cc" ? " with-platform-filter" : ""}">
+      ${slotDetailSourceMode === "cc" ? renderCcPlatformFilters() : ""}
+      ${slotDetailSourceMode === "rohm" ? renderRohmSlotDetail(slot) : renderCcSlotDetail(slot)}
+    </div>
   `;
 }
 
@@ -2523,6 +2655,19 @@ function openSlotModal(slot) {
   els.slotTitle.textContent = `${currentFormation.name}${yearLabel ? ` ${yearLabel}` : ""} / Slot ${slot}`;
   renderSlotModalContent(slot);
   els.slotModal.hidden = false;
+  if ((slotCcPlatformEnabled.ymbga || slotCcPlatformEnabled.mixi) && !browserCcSlotData) {
+    loadBrowserCcSlotData()
+      .then(() => {
+        if (slotDetailSourceMode === "cc" && currentSlotDetailSlot === slot) {
+          renderSlotModalContent(slot);
+        }
+      })
+      .catch(() => {
+        if (slotDetailSourceMode === "cc" && currentSlotDetailSlot === slot) {
+          renderSlotModalContent(slot);
+        }
+      });
+  }
 }
 
 function closeSlotModal() {
@@ -2758,6 +2903,30 @@ function bindEvents() {
 
   if (els.slotDetail) {
     els.slotDetail.addEventListener("click", (e) => {
+      const platformInput = e.target.closest("[data-slot-cc-platform]");
+      if (platformInput && currentSlotDetailSlot != null) {
+        const platform = String(platformInput.dataset.slotCcPlatform || "");
+        if (platform in slotCcPlatformEnabled) {
+          e.preventDefault();
+          const enabled = !slotCcPlatformEnabled[platform];
+          slotCcPlatformEnabled[platform] = enabled;
+          renderSlotModalContent(currentSlotDetailSlot);
+          if ((platform === "ymbga" || platform === "mixi") && enabled && !browserCcSlotData) {
+            loadBrowserCcSlotData()
+              .then(() => {
+                if (slotDetailSourceMode === "cc" && currentSlotDetailSlot != null) {
+                  renderSlotModalContent(currentSlotDetailSlot);
+                }
+              })
+              .catch(() => {
+                if (slotDetailSourceMode === "cc" && currentSlotDetailSlot != null) {
+                  renderSlotModalContent(currentSlotDetailSlot);
+                }
+              });
+          }
+        }
+        return;
+      }
       const sourceBtn = e.target.closest("[data-slot-detail-source]");
       if (sourceBtn) {
         const mode = String(sourceBtn.dataset.slotDetailSource || "");
@@ -2773,6 +2942,19 @@ function bindEvents() {
               })
               .catch(() => {
                 if (slotDetailSourceMode === "rohm" && currentSlotDetailSlot != null) {
+                  renderSlotModalContent(currentSlotDetailSlot);
+                }
+              });
+          }
+          if (mode === "cc" && (slotCcPlatformEnabled.ymbga || slotCcPlatformEnabled.mixi) && !browserCcSlotData) {
+            loadBrowserCcSlotData()
+              .then(() => {
+                if (slotDetailSourceMode === "cc" && currentSlotDetailSlot != null) {
+                  renderSlotModalContent(currentSlotDetailSlot);
+                }
+              })
+              .catch(() => {
+                if (slotDetailSourceMode === "cc" && currentSlotDetailSlot != null) {
                   renderSlotModalContent(currentSlotDetailSlot);
                 }
               });
