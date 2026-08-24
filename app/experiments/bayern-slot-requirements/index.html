@@ -5,18 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src 'unsafe-inline' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
-<title>Bayern 2000-01 Slot Parameter Effects</title>
+<title>Bayern 2000-01 Slot Parameter Effects v2</title>
 <style>:root{color-scheme:light dark;background:light-dark(rgb(255 255 255), rgb(24 24 24))}html,body{margin:0}body{box-sizing:border-box;padding:1rem;background:inherit}iframe{display:block;width:100%;height:calc(100vh - 2rem);margin:0 auto;border:0}</style>
 </head>
 <body>
-<iframe sandbox="allow-scripts" referrerpolicy="no-referrer" title="Bayern 2000-01 Slot Parameter Effects" srcdoc="&lt;!doctype html&gt;
+<iframe sandbox="allow-scripts" referrerpolicy="no-referrer" title="Bayern 2000-01 Slot Parameter Effects v2" srcdoc="&lt;!doctype html&gt;
 &lt;html lang=&quot;en&quot;&gt;
 &lt;head&gt;
 &lt;meta charset=&quot;utf-8&quot;&gt;
 &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
 &lt;meta name=&quot;referrer&quot; content=&quot;no-referrer&quot;&gt;
 &lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src &#x27;none&#x27;; script-src &#x27;unsafe-inline&#x27; &#x27;unsafe-eval&#x27; &#x27;wasm-unsafe-eval&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src &#x27;unsafe-inline&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src &#x27;none&#x27;; object-src &#x27;none&#x27;; base-uri &#x27;none&#x27;; form-action &#x27;none&#x27;&quot;&gt;
-&lt;title&gt;Bayern 2000-01 Slot Parameter Effects&lt;/title&gt;
+&lt;title&gt;Bayern 2000-01 Slot Parameter Effects v2&lt;/title&gt;
 &lt;style&gt;:root {
   color-scheme: light dark;
   background-color: var(
@@ -907,7 +907,7 @@ html&gt;body{padding:0}&lt;/style&gt;
 &lt;body&gt;
 &lt;script src=&quot;https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js&quot;&gt;&lt;/script&gt;
 &lt;style&gt;
-.factor-viz {
+#bayern-slot-factor-viz {
   --ink: var(--foreground);
   --muted: var(--muted-foreground);
   --grid: var(--border);
@@ -925,103 +925,120 @@ html&gt;body{padding:0}&lt;/style&gt;
   font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;Noto Sans JP&quot;, sans-serif;
   line-height: 1.45;
 }
-.factor-viz * { box-sizing: border-box; }
-.factor-viz .eyebrow {
+#bayern-slot-factor-viz * { box-sizing: border-box; }
+#bayern-slot-factor-viz .eyebrow {
   margin: 0 0 4px;
   color: var(--muted);
   font-size: 12px;
-  font-weight: 500;
   letter-spacing: .06em;
   text-transform: uppercase;
 }
-.factor-viz h2 {
+#bayern-slot-factor-viz h2 {
   margin: 0;
   font-size: clamp(20px, 4vw, 30px);
   line-height: 1.18;
   letter-spacing: -.02em;
 }
-.factor-viz .lede {
-  max-width: 760px;
-  margin: 8px 0 16px;
+#bayern-slot-factor-viz .lede {
+  max-width: 780px;
+  margin: 8px 0 15px;
   color: var(--muted);
   font-size: 13px;
 }
-.factor-viz .controls {
+#bayern-slot-factor-viz .controls {
   display: flex;
   align-items: end;
   justify-content: space-between;
   gap: 12px;
-  margin: 0 0 8px;
+  margin-bottom: 8px;
 }
-.factor-viz label {
+#bayern-slot-factor-viz label {
   display: grid;
   gap: 4px;
   color: var(--muted);
   font-size: 11px;
-  font-weight: 500;
 }
-.factor-viz select {
-  min-width: 190px;
-}
-.factor-viz .legend {
+#bayern-slot-factor-viz select { min-width: 200px; }
+#bayern-slot-factor-viz .legend {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 5px;
+  gap: 4px 10px;
 }
-.factor-viz .legend button {
+#bayern-slot-factor-viz .legend button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   min-height: 32px;
-  padding: 5px 8px;
-  border: 1px solid transparent;
-  border-radius: 7px;
+  padding: 4px 0;
+  border: 0;
   background: transparent;
   color: var(--muted);
   font: inherit;
   font-size: 12px;
   cursor: pointer;
 }
-.factor-viz .legend button[aria-pressed=&quot;false&quot;] { opacity: .35; }
-.factor-viz .legend button:focus-visible { outline: 2px solid var(--cc); outline-offset: 2px; }
-.factor-viz .swatch { width: 9px; height: 9px; border-radius: 50%; background: var(--swatch); }
-.factor-viz .model-line {
-  margin: 3px 0 0;
+#bayern-slot-factor-viz .legend button[aria-pressed=&quot;false&quot;] { opacity: .35; }
+#bayern-slot-factor-viz .legend button:focus-visible { outline: 2px solid var(--cc); outline-offset: 2px; }
+#bayern-slot-factor-viz .swatch { width: 9px; height: 9px; border-radius: 50%; background: var(--swatch); }
+#bayern-slot-factor-viz .model-line {
+  margin: 3px 0 14px;
   color: var(--muted);
   font-size: 12px;
   overflow-wrap: anywhere;
 }
-.factor-viz .summary {
-  margin: 5px 0 2px;
-  min-height: 22px;
-  color: var(--ink);
-  font-size: 13px;
-  font-weight: 500;
-  overflow-wrap: anywhere;
+#bayern-slot-factor-viz .analysis-block { margin: 0 0 20px; }
+#bayern-slot-factor-viz .analysis-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 2px;
 }
-.factor-viz .plot-wrap { position: relative; width: 100%; }
-.factor-viz svg { display: block; width: 100%; height: 500px; overflow: visible; }
-.factor-viz .axis text, .factor-viz .row-label { fill: var(--muted); font-size: 11px; }
-.factor-viz .axis path { display: none; }
-.factor-viz .axis line { stroke: var(--grid); }
-.factor-viz .zero { stroke: var(--ink); stroke-width: 1.1; opacity: .58; }
-.factor-viz .row-rule { stroke: var(--grid); stroke-width: 1; opacity: .65; }
-.factor-viz .chart-frame { fill: none; stroke: var(--grid); stroke-width: 1; }
-.factor-viz .interval { stroke-width: 2; stroke-linecap: round; }
-.factor-viz .point { stroke: var(--surface); stroke-width: 1.5; }
-.factor-viz .status-unclear { opacity: .48; }
-.factor-viz .status-suggestive { opacity: .78; }
-.factor-viz .status-unidentified, .factor-viz .status-model_not_validated, .factor-viz .status-sensitivity_unstable { opacity: .18; }
-.factor-viz .foot {
+#bayern-slot-factor-viz h3 {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.3;
+}
+#bayern-slot-factor-viz .section-summary {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  text-align: right;
+}
+#bayern-slot-factor-viz .plot-wrap { position: relative; width: 100%; }
+#bayern-slot-factor-viz svg { display: block; width: 100%; overflow: visible; }
+#bayern-slot-factor-viz .axis text,
+#bayern-slot-factor-viz .row-label { fill: var(--muted); font-size: 11px; }
+#bayern-slot-factor-viz .axis path { display: none; }
+#bayern-slot-factor-viz .axis line { stroke: var(--grid); }
+#bayern-slot-factor-viz .zero { stroke: var(--ink); stroke-width: 1.1; opacity: .58; }
+#bayern-slot-factor-viz .row-rule { stroke: var(--grid); stroke-width: 1; opacity: .65; }
+#bayern-slot-factor-viz .chart-frame { fill: none; stroke: var(--grid); stroke-width: 1; }
+#bayern-slot-factor-viz .interval { stroke-width: 2; stroke-linecap: round; }
+#bayern-slot-factor-viz .point { stroke: var(--surface); stroke-width: 1.5; }
+#bayern-slot-factor-viz .status-unclear { opacity: .46; }
+#bayern-slot-factor-viz .status-suggestive { opacity: .78; }
+#bayern-slot-factor-viz .status-unidentified,
+#bayern-slot-factor-viz .status-model_not_validated,
+#bayern-slot-factor-viz .status-sensitivity_unstable,
+#bayern-slot-factor-viz .status-insufficient_independent_variation { opacity: .16; }
+#bayern-slot-factor-viz .position-note {
+  margin: -2px 0 12px;
+  padding-left: 10px;
+  border-left: 3px solid var(--combined);
+  color: var(--ink);
+  font-size: 12px;
+}
+#bayern-slot-factor-viz .foot {
   margin: 4px 0 0;
   color: var(--muted);
   font-size: 11px;
 }
-.factor-viz .tooltip {
+#bayern-slot-factor-viz .tooltip {
   position: absolute;
   z-index: 5;
-  width: min(250px, calc(100vw - 36px));
+  width: min(260px, calc(100vw - 32px));
   padding: 9px 10px;
   border: 1px solid var(--grid);
   border-radius: 8px;
@@ -1033,168 +1050,225 @@ html&gt;body{padding:0}&lt;/style&gt;
   transform: translateY(4px);
   transition: opacity .12s ease, transform .12s ease;
 }
-.factor-viz .tooltip.on { opacity: 1; transform: translateY(0); }
-.factor-viz .tooltip strong { display: block; margin-bottom: 3px; }
-.factor-viz .tooltip span { color: var(--muted); }
+#bayern-slot-factor-viz .tooltip.on { opacity: 1; transform: translateY(0); }
+#bayern-slot-factor-viz .tooltip strong { display: block; margin-bottom: 3px; }
+#bayern-slot-factor-viz .tooltip span { color: var(--muted); }
 @media (max-width: 520px) {
-  .factor-viz .controls { align-items: stretch; flex-direction: column; }
-  .factor-viz select { width: 100%; min-width: 0; }
-  .factor-viz .legend { justify-content: flex-start; }
-  .factor-viz .lede { font-size: 12px; }
-  .factor-viz svg { height: 470px; }
+  #bayern-slot-factor-viz .controls { align-items: stretch; flex-direction: column; }
+  #bayern-slot-factor-viz select { width: 100%; min-width: 0; }
+  #bayern-slot-factor-viz .legend { justify-content: flex-start; }
+  #bayern-slot-factor-viz .lede { font-size: 12px; }
+  #bayern-slot-factor-viz .analysis-head { display: block; }
+  #bayern-slot-factor-viz .section-summary { margin-top: 2px; text-align: left; }
 }
 &lt;/style&gt;
 
-&lt;section id=&quot;bayern-slot-factor-viz&quot; class=&quot;factor-viz&quot; aria-labelledby=&quot;factor-title&quot;&gt;
-  &lt;p class=&quot;eyebrow&quot;&gt;Bayern 2000–01 · factor decomposition&lt;/p&gt;
+&lt;section id=&quot;bayern-slot-factor-viz&quot; aria-labelledby=&quot;factor-title&quot;&gt;
+  &lt;p class=&quot;eyebrow&quot;&gt;Bayern 2000–01 · partial factor decomposition&lt;/p&gt;
   &lt;h2 id=&quot;factor-title&quot;&gt;slot別パラメータ効果&lt;/h2&gt;
-  &lt;p class=&quot;lede&quot;&gt;下位まで含むslot固有評価を分解。CCはカード基準補正済み、RohmはNR比SS +0.083・CC +0.109のカテゴリバフ補正済み。&lt;/p&gt;
+  &lt;p class=&quot;lede&quot;&gt;S/T/Pは総合水準と配分を分離。スタミナ・知性感性・組織個人はS/T/P調整後に別分析。対象slot適性は調整だけ行い、評価項目にはしない。&lt;/p&gt;
   &lt;div class=&quot;controls&quot;&gt;
-    &lt;label class=&quot;form-label&quot;&gt;表示slot
+    &lt;label&gt;表示slot
       &lt;select id=&quot;factor-slot&quot; class=&quot;form-select&quot; aria-label=&quot;表示するslot&quot;&gt;&lt;/select&gt;
     &lt;/label&gt;
     &lt;div class=&quot;legend&quot; aria-label=&quot;表示系列&quot;&gt;
-      &lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-series=&quot;cc&quot; aria-pressed=&quot;true&quot;&gt;&lt;i class=&quot;swatch&quot; style=&quot;--swatch:var(--cc)&quot;&gt;&lt;/i&gt;CC&lt;/button&gt;
-      &lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-series=&quot;rh&quot; aria-pressed=&quot;true&quot;&gt;&lt;i class=&quot;swatch&quot; style=&quot;--swatch:var(--rohm)&quot;&gt;&lt;/i&gt;Rohm&lt;/button&gt;
-      &lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-series=&quot;co&quot; aria-pressed=&quot;true&quot;&gt;&lt;i class=&quot;swatch&quot; style=&quot;--swatch:var(--combined)&quot;&gt;&lt;/i&gt;統合&lt;/button&gt;
+      &lt;button type=&quot;button&quot; data-series=&quot;cc&quot; aria-pressed=&quot;true&quot;&gt;&lt;i class=&quot;swatch&quot; style=&quot;--swatch:var(--cc)&quot;&gt;&lt;/i&gt;CC&lt;/button&gt;
+      &lt;button type=&quot;button&quot; data-series=&quot;rh&quot; aria-pressed=&quot;true&quot;&gt;&lt;i class=&quot;swatch&quot; style=&quot;--swatch:var(--rohm)&quot;&gt;&lt;/i&gt;Rohm&lt;/button&gt;
+      &lt;button type=&quot;button&quot; data-series=&quot;co&quot; aria-pressed=&quot;true&quot;&gt;&lt;i class=&quot;swatch&quot; style=&quot;--swatch:var(--combined)&quot;&gt;&lt;/i&gt;統合&lt;/button&gt;
     &lt;/div&gt;
   &lt;/div&gt;
   &lt;p class=&quot;model-line&quot; id=&quot;factor-model&quot;&gt;&lt;/p&gt;
-  &lt;p class=&quot;summary&quot; id=&quot;factor-summary&quot; aria-live=&quot;polite&quot;&gt;&lt;/p&gt;
-  &lt;div class=&quot;plot-wrap&quot;&gt;
-    &lt;svg id=&quot;factor-chart&quot; role=&quot;img&quot; aria-label=&quot;slot別パラメータ効果のフォレストプロット&quot;&gt;&lt;/svg&gt;
-    &lt;div class=&quot;tooltip&quot; id=&quot;factor-tip&quot; role=&quot;tooltip&quot;&gt;&lt;/div&gt;
-  &lt;/div&gt;
-  &lt;p class=&quot;foot&quot;&gt;横軸は各データ源の評価点標準偏差。正は高い値側が有利、負は低い値側が有利。薄い点は不確実。R²≤0のモデルと値が変化しない指標は統合から除外。&lt;/p&gt;
+
+  &lt;section class=&quot;analysis-block&quot; aria-labelledby=&quot;stp-title&quot;&gt;
+    &lt;div class=&quot;analysis-head&quot;&gt;
+      &lt;h3 id=&quot;stp-title&quot;&gt;S / T / P&lt;/h3&gt;
+      &lt;p class=&quot;section-summary&quot; id=&quot;stp-summary&quot;&gt;&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;plot-wrap&quot;&gt;
+      &lt;svg id=&quot;stp-chart&quot; role=&quot;img&quot; aria-label=&quot;S・T・Pの総合水準と配分効果&quot;&gt;&lt;/svg&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+
+  &lt;section class=&quot;analysis-block&quot; aria-labelledby=&quot;secondary-title&quot;&gt;
+    &lt;div class=&quot;analysis-head&quot;&gt;
+      &lt;h3 id=&quot;secondary-title&quot;&gt;スタミナ・性格軸&lt;/h3&gt;
+      &lt;p class=&quot;section-summary&quot; id=&quot;secondary-summary&quot;&gt;&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;plot-wrap&quot;&gt;
+      &lt;svg id=&quot;secondary-chart&quot; role=&quot;img&quot; aria-label=&quot;スタミナ・知性感性・組織個人の追加効果&quot;&gt;&lt;/svg&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+
+  &lt;p class=&quot;position-note&quot; id=&quot;position-note&quot; hidden&gt;&lt;/p&gt;
+  &lt;p class=&quot;foot&quot;&gt;横軸は独立に比較できた範囲での評価点標準偏差。正は高い値・その配分が有利、負は低い値・逆配分が有利。薄い点は不確実。slot外適性は追加的な示唆がある場合だけ表示。&lt;/p&gt;
+  &lt;div class=&quot;tooltip&quot; id=&quot;factor-tip&quot; role=&quot;tooltip&quot;&gt;&lt;/div&gt;
 &lt;/section&gt;
 
+&lt;script id=&quot;bayern-factor-data&quot; type=&quot;application/json&quot;&gt;[{&quot;s&quot;:1,&quot;m&quot;:&quot;ゴーン&quot;,&quot;n&quot;:{&quot;cc&quot;:30,&quot;rh&quot;:74},&quot;sections&quot;:{&quot;stp&quot;:[{&quot;f&quot;:&quot;core&quot;,&quot;label&quot;:&quot;S/T/P総合水準&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.008083,&quot;l&quot;:-0.139738,&quot;h&quot;:0.123573,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:8.666667,&quot;q3&quot;:9.333333,&quot;ir&quot;:0.940681,&quot;cv&quot;:-0.023738},&quot;rh&quot;:{&quot;e&quot;:0.252336,&quot;l&quot;:0.071188,&quot;h&quot;:0.433483,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:8.333333,&quot;q3&quot;:9.0,&quot;ir&quot;:0.935739,&quot;cv&quot;:0.033583},&quot;co&quot;:{&quot;e&quot;:0.252336,&quot;l&quot;:0.071188,&quot;h&quot;:0.433483,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;Rohm&quot;}},{&quot;f&quot;:&quot;Td&quot;,&quot;label&quot;:&quot;T偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.248549,&quot;l&quot;:-0.465414,&quot;h&quot;:-0.031684,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:-0.666667,&quot;q3&quot;:0.0,&quot;ir&quot;:0.979795,&quot;cv&quot;:0.104356},&quot;rh&quot;:{&quot;e&quot;:-0.216788,&quot;l&quot;:-0.492949,&quot;h&quot;:0.059372,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:-1.0,&quot;q3&quot;:0.333333,&quot;ir&quot;:0.917188,&quot;cv&quot;:0.043375},&quot;co&quot;:{&quot;e&quot;:-0.236434,&quot;l&quot;:-0.406994,&quot;h&quot;:-0.065874,&quot;st&quot;:&quot;supported&quot;,&quot;src&quot;:&quot;CC+Rohm&quot;}},{&quot;f&quot;:&quot;Pd&quot;,&quot;label&quot;:&quot;P偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:0.119306,&quot;l&quot;:-0.139861,&quot;h&quot;:0.378472,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:0.0,&quot;q3&quot;:1.0,&quot;ir&quot;:0.920485,&quot;cv&quot;:0.104356},&quot;rh&quot;:{&quot;e&quot;:0.134449,&quot;l&quot;:-0.205441,&quot;h&quot;:0.47434,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:-0.333333,&quot;q3&quot;:1.0,&quot;ir&quot;:0.955812,&quot;cv&quot;:0.043375},&quot;co&quot;:{&quot;e&quot;:0.124873,&quot;l&quot;:-0.081217,&quot;h&quot;:0.330963,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC+Rohm&quot;}},{&quot;f&quot;:&quot;Sd&quot;,&quot;label&quot;:&quot;S偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:0.093895,&quot;l&quot;:-0.029468,&quot;h&quot;:0.217258,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:-0.333333,&quot;q3&quot;:0.0,&quot;ir&quot;:0.944835,&quot;cv&quot;:0.104356},&quot;rh&quot;:{&quot;e&quot;:0.101314,&quot;l&quot;:-0.206394,&quot;h&quot;:0.409022,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:-0.333333,&quot;q3&quot;:0.666667,&quot;ir&quot;:0.957568,&quot;cv&quot;:0.043375},&quot;co&quot;:{&quot;e&quot;:0.094922,&quot;l&quot;:-0.019582,&quot;h&quot;:0.209426,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC+Rohm&quot;}}],&quot;secondary&quot;:[{&quot;f&quot;:&quot;ib&quot;,&quot;label&quot;:&quot;知性−感性&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.88563,&quot;l&quot;:-1.076506,&quot;h&quot;:-0.694755,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:-4.0,&quot;q3&quot;:2.0,&quot;ir&quot;:0.937452,&quot;cv&quot;:0.478551},&quot;rh&quot;:{&quot;e&quot;:-0.102002,&quot;l&quot;:-0.238695,&quot;h&quot;:0.034691,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-6.0,&quot;q3&quot;:3.0,&quot;ir&quot;:0.852057,&quot;cv&quot;:-0.01595},&quot;co&quot;:{&quot;e&quot;:-0.88563,&quot;l&quot;:-1.076506,&quot;h&quot;:-0.694755,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC&quot;}},{&quot;f&quot;:&quot;St&quot;,&quot;label&quot;:&quot;スタミナ&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.422968,&quot;l&quot;:-0.552816,&quot;h&quot;:-0.293121,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:9.0,&quot;q3&quot;:10.0,&quot;ir&quot;:0.595386,&quot;cv&quot;:0.478551},&quot;rh&quot;:{&quot;e&quot;:0.053898,&quot;l&quot;:-0.072218,&quot;h&quot;:0.180015,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:8.0,&quot;q3&quot;:10.0,&quot;ir&quot;:0.599673,&quot;cv&quot;:-0.01595},&quot;co&quot;:{&quot;e&quot;:-0.422968,&quot;l&quot;:-0.552816,&quot;h&quot;:-0.293121,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC&quot;}},{&quot;f&quot;:&quot;ob&quot;,&quot;label&quot;:&quot;組織−個人&quot;,&quot;cc&quot;:{&quot;e&quot;:0.135367,&quot;l&quot;:0.00221,&quot;h&quot;:0.268524,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:-1.0,&quot;q3&quot;:2.0,&quot;ir&quot;:0.767298,&quot;cv&quot;:0.478551},&quot;rh&quot;:{&quot;e&quot;:-0.090687,&quot;l&quot;:-0.214656,&quot;h&quot;:0.033282,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-3.0,&quot;q3&quot;:5.0,&quot;ir&quot;:0.885015,&quot;cv&quot;:-0.01595},&quot;co&quot;:{&quot;e&quot;:0.135367,&quot;l&quot;:0.00221,&quot;h&quot;:0.268524,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC&quot;}}]},&quot;note&quot;:null},{&quot;s&quot;:2,&quot;m&quot;:&quot;ミシェル&quot;,&quot;n&quot;:{&quot;cc&quot;:24,&quot;rh&quot;:73},&quot;sections&quot;:{&quot;stp&quot;:[{&quot;f&quot;:&quot;Td&quot;,&quot;label&quot;:&quot;T偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.01814,&quot;l&quot;:-0.072745,&quot;h&quot;:0.036465,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:0.0,&quot;q3&quot;:0.333333,&quot;ir&quot;:0.904862,&quot;cv&quot;:-0.019342},&quot;rh&quot;:{&quot;e&quot;:0.272412,&quot;l&quot;:0.003742,&quot;h&quot;:0.541081,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:-0.333333,&quot;q3&quot;:0.666667,&quot;ir&quot;:0.97305,&quot;cv&quot;:0.103386},&quot;co&quot;:{&quot;e&quot;:0.272412,&quot;l&quot;:0.003742,&quot;h&quot;:0.541081,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;Rohm&quot;}},{&quot;f&quot;:&quot;Pd&quot;,&quot;label&quot;:&quot;P偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:0.010946,&quot;l&quot;:-0.033371,&quot;h&quot;:0.055264,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-0.666667,&quot;q3&quot;:0.0,&quot;ir&quot;:0.902456,&quot;cv&quot;:-0.019342},&quot;rh&quot;:{&quot;e&quot;:-0.184333,&quot;l&quot;:-0.494646,&quot;h&quot;:0.12598,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:-1.333333,&quot;q3&quot;:0.0,&quot;ir&quot;:0.965973,&quot;cv&quot;:0.103386},&quot;co&quot;:{&quot;e&quot;:-0.184333,&quot;l&quot;:-0.494646,&quot;h&quot;:0.12598,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;Rohm&quot;}},{&quot;f&quot;:&quot;Sd&quot;,&quot;label&quot;:&quot;S偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:7.2e-05,&quot;l&quot;:-0.148992,&quot;h&quot;:0.149136,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:0.0,&quot;q3&quot;:0.666667,&quot;ir&quot;:0.975455,&quot;cv&quot;:-0.019342},&quot;rh&quot;:{&quot;e&quot;:-0.098073,&quot;l&quot;:-0.278386,&quot;h&quot;:0.082239,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:0.333333,&quot;q3&quot;:0.666667,&quot;ir&quot;:0.915202,&quot;cv&quot;:0.103386},&quot;co&quot;:{&quot;e&quot;:-0.098073,&quot;l&quot;:-0.278386,&quot;h&quot;:0.082239,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;Rohm&quot;}},{&quot;f&quot;:&quot;core&quot;,&quot;label&quot;:&quot;S/T/P総合水準&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.042482,&quot;l&quot;:-0.16163,&quot;h&quot;:0.076666,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:8.666667,&quot;q3&quot;:9.333333,&quot;ir&quot;:0.977502,&quot;cv&quot;:-0.006019},&quot;rh&quot;:{&quot;e&quot;:0.093199,&quot;l&quot;:0.028053,&quot;h&quot;:0.158346,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:8.333333,&quot;q3&quot;:8.666667,&quot;ir&quot;:0.987107,&quot;cv&quot;:0.003008},&quot;co&quot;:{&quot;e&quot;:0.093199,&quot;l&quot;:0.028053,&quot;h&quot;:0.158346,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;Rohm&quot;}}],&quot;secondary&quot;:[{&quot;f&quot;:&quot;ob&quot;,&quot;label&quot;:&quot;組織−個人&quot;,&quot;cc&quot;:{&quot;e&quot;:0.14989,&quot;l&quot;:-0.037394,&quot;h&quot;:0.337175,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:1.0,&quot;q3&quot;:7.0,&quot;ir&quot;:0.726268,&quot;cv&quot;:0.016309},&quot;rh&quot;:{&quot;e&quot;:0.393861,&quot;l&quot;:0.164026,&quot;h&quot;:0.623695,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:1.0,&quot;q3&quot;:7.0,&quot;ir&quot;:0.718819,&quot;cv&quot;:0.157656},&quot;co&quot;:{&quot;e&quot;:0.247245,&quot;l&quot;:0.102059,&quot;h&quot;:0.392431,&quot;st&quot;:&quot;supported&quot;,&quot;src&quot;:&quot;CC+Rohm&quot;}},{&quot;f&quot;:&quot;ib&quot;,&quot;label&quot;:&quot;知性−感性&quot;,&quot;cc&quot;:{&quot;e&quot;:0.095689,&quot;l&quot;:0.011126,&quot;h&quot;:0.180252,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:3.0,&quot;q3&quot;:5.0,&quot;ir&quot;:0.907756,&quot;cv&quot;:0.016309},&quot;rh&quot;:{&quot;e&quot;:0.188576,&quot;l&quot;:-0.006061,&quot;h&quot;:0.383213,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:1.0,&quot;q3&quot;:6.0,&quot;ir&quot;:0.887491,&quot;cv&quot;:0.157656},&quot;co&quot;:{&quot;e&quot;:0.110439,&quot;l&quot;:0.032879,&quot;h&quot;:0.187998,&quot;st&quot;:&quot;supported&quot;,&quot;src&quot;:&quot;CC+Rohm&quot;}},{&quot;f&quot;:&quot;St&quot;,&quot;label&quot;:&quot;スタミナ&quot;,&quot;cc&quot;:{&quot;e&quot;:0.103576,&quot;l&quot;:-0.079101,&quot;h&quot;:0.286253,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:8.0,&quot;q3&quot;:10.0,&quot;ir&quot;:0.801551,&quot;cv&quot;:0.016309},&quot;rh&quot;:{&quot;e&quot;:0.046788,&quot;l&quot;:-0.143955,&quot;h&quot;:0.237531,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:8.0,&quot;q3&quot;:10.0,&quot;ir&quot;:0.819621,&quot;cv&quot;:0.157656},&quot;co&quot;:{&quot;e&quot;:0.076408,&quot;l&quot;:-0.055523,&quot;h&quot;:0.20834,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC+Rohm&quot;}}]},&quot;note&quot;:&quot;他slot適性が低い専任型の選手ほど評価が高い示唆（CC）。&quot;},{&quot;s&quot;:3,&quot;m&quot;:&quot;ブライ&quot;,&quot;n&quot;:{&quot;cc&quot;:42,&quot;rh&quot;:75},&quot;sections&quot;:{&quot;stp&quot;:[{&quot;f&quot;:&quot;Pd&quot;,&quot;label&quot;:&quot;P偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.250043,&quot;l&quot;:-0.635502,&quot;h&quot;:0.135416,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:0.333333,&quot;q3&quot;:1.0,&quot;ir&quot;:0.725109,&quot;cv&quot;:0.1259},&quot;rh&quot;:{&quot;e&quot;:0.042358,&quot;l&quot;:-0.090473,&quot;h&quot;:0.17519,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:0.0,&quot;q3&quot;:1.333333,&quot;ir&quot;:0.793513,&quot;cv&quot;:-0.029008},&quot;co&quot;:{&quot;e&quot;:-0.250043,&quot;l&quot;:-0.635502,&quot;h&quot;:0.135416,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC&quot;}},{&quot;f&quot;:&quot;core&quot;,&quot;label&quot;:&quot;S/T/P総合水準&quot;,&quot;cc&quot;:{&quot;e&quot;:0.016337,&quot;l&quot;:-0.124209,&quot;h&quot;:0.156884,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:8.666667,&quot;q3&quot;:9.333333,&quot;ir&quot;:0.982284,&quot;cv&quot;:-0.038046},&quot;rh&quot;:{&quot;e&quot;:0.177224,&quot;l&quot;:0.05115,&quot;h&quot;:0.303299,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:8.333333,&quot;q3&quot;:9.0,&quot;ir&quot;:0.982692,&quot;cv&quot;:0.06313},&quot;co&quot;:{&quot;e&quot;:0.177224,&quot;l&quot;:0.05115,&quot;h&quot;:0.303299,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;Rohm&quot;}},{&quot;f&quot;:&quot;Sd&quot;,&quot;label&quot;:&quot;S偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:0.175897,&quot;l&quot;:-0.027981,&quot;h&quot;:0.379776,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:-0.333333,&quot;q3&quot;:0.333333,&quot;ir&quot;:0.916034,&quot;cv&quot;:0.1259},&quot;rh&quot;:{&quot;e&quot;:0.02608,&quot;l&quot;:-0.098119,&quot;h&quot;:0.150279,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:0.0,&quot;q3&quot;:0.666667,&quot;ir&quot;:0.838126,&quot;cv&quot;:-0.029008},&quot;co&quot;:{&quot;e&quot;:0.175897,&quot;l&quot;:-0.027981,&quot;h&quot;:0.379776,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC&quot;}},{&quot;f&quot;:&quot;Td&quot;,&quot;label&quot;:&quot;T偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.137048,&quot;l&quot;:-0.400624,&quot;h&quot;:0.126527,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:-1.333333,&quot;q3&quot;:-0.333333,&quot;ir&quot;:0.941542,&quot;cv&quot;:0.1259},&quot;rh&quot;:{&quot;e&quot;:-0.074864,&quot;l&quot;:-0.214961,&quot;h&quot;:0.065233,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-1.333333,&quot;q3&quot;:-0.333333,&quot;ir&quot;:0.964205,&quot;cv&quot;:-0.029008},&quot;co&quot;:{&quot;e&quot;:-0.137048,&quot;l&quot;:-0.400624,&quot;h&quot;:0.126527,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC&quot;}}],&quot;secondary&quot;:[{&quot;f&quot;:&quot;ib&quot;,&quot;label&quot;:&quot;知性−感性&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.158632,&quot;l&quot;:-0.297978,&quot;h&quot;:-0.019286,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:-1.0,&quot;q3&quot;:3.0,&quot;ir&quot;:0.842422,&quot;cv&quot;:0.02605},&quot;rh&quot;:{&quot;e&quot;:0.020451,&quot;l&quot;:-0.091704,&quot;h&quot;:0.132607,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:0.0,&quot;q3&quot;:5.0,&quot;ir&quot;:0.922216,&quot;cv&quot;:-0.004041},&quot;co&quot;:{&quot;e&quot;:-0.158632,&quot;l&quot;:-0.297978,&quot;h&quot;:-0.019286,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC&quot;}},{&quot;f&quot;:&quot;St&quot;,&quot;label&quot;:&quot;スタミナ&quot;,&quot;cc&quot;:{&quot;e&quot;:0.04565,&quot;l&quot;:-0.077552,&quot;h&quot;:0.168852,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:8.0,&quot;q3&quot;:10.0,&quot;ir&quot;:0.87198,&quot;cv&quot;:0.02605},&quot;rh&quot;:{&quot;e&quot;:0.027522,&quot;l&quot;:-0.091947,&quot;h&quot;:0.14699,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:8.0,&quot;q3&quot;:10.0,&quot;ir&quot;:0.832616,&quot;cv&quot;:-0.004041},&quot;co&quot;:{&quot;e&quot;:0.04565,&quot;l&quot;:-0.077552,&quot;h&quot;:0.168852,&quot;st&quot;:&quot;unclear&quot;,&quot;src&quot;:&quot;CC&quot;}},{&quot;f&quot;:&quot;ob&quot;,&quot;label&quot;:&quot;組織−個人&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.04502,&quot;l&quot;:-0.168992,&quot;h&quot;:0.078953,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:-6.0,&quot;q3&quot;:-2.0,&quot;ir&quot;:0.867335,&quot;cv&quot;:0.02605},&quot;rh&quot;:{&quot;e&quot;:-0.062878,&quot;l&quot;:-0.200946,&quot;h&quot;:0.07519,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-5.0,&quot;q3&quot;:0.0,&quot;ir&quot;:0.899701,&quot;cv&quot;:-0.004041},&quot;co&quot;:{&quot;e&quot;:-0.04502,&quot;l&quot;:-0.168992,&quot;h&quot;:0.078953,&quot;st&quot;:&quot;unclear&quot;,&quot;src&quot;:&quot;CC&quot;}}]},&quot;note&quot;:null},{&quot;s&quot;:4,&quot;m&quot;:&quot;スヴェンソン&quot;,&quot;n&quot;:{&quot;cc&quot;:35,&quot;rh&quot;:69},&quot;sections&quot;:{&quot;stp&quot;:[{&quot;f&quot;:&quot;Pd&quot;,&quot;label&quot;:&quot;P偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:0.053593,&quot;l&quot;:0.006812,&quot;h&quot;:0.100374,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:0.333333,&quot;q3&quot;:1.666667,&quot;ir&quot;:0.410723,&quot;cv&quot;:-0.01435},&quot;rh&quot;:{&quot;e&quot;:0.573875,&quot;l&quot;:-1.48022,&quot;h&quot;:2.627969,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:0.333333,&quot;q3&quot;:1.666667,&quot;ir&quot;:0.488481,&quot;cv&quot;:0.425568},&quot;co&quot;:{&quot;e&quot;:0.573875,&quot;l&quot;:-1.48022,&quot;h&quot;:2.627969,&quot;st&quot;:&quot;unclear&quot;,&quot;src&quot;:&quot;Rohm&quot;}},{&quot;f&quot;:&quot;Sd&quot;,&quot;label&quot;:&quot;S偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.054414,&quot;l&quot;:-0.166134,&quot;h&quot;:0.057306,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-1.666667,&quot;q3&quot;:0.0,&quot;ir&quot;:0.533248,&quot;cv&quot;:-0.01435},&quot;rh&quot;:{&quot;e&quot;:-0.27951,&quot;l&quot;:-3.714486,&quot;h&quot;:3.155465,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:-1.666667,&quot;q3&quot;:-0.333333,&quot;ir&quot;:0.773724,&quot;cv&quot;:0.425568},&quot;co&quot;:{&quot;e&quot;:-0.27951,&quot;l&quot;:-3.714486,&quot;h&quot;:3.155465,&quot;st&quot;:&quot;unclear&quot;,&quot;src&quot;:&quot;Rohm&quot;}},{&quot;f&quot;:&quot;Td&quot;,&quot;label&quot;:&quot;T偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:0.000701,&quot;l&quot;:-0.134744,&quot;h&quot;:0.136146,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-0.666667,&quot;q3&quot;:0.666667,&quot;ir&quot;:0.826956,&quot;cv&quot;:-0.01435},&quot;rh&quot;:{&quot;e&quot;:0.079529,&quot;l&quot;:-3.212499,&quot;h&quot;:3.371557,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:-0.666667,&quot;q3&quot;:0.666667,&quot;ir&quot;:0.9898,&quot;cv&quot;:0.425568},&quot;co&quot;:{&quot;e&quot;:0.079529,&quot;l&quot;:-3.212499,&quot;h&quot;:3.371557,&quot;st&quot;:&quot;unclear&quot;,&quot;src&quot;:&quot;Rohm&quot;}},{&quot;f&quot;:&quot;core&quot;,&quot;label&quot;:&quot;S/T/P総合水準&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.029681,&quot;l&quot;:-0.108605,&quot;h&quot;:0.049242,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:8.333333,&quot;q3&quot;:9.333333,&quot;ir&quot;:0.965864,&quot;cv&quot;:-0.000891},&quot;rh&quot;:{&quot;e&quot;:0.030891,&quot;l&quot;:-0.090867,&quot;h&quot;:0.15265,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:8.0,&quot;q3&quot;:9.0,&quot;ir&quot;:0.969962,&quot;cv&quot;:0.002355},&quot;co&quot;:{&quot;e&quot;:0.030891,&quot;l&quot;:-0.090867,&quot;h&quot;:0.15265,&quot;st&quot;:&quot;unclear&quot;,&quot;src&quot;:&quot;Rohm&quot;}}],&quot;secondary&quot;:[{&quot;f&quot;:&quot;ib&quot;,&quot;label&quot;:&quot;知性−感性&quot;,&quot;cc&quot;:{&quot;e&quot;:0.298016,&quot;l&quot;:0.094932,&quot;h&quot;:0.501101,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:0.0,&quot;q3&quot;:6.0,&quot;ir&quot;:0.799768,&quot;cv&quot;:0.061399},&quot;rh&quot;:{&quot;e&quot;:0.056222,&quot;l&quot;:-0.088161,&quot;h&quot;:0.200604,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:0.0,&quot;q3&quot;:6.0,&quot;ir&quot;:0.913721,&quot;cv&quot;:0.006375},&quot;co&quot;:{&quot;e&quot;:0.137403,&quot;l&quot;:0.019729,&quot;h&quot;:0.255077,&quot;st&quot;:&quot;supported&quot;,&quot;src&quot;:&quot;CC+Rohm&quot;}},{&quot;f&quot;:&quot;ob&quot;,&quot;label&quot;:&quot;組織−個人&quot;,&quot;cc&quot;:{&quot;e&quot;:0.169532,&quot;l&quot;:-0.051407,&quot;h&quot;:0.390472,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:-3.0,&quot;q3&quot;:1.0,&quot;ir&quot;:0.690006,&quot;cv&quot;:0.061399},&quot;rh&quot;:{&quot;e&quot;:0.007714,&quot;l&quot;:-0.108964,&quot;h&quot;:0.124392,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:-4.0,&quot;q3&quot;:1.0,&quot;ir&quot;:0.850193,&quot;cv&quot;:0.006375},&quot;co&quot;:{&quot;e&quot;:0.043002,&quot;l&quot;:-0.060173,&quot;h&quot;:0.146176,&quot;st&quot;:&quot;unclear&quot;,&quot;src&quot;:&quot;CC+Rohm&quot;}},{&quot;f&quot;:&quot;St&quot;,&quot;label&quot;:&quot;スタミナ&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.171137,&quot;l&quot;:-0.354647,&quot;h&quot;:0.012374,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:8.0,&quot;q3&quot;:10.0,&quot;ir&quot;:0.871343,&quot;cv&quot;:0.061399},&quot;rh&quot;:{&quot;e&quot;:0.053811,&quot;l&quot;:-0.02878,&quot;h&quot;:0.136403,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:8.0,&quot;q3&quot;:9.0,&quot;ir&quot;:0.820735,&quot;cv&quot;:0.006375},&quot;co&quot;:{&quot;e&quot;:0.015921,&quot;l&quot;:-0.059394,&quot;h&quot;:0.091237,&quot;st&quot;:&quot;unclear&quot;,&quot;src&quot;:&quot;CC+Rohm&quot;}}]},&quot;note&quot;:&quot;他slot適性が低い専任型の選手ほど評価が高い示唆（CC）。&quot;},{&quot;s&quot;:5,&quot;m&quot;:&quot;フランケ&quot;,&quot;n&quot;:{&quot;cc&quot;:41,&quot;rh&quot;:72},&quot;sections&quot;:{&quot;stp&quot;:[{&quot;f&quot;:&quot;core&quot;,&quot;label&quot;:&quot;S/T/P総合水準&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.02509,&quot;l&quot;:-0.203022,&quot;h&quot;:0.152842,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:7.666667,&quot;q3&quot;:9.0,&quot;ir&quot;:0.938851,&quot;cv&quot;:-0.030642},&quot;rh&quot;:{&quot;e&quot;:-0.180697,&quot;l&quot;:-0.336841,&quot;h&quot;:-0.024553,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:8.0,&quot;q3&quot;:9.0,&quot;ir&quot;:0.962162,&quot;cv&quot;:0.024294},&quot;co&quot;:{&quot;e&quot;:-0.180697,&quot;l&quot;:-0.336841,&quot;h&quot;:-0.024553,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;Rohm&quot;}},{&quot;f&quot;:&quot;Td&quot;,&quot;label&quot;:&quot;T偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:0.135024,&quot;l&quot;:-0.065504,&quot;h&quot;:0.335551,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:-1.0,&quot;q3&quot;:0.333333,&quot;ir&quot;:0.869833,&quot;cv&quot;:0.020752},&quot;rh&quot;:{&quot;e&quot;:0.047768,&quot;l&quot;:-0.128408,&quot;h&quot;:0.223944,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:-1.0,&quot;q3&quot;:0.666667,&quot;ir&quot;:0.952929,&quot;cv&quot;:0.071376},&quot;co&quot;:{&quot;e&quot;:0.085779,&quot;l&quot;:-0.046573,&quot;h&quot;:0.218131,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC+Rohm&quot;}},{&quot;f&quot;:&quot;Sd&quot;,&quot;label&quot;:&quot;S偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.043093,&quot;l&quot;:-0.224882,&quot;h&quot;:0.138695,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:-2.333333,&quot;q3&quot;:0.333333,&quot;ir&quot;:0.547406,&quot;cv&quot;:0.020752},&quot;rh&quot;:{&quot;e&quot;:-0.107895,&quot;l&quot;:-0.260897,&quot;h&quot;:0.045107,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:-1.666667,&quot;q3&quot;:0.0,&quot;ir&quot;:0.638977,&quot;cv&quot;:0.071376},&quot;co&quot;:{&quot;e&quot;:-0.081025,&quot;l&quot;:-0.198084,&quot;h&quot;:0.036034,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC+Rohm&quot;}},{&quot;f&quot;:&quot;Pd&quot;,&quot;label&quot;:&quot;P偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.184624,&quot;l&quot;:-0.370958,&quot;h&quot;:0.00171,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:0.333333,&quot;q3&quot;:1.666667,&quot;ir&quot;:0.416691,&quot;cv&quot;:0.020752},&quot;rh&quot;:{&quot;e&quot;:0.193461,&quot;l&quot;:0.015603,&quot;h&quot;:0.37132,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:0.333333,&quot;q3&quot;:1.666667,&quot;ir&quot;:0.435878,&quot;cv&quot;:0.071376},&quot;co&quot;:{&quot;e&quot;:0.013213,&quot;l&quot;:-0.115444,&quot;h&quot;:0.14187,&quot;st&quot;:&quot;unclear&quot;,&quot;src&quot;:&quot;CC+Rohm&quot;}}],&quot;secondary&quot;:[{&quot;f&quot;:&quot;St&quot;,&quot;label&quot;:&quot;スタミナ&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.134653,&quot;l&quot;:-0.251877,&quot;h&quot;:-0.017429,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:8.0,&quot;q3&quot;:9.0,&quot;ir&quot;:0.898052,&quot;cv&quot;:-0.026543},&quot;rh&quot;:{&quot;e&quot;:-0.007433,&quot;l&quot;:-0.109422,&quot;h&quot;:0.094556,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:8.0,&quot;q3&quot;:9.0,&quot;ir&quot;:0.872157,&quot;cv&quot;:-0.025737},&quot;co&quot;:{&quot;e&quot;:0.0,&quot;l&quot;:null,&quot;h&quot;:null,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;src&quot;:&quot;&quot;}},{&quot;f&quot;:&quot;ib&quot;,&quot;label&quot;:&quot;知性−感性&quot;,&quot;cc&quot;:{&quot;e&quot;:0.11008,&quot;l&quot;:-0.012742,&quot;h&quot;:0.232901,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:1.0,&quot;q3&quot;:6.0,&quot;ir&quot;:0.832223,&quot;cv&quot;:-0.026543},&quot;rh&quot;:{&quot;e&quot;:0.019725,&quot;l&quot;:-0.07097,&quot;h&quot;:0.110421,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:1.0,&quot;q3&quot;:6.0,&quot;ir&quot;:0.846096,&quot;cv&quot;:-0.025737},&quot;co&quot;:{&quot;e&quot;:0.0,&quot;l&quot;:null,&quot;h&quot;:null,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;src&quot;:&quot;&quot;}},{&quot;f&quot;:&quot;ob&quot;,&quot;label&quot;:&quot;組織−個人&quot;,&quot;cc&quot;:{&quot;e&quot;:0.220574,&quot;l&quot;:0.076404,&quot;h&quot;:0.364744,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-5.0,&quot;q3&quot;:1.0,&quot;ir&quot;:0.757831,&quot;cv&quot;:-0.026543},&quot;rh&quot;:{&quot;e&quot;:0.001787,&quot;l&quot;:-0.120887,&quot;h&quot;:0.12446,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-3.0,&quot;q3&quot;:2.0,&quot;ir&quot;:0.868715,&quot;cv&quot;:-0.025737},&quot;co&quot;:{&quot;e&quot;:0.0,&quot;l&quot;:null,&quot;h&quot;:null,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;src&quot;:&quot;&quot;}}]},&quot;note&quot;:null},{&quot;s&quot;:6,&quot;m&quot;:&quot;リゼレス&quot;,&quot;n&quot;:{&quot;cc&quot;:30,&quot;rh&quot;:71},&quot;sections&quot;:{&quot;stp&quot;:[{&quot;f&quot;:&quot;core&quot;,&quot;label&quot;:&quot;S/T/P総合水準&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.015889,&quot;l&quot;:-0.085306,&quot;h&quot;:0.053527,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:8.666667,&quot;q3&quot;:9.0,&quot;ir&quot;:0.999599,&quot;cv&quot;:-0.002443},&quot;rh&quot;:{&quot;e&quot;:0.367092,&quot;l&quot;:0.233917,&quot;h&quot;:0.500266,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:8.333333,&quot;q3&quot;:8.666667,&quot;ir&quot;:0.90361,&quot;cv&quot;:0.202014},&quot;co&quot;:{&quot;e&quot;:0.367092,&quot;l&quot;:0.233917,&quot;h&quot;:0.500266,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;Rohm&quot;}},{&quot;f&quot;:&quot;Sd&quot;,&quot;label&quot;:&quot;S偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:0.070088,&quot;l&quot;:-0.089669,&quot;h&quot;:0.229845,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:0.0,&quot;q3&quot;:1.0,&quot;ir&quot;:0.910072,&quot;cv&quot;:-0.019013},&quot;rh&quot;:{&quot;e&quot;:0.147627,&quot;l&quot;:0.002377,&quot;h&quot;:0.292877,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:0.333333,&quot;q3&quot;:0.666667,&quot;ir&quot;:0.926287,&quot;cv&quot;:0.016477},&quot;co&quot;:{&quot;e&quot;:0.147627,&quot;l&quot;:0.002377,&quot;h&quot;:0.292877,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;Rohm&quot;}},{&quot;f&quot;:&quot;Pd&quot;,&quot;label&quot;:&quot;P偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:0.006598,&quot;l&quot;:-0.10815,&quot;h&quot;:0.121345,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-0.333333,&quot;q3&quot;:0.0,&quot;ir&quot;:0.81219,&quot;cv&quot;:-0.019013},&quot;rh&quot;:{&quot;e&quot;:-0.146011,&quot;l&quot;:-0.35096,&quot;h&quot;:0.058939,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:-1.333333,&quot;q3&quot;:0.333333,&quot;ir&quot;:0.843905,&quot;cv&quot;:0.016477},&quot;co&quot;:{&quot;e&quot;:-0.146011,&quot;l&quot;:-0.35096,&quot;h&quot;:0.058939,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;Rohm&quot;}},{&quot;f&quot;:&quot;Td&quot;,&quot;label&quot;:&quot;T偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.058136,&quot;l&quot;:-0.200594,&quot;h&quot;:0.084323,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-1.0,&quot;q3&quot;:0.333333,&quot;ir&quot;:0.924095,&quot;cv&quot;:-0.019013},&quot;rh&quot;:{&quot;e&quot;:0.04123,&quot;l&quot;:-0.183253,&quot;h&quot;:0.265712,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:-0.666667,&quot;q3&quot;:0.666667,&quot;ir&quot;:0.922733,&quot;cv&quot;:0.016477},&quot;co&quot;:{&quot;e&quot;:0.04123,&quot;l&quot;:-0.183253,&quot;h&quot;:0.265712,&quot;st&quot;:&quot;unclear&quot;,&quot;src&quot;:&quot;Rohm&quot;}}],&quot;secondary&quot;:[{&quot;f&quot;:&quot;ob&quot;,&quot;label&quot;:&quot;組織−個人&quot;,&quot;cc&quot;:{&quot;e&quot;:-1.191308,&quot;l&quot;:-1.460267,&quot;h&quot;:-0.922348,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:-1.0,&quot;q3&quot;:4.0,&quot;ir&quot;:0.602748,&quot;cv&quot;:0.606937},&quot;rh&quot;:{&quot;e&quot;:-0.001799,&quot;l&quot;:-0.152719,&quot;h&quot;:0.149121,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-3.0,&quot;q3&quot;:4.0,&quot;ir&quot;:0.935804,&quot;cv&quot;:-0.00166},&quot;co&quot;:{&quot;e&quot;:-1.191308,&quot;l&quot;:-1.460267,&quot;h&quot;:-0.922348,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC&quot;}},{&quot;f&quot;:&quot;ib&quot;,&quot;label&quot;:&quot;知性−感性&quot;,&quot;cc&quot;:{&quot;e&quot;:0.595373,&quot;l&quot;:0.340665,&quot;h&quot;:0.85008,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:-1.0,&quot;q3&quot;:4.0,&quot;ir&quot;:0.981895,&quot;cv&quot;:0.606937},&quot;rh&quot;:{&quot;e&quot;:-0.057389,&quot;l&quot;:-0.191834,&quot;h&quot;:0.077056,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-4.0,&quot;q3&quot;:3.0,&quot;ir&quot;:0.97857,&quot;cv&quot;:-0.00166},&quot;co&quot;:{&quot;e&quot;:0.595373,&quot;l&quot;:0.340665,&quot;h&quot;:0.85008,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC&quot;}},{&quot;f&quot;:&quot;St&quot;,&quot;label&quot;:&quot;スタミナ&quot;,&quot;cc&quot;:{&quot;e&quot;:0.132978,&quot;l&quot;:-0.093494,&quot;h&quot;:0.359449,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:8.0,&quot;q3&quot;:10.0,&quot;ir&quot;:0.766126,&quot;cv&quot;:0.606937},&quot;rh&quot;:{&quot;e&quot;:0.06128,&quot;l&quot;:-0.093548,&quot;h&quot;:0.216109,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:7.0,&quot;q3&quot;:10.0,&quot;ir&quot;:0.773691,&quot;cv&quot;:-0.00166},&quot;co&quot;:{&quot;e&quot;:0.132978,&quot;l&quot;:-0.093494,&quot;h&quot;:0.359449,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC&quot;}}]},&quot;note&quot;:null},{&quot;s&quot;:7,&quot;m&quot;:&quot;ヒンデンブルク&quot;,&quot;n&quot;:{&quot;cc&quot;:43,&quot;rh&quot;:65},&quot;sections&quot;:{&quot;stp&quot;:[{&quot;f&quot;:&quot;core&quot;,&quot;label&quot;:&quot;S/T/P総合水準&quot;,&quot;cc&quot;:{&quot;e&quot;:0.040582,&quot;l&quot;:-0.099788,&quot;h&quot;:0.180953,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:8.333333,&quot;q3&quot;:9.0,&quot;ir&quot;:0.846119,&quot;cv&quot;:-0.041885},&quot;rh&quot;:{&quot;e&quot;:0.393044,&quot;l&quot;:0.189572,&quot;h&quot;:0.596516,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:8.333333,&quot;q3&quot;:9.0,&quot;ir&quot;:0.893001,&quot;cv&quot;:0.117933},&quot;co&quot;:{&quot;e&quot;:0.393044,&quot;l&quot;:0.189572,&quot;h&quot;:0.596516,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;Rohm&quot;}},{&quot;f&quot;:&quot;Sd&quot;,&quot;label&quot;:&quot;S偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.060153,&quot;l&quot;:-0.180479,&quot;h&quot;:0.060173,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-1.333333,&quot;q3&quot;:0.0,&quot;ir&quot;:0.890437,&quot;cv&quot;:-0.062136},&quot;rh&quot;:{&quot;e&quot;:-0.024837,&quot;l&quot;:-0.156562,&quot;h&quot;:0.106888,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-1.0,&quot;q3&quot;:0.0,&quot;ir&quot;:0.892753,&quot;cv&quot;:-0.010609},&quot;co&quot;:{&quot;e&quot;:0.0,&quot;l&quot;:null,&quot;h&quot;:null,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;src&quot;:&quot;&quot;}},{&quot;f&quot;:&quot;Td&quot;,&quot;label&quot;:&quot;T偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:0.013017,&quot;l&quot;:-0.170728,&quot;h&quot;:0.196762,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:0.666667,&quot;q3&quot;:1.666667,&quot;ir&quot;:0.747514,&quot;cv&quot;:-0.062136},&quot;rh&quot;:{&quot;e&quot;:0.040502,&quot;l&quot;:-0.058252,&quot;h&quot;:0.139255,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:0.333333,&quot;q3&quot;:1.333333,&quot;ir&quot;:0.860595,&quot;cv&quot;:-0.010609},&quot;co&quot;:{&quot;e&quot;:0.0,&quot;l&quot;:null,&quot;h&quot;:null,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;src&quot;:&quot;&quot;}},{&quot;f&quot;:&quot;Pd&quot;,&quot;label&quot;:&quot;P偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:0.068129,&quot;l&quot;:-0.100516,&quot;h&quot;:0.236774,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-1.0,&quot;q3&quot;:0.333333,&quot;ir&quot;:0.907765,&quot;cv&quot;:-0.062136},&quot;rh&quot;:{&quot;e&quot;:-0.026475,&quot;l&quot;:-0.170893,&quot;h&quot;:0.117943,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-1.0,&quot;q3&quot;:0.333333,&quot;ir&quot;:0.875843,&quot;cv&quot;:-0.010609},&quot;co&quot;:{&quot;e&quot;:0.0,&quot;l&quot;:null,&quot;h&quot;:null,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;src&quot;:&quot;&quot;}}],&quot;secondary&quot;:[{&quot;f&quot;:&quot;St&quot;,&quot;label&quot;:&quot;スタミナ&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.121861,&quot;l&quot;:-0.264896,&quot;h&quot;:0.021173,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:8.0,&quot;q3&quot;:9.0,&quot;ir&quot;:0.725484,&quot;cv&quot;:0.038726},&quot;rh&quot;:{&quot;e&quot;:0.042132,&quot;l&quot;:-0.080984,&quot;h&quot;:0.165247,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:8.0,&quot;q3&quot;:10.0,&quot;ir&quot;:0.792418,&quot;cv&quot;:-0.030487},&quot;co&quot;:{&quot;e&quot;:-0.121861,&quot;l&quot;:-0.264896,&quot;h&quot;:0.021173,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC&quot;}},{&quot;f&quot;:&quot;ob&quot;,&quot;label&quot;:&quot;組織−個人&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.069653,&quot;l&quot;:-0.203351,&quot;h&quot;:0.064045,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:0.0,&quot;q3&quot;:6.0,&quot;ir&quot;:0.785169,&quot;cv&quot;:0.038726},&quot;rh&quot;:{&quot;e&quot;:-0.010162,&quot;l&quot;:-0.138623,&quot;h&quot;:0.1183,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:0.0,&quot;q3&quot;:5.0,&quot;ir&quot;:0.811421,&quot;cv&quot;:-0.030487},&quot;co&quot;:{&quot;e&quot;:-0.069653,&quot;l&quot;:-0.203351,&quot;h&quot;:0.064045,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC&quot;}},{&quot;f&quot;:&quot;ib&quot;,&quot;label&quot;:&quot;知性−感性&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.025892,&quot;l&quot;:-0.103686,&quot;h&quot;:0.051902,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:-1.0,&quot;q3&quot;:1.0,&quot;ir&quot;:0.859379,&quot;cv&quot;:0.038726},&quot;rh&quot;:{&quot;e&quot;:-0.01114,&quot;l&quot;:-0.0911,&quot;h&quot;:0.068819,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-2.0,&quot;q3&quot;:2.0,&quot;ir&quot;:0.964435,&quot;cv&quot;:-0.030487},&quot;co&quot;:{&quot;e&quot;:-0.025892,&quot;l&quot;:-0.103686,&quot;h&quot;:0.051902,&quot;st&quot;:&quot;unclear&quot;,&quot;src&quot;:&quot;CC&quot;}}]},&quot;note&quot;:null},{&quot;s&quot;:8,&quot;m&quot;:&quot;ハドルストーン&quot;,&quot;n&quot;:{&quot;cc&quot;:44,&quot;rh&quot;:71},&quot;sections&quot;:{&quot;stp&quot;:[{&quot;f&quot;:&quot;core&quot;,&quot;label&quot;:&quot;S/T/P総合水準&quot;,&quot;cc&quot;:{&quot;e&quot;:0.225172,&quot;l&quot;:0.083059,&quot;h&quot;:0.367284,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:8.666667,&quot;q3&quot;:9.0,&quot;ir&quot;:0.946043,&quot;cv&quot;:0.050216},&quot;rh&quot;:{&quot;e&quot;:0.116621,&quot;l&quot;:-0.04859,&quot;h&quot;:0.281833,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:8.666667,&quot;q3&quot;:9.0,&quot;ir&quot;:0.933018,&quot;cv&quot;:0.024851},&quot;co&quot;:{&quot;e&quot;:0.179009,&quot;l&quot;:0.071272,&quot;h&quot;:0.286747,&quot;st&quot;:&quot;supported&quot;,&quot;src&quot;:&quot;CC+Rohm&quot;}},{&quot;f&quot;:&quot;Pd&quot;,&quot;label&quot;:&quot;P偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.147586,&quot;l&quot;:-0.284825,&quot;h&quot;:-0.010346,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:0.0,&quot;q3&quot;:1.0,&quot;ir&quot;:0.920063,&quot;cv&quot;:0.008599},&quot;rh&quot;:{&quot;e&quot;:0.003552,&quot;l&quot;:-0.130974,&quot;h&quot;:0.138078,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:0.0,&quot;q3&quot;:0.666667,&quot;ir&quot;:0.979476,&quot;cv&quot;:-0.037328},&quot;co&quot;:{&quot;e&quot;:-0.147586,&quot;l&quot;:-0.284825,&quot;h&quot;:-0.010346,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC&quot;}},{&quot;f&quot;:&quot;Sd&quot;,&quot;label&quot;:&quot;S偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:0.0883,&quot;l&quot;:-0.07188,&quot;h&quot;:0.24848,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:-1.0,&quot;q3&quot;:0.0,&quot;ir&quot;:0.896447,&quot;cv&quot;:0.008599},&quot;rh&quot;:{&quot;e&quot;:0.0058,&quot;l&quot;:-0.138624,&quot;h&quot;:0.150224,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-0.666667,&quot;q3&quot;:0.0,&quot;ir&quot;:0.933216,&quot;cv&quot;:-0.037328},&quot;co&quot;:{&quot;e&quot;:0.0883,&quot;l&quot;:-0.07188,&quot;h&quot;:0.24848,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC&quot;}},{&quot;f&quot;:&quot;Td&quot;,&quot;label&quot;:&quot;T偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:0.040916,&quot;l&quot;:-0.079602,&quot;h&quot;:0.161434,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:-0.333333,&quot;q3&quot;:0.333333,&quot;ir&quot;:0.954029,&quot;cv&quot;:0.008599},&quot;rh&quot;:{&quot;e&quot;:-0.005282,&quot;l&quot;:-0.110104,&quot;h&quot;:0.09954,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-0.333333,&quot;q3&quot;:0.333333,&quot;ir&quot;:0.9713,&quot;cv&quot;:-0.037328},&quot;co&quot;:{&quot;e&quot;:0.040916,&quot;l&quot;:-0.079602,&quot;h&quot;:0.161434,&quot;st&quot;:&quot;unclear&quot;,&quot;src&quot;:&quot;CC&quot;}}],&quot;secondary&quot;:[{&quot;f&quot;:&quot;ib&quot;,&quot;label&quot;:&quot;知性−感性&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.041681,&quot;l&quot;:-0.158331,&quot;h&quot;:0.07497,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:1.0,&quot;q3&quot;:4.0,&quot;ir&quot;:0.921328,&quot;cv&quot;:-0.057271},&quot;rh&quot;:{&quot;e&quot;:0.232904,&quot;l&quot;:0.057365,&quot;h&quot;:0.408444,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:1.0,&quot;q3&quot;:6.0,&quot;ir&quot;:0.940545,&quot;cv&quot;:0.146994},&quot;co&quot;:{&quot;e&quot;:0.232904,&quot;l&quot;:0.057365,&quot;h&quot;:0.408444,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;Rohm&quot;}},{&quot;f&quot;:&quot;ob&quot;,&quot;label&quot;:&quot;組織−個人&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.000606,&quot;l&quot;:-0.119384,&quot;h&quot;:0.118173,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-2.0,&quot;q3&quot;:3.0,&quot;ir&quot;:0.680046,&quot;cv&quot;:-0.057271},&quot;rh&quot;:{&quot;e&quot;:0.174096,&quot;l&quot;:-0.000865,&quot;h&quot;:0.349057,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:0.0,&quot;q3&quot;:6.0,&quot;ir&quot;:0.874746,&quot;cv&quot;:0.146994},&quot;co&quot;:{&quot;e&quot;:0.174096,&quot;l&quot;:-0.000865,&quot;h&quot;:0.349057,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;Rohm&quot;}},{&quot;f&quot;:&quot;St&quot;,&quot;label&quot;:&quot;スタミナ&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.014817,&quot;l&quot;:-0.097987,&quot;h&quot;:0.068353,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:9.0,&quot;q3&quot;:10.0,&quot;ir&quot;:0.845095,&quot;cv&quot;:-0.057271},&quot;rh&quot;:{&quot;e&quot;:0.137978,&quot;l&quot;:0.00948,&quot;h&quot;:0.266476,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:9.0,&quot;q3&quot;:10.0,&quot;ir&quot;:0.922185,&quot;cv&quot;:0.146994},&quot;co&quot;:{&quot;e&quot;:0.137978,&quot;l&quot;:0.00948,&quot;h&quot;:0.266476,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;Rohm&quot;}}]},&quot;note&quot;:null},{&quot;s&quot;:9,&quot;m&quot;:&quot;サルチノビッチ&quot;,&quot;n&quot;:{&quot;cc&quot;:43,&quot;rh&quot;:65},&quot;sections&quot;:{&quot;stp&quot;:[{&quot;f&quot;:&quot;core&quot;,&quot;label&quot;:&quot;S/T/P総合水準&quot;,&quot;cc&quot;:{&quot;e&quot;:0.246789,&quot;l&quot;:-0.007222,&quot;h&quot;:0.5008,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:8.666667,&quot;q3&quot;:9.666667,&quot;ir&quot;:0.935482,&quot;cv&quot;:0.010652},&quot;rh&quot;:{&quot;e&quot;:0.232742,&quot;l&quot;:0.078335,&quot;h&quot;:0.38715,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:8.333333,&quot;q3&quot;:9.333333,&quot;ir&quot;:0.93527,&quot;cv&quot;:0.065332},&quot;co&quot;:{&quot;e&quot;:0.236532,&quot;l&quot;:0.10459,&quot;h&quot;:0.368475,&quot;st&quot;:&quot;supported&quot;,&quot;src&quot;:&quot;CC+Rohm&quot;}},{&quot;f&quot;:&quot;Sd&quot;,&quot;label&quot;:&quot;S偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:0.003177,&quot;l&quot;:-0.058855,&quot;h&quot;:0.065209,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:0.0,&quot;q3&quot;:0.333333,&quot;ir&quot;:0.87492,&quot;cv&quot;:-0.011594},&quot;rh&quot;:{&quot;e&quot;:0.070836,&quot;l&quot;:-0.081734,&quot;h&quot;:0.223406,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:0.333333,&quot;q3&quot;:0.666667,&quot;ir&quot;:0.761032,&quot;cv&quot;:-0.009919},&quot;co&quot;:{&quot;e&quot;:0.0,&quot;l&quot;:null,&quot;h&quot;:null,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;src&quot;:&quot;&quot;}},{&quot;f&quot;:&quot;Td&quot;,&quot;label&quot;:&quot;T偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.07067,&quot;l&quot;:-0.159735,&quot;h&quot;:0.018396,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:0.0,&quot;q3&quot;:0.333333,&quot;ir&quot;:0.882878,&quot;cv&quot;:-0.011594},&quot;rh&quot;:{&quot;e&quot;:-0.022874,&quot;l&quot;:-0.098572,&quot;h&quot;:0.052824,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:0.0,&quot;q3&quot;:0.666667,&quot;ir&quot;:0.896556,&quot;cv&quot;:-0.009919},&quot;co&quot;:{&quot;e&quot;:0.0,&quot;l&quot;:null,&quot;h&quot;:null,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;src&quot;:&quot;&quot;}},{&quot;f&quot;:&quot;Pd&quot;,&quot;label&quot;:&quot;P偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:0.064907,&quot;l&quot;:-0.03256,&quot;h&quot;:0.162375,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-0.666667,&quot;q3&quot;:0.0,&quot;ir&quot;:0.749883,&quot;cv&quot;:-0.011594},&quot;rh&quot;:{&quot;e&quot;:-0.019311,&quot;l&quot;:-0.151944,&quot;h&quot;:0.113321,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-1.333333,&quot;q3&quot;:-0.333333,&quot;ir&quot;:0.700839,&quot;cv&quot;:-0.009919},&quot;co&quot;:{&quot;e&quot;:0.0,&quot;l&quot;:null,&quot;h&quot;:null,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;src&quot;:&quot;&quot;}}],&quot;secondary&quot;:[{&quot;f&quot;:&quot;ob&quot;,&quot;label&quot;:&quot;組織−個人&quot;,&quot;cc&quot;:{&quot;e&quot;:0.261329,&quot;l&quot;:-0.070644,&quot;h&quot;:0.593302,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:-6.0,&quot;q3&quot;:1.0,&quot;ir&quot;:0.814342,&quot;cv&quot;:0.14271},&quot;rh&quot;:{&quot;e&quot;:0.027161,&quot;l&quot;:-0.114018,&quot;h&quot;:0.168339,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-5.0,&quot;q3&quot;:2.0,&quot;ir&quot;:0.821336,&quot;cv&quot;:-0.006571},&quot;co&quot;:{&quot;e&quot;:0.261329,&quot;l&quot;:-0.070644,&quot;h&quot;:0.593302,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC&quot;}},{&quot;f&quot;:&quot;ib&quot;,&quot;label&quot;:&quot;知性−感性&quot;,&quot;cc&quot;:{&quot;e&quot;:0.080915,&quot;l&quot;:-0.06272,&quot;h&quot;:0.224549,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:-4.0,&quot;q3&quot;:3.0,&quot;ir&quot;:0.610823,&quot;cv&quot;:0.14271},&quot;rh&quot;:{&quot;e&quot;:0.014859,&quot;l&quot;:-0.113236,&quot;h&quot;:0.142955,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-5.0,&quot;q3&quot;:2.0,&quot;ir&quot;:0.824851,&quot;cv&quot;:-0.006571},&quot;co&quot;:{&quot;e&quot;:0.080915,&quot;l&quot;:-0.06272,&quot;h&quot;:0.224549,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC&quot;}},{&quot;f&quot;:&quot;St&quot;,&quot;label&quot;:&quot;スタミナ&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.072127,&quot;l&quot;:-0.155014,&quot;h&quot;:0.010759,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:8.0,&quot;q3&quot;:10.0,&quot;ir&quot;:0.552095,&quot;cv&quot;:0.14271},&quot;rh&quot;:{&quot;e&quot;:0.059225,&quot;l&quot;:-0.052335,&quot;h&quot;:0.170784,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:8.0,&quot;q3&quot;:10.0,&quot;ir&quot;:0.686774,&quot;cv&quot;:-0.006571},&quot;co&quot;:{&quot;e&quot;:-0.072127,&quot;l&quot;:-0.155014,&quot;h&quot;:0.010759,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC&quot;}}]},&quot;note&quot;:null},{&quot;s&quot;:10,&quot;m&quot;:&quot;アベル&quot;,&quot;n&quot;:{&quot;cc&quot;:55,&quot;rh&quot;:60},&quot;sections&quot;:{&quot;stp&quot;:[{&quot;f&quot;:&quot;core&quot;,&quot;label&quot;:&quot;S/T/P総合水準&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.688395,&quot;l&quot;:-0.905589,&quot;h&quot;:-0.471202,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:8.0,&quot;q3&quot;:9.0,&quot;ir&quot;:0.960049,&quot;cv&quot;:0.171676},&quot;rh&quot;:{&quot;e&quot;:-0.023775,&quot;l&quot;:-0.147324,&quot;h&quot;:0.099775,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:8.333333,&quot;q3&quot;:9.0,&quot;ir&quot;:0.914439,&quot;cv&quot;:-0.001657},&quot;co&quot;:{&quot;e&quot;:-0.688395,&quot;l&quot;:-0.905589,&quot;h&quot;:-0.471202,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC&quot;}},{&quot;f&quot;:&quot;Td&quot;,&quot;label&quot;:&quot;T偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:0.01045,&quot;l&quot;:-0.010006,&quot;h&quot;:0.030906,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:1.0,&quot;q3&quot;:2.0,&quot;ir&quot;:0.42551,&quot;cv&quot;:-0.031223},&quot;rh&quot;:{&quot;e&quot;:0.238507,&quot;l&quot;:0.079383,&quot;h&quot;:0.397631,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:1.0,&quot;q3&quot;:1.666667,&quot;ir&quot;:0.476849,&quot;cv&quot;:0.17576},&quot;co&quot;:{&quot;e&quot;:0.238507,&quot;l&quot;:0.079383,&quot;h&quot;:0.397631,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;Rohm&quot;}},{&quot;f&quot;:&quot;Pd&quot;,&quot;label&quot;:&quot;P偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.073738,&quot;l&quot;:-0.190287,&quot;h&quot;:0.042811,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-2.333333,&quot;q3&quot;:-1.0,&quot;ir&quot;:0.604707,&quot;cv&quot;:-0.031223},&quot;rh&quot;:{&quot;e&quot;:-0.073859,&quot;l&quot;:-0.415086,&quot;h&quot;:0.267368,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:-1.666667,&quot;q3&quot;:-0.666667,&quot;ir&quot;:0.801662,&quot;cv&quot;:0.17576},&quot;co&quot;:{&quot;e&quot;:-0.073859,&quot;l&quot;:-0.415086,&quot;h&quot;:0.267368,&quot;st&quot;:&quot;unclear&quot;,&quot;src&quot;:&quot;Rohm&quot;}},{&quot;f&quot;:&quot;Sd&quot;,&quot;label&quot;:&quot;S偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:0.038354,&quot;l&quot;:-0.066584,&quot;h&quot;:0.143292,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-0.333333,&quot;q3&quot;:0.666667,&quot;ir&quot;:0.852623,&quot;cv&quot;:-0.031223},&quot;rh&quot;:{&quot;e&quot;:-0.061456,&quot;l&quot;:-0.395537,&quot;h&quot;:0.272626,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:0.0,&quot;q3&quot;:0.333333,&quot;ir&quot;:0.961377,&quot;cv&quot;:0.17576},&quot;co&quot;:{&quot;e&quot;:-0.061456,&quot;l&quot;:-0.395537,&quot;h&quot;:0.272626,&quot;st&quot;:&quot;unclear&quot;,&quot;src&quot;:&quot;Rohm&quot;}}],&quot;secondary&quot;:[{&quot;f&quot;:&quot;ib&quot;,&quot;label&quot;:&quot;知性−感性&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.178593,&quot;l&quot;:-0.344611,&quot;h&quot;:-0.012575,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:-12.0,&quot;q3&quot;:-5.0,&quot;ir&quot;:0.914563,&quot;cv&quot;:0.087004},&quot;rh&quot;:{&quot;e&quot;:-0.216344,&quot;l&quot;:-0.464595,&quot;h&quot;:0.031908,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:-10.0,&quot;q3&quot;:-4.0,&quot;ir&quot;:0.905273,&quot;cv&quot;:0.062176},&quot;co&quot;:{&quot;e&quot;:-0.190259,&quot;l&quot;:-0.328262,&quot;h&quot;:-0.052256,&quot;st&quot;:&quot;supported&quot;,&quot;src&quot;:&quot;CC+Rohm&quot;}},{&quot;f&quot;:&quot;St&quot;,&quot;label&quot;:&quot;スタミナ&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.110227,&quot;l&quot;:-0.235021,&quot;h&quot;:0.014566,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:7.0,&quot;q3&quot;:8.0,&quot;ir&quot;:0.613587,&quot;cv&quot;:0.087004},&quot;rh&quot;:{&quot;e&quot;:0.046224,&quot;l&quot;:-0.202469,&quot;h&quot;:0.294916,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:7.0,&quot;q3&quot;:9.0,&quot;ir&quot;:0.738952,&quot;cv&quot;:0.062176},&quot;co&quot;:{&quot;e&quot;:-0.078757,&quot;l&quot;:-0.190295,&quot;h&quot;:0.032781,&quot;st&quot;:&quot;unclear&quot;,&quot;src&quot;:&quot;CC+Rohm&quot;}},{&quot;f&quot;:&quot;ob&quot;,&quot;label&quot;:&quot;組織−個人&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.08178,&quot;l&quot;:-0.177308,&quot;h&quot;:0.013747,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:-7.0,&quot;q3&quot;:4.0,&quot;ir&quot;:0.69912,&quot;cv&quot;:0.087004},&quot;rh&quot;:{&quot;e&quot;:0.364106,&quot;l&quot;:0.13433,&quot;h&quot;:0.593881,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:-2.0,&quot;q3&quot;:4.0,&quot;ir&quot;:0.827907,&quot;cv&quot;:0.062176},&quot;co&quot;:{&quot;e&quot;:-0.01607,&quot;l&quot;:-0.104278,&quot;h&quot;:0.072138,&quot;st&quot;:&quot;unclear&quot;,&quot;src&quot;:&quot;CC+Rohm&quot;}}]},&quot;note&quot;:null},{&quot;s&quot;:11,&quot;m&quot;:&quot;バウベル&quot;,&quot;n&quot;:{&quot;cc&quot;:47,&quot;rh&quot;:58},&quot;sections&quot;:{&quot;stp&quot;:[{&quot;f&quot;:&quot;Pd&quot;,&quot;label&quot;:&quot;P偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:0.066518,&quot;l&quot;:-0.096133,&quot;h&quot;:0.22917,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:0.0,&quot;q3&quot;:0.666667,&quot;ir&quot;:0.990086,&quot;cv&quot;:0.008566},&quot;rh&quot;:{&quot;e&quot;:-0.020914,&quot;l&quot;:-0.171096,&quot;h&quot;:0.129267,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-0.333333,&quot;q3&quot;:0.666667,&quot;ir&quot;:0.899261,&quot;cv&quot;:-0.030868},&quot;co&quot;:{&quot;e&quot;:0.066518,&quot;l&quot;:-0.096133,&quot;h&quot;:0.22917,&quot;st&quot;:&quot;unclear&quot;,&quot;src&quot;:&quot;CC&quot;}},{&quot;f&quot;:&quot;Sd&quot;,&quot;label&quot;:&quot;S偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.056884,&quot;l&quot;:-0.124588,&quot;h&quot;:0.010819,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:-0.333333,&quot;q3&quot;:0.0,&quot;ir&quot;:0.888379,&quot;cv&quot;:0.008566},&quot;rh&quot;:{&quot;e&quot;:0.011871,&quot;l&quot;:-0.111696,&quot;h&quot;:0.135438,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-0.333333,&quot;q3&quot;:0.333333,&quot;ir&quot;:0.894021,&quot;cv&quot;:-0.030868},&quot;co&quot;:{&quot;e&quot;:-0.056884,&quot;l&quot;:-0.124588,&quot;h&quot;:0.010819,&quot;st&quot;:&quot;suggestive&quot;,&quot;src&quot;:&quot;CC&quot;}},{&quot;f&quot;:&quot;Td&quot;,&quot;label&quot;:&quot;T偏重&quot;,&quot;cc&quot;:{&quot;e&quot;:0.000905,&quot;l&quot;:-0.17449,&quot;h&quot;:0.1763,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:-0.666667,&quot;q3&quot;:0.0,&quot;ir&quot;:0.9564,&quot;cv&quot;:0.008566},&quot;rh&quot;:{&quot;e&quot;:0.011371,&quot;l&quot;:-0.153157,&quot;h&quot;:0.1759,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:-0.666667,&quot;q3&quot;:0.666667,&quot;ir&quot;:0.954608,&quot;cv&quot;:-0.030868},&quot;co&quot;:{&quot;e&quot;:0.000905,&quot;l&quot;:-0.17449,&quot;h&quot;:0.1763,&quot;st&quot;:&quot;unclear&quot;,&quot;src&quot;:&quot;CC&quot;}},{&quot;f&quot;:&quot;core&quot;,&quot;label&quot;:&quot;S/T/P総合水準&quot;,&quot;cc&quot;:{&quot;e&quot;:0.003299,&quot;l&quot;:-0.006449,&quot;h&quot;:0.013047,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:9.0,&quot;q3&quot;:9.333333,&quot;ir&quot;:0.929022,&quot;cv&quot;:-0.01212},&quot;rh&quot;:{&quot;e&quot;:0.05631,&quot;l&quot;:-0.082001,&quot;h&quot;:0.194621,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;q1&quot;:9.0,&quot;q3&quot;:9.333333,&quot;ir&quot;:0.780922,&quot;cv&quot;:-0.03955},&quot;co&quot;:{&quot;e&quot;:0.0,&quot;l&quot;:null,&quot;h&quot;:null,&quot;st&quot;:&quot;model_not_validated&quot;,&quot;src&quot;:&quot;&quot;}}],&quot;secondary&quot;:[{&quot;f&quot;:&quot;ob&quot;,&quot;label&quot;:&quot;組織−個人&quot;,&quot;cc&quot;:{&quot;e&quot;:0.436221,&quot;l&quot;:0.170755,&quot;h&quot;:0.701687,&quot;st&quot;:&quot;supported&quot;,&quot;q1&quot;:-4.0,&quot;q3&quot;:0.0,&quot;ir&quot;:0.885349,&quot;cv&quot;:0.147091},&quot;rh&quot;:{&quot;e&quot;:0.057312,&quot;l&quot;:-0.054587,&quot;h&quot;:0.169212,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:-5.0,&quot;q3&quot;:0.0,&quot;ir&quot;:0.846222,&quot;cv&quot;:0.010161},&quot;co&quot;:{&quot;e&quot;:0.114479,&quot;l&quot;:0.011366,&quot;h&quot;:0.217592,&quot;st&quot;:&quot;supported&quot;,&quot;src&quot;:&quot;CC+Rohm&quot;}},{&quot;f&quot;:&quot;ib&quot;,&quot;label&quot;:&quot;知性−感性&quot;,&quot;cc&quot;:{&quot;e&quot;:0.164431,&quot;l&quot;:-0.166647,&quot;h&quot;:0.495509,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:-6.0,&quot;q3&quot;:0.0,&quot;ir&quot;:0.989615,&quot;cv&quot;:0.147091},&quot;rh&quot;:{&quot;e&quot;:0.009322,&quot;l&quot;:-0.116767,&quot;h&quot;:0.135412,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:-7.0,&quot;q3&quot;:-1.0,&quot;ir&quot;:0.929373,&quot;cv&quot;:0.010161},&quot;co&quot;:{&quot;e&quot;:0.02897,&quot;l&quot;:-0.088863,&quot;h&quot;:0.146803,&quot;st&quot;:&quot;unclear&quot;,&quot;src&quot;:&quot;CC+Rohm&quot;}},{&quot;f&quot;:&quot;St&quot;,&quot;label&quot;:&quot;スタミナ&quot;,&quot;cc&quot;:{&quot;e&quot;:-0.105727,&quot;l&quot;:-0.233947,&quot;h&quot;:0.022492,&quot;st&quot;:&quot;suggestive&quot;,&quot;q1&quot;:8.0,&quot;q3&quot;:9.0,&quot;ir&quot;:0.961994,&quot;cv&quot;:0.147091},&quot;rh&quot;:{&quot;e&quot;:0.060493,&quot;l&quot;:-0.065941,&quot;h&quot;:0.186927,&quot;st&quot;:&quot;unclear&quot;,&quot;q1&quot;:8.0,&quot;q3&quot;:9.0,&quot;ir&quot;:0.935779,&quot;cv&quot;:0.010161},&quot;co&quot;:{&quot;e&quot;:-0.021452,&quot;l&quot;:-0.111479,&quot;h&quot;:0.068575,&quot;st&quot;:&quot;unclear&quot;,&quot;src&quot;:&quot;CC+Rohm&quot;}}]},&quot;note&quot;:&quot;対象slot以外にも高い適性を持つ選手ほど評価が高い示唆（CC+Rohm）。&quot;}]&lt;/script&gt;
 &lt;script&gt;
 (function () {
-  const DATA = [{&quot;s&quot;:1,&quot;m&quot;:&quot;ゴーン&quot;,&quot;n&quot;:[30,0.481114,74,0.152631],&quot;v&quot;:[[&quot;S&quot;,0.340743,0.165508,0.515979,&quot;supported&quot;,8.0,9.0,0.13709,0.006795,0.267386,&quot;supported&quot;,8.0,9.0,0.209596,0.105037,0.314156,&quot;supported&quot;,&quot;CC+Rohm&quot;],[&quot;T&quot;,-0.016183,-0.218545,0.186178,&quot;unclear&quot;,8.0,9.0,-0.005599,-0.104489,0.093291,&quot;unclear&quot;,8.0,9.0,-0.007639,-0.096488,0.081209,&quot;unclear&quot;,&quot;CC+Rohm&quot;],[&quot;P&quot;,1.075502,0.76333,1.387673,&quot;supported&quot;,9.0,10.0,0.274112,0.053646,0.494578,&quot;supported&quot;,8.0,10.0,0.540802,0.360718,0.720886,&quot;supported&quot;,&quot;CC+Rohm&quot;],[&quot;St&quot;,-0.739858,-0.976479,-0.503237,&quot;supported&quot;,9.0,10.0,0.242107,0.035118,0.449097,&quot;supported&quot;,8.0,10.0,-0.183575,-0.339369,-0.027782,&quot;unclear&quot;,&quot;CC+Rohm&quot;],[&quot;ib&quot;,-1.06623,-1.273507,-0.858954,&quot;supported&quot;,-4.0,2.0,-0.185384,-0.359228,-0.01154,&quot;supported&quot;,-6.0,3.0,-0.549128,-0.682326,-0.41593,&quot;supported&quot;,&quot;CC+Rohm&quot;],[&quot;ob&quot;,0.115226,-0.051992,0.282445,&quot;suggestive&quot;,-1.0,2.0,-0.123893,-0.296182,0.048396,&quot;suggestive&quot;,-3.0,5.0,-0.000763,-0.120757,0.119231,&quot;unclear&quot;,&quot;CC+Rohm&quot;],[&quot;ta&quot;,-0.0,-0.0,0.0,&quot;unidentified&quot;,7.0,7.0,-0.0,-0.0,0.0,&quot;unidentified&quot;,7.0,7.0,0.0,null,null,&quot;unidentified&quot;,&quot;&quot;],[&quot;oa&quot;,-0.0,-0.0,0.0,&quot;unidentified&quot;,7.0,7.0,0.0,0.0,0.0,&quot;unidentified&quot;,7.0,7.0,0.0,null,null,&quot;unidentified&quot;,&quot;&quot;]]},{&quot;s&quot;:2,&quot;m&quot;:&quot;ミシェル&quot;,&quot;n&quot;:[24,0.279571,73,0.283763],&quot;v&quot;:[[&quot;S&quot;,-0.076565,-0.359693,0.206562,&quot;unclear&quot;,9.0,10.0,0.0,0.0,0.0,&quot;unidentified&quot;,9.0,9.0,-0.076565,-0.359693,0.206562,&quot;unclear&quot;,&quot;CC&quot;],[&quot;T&quot;,-0.0,-0.0,0.0,&quot;unidentified&quot;,9.0,9.0,0.410697,0.267957,0.553436,&quot;supported&quot;,8.0,9.0,0.410697,0.267957,0.553436,&quot;suggestive&quot;,&quot;Rohm&quot;],[&quot;P&quot;,-0.053724,-0.276168,0.168721,&quot;unclear&quot;,8.0,9.0,0.295922,0.052859,0.538985,&quot;supported&quot;,7.0,9.0,0.105643,-0.058455,0.269741,&quot;unclear&quot;,&quot;CC+Rohm&quot;],[&quot;St&quot;,0.816012,0.322814,1.309211,&quot;supported&quot;,8.0,10.0,0.201392,-0.029785,0.432569,&quot;suggestive&quot;,8.0,10.0,0.312105,0.102782,0.521427,&quot;supported&quot;,&quot;CC+Rohm&quot;],[&quot;ib&quot;,0.286716,0.180258,0.393174,&quot;supported&quot;,3.0,5.0,0.155136,0.024621,0.285651,&quot;supported&quot;,1.0,6.0,0.234148,0.151653,0.316643,&quot;supported&quot;,&quot;CC+Rohm&quot;],[&quot;ob&quot;,0.00269,-0.312292,0.317671,&quot;unclear&quot;,1.0,7.0,0.244957,0.089234,0.400679,&quot;supported&quot;,1.0,7.0,0.197372,0.057778,0.336967,&quot;supported&quot;,&quot;CC+Rohm&quot;],[&quot;ta&quot;,-0.0,-0.0,0.0,&quot;unidentified&quot;,7.0,7.0,0.0,0.0,0.0,&quot;unidentified&quot;,7.0,7.0,0.0,null,null,&quot;unidentified&quot;,&quot;&quot;],[&quot;oa&quot;,-0.490836,-0.922873,-0.058798,&quot;unidentified&quot;,6.0,7.0,0.0,0.0,0.0,&quot;unidentified&quot;,7.0,7.0,0.0,null,null,&quot;unidentified&quot;,&quot;&quot;]]},{&quot;s&quot;:3,&quot;m&quot;:&quot;ブライ&quot;,&quot;n&quot;:[42,0.116935,75,0.086556],&quot;v&quot;:[[&quot;S&quot;,0.09757,-0.015769,0.210908,&quot;suggestive&quot;,9.0,10.0,0.065156,-0.008902,0.139213,&quot;suggestive&quot;,9.0,10.0,0.074854,0.012858,0.13685,&quot;supported&quot;,&quot;CC+Rohm&quot;],[&quot;T&quot;,-0.229213,-0.476468,0.018043,&quot;suggestive&quot;,7.0,9.0,0.042371,-0.144643,0.229385,&quot;unclear&quot;,7.0,9.0,-0.056458,-0.205613,0.092696,&quot;unclear&quot;,&quot;CC+Rohm&quot;],[&quot;P&quot;,-0.207855,-0.440723,0.025012,&quot;suggestive&quot;,9.0,10.0,0.064851,-0.044935,0.174638,&quot;suggestive&quot;,9.0,10.0,0.01526,-0.084044,0.114563,&quot;unclear&quot;,&quot;CC+Rohm&quot;],[&quot;St&quot;,0.190362,-0.088931,0.469655,&quot;suggestive&quot;,8.0,10.0,0.134898,-0.032538,0.302333,&quot;suggestive&quot;,8.0,10.0,0.149561,0.005955,0.293168,&quot;supported&quot;,&quot;CC+Rohm&quot;],[&quot;ib&quot;,-0.19783,-0.376518,-0.019141,&quot;supported&quot;,-1.0,3.0,0.008258,-0.101658,0.118173,&quot;unclear&quot;,0.0,5.0,-0.048315,-0.141936,0.045306,&quot;unclear&quot;,&quot;CC+Rohm&quot;],[&quot;ob&quot;,-0.086012,-0.240114,0.06809,&quot;suggestive&quot;,-6.0,-2.0,-0.082217,-0.22004,0.055606,&quot;suggestive&quot;,-5.0,0.0,-0.083903,-0.186634,0.018827,&quot;suggestive&quot;,&quot;CC+Rohm&quot;],[&quot;ta&quot;,0.164796,0.005049,0.324543,&quot;supported&quot;,6.0,7.0,0.055129,-0.074698,0.184956,&quot;unclear&quot;,6.0,7.0,0.098751,-0.001999,0.199501,&quot;suggestive&quot;,&quot;CC+Rohm&quot;],[&quot;oa&quot;,-0.0,-0.0,0.0,&quot;unidentified&quot;,7.0,7.0,0.0,0.0,0.0,&quot;unidentified&quot;,7.0,7.0,0.0,null,null,&quot;unidentified&quot;,&quot;&quot;]]},{&quot;s&quot;:4,&quot;m&quot;:&quot;スヴェンソン&quot;,&quot;n&quot;:[35,0.168194,69,0.239938],&quot;v&quot;:[[&quot;S&quot;,-0.050357,-0.144592,0.043877,&quot;suggestive&quot;,7.0,9.0,-0.043427,-0.150655,0.063802,&quot;unclear&quot;,7.0,9.0,-0.047337,-0.118122,0.023447,&quot;suggestive&quot;,&quot;CC+Rohm&quot;],[&quot;T&quot;,0.004084,-0.238508,0.246675,&quot;unclear&quot;,8.0,10.0,0.356369,0.116299,0.596439,&quot;supported&quot;,7.0,10.0,0.182066,0.011427,0.352706,&quot;supported&quot;,&quot;CC+Rohm&quot;],[&quot;P&quot;,0.0,0.0,0.0,&quot;unidentified&quot;,10.0,10.0,0.474736,0.278297,0.671174,&quot;supported&quot;,9.0,10.0,0.474736,0.278297,0.671174,&quot;suggestive&quot;,&quot;Rohm&quot;],[&quot;St&quot;,-0.174624,-0.398322,0.049074,&quot;suggestive&quot;,8.0,10.0,0.161598,0.058047,0.265149,&quot;supported&quot;,8.0,9.0,0.102265,0.008294,0.196237,&quot;unclear&quot;,&quot;CC+Rohm&quot;],[&quot;ib&quot;,0.331843,0.114071,0.549615,&quot;supported&quot;,0.0,6.0,0.09256,-0.066639,0.251759,&quot;suggestive&quot;,0.0,6.0,0.175898,0.047379,0.304418,&quot;supported&quot;,&quot;CC+Rohm&quot;],[&quot;ob&quot;,0.073034,-0.073132,0.2192,&quot;unclear&quot;,-3.0,1.0,0.019758,-0.122336,0.161851,&quot;unclear&quot;,-4.0,1.0,0.045643,-0.056241,0.147528,&quot;unclear&quot;,&quot;CC+Rohm&quot;],[&quot;ta&quot;,-0.0,-0.0,0.0,&quot;unidentified&quot;,7.0,7.0,0.0,0.0,0.0,&quot;unidentified&quot;,7.0,7.0,0.0,null,null,&quot;unidentified&quot;,&quot;&quot;],[&quot;oa&quot;,-0.186643,-0.323113,-0.050173,&quot;supported&quot;,6.0,7.0,0.048961,-0.090897,0.188819,&quot;unclear&quot;,6.0,7.0,-0.071729,-0.169404,0.025945,&quot;unclear&quot;,&quot;CC+Rohm&quot;]]},{&quot;s&quot;:5,&quot;m&quot;:&quot;フランケ&quot;,&quot;n&quot;:[41,0.040309,72,0.072025],&quot;v&quot;:[[&quot;S&quot;,0.003559,-0.093103,0.100221,&quot;unclear&quot;,6.0,9.0,-0.145112,-0.267937,-0.022288,&quot;supported&quot;,7.0,9.0,-0.053304,-0.129263,0.022656,&quot;unclear&quot;,&quot;CC+Rohm&quot;],[&quot;T&quot;,0.067512,-0.094255,0.22928,&quot;unclear&quot;,7.0,9.0,0.052673,-0.173412,0.278758,&quot;unclear&quot;,7.0,9.0,0.062488,-0.069071,0.194047,&quot;unclear&quot;,&quot;CC+Rohm&quot;],[&quot;P&quot;,-0.125939,-0.290948,0.039071,&quot;suggestive&quot;,9.0,10.0,0.271926,0.009186,0.534665,&quot;supported&quot;,9.0,10.0,-0.013399,-0.153135,0.126338,&quot;unclear&quot;,&quot;CC+Rohm&quot;],[&quot;St&quot;,-0.068424,-0.140129,0.00328,&quot;suggestive&quot;,8.0,9.0,-0.01401,-0.138255,0.110234,&quot;unclear&quot;,8.0,9.0,-0.054829,-0.116933,0.007275,&quot;suggestive&quot;,&quot;CC+Rohm&quot;],[&quot;ib&quot;,0.072117,-0.051804,0.196037,&quot;suggestive&quot;,1.0,6.0,0.071664,-0.106821,0.250149,&quot;unclear&quot;,1.0,6.0,0.071969,-0.029823,0.173761,&quot;suggestive&quot;,&quot;CC+Rohm&quot;],[&quot;ob&quot;,0.215168,0.078626,0.351711,&quot;supported&quot;,-5.0,1.0,-0.032756,-0.19633,0.130817,&quot;unclear&quot;,-3.0,2.0,0.113357,0.008535,0.218179,&quot;unclear&quot;,&quot;CC+Rohm&quot;],[&quot;ta&quot;,0.103743,-0.007031,0.214518,&quot;suggestive&quot;,5.0,6.0,0.037035,-0.122567,0.196637,&quot;unclear&quot;,5.0,6.0,0.082056,-0.008947,0.173059,&quot;suggestive&quot;,&quot;CC+Rohm&quot;],[&quot;oa&quot;,0.0,0.0,0.0,&quot;unidentified&quot;,7.0,7.0,-0.0,-0.0,0.0,&quot;unidentified&quot;,7.0,7.0,0.0,null,null,&quot;unidentified&quot;,&quot;&quot;]]},{&quot;s&quot;:6,&quot;m&quot;:&quot;リゼレス&quot;,&quot;n&quot;:[30,0.406727,71,0.308022],&quot;v&quot;:[[&quot;S&quot;,-0.690138,-1.019337,-0.360939,&quot;supported&quot;,9.0,10.0,0.0,0.0,0.0,&quot;unidentified&quot;,9.0,9.0,-0.690138,-1.019337,-0.360939,&quot;suggestive&quot;,&quot;CC&quot;],[&quot;T&quot;,0.060844,-0.192969,0.314658,&quot;unclear&quot;,8.0,9.0,0.251015,0.063581,0.43845,&quot;supported&quot;,8.0,9.0,0.183905,0.033127,0.334683,&quot;supported&quot;,&quot;CC+Rohm&quot;],[&quot;P&quot;,-0.481919,-0.697584,-0.266254,&quot;supported&quot;,8.0,9.0,0.217969,-0.046897,0.482835,&quot;suggestive&quot;,7.0,9.0,-0.202893,-0.370131,-0.035654,&quot;unclear&quot;,&quot;CC+Rohm&quot;],[&quot;St&quot;,0.680831,0.24066,1.121001,&quot;supported&quot;,8.0,10.0,0.378067,0.058892,0.697242,&quot;supported&quot;,7.0,10.0,0.4824,0.224007,0.740793,&quot;supported&quot;,&quot;CC+Rohm&quot;],[&quot;ib&quot;,0.414187,0.12197,0.706403,&quot;supported&quot;,-1.0,4.0,-0.147246,-0.342893,0.048401,&quot;suggestive&quot;,-4.0,3.0,0.026528,-0.136045,0.189101,&quot;unclear&quot;,&quot;CC+Rohm&quot;],[&quot;ob&quot;,-1.361375,-1.754958,-0.967793,&quot;supported&quot;,-1.0,4.0,0.043889,-0.182931,0.27071,&quot;unclear&quot;,-3.0,4.0,-0.306466,-0.502988,-0.109944,&quot;unclear&quot;,&quot;CC+Rohm&quot;],[&quot;ta&quot;,-0.0,-0.0,0.0,&quot;unidentified&quot;,7.0,7.0,0.0,0.0,0.0,&quot;unidentified&quot;,7.0,7.0,0.0,null,null,&quot;unidentified&quot;,&quot;&quot;],[&quot;oa&quot;,0.0,0.0,0.0,&quot;unidentified&quot;,7.0,7.0,0.0,0.0,0.0,&quot;unidentified&quot;,7.0,7.0,0.0,null,null,&quot;unidentified&quot;,&quot;&quot;]]},{&quot;s&quot;:7,&quot;m&quot;:&quot;ヒンデンブルク&quot;,&quot;n&quot;:[43,-0.072128,65,0.070118],&quot;v&quot;:[[&quot;S&quot;,-0.057701,-0.255566,0.140165,&quot;model_not_validated&quot;,7.0,9.0,0.058685,-0.091458,0.208828,&quot;unclear&quot;,8.0,9.0,0.058685,-0.091458,0.208828,&quot;unclear&quot;,&quot;Rohm&quot;],[&quot;T&quot;,-0.006426,-0.212392,0.199539,&quot;model_not_validated&quot;,9.0,10.0,0.211246,0.01859,0.403902,&quot;supported&quot;,9.0,10.0,0.211246,0.01859,0.403902,&quot;suggestive&quot;,&quot;Rohm&quot;],[&quot;P&quot;,0.062525,-0.031521,0.156571,&quot;model_not_validated&quot;,8.0,9.0,0.116657,-0.018449,0.251764,&quot;suggestive&quot;,8.0,9.0,0.116657,-0.018449,0.251764,&quot;suggestive&quot;,&quot;Rohm&quot;],[&quot;St&quot;,-0.005342,-0.103593,0.092909,&quot;model_not_validated&quot;,8.0,9.0,0.253645,-0.032127,0.539417,&quot;suggestive&quot;,8.0,10.0,0.253645,-0.032127,0.539417,&quot;suggestive&quot;,&quot;Rohm&quot;],[&quot;ib&quot;,0.000553,-0.058858,0.059964,&quot;model_not_validated&quot;,-1.0,1.0,-0.022628,-0.165668,0.120412,&quot;unclear&quot;,-2.0,2.0,-0.022628,-0.165668,0.120412,&quot;unclear&quot;,&quot;Rohm&quot;],[&quot;ob&quot;,-0.043651,-0.219377,0.132076,&quot;model_not_validated&quot;,0.0,6.0,-0.03353,-0.237905,0.170844,&quot;unclear&quot;,0.0,5.0,-0.03353,-0.237905,0.170844,&quot;unclear&quot;,&quot;Rohm&quot;],[&quot;ta&quot;,0.071078,-0.022056,0.164212,&quot;model_not_validated&quot;,6.0,7.0,0.06728,-0.083869,0.218428,&quot;unclear&quot;,6.0,7.0,0.06728,-0.083869,0.218428,&quot;unclear&quot;,&quot;Rohm&quot;],[&quot;oa&quot;,0.0,0.0,0.0,&quot;unidentified&quot;,7.0,7.0,0.15489,-0.122525,0.432306,&quot;suggestive&quot;,6.0,7.0,0.15489,-0.122525,0.432306,&quot;suggestive&quot;,&quot;Rohm&quot;]]},{&quot;s&quot;:8,&quot;m&quot;:&quot;ハドルストーン&quot;,&quot;n&quot;:[44,-0.014445,71,0.147367],&quot;v&quot;:[[&quot;S&quot;,0.113073,-0.021764,0.24791,&quot;model_not_validated&quot;,8.0,9.0,0.075462,-0.138702,0.289626,&quot;unclear&quot;,8.0,9.0,0.075462,-0.138702,0.289626,&quot;unclear&quot;,&quot;Rohm&quot;],[&quot;T&quot;,0.0,0.0,0.0,&quot;unidentified&quot;,9.0,9.0,0.101343,-0.077125,0.27981,&quot;suggestive&quot;,8.0,9.0,0.101343,-0.077125,0.27981,&quot;suggestive&quot;,&quot;Rohm&quot;],[&quot;P&quot;,-0.052347,-0.2057,0.101006,&quot;model_not_validated&quot;,9.0,10.0,0.0,0.0,0.0,&quot;unidentified&quot;,9.0,9.0,0.0,null,null,&quot;unidentified&quot;,&quot;&quot;],[&quot;St&quot;,-0.0272,-0.137532,0.083133,&quot;model_not_validated&quot;,9.0,10.0,0.19611,0.044491,0.347729,&quot;supported&quot;,9.0,10.0,0.19611,0.044491,0.347729,&quot;suggestive&quot;,&quot;Rohm&quot;],[&quot;ib&quot;,-0.038959,-0.117757,0.039838,&quot;model_not_validated&quot;,1.0,4.0,0.194926,0.032645,0.357207,&quot;supported&quot;,1.0,6.0,0.194926,0.032645,0.357207,&quot;suggestive&quot;,&quot;Rohm&quot;],[&quot;ob&quot;,-0.042005,-0.17162,0.08761,&quot;model_not_validated&quot;,-2.0,3.0,0.147039,-0.035601,0.329679,&quot;suggestive&quot;,0.0,6.0,0.147039,-0.035601,0.329679,&quot;suggestive&quot;,&quot;Rohm&quot;],[&quot;ta&quot;,0.0,0.0,0.0,&quot;unidentified&quot;,7.0,7.0,0.0,0.0,0.0,&quot;unidentified&quot;,7.0,7.0,0.0,null,null,&quot;unidentified&quot;,&quot;&quot;],[&quot;oa&quot;,-0.131889,-0.28559,0.021812,&quot;model_not_validated&quot;,6.0,7.0,-0.084652,-0.29617,0.126866,&quot;unclear&quot;,6.0,7.0,-0.084652,-0.29617,0.126866,&quot;unclear&quot;,&quot;Rohm&quot;]]},{&quot;s&quot;:9,&quot;m&quot;:&quot;サルチノビッチ&quot;,&quot;n&quot;:[43,0.188928,65,0.074383],&quot;v&quot;:[[&quot;S&quot;,0.20829,-0.034788,0.451369,&quot;suggestive&quot;,9.0,10.0,0.214894,0.005452,0.424337,&quot;supported&quot;,9.0,10.0,0.21208,0.053412,0.370749,&quot;supported&quot;,&quot;CC+Rohm&quot;],[&quot;T&quot;,-0.069609,-0.27422,0.135001,&quot;unclear&quot;,9.0,10.0,0.045832,-0.15915,0.250815,&quot;unclear&quot;,9.0,10.0,-0.011993,-0.156806,0.132819,&quot;unclear&quot;,&quot;CC+Rohm&quot;],[&quot;P&quot;,0.125051,-0.165459,0.415561,&quot;unclear&quot;,8.0,10.0,0.113703,-0.075632,0.303038,&quot;suggestive&quot;,7.0,9.0,0.117086,-0.041535,0.275707,&quot;suggestive&quot;,&quot;CC+Rohm&quot;],[&quot;St&quot;,0.155593,-0.17179,0.482976,&quot;unclear&quot;,8.0,10.0,0.211451,-0.023997,0.446898,&quot;suggestive&quot;,8.0,10.0,0.192409,0.001261,0.383557,&quot;supported&quot;,&quot;CC+Rohm&quot;],[&quot;ib&quot;,0.442797,0.183062,0.702533,&quot;supported&quot;,-4.0,3.0,-0.022297,-0.236976,0.192382,&quot;unclear&quot;,-5.0,2.0,0.166474,0.001,0.331947,&quot;unclear&quot;,&quot;CC+Rohm&quot;],[&quot;ob&quot;,0.05407,-0.190913,0.299054,&quot;unclear&quot;,-6.0,1.0,-0.022081,-0.210202,0.16604,&quot;unclear&quot;,-5.0,2.0,0.006166,-0.14304,0.155372,&quot;unclear&quot;,&quot;CC+Rohm&quot;],[&quot;ta&quot;,0.054161,-0.212129,0.32045,&quot;unclear&quot;,6.0,7.0,0.122205,-0.176167,0.420576,&quot;unclear&quot;,6.0,7.0,0.084329,-0.114344,0.283002,&quot;unclear&quot;,&quot;CC+Rohm&quot;],[&quot;oa&quot;,-0.0,-0.0,0.0,&quot;unidentified&quot;,7.0,7.0,-0.0,-0.0,0.0,&quot;unidentified&quot;,7.0,7.0,0.0,null,null,&quot;unidentified&quot;,&quot;&quot;]]},{&quot;s&quot;:10,&quot;m&quot;:&quot;アベル&quot;,&quot;n&quot;:[55,0.236847,60,0.128354],&quot;v&quot;:[[&quot;S&quot;,-0.041299,-0.153909,0.071311,&quot;unclear&quot;,8.0,9.0,0.0,0.0,0.0,&quot;unidentified&quot;,9.0,9.0,-0.041299,-0.153909,0.071311,&quot;unclear&quot;,&quot;CC&quot;],[&quot;T&quot;,0.0,0.0,0.0,&quot;unidentified&quot;,10.0,10.0,0.0,0.0,0.0,&quot;unidentified&quot;,10.0,10.0,0.0,null,null,&quot;unidentified&quot;,&quot;&quot;],[&quot;P&quot;,-0.213026,-0.346326,-0.079725,&quot;supported&quot;,6.0,8.0,-0.055582,-0.171624,0.060461,&quot;unclear&quot;,7.0,8.0,-0.123458,-0.210983,-0.035934,&quot;supported&quot;,&quot;CC+Rohm&quot;],[&quot;St&quot;,-0.119264,-0.187999,-0.05053,&quot;supported&quot;,7.0,8.0,0.062152,-0.249717,0.374021,&quot;unclear&quot;,7.0,9.0,-0.11086,-0.177984,-0.043737,&quot;unclear&quot;,&quot;CC+Rohm&quot;],[&quot;ib&quot;,-0.190834,-0.324429,-0.057238,&quot;supported&quot;,-12.0,-5.0,-0.240369,-0.530647,0.04991,&quot;suggestive&quot;,-10.0,-4.0,-0.199492,-0.320851,-0.078132,&quot;supported&quot;,&quot;CC+Rohm&quot;],[&quot;ob&quot;,-0.094439,-0.293983,0.105104,&quot;unclear&quot;,-7.0,4.0,0.410176,0.143506,0.676846,&quot;supported&quot;,-2.0,4.0,0.086689,-0.073078,0.246455,&quot;unclear&quot;,&quot;CC+Rohm&quot;],[&quot;ta&quot;,0.0,0.0,0.0,&quot;unidentified&quot;,6.0,6.0,0.0,0.0,0.0,&quot;unidentified&quot;,6.0,6.0,0.0,null,null,&quot;unidentified&quot;,&quot;&quot;],[&quot;oa&quot;,-0.0,-0.0,0.0,&quot;unidentified&quot;,7.0,7.0,0.0,0.0,0.0,&quot;unidentified&quot;,7.0,7.0,0.0,null,null,&quot;unidentified&quot;,&quot;&quot;]]},{&quot;s&quot;:11,&quot;m&quot;:&quot;バウベル&quot;,&quot;n&quot;:[47,0.223495,58,-0.028056],&quot;v&quot;:[[&quot;S&quot;,-0.0,-0.0,0.0,&quot;unidentified&quot;,9.0,9.0,0.0,0.0,0.0,&quot;unidentified&quot;,9.0,9.0,0.0,null,null,&quot;unidentified&quot;,&quot;&quot;],[&quot;T&quot;,0.051631,-0.16782,0.271082,&quot;sensitivity_unstable&quot;,8.0,9.0,0.071085,-0.192285,0.334455,&quot;model_not_validated&quot;,8.0,10.0,0.0,null,null,&quot;unidentified&quot;,&quot;&quot;],[&quot;P&quot;,0.385873,0.156629,0.615118,&quot;supported&quot;,9.0,10.0,0.035673,-0.112638,0.183985,&quot;model_not_validated&quot;,9.0,10.0,0.385873,0.156629,0.615118,&quot;suggestive&quot;,&quot;CC&quot;],[&quot;St&quot;,-0.208198,-0.364051,-0.052344,&quot;supported&quot;,8.0,9.0,0.070507,-0.059732,0.200745,&quot;model_not_validated&quot;,8.0,9.0,-0.208198,-0.364051,-0.052344,&quot;suggestive&quot;,&quot;CC&quot;],[&quot;ib&quot;,0.31958,0.033677,0.605483,&quot;supported&quot;,-6.0,0.0,0.007753,-0.113561,0.129066,&quot;model_not_validated&quot;,-7.0,-1.0,0.31958,0.033677,0.605483,&quot;suggestive&quot;,&quot;CC&quot;],[&quot;ob&quot;,0.225148,0.067539,0.382757,&quot;supported&quot;,-4.0,0.0,0.051505,-0.057725,0.160736,&quot;model_not_validated&quot;,-5.0,0.0,0.225148,0.067539,0.382757,&quot;suggestive&quot;,&quot;CC&quot;],[&quot;ta&quot;,0.0,0.0,0.0,&quot;unidentified&quot;,7.0,7.0,-0.0,-0.0,0.0,&quot;unidentified&quot;,7.0,7.0,0.0,null,null,&quot;unidentified&quot;,&quot;&quot;],[&quot;oa&quot;,0.456932,0.213836,0.700029,&quot;supported&quot;,6.0,7.0,0.09401,-0.071566,0.259586,&quot;model_not_validated&quot;,6.0,7.0,0.456932,0.213836,0.700029,&quot;suggestive&quot;,&quot;CC&quot;]]}];
-  const labels = {S:&quot;S&quot;,T:&quot;T&quot;,P:&quot;P&quot;,St:&quot;スタミナ&quot;,ib:&quot;知性 − 感性&quot;,ob:&quot;組織 − 個人&quot;,ta:&quot;slot位置適正&quot;,oa:&quot;他位置最大適正&quot;};
-  const defs = {
-    cc:{name:&quot;CC&quot;, e:1,l:2,h:3,st:4,q1:5,q3:6,color:&quot;var(--cc)&quot;,offset:-8},
-    rh:{name:&quot;Rohm&quot;,e:7,l:8,h:9,st:10,q1:11,q3:12,color:&quot;var(--rohm)&quot;,offset:8},
-    co:{name:&quot;統合&quot;,e:13,l:14,h:15,st:16,src:17,color:&quot;var(--combined)&quot;,offset:0}
-  };
-  const active = new Set([&quot;cc&quot;,&quot;rh&quot;,&quot;co&quot;]);
+  const DATA = JSON.parse(document.getElementById(&quot;bayern-factor-data&quot;).textContent);
   const root = document.getElementById(&quot;bayern-slot-factor-viz&quot;);
   const select = root.querySelector(&quot;#factor-slot&quot;);
-  const svg = d3.select(root.querySelector(&quot;#factor-chart&quot;));
   const tip = root.querySelector(&quot;#factor-tip&quot;);
-  const model = root.querySelector(&quot;#factor-model&quot;);
-  const summary = root.querySelector(&quot;#factor-summary&quot;);
+  const active = new Set([&quot;cc&quot;, &quot;rh&quot;, &quot;co&quot;]);
+  const defs = {
+    cc: {name:&quot;CC&quot;, color:&quot;var(--cc)&quot;, offset:-8},
+    rh: {name:&quot;Rohm&quot;, color:&quot;var(--rohm)&quot;, offset:8},
+    co: {name:&quot;統合&quot;, color:&quot;var(--combined)&quot;, offset:0}
+  };
+
   DATA.forEach(d =&gt; {
-    const o = document.createElement(&quot;option&quot;);
-    o.value = d.s;
-    o.textContent = &quot;slot &quot; + d.s + &quot; · &quot; + d.m;
-    if (d.s === 5) o.selected = true;
-    select.appendChild(o);
+    const option = document.createElement(&quot;option&quot;);
+    option.value = d.s;
+    option.textContent = &quot;slot &quot; + d.s + &quot; · &quot; + d.m;
+    if (d.s === 5) option.selected = true;
+    select.appendChild(option);
   });
 
-  function r2(v) { return (v &lt; 0 ? &quot;不成立 &quot; : &quot;&quot;) + v.toFixed(2); }
-  function num(v) { return v == null ? &quot;—&quot; : (v &gt;= 0 ? &quot;+&quot; : &quot;&quot;) + v.toFixed(2); }
-  function statusJa(v) {
-    return ({supported:&quot;支持&quot;,suggestive:&quot;示唆&quot;,unclear:&quot;不明&quot;,unidentified:&quot;識別不能&quot;,model_not_validated:&quot;モデル不成立&quot;,sensitivity_unstable:&quot;感度不安定&quot;})[v] || v;
+  function num(value) {
+    return value == null ? &quot;—&quot; : (value &gt;= 0 ? &quot;+&quot; : &quot;&quot;) + value.toFixed(2);
+  }
+  function statusJa(value) {
+    return ({
+      supported:&quot;支持&quot;,
+      suggestive:&quot;示唆&quot;,
+      unclear:&quot;不明&quot;,
+      unidentified:&quot;識別不能&quot;,
+      model_not_validated:&quot;検証不成立&quot;,
+      sensitivity_unstable:&quot;感度不安定&quot;,
+      insufficient_independent_variation:&quot;独立変動不足&quot;
+    })[value] || value;
+  }
+  function sectionSummary(rows) {
+    const supported = rows.filter(row =&gt; row.co.st === &quot;supported&quot;).map(row =&gt; row.label);
+    const suggestive = rows.filter(row =&gt; row.co.st === &quot;suggestive&quot;).map(row =&gt; row.label);
+    if (supported.length) return &quot;支持: &quot; + supported.join(&quot;・&quot;);
+    if (suggestive.length) return &quot;示唆: &quot; + suggestive.join(&quot;・&quot;);
+    if (rows.every(row =&gt; [&quot;unidentified&quot;, &quot;model_not_validated&quot;, &quot;insufficient_independent_variation&quot;].includes(row.co.st))) {
+      return &quot;独立効果を検証できず&quot;;
+    }
+    return &quot;明確な統合要因なし&quot;;
   }
   function showTip(event, row, key) {
-    const d = defs[key];
-    const q = key === &quot;co&quot; ? &quot;&quot; : &quot;&lt;br&gt;&lt;span&gt;観測範囲 &quot; + row[d.q1] + &quot; → &quot; + row[d.q3] + &quot;&lt;/span&gt;&quot;;
-    const src = key === &quot;co&quot; ? &quot;&lt;br&gt;&lt;span&gt;採用: &quot; + (row[d.src] || &quot;なし&quot;) + &quot;&lt;/span&gt;&quot; : &quot;&quot;;
-    tip.innerHTML = &quot;&lt;strong&gt;&quot; + labels[row[0]] + &quot; · &quot; + d.name + &quot;&lt;/strong&gt;&quot; +
-      &quot;効果 &quot; + num(row[d.e]) + &quot; SD&lt;br&gt;&lt;span&gt;95%区間 &quot; + num(row[d.l]) + &quot; ～ &quot; + num(row[d.h]) + &quot;&lt;/span&gt;&quot; +
-      &quot;&lt;br&gt;&lt;span&gt;判定: &quot; + statusJa(row[d.st]) + &quot;&lt;/span&gt;&quot; + q + src;
+    const value = row[key];
+    let detail = &quot;&quot;;
+    if (key === &quot;co&quot;) {
+      detail = &quot;&lt;br&gt;&lt;span&gt;採用: &quot; + (value.src || &quot;なし&quot;) + &quot;&lt;/span&gt;&quot;;
+    } else {
+      detail = &quot;&lt;br&gt;&lt;span&gt;元の観測範囲 &quot; + num(value.q1) + &quot; → &quot; + num(value.q3) + &quot;&lt;/span&gt;&quot; +
+        &quot;&lt;br&gt;&lt;span&gt;独立変動 &quot; + Math.round((value.ir || 0) * 100) + &quot;% ／ held-out R² &quot; + (value.cv == null ? &quot;—&quot; : value.cv.toFixed(2)) + &quot;&lt;/span&gt;&quot;;
+    }
+    tip.innerHTML = &quot;&lt;strong&gt;&quot; + row.label + &quot; · &quot; + defs[key].name + &quot;&lt;/strong&gt;&quot; +
+      &quot;効果 &quot; + num(value.e) + &quot; SD&lt;br&gt;&lt;span&gt;95%区間 &quot; + num(value.l) + &quot; ～ &quot; + num(value.h) + &quot;&lt;/span&gt;&quot; +
+      &quot;&lt;br&gt;&lt;span&gt;判定: &quot; + statusJa(value.st) + &quot;&lt;/span&gt;&quot; + detail;
     const box = root.getBoundingClientRect();
-    const x = Math.min(event.clientX - box.left + 12, box.width - Math.min(250, box.width - 20));
-    const y = Math.max(4, event.clientY - box.top - 20);
-    tip.style.left = Math.max(4, x) + &quot;px&quot;;
-    tip.style.top = y + &quot;px&quot;;
+    const maxLeft = Math.max(4, box.width - Math.min(260, box.width - 16));
+    tip.style.left = Math.min(maxLeft, Math.max(4, event.clientX - box.left + 10)) + &quot;px&quot;;
+    tip.style.top = Math.max(4, event.clientY - box.top - 18) + &quot;px&quot;;
     tip.classList.add(&quot;on&quot;);
   }
   function hideTip() { tip.classList.remove(&quot;on&quot;); }
 
-  function draw() {
-    const datum = DATA.find(d =&gt; d.s === +select.value) || DATA[4];
-    const width = Math.max(280, Math.min(root.clientWidth, window.innerWidth));
-    const mobile = width &lt; 520;
-    const margin = {top:28,right:mobile ? 10 : 20,bottom:44,left:mobile ? 90 : 128};
-    const height = mobile ? 470 : 500;
+  function drawPanel(svgNode, rows, cap, mobile) {
+    const svg = d3.select(svgNode);
+    const width = Math.max(300, Math.min(root.clientWidth, window.innerWidth));
+    const margin = {top:14, right:mobile ? 9 : 18, bottom:42, left:mobile ? 116 : 148};
+    const rowHeight = mobile ? 58 : 62;
+    const height = margin.top + margin.bottom + rows.length * rowHeight;
     const innerW = width - margin.left - margin.right;
     const innerH = height - margin.top - margin.bottom;
-    svg.attr(&quot;viewBox&quot;, &quot;0 0 &quot; + width + &quot; &quot; + height);
+    svg.style(&quot;height&quot;, height + &quot;px&quot;).attr(&quot;viewBox&quot;, &quot;0 0 &quot; + width + &quot; &quot; + height);
     svg.selectAll(&quot;*&quot;).remove();
 
-    model.textContent = &quot;モデル選手: &quot; + datum.m + &quot; ／ CC n=&quot; + datum.n[0] + &quot;・held-out R²=&quot; + r2(datum.n[1]) +
-      &quot; ／ Rohm n=&quot; + datum.n[2] + &quot;・held-out R²=&quot; + r2(datum.n[3]);
-
-    const conflicts = datum.v.filter(r =&gt; r[17] === &quot;CC+Rohm&quot; &amp;&amp; Math.sign(r[1]) !== Math.sign(r[7]) &amp;&amp; r[1] !== 0 &amp;&amp; r[7] !== 0);
-    const supported = datum.v.filter(r =&gt; r[16] === &quot;supported&quot;).map(r =&gt; labels[r[0]]);
-    summary.textContent = supported.length
-      ? &quot;両データを統合して支持: &quot; + supported.join(&quot;・&quot;) + (conflicts.length ? &quot; ／ 逆符号: &quot; + conflicts.map(r =&gt; labels[r[0]]).join(&quot;・&quot;) : &quot;&quot;)
-      : &quot;確定的な統合要因なし&quot; + (conflicts.length ? &quot; ／ CCとRohmで逆符号: &quot; + conflicts.map(r =&gt; labels[r[0]]).join(&quot;・&quot;) : &quot;&quot;);
-
-    const values = [];
-    datum.v.forEach(r =&gt; Object.keys(defs).forEach(k =&gt; {
-      if (!active.has(k)) return;
-      const d = defs[k];
-      if (Number.isFinite(r[d.l])) values.push(Math.abs(r[d.l]));
-      if (Number.isFinite(r[d.h])) values.push(Math.abs(r[d.h]));
-    }));
-    const extent = Math.max(.25, d3.max(values) || .5);
-    const cap = Math.ceil(extent * 5) / 5;
     const x = d3.scaleLinear().domain([-cap, cap]).range([0, innerW]);
-    const y = d3.scaleBand().domain(datum.v.map(r =&gt; r[0])).range([0, innerH]).padding(.30);
+    const y = d3.scaleBand().domain(rows.map(row =&gt; row.f)).range([0, innerH]).padding(.28);
     const g = svg.append(&quot;g&quot;).attr(&quot;transform&quot;, &quot;translate(&quot; + margin.left + &quot;,&quot; + margin.top + &quot;)&quot;);
-
-    g.append(&quot;rect&quot;).attr(&quot;class&quot;,&quot;chart-frame&quot;).attr(&quot;data-chart-frame&quot;,&quot;&quot;)
-      .attr(&quot;x&quot;,0).attr(&quot;y&quot;,0).attr(&quot;width&quot;,innerW).attr(&quot;height&quot;,innerH);
-    g.selectAll(&quot;.row-rule&quot;).data(datum.v).join(&quot;line&quot;)
-      .attr(&quot;class&quot;,&quot;row-rule&quot;).attr(&quot;x1&quot;,0).attr(&quot;x2&quot;,innerW)
-      .attr(&quot;y1&quot;,r =&gt; y(r[0]) + y.bandwidth()/2).attr(&quot;y2&quot;,r =&gt; y(r[0]) + y.bandwidth()/2);
-    g.append(&quot;line&quot;).attr(&quot;class&quot;,&quot;zero&quot;).attr(&quot;x1&quot;,x(0)).attr(&quot;x2&quot;,x(0)).attr(&quot;y1&quot;,0).attr(&quot;y2&quot;,innerH);
-    g.append(&quot;g&quot;).attr(&quot;class&quot;,&quot;axis&quot;).attr(&quot;transform&quot;,&quot;translate(0,&quot; + innerH + &quot;)&quot;)
+    g.append(&quot;rect&quot;).attr(&quot;class&quot;, &quot;chart-frame&quot;).attr(&quot;data-chart-frame&quot;, &quot;&quot;)
+      .attr(&quot;width&quot;, innerW).attr(&quot;height&quot;, innerH);
+    g.selectAll(&quot;.row-rule&quot;).data(rows).join(&quot;line&quot;)
+      .attr(&quot;class&quot;, &quot;row-rule&quot;).attr(&quot;x1&quot;, 0).attr(&quot;x2&quot;, innerW)
+      .attr(&quot;y1&quot;, row =&gt; y(row.f) + y.bandwidth() / 2)
+      .attr(&quot;y2&quot;, row =&gt; y(row.f) + y.bandwidth() / 2);
+    g.append(&quot;line&quot;).attr(&quot;class&quot;, &quot;zero&quot;)
+      .attr(&quot;x1&quot;, x(0)).attr(&quot;x2&quot;, x(0)).attr(&quot;y1&quot;, 0).attr(&quot;y2&quot;, innerH);
+    g.append(&quot;g&quot;).attr(&quot;class&quot;, &quot;axis&quot;).attr(&quot;transform&quot;, &quot;translate(0,&quot; + innerH + &quot;)&quot;)
       .call(d3.axisBottom(x).ticks(mobile ? 3 : 5).tickSize(-innerH).tickFormat(d3.format(&quot;.1f&quot;)))
-      .call(a =&gt; a.selectAll(&quot;.tick line&quot;).attr(&quot;opacity&quot;,d =&gt; d === 0 ? 0 : .55));
-    g.selectAll(&quot;.row-label&quot;).data(datum.v).join(&quot;text&quot;)
-      .attr(&quot;class&quot;,&quot;row-label&quot;).attr(&quot;x&quot;,-8).attr(&quot;y&quot;,r =&gt; y(r[0]) + y.bandwidth()/2 + 4)
-      .attr(&quot;text-anchor&quot;,&quot;end&quot;).text(r =&gt; labels[r[0]]);
+      .call(axis =&gt; axis.selectAll(&quot;.tick line&quot;).attr(&quot;opacity&quot;, value =&gt; value === 0 ? 0 : .55));
+    g.selectAll(&quot;.row-label&quot;).data(rows).join(&quot;text&quot;)
+      .attr(&quot;class&quot;, &quot;row-label&quot;).attr(&quot;x&quot;, -8)
+      .attr(&quot;y&quot;, row =&gt; y(row.f) + y.bandwidth() / 2 + 4)
+      .attr(&quot;text-anchor&quot;, &quot;end&quot;).text(row =&gt; row.label);
 
     Object.keys(defs).forEach(key =&gt; {
       if (!active.has(key)) return;
-      const d = defs[key];
-      const rows = datum.v.filter(r =&gt; Number.isFinite(r[d.e]) &amp;&amp; Number.isFinite(r[d.l]) &amp;&amp; Number.isFinite(r[d.h]) &amp;&amp; r[d.st] !== &quot;unidentified&quot;);
-      const layer = g.append(&quot;g&quot;).attr(&quot;data-series&quot;,key);
-      const marks = layer.selectAll(&quot;g&quot;).data(rows).join(&quot;g&quot;)
-        .attr(&quot;class&quot;,r =&gt; &quot;status-&quot; + r[d.st])
-        .attr(&quot;transform&quot;,r =&gt; &quot;translate(0,&quot; + (y(r[0]) + y.bandwidth()/2 + d.offset) + &quot;)&quot;);
-      marks.append(&quot;line&quot;).attr(&quot;class&quot;,&quot;interval&quot;)
-        .attr(&quot;x1&quot;,r =&gt; x(r[d.l])).attr(&quot;x2&quot;,r =&gt; x(r[d.h]))
-        .attr(&quot;stroke&quot;,d.color);
-      marks.append(&quot;circle&quot;).attr(&quot;class&quot;,&quot;point&quot;).attr(&quot;cx&quot;,r =&gt; x(r[d.e])).attr(&quot;r&quot;, key === &quot;co&quot; ? 4.2 : 3.4)
-        .attr(&quot;fill&quot;,d.color);
-      marks.append(&quot;line&quot;).attr(&quot;x1&quot;,r =&gt; x(r[d.l])).attr(&quot;x2&quot;,r =&gt; x(r[d.h]))
-        .attr(&quot;stroke&quot;,&quot;transparent&quot;).attr(&quot;stroke-width&quot;,32)
-        .style(&quot;pointer-events&quot;,&quot;stroke&quot;)
-        .on(&quot;pointerenter&quot;,(event,r) =&gt; showTip(event,r,key))
-        .on(&quot;pointermove&quot;,(event,r) =&gt; showTip(event,r,key))
-        .on(&quot;pointerleave&quot;,hideTip);
+      const definition = defs[key];
+      const visible = rows.filter(row =&gt; {
+        const value = row[key];
+        return Number.isFinite(value.e) &amp;&amp; Number.isFinite(value.l) &amp;&amp; Number.isFinite(value.h);
+      });
+      const marks = g.append(&quot;g&quot;).attr(&quot;data-series&quot;, key)
+        .selectAll(&quot;g&quot;).data(visible).join(&quot;g&quot;)
+        .attr(&quot;class&quot;, row =&gt; &quot;status-&quot; + row[key].st)
+        .attr(&quot;transform&quot;, row =&gt; &quot;translate(0,&quot; + (y(row.f) + y.bandwidth() / 2 + definition.offset) + &quot;)&quot;);
+      marks.append(&quot;line&quot;).attr(&quot;class&quot;, &quot;interval&quot;)
+        .attr(&quot;x1&quot;, row =&gt; x(row[key].l)).attr(&quot;x2&quot;, row =&gt; x(row[key].h))
+        .attr(&quot;stroke&quot;, definition.color);
+      marks.append(&quot;circle&quot;).attr(&quot;class&quot;, &quot;point&quot;)
+        .attr(&quot;cx&quot;, row =&gt; x(row[key].e)).attr(&quot;r&quot;, key === &quot;co&quot; ? 4.2 : 3.4)
+        .attr(&quot;fill&quot;, definition.color);
+      marks.append(&quot;line&quot;)
+        .attr(&quot;x1&quot;, row =&gt; x(row[key].l)).attr(&quot;x2&quot;, row =&gt; x(row[key].h))
+        .attr(&quot;stroke&quot;, &quot;transparent&quot;).attr(&quot;stroke-width&quot;, 32)
+        .style(&quot;pointer-events&quot;, &quot;stroke&quot;)
+        .on(&quot;pointerenter&quot;, (event, row) =&gt; showTip(event, row, key))
+        .on(&quot;pointermove&quot;, (event, row) =&gt; showTip(event, row, key))
+        .on(&quot;pointerleave&quot;, hideTip);
     });
-    g.append(&quot;text&quot;).attr(&quot;class&quot;,&quot;axis-title&quot;).attr(&quot;data-axis&quot;,&quot;x&quot;)
-      .attr(&quot;x&quot;,innerW/2).attr(&quot;y&quot;,innerH+38).attr(&quot;text-anchor&quot;,&quot;middle&quot;)
-      .attr(&quot;fill&quot;,&quot;var(--muted)&quot;).attr(&quot;font-size&quot;,11).text(&quot;第1四分位 → 第3四分位の推定効果（評価点 SD）&quot;);
-    g.append(&quot;text&quot;).attr(&quot;class&quot;,&quot;axis-title&quot;).attr(&quot;data-axis&quot;,&quot;y&quot;)
-      .attr(&quot;x&quot;,-margin.left+4).attr(&quot;y&quot;,-10).attr(&quot;text-anchor&quot;,&quot;start&quot;)
-      .attr(&quot;fill&quot;,&quot;var(--muted)&quot;).attr(&quot;font-size&quot;,11).text(&quot;パラメータ&quot;);
+    g.append(&quot;text&quot;).attr(&quot;class&quot;, &quot;axis-title&quot;).attr(&quot;data-axis&quot;, &quot;x&quot;)
+      .attr(&quot;x&quot;, innerW / 2).attr(&quot;y&quot;, innerH + 36).attr(&quot;text-anchor&quot;, &quot;middle&quot;)
+      .attr(&quot;fill&quot;, &quot;var(--muted)&quot;).attr(&quot;font-size&quot;, 11)
+      .text(&quot;独立比較幅での推定効果（評価点 SD）&quot;);
   }
 
-  select.addEventListener(&quot;change&quot;,draw);
-  root.querySelectorAll(&quot;.legend button&quot;).forEach(btn =&gt; btn.addEventListener(&quot;click&quot;,() =&gt; {
-    const key = btn.dataset.series;
-    if (active.has(key) &amp;&amp; active.size &gt; 1) active.delete(key); else active.add(key);
-    btn.setAttribute(&quot;aria-pressed&quot;, active.has(key) ? &quot;true&quot; : &quot;false&quot;);
-    draw();
-  }));
-  new ResizeObserver(draw).observe(root);
+  function draw() {
+    const datum = DATA.find(row =&gt; row.s === +select.value) || DATA[0];
+    const allRows = [...datum.sections.stp, ...datum.sections.secondary];
+    const values = [];
+    allRows.forEach(row =&gt; Object.keys(defs).forEach(key =&gt; {
+      if (!active.has(key)) return;
+      if (Number.isFinite(row[key].l)) values.push(Math.abs(row[key].l));
+      if (Number.isFinite(row[key].h)) values.push(Math.abs(row[key].h));
+    }));
+    const cap = Math.ceil(Math.max(.25, d3.max(values) || .5) * 5) / 5;
+    const mobile = root.clientWidth &lt; 520;
+    root.querySelector(&quot;#factor-model&quot;).textContent =
+      &quot;モデル選手: &quot; + datum.m + &quot; ／ CC n=&quot; + datum.n.cc + &quot; ／ Rohm n=&quot; + datum.n.rh +
+      &quot; ／ SS +0.083・CC +0.109補正&quot;;
+    root.querySelector(&quot;#stp-summary&quot;).textContent = sectionSummary(datum.sections.stp);
+    root.querySelector(&quot;#secondary-summary&quot;).textContent = sectionSummary(datum.sections.secondary);
+    drawPanel(root.querySelector(&quot;#stp-chart&quot;), datum.sections.stp, cap, mobile);
+    drawPanel(root.querySelector(&quot;#secondary-chart&quot;), datum.sections.secondary, cap, mobile);
+    const note = root.querySelector(&quot;#position-note&quot;);
+    note.hidden = !datum.note;
+    note.textContent = datum.note ? &quot;slot外適性: &quot; + datum.note : &quot;&quot;;
+  }
+
+  select.addEventListener(&quot;change&quot;, draw);
+  root.querySelectorAll(&quot;.legend button&quot;).forEach(button =&gt; {
+    button.addEventListener(&quot;click&quot;, () =&gt; {
+      const key = button.dataset.series;
+      if (active.has(key) &amp;&amp; active.size &gt; 1) active.delete(key);
+      else active.add(key);
+      button.setAttribute(&quot;aria-pressed&quot;, active.has(key) ? &quot;true&quot; : &quot;false&quot;);
+      draw();
+    });
+  });
+  let frame = 0;
+  new ResizeObserver(() =&gt; {
+    cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(draw);
+  }).observe(root);
   draw();
 })();
 &lt;/script&gt;
