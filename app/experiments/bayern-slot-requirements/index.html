@@ -1008,6 +1008,55 @@ html&gt;body{padding:0}&lt;/style&gt;
 }
 #bayern-slot-factor-viz .plot-wrap { position: relative; width: 100%; }
 #bayern-slot-factor-viz svg { display: block; width: 100%; overflow: visible; }
+#bayern-slot-factor-viz .stp-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-variant-numeric: tabular-nums;
+}
+#bayern-slot-factor-viz .stp-table th,
+#bayern-slot-factor-viz .stp-table td {
+  padding: 7px 6px;
+  border-bottom: 1px solid var(--grid);
+  text-align: right;
+  vertical-align: middle;
+  font-size: 12px;
+}
+#bayern-slot-factor-viz .stp-table th {
+  color: var(--muted);
+  font-weight: 500;
+}
+#bayern-slot-factor-viz .stp-table th:first-child,
+#bayern-slot-factor-viz .stp-table td:first-child {
+  width: 72px;
+  padding-left: 0;
+  text-align: left;
+}
+#bayern-slot-factor-viz .stp-table th:last-child,
+#bayern-slot-factor-viz .stp-table td:last-child {
+  width: 72px;
+  padding-right: 0;
+}
+#bayern-slot-factor-viz .stp-table .numeric-cell { color: var(--ink); font-size: 14px; font-weight: 500; }
+#bayern-slot-factor-viz .stp-table .numeric-cell button {
+  min-width: 52px;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+#bayern-slot-factor-viz .stp-table .series-cc { color: var(--cc); }
+#bayern-slot-factor-viz .stp-table .series-rh { color: var(--rohm); }
+#bayern-slot-factor-viz .stp-table .series-co { color: var(--combined); }
+#bayern-slot-factor-viz .stp-sign-note {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}
 #bayern-slot-factor-viz .row-label { fill: var(--ink); font-size: 11px; font-weight: 600; }
 #bayern-slot-factor-viz .row-status,
 #bayern-slot-factor-viz .endpoint-label,
@@ -1064,7 +1113,7 @@ html&gt;body{padding:0}&lt;/style&gt;
 &lt;section id=&quot;bayern-slot-factor-viz&quot; aria-labelledby=&quot;factor-title&quot;&gt;
   &lt;p class=&quot;eyebrow&quot;&gt;Bayern 2000–01 · partial factor decomposition&lt;/p&gt;
   &lt;h2 id=&quot;factor-title&quot;&gt;slot別パラメータ効果&lt;/h2&gt;
-  &lt;p class=&quot;lede&quot;&gt;左右の言葉が要求方向、中心からの距離が重要度。S/T/Pは総合水準と配分を分離し、スタミナ・知性感性・組織個人はS/T/P調整後に別分析している。&lt;/p&gt;
+  &lt;p class=&quot;lede&quot;&gt;S/T/Pは符号付き数値で影響度を比較。スタミナ・性格軸は左右の言葉が要求方向、中心からの距離が重要度。両者は分けて分析している。&lt;/p&gt;
   &lt;div class=&quot;controls&quot;&gt;
     &lt;label&gt;表示slot
       &lt;select id=&quot;factor-slot&quot; class=&quot;form-select&quot; aria-label=&quot;表示するslot&quot;&gt;&lt;/select&gt;
@@ -1079,12 +1128,10 @@ html&gt;body{padding:0}&lt;/style&gt;
 
   &lt;section class=&quot;analysis-block&quot; aria-labelledby=&quot;stp-title&quot;&gt;
     &lt;div class=&quot;analysis-head&quot;&gt;
-      &lt;h3 id=&quot;stp-title&quot;&gt;S / T / P&lt;/h3&gt;
+      &lt;h3 id=&quot;stp-title&quot;&gt;S / T / P 効果値&lt;/h3&gt;
       &lt;p class=&quot;section-summary&quot; id=&quot;stp-summary&quot;&gt;&lt;/p&gt;
     &lt;/div&gt;
-    &lt;div class=&quot;plot-wrap&quot;&gt;
-      &lt;svg id=&quot;stp-chart&quot; role=&quot;img&quot; aria-label=&quot;S・T・Pの総合水準と配分効果&quot;&gt;&lt;/svg&gt;
-    &lt;/div&gt;
+    &lt;div id=&quot;stp-numbers&quot; aria-live=&quot;polite&quot;&gt;&lt;/div&gt;
   &lt;/section&gt;
 
   &lt;section class=&quot;analysis-block&quot; aria-labelledby=&quot;secondary-title&quot;&gt;
@@ -1098,7 +1145,7 @@ html&gt;body{padding:0}&lt;/style&gt;
   &lt;/section&gt;
 
   &lt;p class=&quot;position-note&quot; id=&quot;position-note&quot; hidden&gt;&lt;/p&gt;
-  &lt;p class=&quot;foot&quot;&gt;点は要因分解後の要求方向。中心から遠いほど評価差との結びつきが強く、薄い点は不確実。95%区間などの詳細は点をタップ。slot外適性は追加的な示唆がある場合だけ表示。&lt;/p&gt;
+  &lt;p class=&quot;foot&quot;&gt;S/T/Pの数値と性格軸の点はいずれも要因分解後の効果。数値または点をタップすると95%区間などを表示。slot外適性は追加的な示唆がある場合だけ表示。&lt;/p&gt;
   &lt;div class=&quot;tooltip&quot; id=&quot;factor-tip&quot; role=&quot;tooltip&quot;&gt;&lt;/div&gt;
 &lt;/section&gt;
 
@@ -1179,6 +1226,15 @@ html&gt;body{padding:0}&lt;/style&gt;
     }
     return &quot;明確な統合要因なし&quot;;
   }
+  function stpNumericSummary(rows) {
+    const names = {core:&quot;総合&quot;, Sd:&quot;S&quot;, Td:&quot;T&quot;, Pd:&quot;P&quot;};
+    const ranked = rows
+      .filter(row =&gt; [&quot;supported&quot;, &quot;suggestive&quot;].includes(row.co.st))
+      .sort((a, b) =&gt; Math.abs(b.co.e) - Math.abs(a.co.e))
+      .slice(0, 2)
+      .map(row =&gt; names[row.f] + &quot; &quot; + num(row.co.e));
+    return ranked.length ? &quot;上位: &quot; + ranked.join(&quot;・&quot;) : &quot;統合効果を検証できず&quot;;
+  }
   function showTip(event, row, key) {
     const value = row[key];
     let detail = &quot;&quot;;
@@ -1199,6 +1255,64 @@ html&gt;body{padding:0}&lt;/style&gt;
     tip.classList.add(&quot;on&quot;);
   }
   function hideTip() { tip.classList.remove(&quot;on&quot;); }
+
+  function drawStpNumbers(container, rows) {
+    rows = rowOrder.stp.map(key =&gt; rows.find(row =&gt; row.f === key)).filter(Boolean);
+    const names = {core:&quot;総合&quot;, Sd:&quot;S&quot;, Td:&quot;T&quot;, Pd:&quot;P&quot;};
+    const series = Object.keys(defs).filter(key =&gt; active.has(key));
+    container.replaceChildren();
+    const table = document.createElement(&quot;table&quot;);
+    table.className = &quot;stp-table&quot;;
+    table.setAttribute(&quot;aria-label&quot;, &quot;S・T・Pの統合効果値&quot;);
+    const thead = document.createElement(&quot;thead&quot;);
+    const headRow = document.createElement(&quot;tr&quot;);
+    [&quot;指標&quot;, ...series.map(key =&gt; defs[key].name), &quot;判定&quot;].forEach(label =&gt; {
+      const th = document.createElement(&quot;th&quot;);
+      th.scope = &quot;col&quot;;
+      th.textContent = label;
+      headRow.appendChild(th);
+    });
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+    const tbody = document.createElement(&quot;tbody&quot;);
+    rows.forEach(row =&gt; {
+      const tr = document.createElement(&quot;tr&quot;);
+      const label = document.createElement(&quot;th&quot;);
+      label.scope = &quot;row&quot;;
+      label.textContent = names[row.f];
+      tr.appendChild(label);
+      series.forEach(key =&gt; {
+        const value = row[key];
+        const td = document.createElement(&quot;td&quot;);
+        td.className = &quot;numeric-cell series-&quot; + key + &quot; status-&quot; + value.st;
+        if (Number.isFinite(value.e) &amp;&amp; !invalidStatuses.has(value.st)) {
+          const button = document.createElement(&quot;button&quot;);
+          button.type = &quot;button&quot;;
+          button.textContent = num(value.e);
+          button.setAttribute(&quot;aria-label&quot;, names[row.f] + &quot; &quot; + defs[key].name + &quot; &quot; + num(value.e) + &quot; SD &quot; + statusJa(value.st));
+          button.addEventListener(&quot;pointerenter&quot;, event =&gt; showTip(event, row, key));
+          button.addEventListener(&quot;pointermove&quot;, event =&gt; showTip(event, row, key));
+          button.addEventListener(&quot;pointerleave&quot;, hideTip);
+          button.addEventListener(&quot;click&quot;, event =&gt; showTip(event, row, key));
+          td.appendChild(button);
+        } else {
+          td.textContent = &quot;—&quot;;
+        }
+        tr.appendChild(td);
+      });
+      const status = document.createElement(&quot;td&quot;);
+      status.className = &quot;status-&quot; + row.co.st;
+      status.textContent = statusJa(row.co.st);
+      tr.appendChild(status);
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    container.appendChild(table);
+    const note = document.createElement(&quot;p&quot;);
+    note.className = &quot;stp-sign-note&quot;;
+    note.textContent = &quot;単位: 評価点 SD。＋は高め／寄り、−は低め／控えめ。数値の絶対値が大きいほど影響が強い。&quot;;
+    container.appendChild(note);
+  }
 
   function drawPanel(svgNode, rows, section, mobile) {
     rows = rowOrder[section].map(key =&gt; rows.find(row =&gt; row.f === key)).filter(Boolean);
@@ -1283,9 +1397,9 @@ html&gt;body{padding:0}&lt;/style&gt;
     root.querySelector(&quot;#factor-model&quot;).textContent =
       &quot;モデル選手: &quot; + datum.m + &quot; ／ CC n=&quot; + datum.n.cc + &quot; ／ Rohm n=&quot; + datum.n.rh +
       &quot; ／ SS +0.083・CC +0.109補正&quot;;
-    root.querySelector(&quot;#stp-summary&quot;).textContent = sectionSummary(datum.sections.stp);
+    root.querySelector(&quot;#stp-summary&quot;).textContent = stpNumericSummary(datum.sections.stp);
     root.querySelector(&quot;#secondary-summary&quot;).textContent = sectionSummary(datum.sections.secondary);
-    drawPanel(root.querySelector(&quot;#stp-chart&quot;), datum.sections.stp, &quot;stp&quot;, mobile);
+    drawStpNumbers(root.querySelector(&quot;#stp-numbers&quot;), datum.sections.stp);
     drawPanel(root.querySelector(&quot;#secondary-chart&quot;), datum.sections.secondary, &quot;secondary&quot;, mobile);
     const note = root.querySelector(&quot;#position-note&quot;);
     note.hidden = !datum.note;
