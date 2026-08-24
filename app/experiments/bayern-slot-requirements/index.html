@@ -915,9 +915,12 @@ html&gt;body{padding:0}&lt;/style&gt;
   --cc: var(--viz-series-1);
   --rohm: var(--viz-series-2);
   --combined: var(--viz-series-3);
-  --speed: var(--viz-series-4);
-  --technique: var(--viz-series-5);
-  --power: var(--viz-series-6);
+  --speed: #76bbff;
+  --technique: #83db71;
+  --power: #ff876f;
+  --speed-fill: linear-gradient(180deg, #4fb2ff 0%, #1f2ea7 100%);
+  --technique-fill: linear-gradient(180deg, #67d847 0%, #1f7d39 100%);
+  --power-fill: linear-gradient(180deg, #ff6542 0%, #b82214 100%);
   position: relative;
   width: 100%;
   max-width: 920px;
@@ -1011,9 +1014,8 @@ html&gt;body{padding:0}&lt;/style&gt;
 }
 #bayern-slot-factor-viz .plot-wrap { position: relative; width: 100%; }
 #bayern-slot-factor-viz svg { display: block; width: 100%; overflow: visible; }
-#bayern-slot-factor-viz .stp-share-row { margin: 10px 0 14px; }
-#bayern-slot-factor-viz .stp-share-head,
-#bayern-slot-factor-viz .stp-share-values {
+#bayern-slot-factor-viz .stp-share-row { margin: 10px 0 16px; }
+#bayern-slot-factor-viz .stp-share-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1021,32 +1023,70 @@ html&gt;body{padding:0}&lt;/style&gt;
 }
 #bayern-slot-factor-viz .stp-share-head { margin-bottom: 5px; font-size: 12px; }
 #bayern-slot-factor-viz .stp-share-status { color: var(--muted); font-size: 11px; }
-#bayern-slot-factor-viz .stp-share-bar {
-  display: flex;
+#bayern-slot-factor-viz .stp-axis-grid {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) 42px;
+  gap: 6px 8px;
+  align-items: center;
   width: 100%;
-  height: 12px;
-  background: var(--grid);
-  overflow: hidden;
 }
-#bayern-slot-factor-viz .stp-share-segment { height: 100%; min-width: 0; }
-#bayern-slot-factor-viz .stp-share-segment[data-feature=&quot;S&quot;] { background: var(--speed); }
-#bayern-slot-factor-viz .stp-share-segment[data-feature=&quot;T&quot;] { background: var(--technique); }
-#bayern-slot-factor-viz .stp-share-segment[data-feature=&quot;P&quot;] { background: var(--power); }
-#bayern-slot-factor-viz .stp-share-values {
-  margin-top: 5px;
-  font-size: 12px;
+#bayern-slot-factor-viz .stp-axis-scale {
+  grid-column: 2;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: -3px;
+  color: var(--muted);
+  font-size: 9px;
   font-variant-numeric: tabular-nums;
 }
-#bayern-slot-factor-viz .stp-share-value {
-  display: inline-flex;
+#bayern-slot-factor-viz .stp-axis-row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) 42px;
+  gap: 8px;
   align-items: center;
-  gap: 5px;
-  color: var(--ink);
 }
-#bayern-slot-factor-viz .stp-share-value i { width: 8px; height: 8px; border-radius: 50%; }
-#bayern-slot-factor-viz .stp-share-value[data-feature=&quot;S&quot;] i { background: var(--speed); }
-#bayern-slot-factor-viz .stp-share-value[data-feature=&quot;T&quot;] i { background: var(--technique); }
-#bayern-slot-factor-viz .stp-share-value[data-feature=&quot;P&quot;] i { background: var(--power); }
+#bayern-slot-factor-viz .stp-axis-label {
+  font-size: 12px;
+  font-weight: 800;
+  text-align: center;
+}
+#bayern-slot-factor-viz .stp-axis-label[data-feature=&quot;S&quot;] { color: var(--speed); }
+#bayern-slot-factor-viz .stp-axis-label[data-feature=&quot;T&quot;] { color: var(--technique); }
+#bayern-slot-factor-viz .stp-axis-label[data-feature=&quot;P&quot;] { color: var(--power); }
+#bayern-slot-factor-viz .stp-axis-track {
+  position: relative;
+  width: 100%;
+  height: 13px;
+  overflow: hidden;
+  background: var(--grid);
+  border-radius: 2px;
+}
+#bayern-slot-factor-viz .stp-axis-track::after {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0,
+    transparent calc(10% - 2px),
+    var(--surface) calc(10% - 2px),
+    var(--surface) 10%
+  );
+  opacity: .62;
+  pointer-events: none;
+  content: &quot;&quot;;
+}
+#bayern-slot-factor-viz .stp-axis-fill { height: 100%; min-width: 0; }
+#bayern-slot-factor-viz .stp-axis-fill[data-feature=&quot;S&quot;] { background: var(--speed-fill); }
+#bayern-slot-factor-viz .stp-axis-fill[data-feature=&quot;T&quot;] { background: var(--technique-fill); }
+#bayern-slot-factor-viz .stp-axis-fill[data-feature=&quot;P&quot;] { background: var(--power-fill); }
+#bayern-slot-factor-viz .stp-axis-value {
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
 #bayern-slot-factor-viz .stp-share-note {
   margin: 2px 0 0;
   color: var(--muted);
@@ -1270,32 +1310,43 @@ html&gt;body{padding:0}&lt;/style&gt;
       status.textContent = baseStatus + sourceDetail;
       head.append(name, status);
       row.appendChild(head);
-      const bar = document.createElement(&quot;div&quot;);
-      bar.className = &quot;stp-share-bar&quot;;
-      bar.setAttribute(&quot;role&quot;, &quot;img&quot;);
-      bar.setAttribute(&quot;aria-label&quot;, defs[key].name + &quot; S &quot; + percentages.S + &quot;% T &quot; + percentages.T + &quot;% P &quot; + percentages.P + &quot;%&quot;);
-      [&quot;S&quot;, &quot;T&quot;, &quot;P&quot;].forEach(feature =&gt; {
-        const segment = document.createElement(&quot;span&quot;);
-        segment.className = &quot;stp-share-segment&quot;;
-        segment.dataset.feature = feature;
-        segment.style.width = (percentages[feature] || 0) + &quot;%&quot;;
-        bar.appendChild(segment);
+      const grid = document.createElement(&quot;div&quot;);
+      grid.className = &quot;stp-axis-grid&quot;;
+      const scale = document.createElement(&quot;div&quot;);
+      scale.className = &quot;stp-axis-scale&quot;;
+      [&quot;0&quot;, &quot;50&quot;, &quot;100%&quot;].forEach(mark =&gt; {
+        const tick = document.createElement(&quot;span&quot;);
+        tick.textContent = mark;
+        scale.appendChild(tick);
       });
-      row.appendChild(bar);
-      const values = document.createElement(&quot;div&quot;);
-      values.className = &quot;stp-share-values&quot;;
+      grid.appendChild(scale);
       [&quot;S&quot;, &quot;T&quot;, &quot;P&quot;].forEach(feature =&gt; {
-        const item = document.createElement(&quot;span&quot;);
-        item.className = &quot;stp-share-value&quot;;
-        item.dataset.feature = feature;
-        const swatch = document.createElement(&quot;i&quot;);
-        swatch.setAttribute(&quot;aria-hidden&quot;, &quot;true&quot;);
-        const text = document.createElement(&quot;span&quot;);
-        text.textContent = feature + &quot; &quot; + (percentages[feature] || 0) + &quot;%&quot;;
-        item.append(swatch, text);
-        values.appendChild(item);
+        const percent = percentages[feature] || 0;
+        const label = document.createElement(&quot;span&quot;);
+        label.className = &quot;stp-axis-label&quot;;
+        label.dataset.feature = feature;
+        label.textContent = feature;
+        const track = document.createElement(&quot;div&quot;);
+        track.className = &quot;stp-axis-track&quot;;
+        track.setAttribute(&quot;role&quot;, &quot;progressbar&quot;);
+        track.setAttribute(&quot;aria-label&quot;, defs[key].name + &quot; &quot; + feature + &quot; 寄与度&quot;);
+        track.setAttribute(&quot;aria-valuemin&quot;, &quot;0&quot;);
+        track.setAttribute(&quot;aria-valuemax&quot;, &quot;100&quot;);
+        track.setAttribute(&quot;aria-valuenow&quot;, String(percent));
+        const fill = document.createElement(&quot;div&quot;);
+        fill.className = &quot;stp-axis-fill&quot;;
+        fill.dataset.feature = feature;
+        fill.style.width = percent + &quot;%&quot;;
+        track.appendChild(fill);
+        const number = document.createElement(&quot;span&quot;);
+        number.className = &quot;stp-axis-value&quot;;
+        number.textContent = percent + &quot;%&quot;;
+        const axisRow = document.createElement(&quot;div&quot;);
+        axisRow.className = &quot;stp-axis-row&quot;;
+        axisRow.append(label, track, number);
+        grid.appendChild(axisRow);
       });
-      row.appendChild(values);
+      row.appendChild(grid);
       container.appendChild(row);
     });
     const note = document.createElement(&quot;p&quot;);
