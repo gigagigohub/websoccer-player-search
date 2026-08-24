@@ -5,18 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src 'unsafe-inline' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
-<title>Bayern 2000-01 Slot Parameter Effects v2</title>
+<title>Bayern Slot Factor Effects</title>
 <style>:root{color-scheme:light dark;background:light-dark(rgb(255 255 255), rgb(24 24 24))}html,body{margin:0}body{box-sizing:border-box;padding:1rem;background:inherit}iframe{display:block;width:100%;height:calc(100vh - 2rem);margin:0 auto;border:0}</style>
 </head>
 <body>
-<iframe sandbox="allow-scripts" referrerpolicy="no-referrer" title="Bayern 2000-01 Slot Parameter Effects v2" srcdoc="&lt;!doctype html&gt;
+<iframe sandbox="allow-scripts" referrerpolicy="no-referrer" title="Bayern Slot Factor Effects" srcdoc="&lt;!doctype html&gt;
 &lt;html lang=&quot;en&quot;&gt;
 &lt;head&gt;
 &lt;meta charset=&quot;utf-8&quot;&gt;
 &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
 &lt;meta name=&quot;referrer&quot; content=&quot;no-referrer&quot;&gt;
 &lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src &#x27;none&#x27;; script-src &#x27;unsafe-inline&#x27; &#x27;unsafe-eval&#x27; &#x27;wasm-unsafe-eval&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src &#x27;unsafe-inline&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src &#x27;none&#x27;; object-src &#x27;none&#x27;; base-uri &#x27;none&#x27;; form-action &#x27;none&#x27;&quot;&gt;
-&lt;title&gt;Bayern 2000-01 Slot Parameter Effects v2&lt;/title&gt;
+&lt;title&gt;Bayern Slot Factor Effects&lt;/title&gt;
 &lt;style&gt;:root {
   color-scheme: light dark;
   background-color: var(
@@ -1008,14 +1008,12 @@ html&gt;body{padding:0}&lt;/style&gt;
 }
 #bayern-slot-factor-viz .plot-wrap { position: relative; width: 100%; }
 #bayern-slot-factor-viz svg { display: block; width: 100%; overflow: visible; }
-#bayern-slot-factor-viz .axis text,
-#bayern-slot-factor-viz .row-label { fill: var(--muted); font-size: 11px; }
-#bayern-slot-factor-viz .axis path { display: none; }
-#bayern-slot-factor-viz .axis line { stroke: var(--grid); }
+#bayern-slot-factor-viz .row-label { fill: var(--ink); font-size: 11px; font-weight: 600; }
+#bayern-slot-factor-viz .row-status,
+#bayern-slot-factor-viz .endpoint-label,
+#bayern-slot-factor-viz .axis-title { fill: var(--muted); font-size: 10px; }
 #bayern-slot-factor-viz .zero { stroke: var(--ink); stroke-width: 1.1; opacity: .58; }
-#bayern-slot-factor-viz .row-rule { stroke: var(--grid); stroke-width: 1; opacity: .65; }
-#bayern-slot-factor-viz .chart-frame { fill: none; stroke: var(--grid); stroke-width: 1; }
-#bayern-slot-factor-viz .interval { stroke-width: 2; stroke-linecap: round; }
+#bayern-slot-factor-viz .direction-track { stroke: var(--grid); stroke-width: 2; stroke-linecap: round; }
 #bayern-slot-factor-viz .point { stroke: var(--surface); stroke-width: 1.5; }
 #bayern-slot-factor-viz .status-unclear { opacity: .46; }
 #bayern-slot-factor-viz .status-suggestive { opacity: .78; }
@@ -1066,14 +1064,14 @@ html&gt;body{padding:0}&lt;/style&gt;
 &lt;section id=&quot;bayern-slot-factor-viz&quot; aria-labelledby=&quot;factor-title&quot;&gt;
   &lt;p class=&quot;eyebrow&quot;&gt;Bayern 2000–01 · partial factor decomposition&lt;/p&gt;
   &lt;h2 id=&quot;factor-title&quot;&gt;slot別パラメータ効果&lt;/h2&gt;
-  &lt;p class=&quot;lede&quot;&gt;S/T/Pは総合水準と配分を分離。スタミナ・知性感性・組織個人はS/T/P調整後に別分析。対象slot適性は調整だけ行い、評価項目にはしない。&lt;/p&gt;
+  &lt;p class=&quot;lede&quot;&gt;左右の言葉が要求方向、中心からの距離が重要度。S/T/Pは総合水準と配分を分離し、スタミナ・知性感性・組織個人はS/T/P調整後に別分析している。&lt;/p&gt;
   &lt;div class=&quot;controls&quot;&gt;
     &lt;label&gt;表示slot
       &lt;select id=&quot;factor-slot&quot; class=&quot;form-select&quot; aria-label=&quot;表示するslot&quot;&gt;&lt;/select&gt;
     &lt;/label&gt;
     &lt;div class=&quot;legend&quot; aria-label=&quot;表示系列&quot;&gt;
-      &lt;button type=&quot;button&quot; data-series=&quot;cc&quot; aria-pressed=&quot;true&quot;&gt;&lt;i class=&quot;swatch&quot; style=&quot;--swatch:var(--cc)&quot;&gt;&lt;/i&gt;CC&lt;/button&gt;
-      &lt;button type=&quot;button&quot; data-series=&quot;rh&quot; aria-pressed=&quot;true&quot;&gt;&lt;i class=&quot;swatch&quot; style=&quot;--swatch:var(--rohm)&quot;&gt;&lt;/i&gt;Rohm&lt;/button&gt;
+      &lt;button type=&quot;button&quot; data-series=&quot;cc&quot; aria-pressed=&quot;false&quot;&gt;&lt;i class=&quot;swatch&quot; style=&quot;--swatch:var(--cc)&quot;&gt;&lt;/i&gt;CC&lt;/button&gt;
+      &lt;button type=&quot;button&quot; data-series=&quot;rh&quot; aria-pressed=&quot;false&quot;&gt;&lt;i class=&quot;swatch&quot; style=&quot;--swatch:var(--rohm)&quot;&gt;&lt;/i&gt;Rohm&lt;/button&gt;
       &lt;button type=&quot;button&quot; data-series=&quot;co&quot; aria-pressed=&quot;true&quot;&gt;&lt;i class=&quot;swatch&quot; style=&quot;--swatch:var(--combined)&quot;&gt;&lt;/i&gt;統合&lt;/button&gt;
     &lt;/div&gt;
   &lt;/div&gt;
@@ -1100,7 +1098,7 @@ html&gt;body{padding:0}&lt;/style&gt;
   &lt;/section&gt;
 
   &lt;p class=&quot;position-note&quot; id=&quot;position-note&quot; hidden&gt;&lt;/p&gt;
-  &lt;p class=&quot;foot&quot;&gt;横軸は独立に比較できた範囲での評価点標準偏差。正は高い値・その配分が有利、負は低い値・逆配分が有利。薄い点は不確実。slot外適性は追加的な示唆がある場合だけ表示。&lt;/p&gt;
+  &lt;p class=&quot;foot&quot;&gt;点は要因分解後の要求方向。中心から遠いほど評価差との結びつきが強く、薄い点は不確実。95%区間などの詳細は点をタップ。slot外適性は追加的な示唆がある場合だけ表示。&lt;/p&gt;
   &lt;div class=&quot;tooltip&quot; id=&quot;factor-tip&quot; role=&quot;tooltip&quot;&gt;&lt;/div&gt;
 &lt;/section&gt;
 
@@ -1111,12 +1109,28 @@ html&gt;body{padding:0}&lt;/style&gt;
   const root = document.getElementById(&quot;bayern-slot-factor-viz&quot;);
   const select = root.querySelector(&quot;#factor-slot&quot;);
   const tip = root.querySelector(&quot;#factor-tip&quot;);
-  const active = new Set([&quot;cc&quot;, &quot;rh&quot;, &quot;co&quot;]);
+  const active = new Set([&quot;co&quot;]);
   const defs = {
-    cc: {name:&quot;CC&quot;, color:&quot;var(--cc)&quot;, offset:-8},
-    rh: {name:&quot;Rohm&quot;, color:&quot;var(--rohm)&quot;, offset:8},
+    cc: {name:&quot;CC&quot;, color:&quot;var(--cc)&quot;, offset:-6},
+    rh: {name:&quot;Rohm&quot;, color:&quot;var(--rohm)&quot;, offset:6},
     co: {name:&quot;統合&quot;, color:&quot;var(--combined)&quot;, offset:0}
   };
+  const rowMeta = {
+    core:{center:&quot;S/T/P総合&quot;, left:&quot;低め&quot;, right:&quot;高め&quot;},
+    Sd:{center:&quot;S配分&quot;, left:&quot;S控えめ&quot;, right:&quot;S寄り&quot;},
+    Td:{center:&quot;T配分&quot;, left:&quot;T控えめ&quot;, right:&quot;T寄り&quot;},
+    Pd:{center:&quot;P配分&quot;, left:&quot;P控えめ&quot;, right:&quot;P寄り&quot;},
+    St:{center:&quot;スタミナ&quot;, left:&quot;低め&quot;, right:&quot;高め&quot;},
+    ib:{center:&quot;知性・感性&quot;, left:&quot;感性&quot;, right:&quot;知性&quot;},
+    ob:{center:&quot;組織・個人&quot;, left:&quot;個人&quot;, right:&quot;組織&quot;}
+  };
+  const rowOrder = {
+    stp:[&quot;core&quot;, &quot;Sd&quot;, &quot;Td&quot;, &quot;Pd&quot;],
+    secondary:[&quot;St&quot;, &quot;ib&quot;, &quot;ob&quot;]
+  };
+  const invalidStatuses = new Set([
+    &quot;unidentified&quot;, &quot;model_not_validated&quot;, &quot;sensitivity_unstable&quot;, &quot;insufficient_independent_variation&quot;
+  ]);
 
   DATA.forEach(d =&gt; {
     const option = document.createElement(&quot;option&quot;);
@@ -1140,11 +1154,26 @@ html&gt;body{padding:0}&lt;/style&gt;
       insufficient_independent_variation:&quot;独立変動不足&quot;
     })[value] || value;
   }
+  function directionText(row, value) {
+    const meta = rowMeta[row.f];
+    if (!meta || !value || invalidStatuses.has(value.st)) return &quot;判定不可&quot;;
+    if (Math.abs(value.e) &lt; .01) return &quot;ほぼ中立&quot;;
+    const direction = value.e &lt; 0 ? meta.left : meta.right;
+    if (row.f === &quot;core&quot;) return &quot;S/T/P&quot; + direction;
+    if (row.f === &quot;St&quot;) return &quot;スタミナ&quot; + direction;
+    return row.f === &quot;ib&quot; || row.f === &quot;ob&quot; ? direction + &quot;寄り&quot; : direction;
+  }
   function sectionSummary(rows) {
-    const supported = rows.filter(row =&gt; row.co.st === &quot;supported&quot;).map(row =&gt; row.label);
-    const suggestive = rows.filter(row =&gt; row.co.st === &quot;suggestive&quot;).map(row =&gt; row.label);
-    if (supported.length) return &quot;支持: &quot; + supported.join(&quot;・&quot;);
-    if (suggestive.length) return &quot;示唆: &quot; + suggestive.join(&quot;・&quot;);
+    const byStrength = status =&gt; rows
+      .filter(row =&gt; row.co.st === status)
+      .sort((a, b) =&gt; Math.abs(b.co.e) - Math.abs(a.co.e))
+      .map(row =&gt; directionText(row, row.co));
+    const supported = byStrength(&quot;supported&quot;);
+    const suggestive = byStrength(&quot;suggestive&quot;);
+    const parts = [];
+    if (supported.length) parts.push(supported.join(&quot;・&quot;) + &quot;（支持）&quot;);
+    if (suggestive.length) parts.push(suggestive.join(&quot;・&quot;) + &quot;（示唆）&quot;);
+    if (parts.length) return parts.join(&quot; ／ &quot;);
     if (rows.every(row =&gt; [&quot;unidentified&quot;, &quot;model_not_validated&quot;, &quot;insufficient_independent_variation&quot;].includes(row.co.st))) {
       return &quot;独立効果を検証できず&quot;;
     }
@@ -1160,7 +1189,8 @@ html&gt;body{padding:0}&lt;/style&gt;
         &quot;&lt;br&gt;&lt;span&gt;独立変動 &quot; + Math.round((value.ir || 0) * 100) + &quot;% ／ held-out R² &quot; + (value.cv == null ? &quot;—&quot; : value.cv.toFixed(2)) + &quot;&lt;/span&gt;&quot;;
     }
     tip.innerHTML = &quot;&lt;strong&gt;&quot; + row.label + &quot; · &quot; + defs[key].name + &quot;&lt;/strong&gt;&quot; +
-      &quot;効果 &quot; + num(value.e) + &quot; SD&lt;br&gt;&lt;span&gt;95%区間 &quot; + num(value.l) + &quot; ～ &quot; + num(value.h) + &quot;&lt;/span&gt;&quot; +
+      &quot;方向: &quot; + directionText(row, value) + &quot;&lt;br&gt;&lt;span&gt;効果 &quot; + num(value.e) + &quot; SD&lt;/span&gt;&quot; +
+      &quot;&lt;br&gt;&lt;span&gt;95%区間 &quot; + num(value.l) + &quot; ～ &quot; + num(value.h) + &quot;&lt;/span&gt;&quot; +
       &quot;&lt;br&gt;&lt;span&gt;判定: &quot; + statusJa(value.st) + &quot;&lt;/span&gt;&quot; + detail;
     const box = root.getBoundingClientRect();
     const maxLeft = Math.max(4, box.width - Math.min(260, box.width - 16));
@@ -1170,85 +1200,93 @@ html&gt;body{padding:0}&lt;/style&gt;
   }
   function hideTip() { tip.classList.remove(&quot;on&quot;); }
 
-  function drawPanel(svgNode, rows, cap, mobile) {
+  function drawPanel(svgNode, rows, section, mobile) {
+    rows = rowOrder[section].map(key =&gt; rows.find(row =&gt; row.f === key)).filter(Boolean);
     const svg = d3.select(svgNode);
     const width = Math.max(300, Math.min(root.clientWidth, window.innerWidth));
-    const margin = {top:14, right:mobile ? 9 : 18, bottom:42, left:mobile ? 116 : 148};
-    const rowHeight = mobile ? 58 : 62;
+    const margin = {top:4, right:mobile ? 8 : 14, bottom:28, left:mobile ? 86 : 112};
+    const rowHeight = mobile ? 62 : 66;
     const height = margin.top + margin.bottom + rows.length * rowHeight;
     const innerW = width - margin.left - margin.right;
     const innerH = height - margin.top - margin.bottom;
     svg.style(&quot;height&quot;, height + &quot;px&quot;).attr(&quot;viewBox&quot;, &quot;0 0 &quot; + width + &quot; &quot; + height);
     svg.selectAll(&quot;*&quot;).remove();
 
-    const x = d3.scaleLinear().domain([-cap, cap]).range([0, innerW]);
-    const y = d3.scaleBand().domain(rows.map(row =&gt; row.f)).range([0, innerH]).padding(.28);
+    const values = [];
+    rows.forEach(row =&gt; Object.keys(defs).forEach(key =&gt; {
+      if (active.has(key) &amp;&amp; Number.isFinite(row[key].e) &amp;&amp; !invalidStatuses.has(row[key].st)) {
+        values.push(Math.abs(row[key].e));
+      }
+    }));
+    const cap = Math.max(.1, Math.ceil((d3.max(values) || .1) * 20) / 20);
+    const x = d3.scaleLinear().domain([-cap, cap]).range([6, innerW - 6]);
+    const y = d3.scaleBand().domain(rows.map(row =&gt; row.f)).range([0, innerH]).padding(.08);
     const g = svg.append(&quot;g&quot;).attr(&quot;transform&quot;, &quot;translate(&quot; + margin.left + &quot;,&quot; + margin.top + &quot;)&quot;);
-    g.append(&quot;rect&quot;).attr(&quot;class&quot;, &quot;chart-frame&quot;).attr(&quot;data-chart-frame&quot;, &quot;&quot;)
-      .attr(&quot;width&quot;, innerW).attr(&quot;height&quot;, innerH);
-    g.selectAll(&quot;.row-rule&quot;).data(rows).join(&quot;line&quot;)
-      .attr(&quot;class&quot;, &quot;row-rule&quot;).attr(&quot;x1&quot;, 0).attr(&quot;x2&quot;, innerW)
-      .attr(&quot;y1&quot;, row =&gt; y(row.f) + y.bandwidth() / 2)
-      .attr(&quot;y2&quot;, row =&gt; y(row.f) + y.bandwidth() / 2);
+    const trackY = row =&gt; y(row.f) + y.bandwidth() / 2 + 11;
+    g.selectAll(&quot;.direction-track&quot;).data(rows).join(&quot;line&quot;)
+      .attr(&quot;class&quot;, &quot;direction-track&quot;).attr(&quot;x1&quot;, 6).attr(&quot;x2&quot;, innerW - 6)
+      .attr(&quot;y1&quot;, trackY).attr(&quot;y2&quot;, trackY);
     g.append(&quot;line&quot;).attr(&quot;class&quot;, &quot;zero&quot;)
       .attr(&quot;x1&quot;, x(0)).attr(&quot;x2&quot;, x(0)).attr(&quot;y1&quot;, 0).attr(&quot;y2&quot;, innerH);
-    g.append(&quot;g&quot;).attr(&quot;class&quot;, &quot;axis&quot;).attr(&quot;transform&quot;, &quot;translate(0,&quot; + innerH + &quot;)&quot;)
-      .call(d3.axisBottom(x).ticks(mobile ? 3 : 5).tickSize(-innerH).tickFormat(d3.format(&quot;.1f&quot;)))
-      .call(axis =&gt; axis.selectAll(&quot;.tick line&quot;).attr(&quot;opacity&quot;, value =&gt; value === 0 ? 0 : .55));
     g.selectAll(&quot;.row-label&quot;).data(rows).join(&quot;text&quot;)
       .attr(&quot;class&quot;, &quot;row-label&quot;).attr(&quot;x&quot;, -8)
-      .attr(&quot;y&quot;, row =&gt; y(row.f) + y.bandwidth() / 2 + 4)
-      .attr(&quot;text-anchor&quot;, &quot;end&quot;).text(row =&gt; row.label);
+      .attr(&quot;y&quot;, row =&gt; y(row.f) + y.bandwidth() / 2 - 6)
+      .attr(&quot;text-anchor&quot;, &quot;end&quot;).text(row =&gt; rowMeta[row.f].center);
+    g.selectAll(&quot;.row-status&quot;).data(rows).join(&quot;text&quot;)
+      .attr(&quot;class&quot;, row =&gt; &quot;row-status status-&quot; + row.co.st).attr(&quot;x&quot;, -8)
+      .attr(&quot;y&quot;, row =&gt; y(row.f) + y.bandwidth() / 2 + 11)
+      .attr(&quot;text-anchor&quot;, &quot;end&quot;).text(row =&gt; statusJa(row.co.st));
+    g.selectAll(&quot;.endpoint-left&quot;).data(rows).join(&quot;text&quot;)
+      .attr(&quot;class&quot;, &quot;endpoint-label endpoint-left&quot;).attr(&quot;x&quot;, 0)
+      .attr(&quot;y&quot;, row =&gt; y(row.f) + y.bandwidth() / 2 - 6)
+      .attr(&quot;text-anchor&quot;, &quot;start&quot;).text(row =&gt; rowMeta[row.f].left);
+    g.selectAll(&quot;.endpoint-right&quot;).data(rows).join(&quot;text&quot;)
+      .attr(&quot;class&quot;, &quot;endpoint-label endpoint-right&quot;).attr(&quot;x&quot;, innerW)
+      .attr(&quot;y&quot;, row =&gt; y(row.f) + y.bandwidth() / 2 - 6)
+      .attr(&quot;text-anchor&quot;, &quot;end&quot;).text(row =&gt; rowMeta[row.f].right);
 
     Object.keys(defs).forEach(key =&gt; {
       if (!active.has(key)) return;
       const definition = defs[key];
       const visible = rows.filter(row =&gt; {
         const value = row[key];
-        return Number.isFinite(value.e) &amp;&amp; Number.isFinite(value.l) &amp;&amp; Number.isFinite(value.h);
+        return Number.isFinite(value.e) &amp;&amp; !invalidStatuses.has(value.st);
       });
       const marks = g.append(&quot;g&quot;).attr(&quot;data-series&quot;, key)
         .selectAll(&quot;g&quot;).data(visible).join(&quot;g&quot;)
         .attr(&quot;class&quot;, row =&gt; &quot;status-&quot; + row[key].st)
-        .attr(&quot;transform&quot;, row =&gt; &quot;translate(0,&quot; + (y(row.f) + y.bandwidth() / 2 + definition.offset) + &quot;)&quot;);
-      marks.append(&quot;line&quot;).attr(&quot;class&quot;, &quot;interval&quot;)
-        .attr(&quot;x1&quot;, row =&gt; x(row[key].l)).attr(&quot;x2&quot;, row =&gt; x(row[key].h))
-        .attr(&quot;stroke&quot;, definition.color);
+        .attr(&quot;transform&quot;, row =&gt; &quot;translate(0,&quot; + (trackY(row) + definition.offset) + &quot;)&quot;);
       marks.append(&quot;circle&quot;).attr(&quot;class&quot;, &quot;point&quot;)
         .attr(&quot;cx&quot;, row =&gt; x(row[key].e)).attr(&quot;r&quot;, key === &quot;co&quot; ? 4.2 : 3.4)
         .attr(&quot;fill&quot;, definition.color);
-      marks.append(&quot;line&quot;)
-        .attr(&quot;x1&quot;, row =&gt; x(row[key].l)).attr(&quot;x2&quot;, row =&gt; x(row[key].h))
-        .attr(&quot;stroke&quot;, &quot;transparent&quot;).attr(&quot;stroke-width&quot;, 32)
-        .style(&quot;pointer-events&quot;, &quot;stroke&quot;)
+      marks.append(&quot;circle&quot;).attr(&quot;data-hit&quot;, &quot;&quot;)
+        .attr(&quot;cx&quot;, row =&gt; x(row[key].e)).attr(&quot;r&quot;, 18)
+        .attr(&quot;fill&quot;, &quot;transparent&quot;).style(&quot;cursor&quot;, &quot;pointer&quot;)
+        .attr(&quot;tabindex&quot;, 0)
+        .attr(&quot;aria-label&quot;, row =&gt; row.label + &quot; &quot; + defs[key].name + &quot; &quot; + directionText(row, row[key]) + &quot; &quot; + statusJa(row[key].st))
         .on(&quot;pointerenter&quot;, (event, row) =&gt; showTip(event, row, key))
         .on(&quot;pointermove&quot;, (event, row) =&gt; showTip(event, row, key))
-        .on(&quot;pointerleave&quot;, hideTip);
+        .on(&quot;pointerleave&quot;, hideTip)
+        .on(&quot;click&quot;, (event, row) =&gt; { event.stopPropagation(); showTip(event, row, key); })
+        .on(&quot;keydown&quot;, (event, row) =&gt; {
+          if (event.key === &quot;Enter&quot; || event.key === &quot; &quot;) showTip(event, row, key);
+        });
     });
     g.append(&quot;text&quot;).attr(&quot;class&quot;, &quot;axis-title&quot;).attr(&quot;data-axis&quot;, &quot;x&quot;)
-      .attr(&quot;x&quot;, innerW / 2).attr(&quot;y&quot;, innerH + 36).attr(&quot;text-anchor&quot;, &quot;middle&quot;)
-      .attr(&quot;fill&quot;, &quot;var(--muted)&quot;).attr(&quot;font-size&quot;, 11)
-      .text(&quot;独立比較幅での推定効果（評価点 SD）&quot;);
+      .attr(&quot;x&quot;, innerW / 2).attr(&quot;y&quot;, innerH + 22).attr(&quot;text-anchor&quot;, &quot;middle&quot;)
+      .text(&quot;← 要求方向 ｜ 中心から遠いほど重要度が高い →&quot;);
   }
 
   function draw() {
     const datum = DATA.find(row =&gt; row.s === +select.value) || DATA[0];
-    const allRows = [...datum.sections.stp, ...datum.sections.secondary];
-    const values = [];
-    allRows.forEach(row =&gt; Object.keys(defs).forEach(key =&gt; {
-      if (!active.has(key)) return;
-      if (Number.isFinite(row[key].l)) values.push(Math.abs(row[key].l));
-      if (Number.isFinite(row[key].h)) values.push(Math.abs(row[key].h));
-    }));
-    const cap = Math.ceil(Math.max(.25, d3.max(values) || .5) * 5) / 5;
     const mobile = root.clientWidth &lt; 520;
     root.querySelector(&quot;#factor-model&quot;).textContent =
       &quot;モデル選手: &quot; + datum.m + &quot; ／ CC n=&quot; + datum.n.cc + &quot; ／ Rohm n=&quot; + datum.n.rh +
       &quot; ／ SS +0.083・CC +0.109補正&quot;;
     root.querySelector(&quot;#stp-summary&quot;).textContent = sectionSummary(datum.sections.stp);
     root.querySelector(&quot;#secondary-summary&quot;).textContent = sectionSummary(datum.sections.secondary);
-    drawPanel(root.querySelector(&quot;#stp-chart&quot;), datum.sections.stp, cap, mobile);
-    drawPanel(root.querySelector(&quot;#secondary-chart&quot;), datum.sections.secondary, cap, mobile);
+    drawPanel(root.querySelector(&quot;#stp-chart&quot;), datum.sections.stp, &quot;stp&quot;, mobile);
+    drawPanel(root.querySelector(&quot;#secondary-chart&quot;), datum.sections.secondary, &quot;secondary&quot;, mobile);
     const note = root.querySelector(&quot;#position-note&quot;);
     note.hidden = !datum.note;
     note.textContent = datum.note ? &quot;slot外適性: &quot; + datum.note : &quot;&quot;;
