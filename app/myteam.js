@@ -2706,18 +2706,10 @@ function remainingBadgeHtml(remain) {
 
 function getSuccessorDisplaySeason(entry) {
   const successor = normalizeSuccessor(entry?.successor);
-  if (!successor) return null;
-  const successorPlayer = players.find((x) => x.id === successor.playerId);
-  if (!successorPlayer) return successor.season || null;
-
-  const currentPlayerId = Number(entry?.playerId);
-  const currentPlayer = Number.isInteger(currentPlayerId) ? players.find((x) => x.id === currentPlayerId) : null;
-  const currentSeason = entry?.season || null;
-  const currentRemaining = currentPlayer ? getRemainingPeakPeriods(currentPlayer, currentSeason) : 0;
-  return shiftSeasonForEntry(successorPlayer, successor.season || null, Math.max(0, currentRemaining));
+  return successor?.season || null;
 }
 
-function successorSummaryHtml(entry, currentRemaining) {
+function successorSummaryHtml(entry) {
   const successor = entry?.successor;
   const successorId = Number(successor?.playerId);
   const successorPlayer = Number.isInteger(successorId) ? players.find((x) => x.id === successorId) : null;
@@ -2734,8 +2726,7 @@ function successorSummaryHtml(entry, currentRemaining) {
   }
 
   const baseSeason = successor?.season || null;
-  const evalSeason = shiftSeasonForEntry(successorPlayer, baseSeason, Math.max(0, currentRemaining));
-  const remain = getRemainingPeakPeriods(successorPlayer, evalSeason);
+  const remain = getRemainingPeakPeriods(successorPlayer, baseSeason);
   const sourceText = successor?.source ? `<span class="lineup-successor-source">${successor.source}</span>` : "";
   const pos = (successorPlayer.position || "-").toUpperCase();
   const posClass = positionClass(pos);
@@ -2908,7 +2899,7 @@ function renderLineup() {
       : "";
     const rightPaneHtml = player
       ? (lifecycleModeEnabled
-        ? successorSummaryHtml(entry, remaining)
+        ? successorSummaryHtml(entry)
         : `
           <div class="lineup-core">
             ${miniCoreMetric("スピ", selectedMetrics?.["スピ"])}
