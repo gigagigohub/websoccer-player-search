@@ -3756,14 +3756,6 @@ body.modal-scroll-lock #formationModal {
 }
 
 .aptitude-area-cell.is-active {
-  border-color: #66a2d7;
-  background: linear-gradient(180deg, #285c8c 0%, #1b426c 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    0 0 0 1px rgba(120, 177, 230, 0.18);
-}
-
-.aptitude-area-cell.is-active.is-below {
   border-color: #d69a65;
   background: linear-gradient(180deg, #80522d 0%, #58371f 100%);
   box-shadow:
@@ -3771,12 +3763,29 @@ body.modal-scroll-lock #formationModal {
     0 0 0 1px rgba(230, 174, 120, 0.2);
 }
 
+.aptitude-area-cell.is-active.is-below {
+  border-color: #66a2d7;
+  background: linear-gradient(180deg, #285c8c 0%, #1b426c 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 0 0 1px rgba(120, 177, 230, 0.18);
+}
+
+#aptitudeDirectionAbove.is-active {
+  border-color: #d69a65;
+  background: linear-gradient(180deg, #80522d 0%, #58371f 100%);
+}
+
+#aptitudeDirectionAbove.is-active span {
+  color: #ffe7d1;
+}
+
 .aptitude-area-cell.is-dim:not(.is-active) {
   color: #8799ba;
   opacity: 0.72;
 }
 
-.aptitude-area-cell.is-line {
+.aptitude-area-cell.is-line:not(.is-active) {
   background: linear-gradient(180deg, #1b2842 0%, #111d32 100%);
 }
 

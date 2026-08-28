@@ -438,8 +438,8 @@ function aptitudeAreaLabel(code) {
 }
 
 function formatAptitudeRange(min, max, op = "") {
-  if (op === "gte" || (max === 7 && min !== max)) return `${min}以上`;
-  if (op === "lte" || (min === 1 && min !== max)) return `${max}以下`;
+  if (op === "gte" || (max === 7 && min !== max)) return `At least ${min}`;
+  if (op === "lte" || (min === 1 && min !== max)) return `At most ${max}`;
   if (min === max) return `${min}`;
   return `${min}〜${max}`;
 }
@@ -456,11 +456,11 @@ function compactAptitudeRange(filter) {
 function nextAptitudeCycleLabel(filter, direction = draftAptitudeDirection) {
   const normalized = normalizeAptitudeFilter(filter);
   if (direction === "lte") {
-    if (!normalized || normalized.op !== "lte") return "1以下";
-    return normalized.max < 7 ? `${normalized.max + 1}以下` : "解除";
+    if (!normalized || normalized.op !== "lte") return "At most 1";
+    return normalized.max < 7 ? `At most ${normalized.max + 1}` : "clear";
   }
-  if (!normalized || normalized.op !== "gte") return "7以上";
-  return normalized.min > 1 ? `${normalized.min - 1}以上` : "解除";
+  if (!normalized || normalized.op !== "gte") return "At least 7";
+  return normalized.min > 1 ? `At least ${normalized.min - 1}` : "clear";
 }
 
 function updateAptitudeSummary() {
