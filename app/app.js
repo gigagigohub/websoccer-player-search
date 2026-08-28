@@ -122,6 +122,8 @@ const els = {
   aptitudeClose: document.querySelector("#aptitudeClose"),
   aptitudeGrid: document.querySelector("#aptitudeGrid"),
   aptitudeRows: document.querySelector("#aptitudeRows"),
+  aptitudeDirectionAbove: document.querySelector("#aptitudeDirectionAbove"),
+  aptitudeDirectionBelow: document.querySelector("#aptitudeDirectionBelow"),
   aptitudeMatchAll: document.querySelector("#aptitudeMatchAll"),
   aptitudeMatchAny: document.querySelector("#aptitudeMatchAny"),
   aptitudeClear: document.querySelector("#aptitudeClear"),
@@ -238,6 +240,7 @@ let aptitudeFilters = [];
 let aptitudeMatchMode = "all";
 let draftAptitudeFilters = [];
 let draftAptitudeMatchMode = "all";
+let draftAptitudeDirection = "gte";
 
 function setModalScrollLocked(locked) {
   const root = document.documentElement;
@@ -414,7 +417,15 @@ function normalizeAptitudeFilter(filter) {
   const code = String(filter?.code || "").toUpperCase();
   if (!APTITUDE_AREA_BY_CODE[code]) return null;
   const range = normalizeAptitudeRange(filter?.min, filter?.max);
-  return { code, ...range };
+  const rawOp = String(filter?.op || "");
+  let op = ["gte", "lte", "eq", "range"].includes(rawOp) ? rawOp : "";
+  if (!op) {
+    if (range.max === 7) op = "gte";
+    else if (range.min === 1) op = "lte";
+    else if (range.min === range.max) op = "eq";
+    else op = "range";
+  }
+  return { code, ...range, op };
 }
 
 function cloneAptitudeFilters(rows = aptitudeFilters) {
@@ -426,12 +437,30 @@ function aptitudeAreaLabel(code) {
   return area ? area.code : String(code || "");
 }
 
-function formatAptitudeRange(min, max) {
-  if (min === 1 && max === 7) return "ALL";
-  if (min === max) return `=${min}`;
-  if (max === 7) return `>=${min}`;
-  if (min === 1) return `<=${max}`;
-  return `${min}-${max}`;
+function formatAptitudeRange(min, max, op = "") {
+  if (op === "gte" || (max === 7 && min !== max)) return `${min}以上`;
+  if (op === "lte" || (min === 1 && min !== max)) return `${max}以下`;
+  if (min === max) return `${min}`;
+  return `${min}〜${max}`;
+}
+
+function compactAptitudeRange(filter) {
+  const normalized = normalizeAptitudeFilter(filter);
+  if (!normalized) return "";
+  if (normalized.op === "gte") return `${normalized.min}+`;
+  if (normalized.op === "lte") return `≤${normalized.max}`;
+  if (normalized.min === normalized.max) return `${normalized.min}`;
+  return `${normalized.min}–${normalized.max}`;
+}
+
+function nextAptitudeCycleLabel(filter, direction = draftAptitudeDirection) {
+  const normalized = normalizeAptitudeFilter(filter);
+  if (direction === "lte") {
+    if (!normalized || normalized.op !== "lte") return "1以下";
+    return normalized.max < 7 ? `${normalized.max + 1}以下` : "解除";
+  }
+  if (!normalized || normalized.op !== "gte") return "7以上";
+  return normalized.min > 1 ? `${normalized.min - 1}以上` : "解除";
 }
 
 function updateAptitudeSummary() {
@@ -447,7 +476,7 @@ function updateAptitudeSummary() {
   }
   const modeLabel = aptitudeMatchMode === "any" && aptitudeFilters.length > 1 ? " / ANY" : "";
   const selected = aptitudeFilters
-    .map((filter) => `${aptitudeAreaLabel(filter.code)} ${formatAptitudeRange(filter.min, filter.max)}`)
+    .map((filter) => `${aptitudeAreaLabel(filter.code)} ${formatAptitudeRange(filter.min, filter.max, filter.op)}`)
     .join(", ");
   els.aptitudeSelectedSummary.textContent = `Selected: ${selected}${modeLabel}`;
 }
@@ -469,11 +498,17 @@ function updateMenuState() {
   renderHeaderMeta();
 }
 
-function aptitudeRangeOptions(selected) {
-  return Array.from({ length: 7 }, (_, i) => {
-    const value = i + 1;
-    return `<option value="${value}"${value === selected ? " selected" : ""}>${value}</option>`;
-  }).join("");
+function setDraftAptitudeDirection(direction) {
+  draftAptitudeDirection = direction === "lte" ? "lte" : "gte";
+  const isAbove = draftAptitudeDirection === "gte";
+  if (els.aptitudeDirectionAbove) {
+    els.aptitudeDirectionAbove.classList.toggle("is-active", isAbove);
+    els.aptitudeDirectionAbove.setAttribute("aria-pressed", isAbove ? "true" : "false");
+  }
+  if (els.aptitudeDirectionBelow) {
+    els.aptitudeDirectionBelow.classList.toggle("is-active", !isAbove);
+    els.aptitudeDirectionBelow.setAttribute("aria-pressed", isAbove ? "false" : "true");
+  }
 }
 
 function setDraftAptitudeMatchMode(mode) {
@@ -487,16 +522,22 @@ function renderAptitudePicker() {
   if (els.aptitudeGrid) {
     const pitchLayer = '<div class="aptitude-pitch-bg" aria-hidden="true"></div>';
     const areaCells = APTITUDE_AREA_DEFS.map((area) => {
-      const isOn = selected.has(area.code);
+      const filter = selected.get(area.code);
+      const isOn = !!filter;
       const classes = ["aptitude-area-cell"];
       if (isOn) classes.push("is-active");
+      if (filter?.op === "gte") classes.push("is-above");
+      if (filter?.op === "lte") classes.push("is-below");
       if (area.dim) classes.push("is-dim");
       if (area.line) classes.push("is-line");
       const displayRow = area.displayRow ?? area.row * 3;
       const rowSpan = area.rowSpan ?? 3;
+      const currentLabel = isOn ? formatAptitudeRange(filter.min, filter.max, filter.op) : "未指定";
+      const nextLabel = nextAptitudeCycleLabel(filter);
       return `
-        <button type="button" class="${classes.join(" ")}" style="--r:${displayRow};--c:${area.displayCol ?? area.col};--rs:${rowSpan}" data-code="${area.code}">
+        <button type="button" class="${classes.join(" ")}" style="--r:${displayRow};--c:${area.displayCol ?? area.col};--rs:${rowSpan}" data-code="${area.code}" aria-pressed="${isOn ? "true" : "false"}" aria-label="${area.code} ${currentLabel}。タップで${nextLabel}">
           <span class="area-main">${area.code}</span>
+          ${isOn ? `<span class="area-threshold">${compactAptitudeRange(filter)}</span>` : ""}
         </button>
       `;
     }).join("");
@@ -508,28 +549,21 @@ function renderAptitudePicker() {
     } else {
       els.aptitudeRows.innerHTML = draftAptitudeFilters.map((filter) => `
         <div class="aptitude-row" data-code="${filter.code}">
-          <div class="aptitude-row-label">
-            <strong>${aptitudeAreaLabel(filter.code)}</strong>
-          </div>
-          <label>
-            <span>Max</span>
-            <select class="aptitude-range-max">${aptitudeRangeOptions(filter.max)}</select>
-          </label>
-          <label>
-            <span>Min</span>
-            <select class="aptitude-range-min">${aptitudeRangeOptions(filter.min)}</select>
-          </label>
+          <strong class="aptitude-row-code">${aptitudeAreaLabel(filter.code)}</strong>
+          <span class="aptitude-row-value">${formatAptitudeRange(filter.min, filter.max, filter.op)}</span>
           <button type="button" class="aptitude-row-remove" aria-label="${filter.code}を削除">×</button>
         </div>
       `).join("");
     }
   }
+  setDraftAptitudeDirection(draftAptitudeDirection);
   setDraftAptitudeMatchMode(draftAptitudeMatchMode);
 }
 
 function openAptitudeModal() {
   draftAptitudeFilters = cloneAptitudeFilters();
   draftAptitudeMatchMode = aptitudeMatchMode;
+  draftAptitudeDirection = "gte";
   renderAptitudePicker();
   if (els.aptitudeModal) els.aptitudeModal.hidden = false;
 }
@@ -538,39 +572,35 @@ function closeAptitudeModal() {
   if (els.aptitudeModal) els.aptitudeModal.hidden = true;
 }
 
-function toggleDraftAptitudeArea(code) {
+function cycleDraftAptitudeArea(code) {
   const key = String(code || "").toUpperCase();
   if (!APTITUDE_AREA_BY_CODE[key]) return;
   const idx = draftAptitudeFilters.findIndex((filter) => filter.code === key);
-  if (idx >= 0) {
-    draftAptitudeFilters.splice(idx, 1);
+  const current = idx >= 0 ? normalizeAptitudeFilter(draftAptitudeFilters[idx]) : null;
+  if (draftAptitudeDirection === "lte") {
+    if (!current || current.op !== "lte") {
+      const next = { code: key, min: 1, max: 1, op: "lte" };
+      if (idx >= 0) draftAptitudeFilters[idx] = next;
+      else draftAptitudeFilters.push(next);
+    } else if (current.max < 7) {
+      draftAptitudeFilters[idx] = { code: key, min: 1, max: current.max + 1, op: "lte" };
+    } else {
+      draftAptitudeFilters.splice(idx, 1);
+    }
+  } else if (!current || current.op !== "gte") {
+    const next = { code: key, min: 7, max: 7, op: "gte" };
+    if (idx >= 0) draftAptitudeFilters[idx] = next;
+    else draftAptitudeFilters.push(next);
+  } else if (current.min > 1) {
+    draftAptitudeFilters[idx] = { code: key, min: current.min - 1, max: 7, op: "gte" };
   } else {
-    draftAptitudeFilters.push({ code: key, min: 7, max: 7 });
+    draftAptitudeFilters.splice(idx, 1);
   }
   draftAptitudeFilters.sort((a, b) => {
     const aa = APTITUDE_AREA_DEFS.findIndex((x) => x.code === a.code);
     const bb = APTITUDE_AREA_DEFS.findIndex((x) => x.code === b.code);
     return aa - bb;
   });
-  renderAptitudePicker();
-}
-
-function updateDraftAptitudeRange(code, field, value) {
-  const filter = draftAptitudeFilters.find((x) => x.code === code);
-  if (!filter) return;
-
-  const nextValue = clampAptitudeValue(value);
-  const currentMin = clampAptitudeValue(filter.min);
-  const currentMax = clampAptitudeValue(filter.max);
-
-  if (field === "max") {
-    filter.max = nextValue;
-    filter.min = nextValue < currentMin ? nextValue : currentMin;
-  } else {
-    filter.min = nextValue;
-    filter.max = nextValue > currentMax ? nextValue : currentMax;
-  }
-
   renderAptitudePicker();
 }
 
@@ -587,6 +617,7 @@ function clearAptitudeFilters() {
   aptitudeMatchMode = "all";
   draftAptitudeFilters = [];
   draftAptitudeMatchMode = "all";
+  draftAptitudeDirection = "gte";
   updateAptitudeSummary();
   renderAptitudePicker();
 }
@@ -594,6 +625,7 @@ function clearAptitudeFilters() {
 function clearDraftAptitudeFilters() {
   draftAptitudeFilters = [];
   draftAptitudeMatchMode = "all";
+  draftAptitudeDirection = "gte";
   renderAptitudePicker();
 }
 
@@ -2721,23 +2753,20 @@ async function init() {
   if (els.aptitudeMatchAny) {
     els.aptitudeMatchAny.addEventListener("click", () => setDraftAptitudeMatchMode("any"));
   }
+  if (els.aptitudeDirectionAbove) {
+    els.aptitudeDirectionAbove.addEventListener("click", () => setDraftAptitudeDirection("gte"));
+  }
+  if (els.aptitudeDirectionBelow) {
+    els.aptitudeDirectionBelow.addEventListener("click", () => setDraftAptitudeDirection("lte"));
+  }
   if (els.aptitudeGrid) {
     els.aptitudeGrid.addEventListener("click", (e) => {
       const btn = e.target.closest(".aptitude-area-cell");
       if (!btn) return;
-      toggleDraftAptitudeArea(btn.dataset.code);
+      cycleDraftAptitudeArea(btn.dataset.code);
     });
   }
   if (els.aptitudeRows) {
-    els.aptitudeRows.addEventListener("change", (e) => {
-      const row = e.target.closest(".aptitude-row");
-      if (!row) return;
-      if (e.target.classList.contains("aptitude-range-min")) {
-        updateDraftAptitudeRange(row.dataset.code, "min", e.target.value);
-      } else if (e.target.classList.contains("aptitude-range-max")) {
-        updateDraftAptitudeRange(row.dataset.code, "max", e.target.value);
-      }
-    });
     els.aptitudeRows.addEventListener("click", (e) => {
       const remove = e.target.closest(".aptitude-row-remove");
       if (!remove) return;
