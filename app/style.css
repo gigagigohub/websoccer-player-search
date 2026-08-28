@@ -3627,6 +3627,16 @@ body.modal-scroll-lock #formationModal {
   overflow-y: auto;
 }
 
+.aptitude-dialog .season-head {
+  min-height: 34px;
+  padding-right: 40px;
+}
+
+.aptitude-dialog .season-close {
+  top: 10px;
+  right: 10px;
+}
+
 .aptitude-threshold-switch,
 .aptitude-match-switch {
   display: grid;
