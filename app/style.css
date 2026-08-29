@@ -6690,8 +6690,51 @@ button.danger {
     width: 100%;
   }
 
+  #slotModal .slot-table {
+    --slot-mobile-columns: 18px clamp(100px, 29vw, 114px) 58px 32px 34px;
+  }
+
+  #slotModal .rohm-slot-table {
+    --slot-mobile-columns: 18px clamp(100px, 29vw, 114px) 48px 28px 32px 26px;
+  }
+
   #slotModal .slot-table thead {
-    display: none;
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  #slotModal .slot-table thead tr {
+    display: grid;
+    grid-template-columns: var(--slot-mobile-columns);
+    gap: 4px;
+    align-items: end;
+    justify-content: start;
+    border: 1px solid transparent;
+    padding: 0 5px;
+  }
+
+  #slotModal .slot-table thead th {
+    position: static;
+    display: block;
+    min-width: 0;
+    border: 0;
+    padding: 0 0 1px;
+    background: transparent;
+    color: #93a6c5;
+    font-size: 7.5px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    text-align: right;
+    text-transform: uppercase;
+  }
+
+  #slotModal .slot-table thead th:nth-child(1) {
+    text-align: center;
+  }
+
+  #slotModal .slot-table thead th:nth-child(2) {
+    text-align: left;
   }
 
   #slotModal .slot-table tbody {
@@ -6699,20 +6742,17 @@ button.danger {
     gap: 4px;
   }
 
-  #slotModal .slot-table tr {
+  #slotModal .slot-table tbody tr {
     display: grid;
-    grid-template-columns: 18px minmax(0, 1fr) minmax(54px, auto) minmax(25px, auto) minmax(30px, auto);
-    gap: 5px;
+    grid-template-columns: var(--slot-mobile-columns);
+    gap: 4px;
+    justify-content: start;
     align-items: center;
     border: 1px solid #2c4262;
     border-radius: 7px;
     background: #111d31;
     padding: 3px 5px;
     min-height: 34px;
-  }
-
-  #slotModal .rohm-slot-table tr {
-    grid-template-columns: 18px minmax(0, 1fr) repeat(4, minmax(24px, auto));
   }
 
   #slotModal .slot-table td {
@@ -6740,27 +6780,22 @@ button.danger {
   }
 
   #slotModal .slot-table td:nth-child(n + 3) {
-    display: grid;
-    gap: 1px;
-    justify-items: end;
-    align-content: center;
+    display: block;
+    justify-self: end;
     color: #d5e1f5;
-    font-size: 9px;
+    font-size: 9.5px;
     line-height: 1;
+    text-align: right;
   }
 
   #slotModal .slot-table td:nth-child(n + 3)::before {
-    content: attr(data-label);
-    color: #7186a9;
-    font-size: 6px;
-    font-weight: 800;
-    line-height: 1;
-    text-transform: uppercase;
+    content: none;
   }
 
   #slotModal .slot-table:not(.rohm-slot-table) td:nth-child(3) {
     grid-column: 3;
     grid-row: 1;
+    font-size: 8.5px;
   }
 
   #slotModal .slot-table:not(.rohm-slot-table) td:nth-child(4) {
