@@ -6691,7 +6691,7 @@ button.danger {
   }
 
   #slotModal .slot-table {
-    --slot-mobile-columns: 18px minmax(0, 1fr) 76px 32px 34px;
+    --slot-mobile-columns: 18px minmax(0, 1fr) 70px 32px 34px;
   }
 
   #slotModal .rohm-slot-table {
@@ -6706,7 +6706,7 @@ button.danger {
   #slotModal .slot-table thead tr {
     display: grid;
     grid-template-columns: var(--slot-mobile-columns);
-    gap: 4px;
+    gap: 6px;
     align-items: end;
     justify-content: start;
     border: 1px solid transparent;
@@ -6745,7 +6745,7 @@ button.danger {
   #slotModal .slot-table tbody tr {
     display: grid;
     grid-template-columns: var(--slot-mobile-columns);
-    gap: 4px;
+    gap: 6px;
     justify-content: start;
     align-items: center;
     border: 1px solid #2c4262;
@@ -6783,7 +6783,7 @@ button.danger {
     display: block;
     justify-self: end;
     color: #d5e1f5;
-    font-size: 12px;
+    font-size: 10.5px;
     line-height: 1;
     text-align: right;
   }
@@ -6795,7 +6795,7 @@ button.danger {
   #slotModal .slot-table:not(.rohm-slot-table) td:nth-child(3) {
     grid-column: 3;
     grid-row: 1;
-    font-size: 10.5px;
+    font-size: 9.5px;
   }
 
   #slotModal .slot-table:not(.rohm-slot-table) td:nth-child(4) {
