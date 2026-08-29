@@ -83,6 +83,7 @@ const CLOUD_CONFIG_STORAGE_KEY = "ws_cloud_config_v1";
 const RENDER_BATCH_SIZE = 100;
 const RENDER_CARDS_PER_FRAME = 24;
 const NAME_SUGGESTION_LIMIT = 10;
+const NAME_SEARCH_DEBOUNCE_MS = 160;
 const SUPABASE_TABLE = "lineup_states";
 const FIXED_SUPABASE_URL = "https://trbuptnlpmcetwprirxn.supabase.co";
 const FIXED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyYnVwdG5scG1jZXR3cHJpcnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzg5MzIsImV4cCI6MjA4ODU1NDkzMn0.mPzL3tfKfWsCh17om16OGKYiayAhrhn3Cy74DXKGwI0";
@@ -174,7 +175,6 @@ const els = {
   scoutEventPreview: document.querySelector("#scoutEventPreview"),
   cmFilterWrap: document.querySelector("#cmFilterWrap"),
   cmEventFilter: document.querySelector("#cmEventFilter"),
-  applySearch: document.querySelector("#applySearch"),
   parameterFilterLabel: document.querySelector("#parameterFilterLabel"),
   parameterPickerOpen: document.querySelector("#parameterPickerOpen"),
   parameterSelectedSummary: document.querySelector("#parameterSelectedSummary"),
@@ -273,6 +273,8 @@ let lineupSlotsLocked = false;
 let lineupRegisterMode = "starter";
 let cloudConfig = { url: "", anonKey: "", lineupKey: "" };
 let renderJobToken = 0;
+let scheduledRenderFrame = 0;
+let scheduledRenderTimer = 0;
 let modalScrollLockY = 0;
 let modalScrollLocked = false;
 let aptitudeFilters = [];
@@ -2069,20 +2071,19 @@ function positionClass(position) {
   return "";
 }
 
-function getMatchingPeriods(player, filters) {
+function hasMatchingPeriod(player, filters) {
   const periods = Array.isArray(player.periods) ? player.periods : [];
-  if (!filters.length) return periods;
+  if (!filters.length) return periods.length > 0;
 
-  return periods.filter((period) => {
-    const checks = filters.map((filter) => {
+  return periods.some((period) => (
+    filters.every((filter) => {
       const targetValue = getParameterTargetValue(period, filter.metric);
       return typeof targetValue === "number"
         && Number.isFinite(targetValue)
         && targetValue >= filter.min
         && targetValue <= filter.max;
-    });
-    return checks.every(Boolean);
-  });
+    })
+  ));
 }
 
 function browserRelativeMentalAxis(difference) {
@@ -2450,7 +2451,7 @@ function filterPlayers(filters = getParameterFilters()) {
       return true;
     }
 
-    return getMatchingPeriods(player, filters).length > 0;
+    return hasMatchingPeriod(player, filters);
   });
 }
 
@@ -2825,6 +2826,7 @@ function rerenderSingleCard(playerId) {
 }
 
 function render() {
+  cancelScheduledRender();
   renderJobToken += 1;
   const filters = getParameterFilters();
   const filtered = filterPlayers(filters);
@@ -2886,6 +2888,33 @@ function render() {
   renderNextBatch(true);
 }
 
+function cancelScheduledRender() {
+  if (scheduledRenderTimer) {
+    clearTimeout(scheduledRenderTimer);
+    scheduledRenderTimer = 0;
+  }
+  if (scheduledRenderFrame) {
+    cancelAnimationFrame(scheduledRenderFrame);
+    scheduledRenderFrame = 0;
+  }
+}
+
+function scheduleRender(delayMs = 0) {
+  cancelScheduledRender();
+  const queueFrame = () => {
+    scheduledRenderTimer = 0;
+    scheduledRenderFrame = requestAnimationFrame(() => {
+      scheduledRenderFrame = 0;
+      render();
+    });
+  };
+  if (delayMs > 0) {
+    scheduledRenderTimer = window.setTimeout(queueFrame, delayMs);
+  } else {
+    queueFrame();
+  }
+}
+
 function updateResultSummary() {
   const total = currentFilteredPlayers.length;
   if (total > renderedCount) {
@@ -2938,6 +2967,7 @@ async function init() {
   window.addEventListener("resize", syncMenuButtonSize);
 
   if (els.resetSearch) els.resetSearch.addEventListener("click", () => {
+    cancelScheduledRender();
     clearParameterFilters();
     els.nameQuery.value = "";
     hideNameSuggest();
@@ -2955,7 +2985,10 @@ async function init() {
     render();
   });
   if (els.includeRetired) {
-    els.includeRetired.addEventListener("change", render);
+    els.includeRetired.addEventListener("change", () => scheduleRender());
+  }
+  if (els.positionFilter) {
+    els.positionFilter.addEventListener("change", () => scheduleRender());
   }
   if (els.nrAllOnly) {
     els.nrAllOnly.addEventListener("click", () => {
@@ -2964,6 +2997,7 @@ async function init() {
         .forEach((el) => setCategoryChipActive(el, next));
       updateScoutFilterVisibility();
       updateCMFilterVisibility();
+      scheduleRender();
     });
   }
   [els.nrWhiteOnly, els.nrBronzeOnly, els.nrSilverOnly, els.nrGoldOnly].forEach((el) => {
@@ -2973,6 +3007,7 @@ async function init() {
       syncNRAllChip();
       updateScoutFilterVisibility();
       updateCMFilterVisibility();
+      scheduleRender();
     });
   });
   [els.ccOnly, els.ssOnly, els.cmOnly].forEach((el) => {
@@ -2981,25 +3016,34 @@ async function init() {
       setCategoryChipActive(el, !isCategoryChipActive(el));
       updateScoutFilterVisibility();
       updateCMFilterVisibility();
+      scheduleRender();
     });
   });
 
-  els.applySearch.addEventListener("click", render);
   if (els.scoutEventFilter) {
     els.scoutEventFilter.addEventListener("change", () => {
       renderScoutEventPreview();
-      render();
+      scheduleRender();
     });
   }
   if (els.cmEventFilter) {
-    els.cmEventFilter.addEventListener("change", render);
+    els.cmEventFilter.addEventListener("change", () => scheduleRender());
   }
   if (els.nameQuery) {
-    els.nameQuery.addEventListener("input", updateNameSuggest);
+    els.nameQuery.addEventListener("input", (e) => {
+      updateNameSuggest();
+      if (e.isComposing || e.keyCode === 229) return;
+      scheduleRender(NAME_SEARCH_DEBOUNCE_MS);
+    });
+    els.nameQuery.addEventListener("compositionend", () => {
+      updateNameSuggest();
+      scheduleRender(NAME_SEARCH_DEBOUNCE_MS);
+    });
     els.nameQuery.addEventListener("focus", updateNameSuggest);
     els.nameQuery.addEventListener("keydown", (e) => {
       if (e.key !== "Enter" || e.isComposing || e.keyCode === 229) return;
       e.preventDefault();
+      cancelScheduledRender();
       hideNameSuggest();
       render();
       els.nameQuery.blur();
@@ -3011,6 +3055,7 @@ async function init() {
       if (!btn || !els.nameQuery) return;
       const name = String(btn.dataset.name || "");
       els.nameQuery.value = name;
+      cancelScheduledRender();
       hideNameSuggest();
       render();
     });
