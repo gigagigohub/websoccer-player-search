@@ -1278,6 +1278,21 @@ function normalizeParameterFilter(filter) {
   const metric = String(filter?.metric || "");
   const def = PARAMETER_FILTER_BY_METRIC[metric];
   if (!def) return null;
+  if (def.tone !== "mental") {
+    const hasValue = filter?.value != null && filter?.value !== "";
+    const rawValue = hasValue ? Number(filter.value) : Number.NaN;
+    const value = Number.isFinite(rawValue)
+      ? Math.max(1, Math.min(def.max, Math.round(rawValue)))
+      : null;
+    const op = filter?.op === "lte" ? "lte" : "gte";
+    return {
+      metric,
+      op,
+      value,
+      min: value == null || op === "lte" ? def.min : value,
+      max: value == null || op === "gte" ? def.max : value,
+    };
+  }
   const min = clampParameterValue(filter?.min, def);
   const max = clampParameterValue(filter?.max, def);
   return { metric, min: Math.min(min, max), max: Math.max(min, max) };
@@ -1291,6 +1306,7 @@ function isActiveParameterFilter(filter) {
   const normalized = normalizeParameterFilter(filter);
   if (!normalized) return false;
   const def = PARAMETER_FILTER_BY_METRIC[normalized.metric];
+  if (def.tone !== "mental") return normalized.value != null;
   return normalized.min > def.min || normalized.max < def.max;
 }
 
@@ -1309,10 +1325,7 @@ function formatParameterRange(filter) {
     if (normalized.min === normalized.max) return formatMentalAxisValue(def, normalized.min);
     return `${formatMentalAxisValue(def, normalized.min)} – ${formatMentalAxisValue(def, normalized.max)}`;
   }
-  if (normalized.min === normalized.max) return `${normalized.min}`;
-  if (normalized.min === def.min) return `≤ ${normalized.max}`;
-  if (normalized.max === def.max) return `${normalized.min}+`;
-  return `${normalized.min}–${normalized.max}`;
+  return normalized.op === "lte" ? `At most ${normalized.value}` : `At least ${normalized.value}`;
 }
 
 function updateParameterSummary() {
@@ -1337,10 +1350,23 @@ function parameterRangePercent(def, value) {
   return ((value - def.min) / (def.max - def.min)) * 100;
 }
 
+function storeDraftParameterFilter(filter) {
+  const normalized = normalizeParameterFilter(filter);
+  if (!normalized) return;
+  draftParameterFilters = draftParameterFilters.filter((row) => row.metric !== normalized.metric);
+  if (isActiveParameterFilter(normalized)) {
+    draftParameterFilters.push(normalized);
+    draftParameterFilters.sort((a, b) => (
+      PARAMETER_FILTER_DEFS.findIndex((def) => def.metric === a.metric)
+      - PARAMETER_FILTER_DEFS.findIndex((def) => def.metric === b.metric)
+    ));
+  }
+}
+
 function syncParameterRangeRow(row, min, max) {
   if (!row) return;
   const def = PARAMETER_FILTER_BY_METRIC[row.dataset.metric];
-  if (!def) return;
+  if (!def || def.tone !== "mental") return;
   const normalized = normalizeParameterFilter({ metric: def.metric, min, max });
   if (!normalized) return;
   const minInput = row.querySelector(".parameter-range-min");
@@ -1358,31 +1384,75 @@ function syncParameterRangeRow(row, min, max) {
   if (value) value.textContent = formatParameterRange(normalized);
   const reset = row.querySelector(".parameter-range-reset");
   if (reset) reset.hidden = !active;
+  storeDraftParameterFilter(normalized);
+}
 
-  draftParameterFilters = draftParameterFilters.filter((filter) => filter.metric !== def.metric);
-  if (active) {
-    draftParameterFilters.push(normalized);
-    draftParameterFilters.sort((a, b) => (
-      PARAMETER_FILTER_DEFS.findIndex((def) => def.metric === a.metric)
-      - PARAMETER_FILTER_DEFS.findIndex((def) => def.metric === b.metric)
-    ));
+function syncParameterGaugeRow(row, value, op = "gte") {
+  if (!row) return;
+  const def = PARAMETER_FILTER_BY_METRIC[row.dataset.metric];
+  if (!def || def.tone === "mental") return;
+  const normalized = normalizeParameterFilter({ metric: def.metric, value, op });
+  if (!normalized) return;
+  row.dataset.op = normalized.op;
+  const active = isActiveParameterFilter(normalized);
+  row.classList.toggle("is-active", active);
+  const valueLabel = row.querySelector(".parameter-range-value");
+  if (valueLabel) valueLabel.textContent = formatParameterRange(normalized);
+  const reset = row.querySelector(".parameter-range-reset");
+  if (reset) reset.hidden = !active;
+  const direction = row.querySelector(".parameter-direction-toggle");
+  if (direction) {
+    const isBelow = normalized.op === "lte";
+    direction.classList.toggle("is-below", isBelow);
+    direction.setAttribute("aria-pressed", isBelow ? "true" : "false");
+    direction.setAttribute("aria-label", `${def.label}: ${isBelow ? "At most" : "At least"}。タップで切り替え`);
   }
+  row.querySelectorAll(".parameter-gauge-cell").forEach((cell) => {
+    const cellValue = Number(cell.dataset.value);
+    cell.classList.toggle("on", active && cellValue <= normalized.value);
+    cell.classList.toggle("is-threshold", active && cellValue === normalized.value);
+    cell.setAttribute("aria-pressed", active && cellValue === normalized.value ? "true" : "false");
+  });
+  storeDraftParameterFilter(active ? normalized : { metric: def.metric, value: null, op: normalized.op });
 }
 
 function renderParameterPicker() {
   if (!els.parameterRows) return;
   const selected = new Map(cloneParameterFilters(draftParameterFilters).map((filter) => [filter.metric, filter]));
   els.parameterRows.innerHTML = PARAMETER_FILTER_DEFS.map((def) => {
-    const filter = selected.get(def.metric) || { metric: def.metric, min: def.min, max: def.max };
-    const scale = def.tone === "mental"
-      ? `<span>${def.leftLabel} 5</span><span>Neutral</span><span>${def.rightLabel} 5</span>`
-      : `<span>${def.min}</span><span>${Math.round((def.min + def.max) / 2)}</span><span>${def.max}</span>`;
+    const filter = selected.get(def.metric) || (def.tone === "mental"
+      ? { metric: def.metric, min: def.min, max: def.max }
+      : { metric: def.metric, value: null, op: "gte" });
+    const active = isActiveParameterFilter(filter);
+    if (def.tone !== "mental") {
+      const normalized = normalizeParameterFilter(filter);
+      const cells = Array.from({ length: 10 }, (_, index) => {
+        const value = index + 1;
+        const isOn = active && value <= normalized.value;
+        const isThreshold = active && value === normalized.value;
+        return `<button type="button" class="parameter-gauge-cell${isOn ? " on" : ""}${isThreshold ? " is-threshold" : ""}" data-value="${value}" aria-label="${def.label} ${value}" aria-pressed="${isThreshold ? "true" : "false"}">${value}</button>`;
+      }).join("");
+      return `
+        <div class="parameter-range-row parameter-gauge-row tone-${def.tone}${active ? " is-active" : ""}" data-metric="${def.metric}" data-op="${normalized.op}">
+          <div class="parameter-range-head">
+            <strong>${def.label}</strong>
+            <span class="parameter-range-value">${formatParameterRange(normalized)}</span>
+            <button type="button" class="parameter-direction-toggle${normalized.op === "lte" ? " is-below" : ""}" aria-pressed="${normalized.op === "lte" ? "true" : "false"}" aria-label="${def.label}: ${normalized.op === "lte" ? "At most" : "At least"}。タップで切り替え">
+              <span class="direction-above">At least</span><span class="direction-below">At most</span>
+            </button>
+            <button type="button" class="parameter-range-reset" aria-label="${def.label}を解除"${active ? "" : " hidden"}>×</button>
+          </div>
+          <div class="parameter-gauge" role="group" aria-label="${def.label}の値">${cells}</div>
+        </div>
+      `;
+    }
+    const scale = `<span>${def.leftLabel} 5</span><span>Neutral</span><span>${def.rightLabel} 5</span>`;
     return `
-      <div class="parameter-range-row tone-${def.tone}${isActiveParameterFilter(filter) ? " is-active" : ""}" data-metric="${def.metric}" style="--range-start:${parameterRangePercent(def, filter.min)}%;--range-end:${parameterRangePercent(def, filter.max)}%">
+      <div class="parameter-range-row tone-${def.tone}${active ? " is-active" : ""}" data-metric="${def.metric}" style="--range-start:${parameterRangePercent(def, filter.min)}%;--range-end:${parameterRangePercent(def, filter.max)}%">
         <div class="parameter-range-head">
           <strong>${def.label}</strong>
           <span class="parameter-range-value">${formatParameterRange(filter)}</span>
-          <button type="button" class="parameter-range-reset" aria-label="${def.label}を解除"${isActiveParameterFilter(filter) ? "" : " hidden"}>×</button>
+          <button type="button" class="parameter-range-reset" aria-label="${def.label}を解除"${active ? "" : " hidden"}>×</button>
         </div>
         <div class="parameter-range-control">
           <div class="parameter-range-track" aria-hidden="true"><span></span></div>
@@ -1410,11 +1480,24 @@ function updateDraftParameterRange(row, changedInput) {
   syncParameterRangeRow(row, min, max);
 }
 
+function selectDraftParameterGauge(row, value) {
+  if (!row) return;
+  syncParameterGaugeRow(row, value, row.dataset.op === "lte" ? "lte" : "gte");
+}
+
+function toggleDraftParameterDirection(row) {
+  if (!row) return;
+  const nextOp = row.dataset.op === "lte" ? "gte" : "lte";
+  const selected = row.querySelector(".parameter-gauge-cell.is-threshold");
+  syncParameterGaugeRow(row, selected ? Number(selected.dataset.value) : null, nextOp);
+}
+
 function resetDraftParameterRow(row) {
   if (!row) return;
   const def = PARAMETER_FILTER_BY_METRIC[row.dataset.metric];
   if (!def) return;
-  syncParameterRangeRow(row, def.min, def.max);
+  if (def.tone === "mental") syncParameterRangeRow(row, def.min, def.max);
+  else syncParameterGaugeRow(row, null, "gte");
 }
 
 function openParameterModal() {
@@ -2952,6 +3035,16 @@ async function init() {
       updateDraftParameterRange(input.closest(".parameter-range-row"), input);
     });
     els.parameterRows.addEventListener("click", (e) => {
+      const gaugeCell = e.target.closest(".parameter-gauge-cell");
+      if (gaugeCell) {
+        selectDraftParameterGauge(gaugeCell.closest(".parameter-range-row"), gaugeCell.dataset.value);
+        return;
+      }
+      const direction = e.target.closest(".parameter-direction-toggle");
+      if (direction) {
+        toggleDraftParameterDirection(direction.closest(".parameter-range-row"));
+        return;
+      }
       const reset = e.target.closest(".parameter-range-reset");
       if (!reset) return;
       resetDraftParameterRow(reset.closest(".parameter-range-row"));

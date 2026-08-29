@@ -3718,6 +3718,73 @@ body.modal-scroll-lock #formationModal {
   box-shadow: none;
 }
 
+.parameter-gauge-row .parameter-range-head {
+  grid-template-columns: minmax(0, 1fr) auto 108px 26px;
+}
+
+.parameter-direction-toggle {
+  min-width: 0;
+  width: 108px;
+  height: 28px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px;
+  border: 1px solid #334a70;
+  border-radius: 7px;
+  background: #0d1728;
+  padding: 2px;
+  box-shadow: none;
+}
+
+.parameter-direction-toggle span {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  border-radius: 4px;
+  color: #7489ac;
+  font-size: 0.53rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.parameter-direction-toggle:not(.is-below) .direction-above,
+.parameter-direction-toggle.is-below .direction-below {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.parameter-gauge {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 2px;
+  margin-top: 7px;
+}
+
+.parameter-gauge-cell {
+  min-width: 0;
+  height: 30px;
+  border: 1px solid #48536a;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #596176 0%, #303749 100%);
+  color: #9eabc2;
+  padding: 0;
+  font-size: 0.58rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  box-shadow: none;
+}
+
+.parameter-gauge-cell.on {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-dark) 100%);
+  color: #fff;
+}
+
+.parameter-gauge-cell.is-threshold {
+  outline: 2px solid #f5f8ff;
+  outline-offset: -3px;
+}
+
 .parameter-range-control {
   position: relative;
   height: 30px;
