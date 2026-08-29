@@ -3753,10 +3753,12 @@ body.modal-scroll-lock #formationModal {
 }
 
 .parameter-dialog {
-  width: min(480px, calc(100vw - 24px));
-  top: max(12px, 8vh);
+  width: min(560px, calc(100vw - 16px));
+  top: max(12px, 4vh);
+  top: max(12px, 4dvh);
   transform: translateX(-50%);
-  max-height: min(84vh, 720px);
+  max-height: min(92vh, 960px);
+  max-height: min(92dvh, 960px);
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr) auto;
   gap: 8px;
@@ -3872,12 +3874,22 @@ body.modal-scroll-lock #formationModal {
   width: 26px;
   min-width: 0;
   height: 26px;
+  min-height: 26px;
   border: 1px solid #573144;
   border-radius: 7px;
   background: #2a1620;
   color: #ff8fa3;
   padding: 0;
+  display: grid;
+  place-items: center;
+  font-size: 0.88rem;
+  line-height: 1;
   box-shadow: none;
+}
+
+.parameter-range-reset.is-hidden {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .parameter-gauge-row .parameter-range-head {

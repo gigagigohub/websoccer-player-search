@@ -1364,6 +1364,14 @@ function storeDraftParameterFilter(filter) {
   }
 }
 
+function syncParameterResetButton(reset, active) {
+  if (!reset) return;
+  reset.classList.toggle("is-hidden", !active);
+  reset.disabled = !active;
+  reset.setAttribute("aria-hidden", active ? "false" : "true");
+  reset.tabIndex = active ? 0 : -1;
+}
+
 function syncParameterRangeRow(row, min, max) {
   if (!row) return;
   const def = PARAMETER_FILTER_BY_METRIC[row.dataset.metric];
@@ -1384,7 +1392,7 @@ function syncParameterRangeRow(row, min, max) {
   const value = row.querySelector(".parameter-range-value");
   if (value) value.textContent = formatParameterRange(normalized);
   const reset = row.querySelector(".parameter-range-reset");
-  if (reset) reset.hidden = !active;
+  syncParameterResetButton(reset, active);
   storeDraftParameterFilter(normalized);
 }
 
@@ -1400,7 +1408,7 @@ function syncParameterGaugeRow(row, value, op = "gte") {
   const valueLabel = row.querySelector(".parameter-range-value");
   if (valueLabel) valueLabel.textContent = formatParameterRange(normalized);
   const reset = row.querySelector(".parameter-range-reset");
-  if (reset) reset.hidden = !active;
+  syncParameterResetButton(reset, active);
   const direction = row.querySelector(".parameter-direction-toggle");
   if (direction) {
     const isBelow = normalized.op === "lte";
@@ -1441,7 +1449,7 @@ function renderParameterPicker() {
             <button type="button" class="parameter-direction-toggle${normalized.op === "lte" ? " is-below" : ""}" aria-pressed="${normalized.op === "lte" ? "true" : "false"}" aria-label="${def.label}: ${normalized.op === "lte" ? "At most" : "At least"}。タップで切り替え">
               <span class="direction-above">At least</span><span class="direction-below">At most</span>
             </button>
-            <button type="button" class="parameter-range-reset" aria-label="${def.label}を解除"${active ? "" : " hidden"}>×</button>
+            <button type="button" class="parameter-range-reset${active ? "" : " is-hidden"}" aria-label="${def.label}を解除" aria-hidden="${active ? "false" : "true"}"${active ? "" : " disabled tabindex=\"-1\""}>×</button>
           </div>
           <div class="parameter-gauge" role="group" aria-label="${def.label}の値">${cells}</div>
         </div>
@@ -1453,7 +1461,7 @@ function renderParameterPicker() {
         <div class="parameter-range-head">
           <strong>${def.label}</strong>
           <span class="parameter-range-value">${formatParameterRange(filter)}</span>
-          <button type="button" class="parameter-range-reset" aria-label="${def.label}を解除"${active ? "" : " hidden"}>×</button>
+          <button type="button" class="parameter-range-reset${active ? "" : " is-hidden"}" aria-label="${def.label}を解除" aria-hidden="${active ? "false" : "true"}"${active ? "" : " disabled tabindex=\"-1\""}>×</button>
         </div>
         <div class="parameter-range-control">
           <div class="parameter-range-track" aria-hidden="true"><span></span></div>
