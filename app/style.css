@@ -6691,7 +6691,7 @@ button.danger {
   }
 
   #slotModal .slot-table {
-    --slot-mobile-columns: 18px minmax(0, 1fr) 63px 32px 34px;
+    --slot-mobile-columns: 18px minmax(0, 1fr) 65px 32px 34px;
   }
 
   #slotModal .rohm-slot-table {
@@ -6783,7 +6783,7 @@ button.danger {
     display: block;
     justify-self: end;
     color: #d5e1f5;
-    font-size: 9.5px;
+    font-size: 10px;
     line-height: 1;
     text-align: right;
   }
@@ -6795,7 +6795,7 @@ button.danger {
   #slotModal .slot-table:not(.rohm-slot-table) td:nth-child(3) {
     grid-column: 3;
     grid-row: 1;
-    font-size: 8.5px;
+    font-size: 9px;
   }
 
   #slotModal .slot-table:not(.rohm-slot-table) td:nth-child(4) {
