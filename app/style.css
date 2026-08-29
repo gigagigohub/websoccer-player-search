@@ -6691,11 +6691,11 @@ button.danger {
   }
 
   #slotModal .slot-table {
-    --slot-mobile-columns: 18px clamp(100px, 29vw, 114px) 58px 32px 34px;
+    --slot-mobile-columns: 18px minmax(0, 1fr) 63px 32px 34px;
   }
 
   #slotModal .rohm-slot-table {
-    --slot-mobile-columns: 18px clamp(100px, 29vw, 114px) 48px 28px 32px 26px;
+    --slot-mobile-columns: 18px minmax(0, 1fr) 48px 28px 32px 26px;
   }
 
   #slotModal .slot-table thead {
