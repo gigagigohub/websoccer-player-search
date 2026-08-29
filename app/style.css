@@ -4286,7 +4286,7 @@ body.modal-scroll-lock #formationModal {
 
 #slotDetail {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
   min-height: 0;
 }
 
@@ -5528,7 +5528,12 @@ body.modal-scroll-lock #formationModal .formation-dialog {
 
 .slot-detail-source-switch {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin: 8px 0 10px;
+  margin: 8px 0 5px;
+}
+
+.slot-detail-sort-switch {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0 0 8px;
 }
 
 .slot-cc-platform-filter {
@@ -5916,10 +5921,6 @@ body.modal-scroll-lock #formationModal .formation-dialog {
 
 .slot-table tr.slot-player-row {
   cursor: pointer;
-}
-
-.slot-table tr.slot-player-row:hover td {
-  background: rgba(112, 149, 240, 0.12);
 }
 
 .dim {

@@ -145,6 +145,7 @@ let filteredAndSorted = [];
 let currentFormation = null;
 let slotTopSortMode = "usage";
 let slotDetailSourceMode = "cc";
+let slotDetailSortMode = "usage";
 let slotCcPlatformEnabled = { ios: true, ymbga: true, mixi: true };
 let currentSlotDetailSlot = null;
 let coachRankingMode = "usage";
@@ -2539,6 +2540,15 @@ function renderSlotDetailSourceSwitch() {
   `;
 }
 
+function renderSlotDetailSortSwitch() {
+  return `
+    <div class="slot-detail-sort-switch slot-top-sort-switch" role="group" aria-label="Slot detail sort order">
+      <button type="button" class="slot-top-sort-btn${slotDetailSortMode === "usage" ? " is-on" : ""}" data-slot-detail-sort="usage">Usage</button>
+      <button type="button" class="slot-top-sort-btn${slotDetailSortMode === "avg" ? " is-on" : ""}" data-slot-detail-sort="avg">Ave</button>
+    </div>
+  `;
+}
+
 function renderCcPlatformFilters() {
   const options = [
     ["ios", "iOS"],
@@ -2560,10 +2570,6 @@ function renderCcPlatformFilters() {
       `).join("")}
     </fieldset>
   `;
-}
-
-function slotDetailSortButton(label, mode) {
-  return `<button type="button" class="slot-table-sort-btn${slotTopSortMode === mode ? " is-active" : ""}" data-slot-detail-sort="${mode}" aria-label="${label}順に並び替え">${label}</button>`;
 }
 
 function addCcSlotAggregateRow(aggregate, sourceRow, source) {
@@ -2637,7 +2643,7 @@ function renderCcSlotDetail(slot) {
     return `<p class="dim">Loading Yahoo!/mixi CC data...</p>`;
   }
   const allRows = combinedCcSlotRows(slot);
-  const rows = sortSlotRows(allRows, slotTopSortMode).slice(0, 20);
+  const rows = sortSlotRows(allRows, slotDetailSortMode).slice(0, 20);
   if (!rows.length) {
     const anyPlatformSelected = Object.values(slotCcPlatformEnabled).some(Boolean);
     return `<p class="dim">${anyPlatformSelected ? "No CC slot data." : "Select at least one CC platform."}</p>`;
@@ -2646,7 +2652,7 @@ function renderCcSlotDetail(slot) {
     <div class="slot-table-wrap">
       <table class="slot-table">
         <thead>
-          <tr><th>#</th><th>Player</th><th>Cat</th><th>${slotDetailSortButton("Usage", "usage")}</th><th>${slotDetailSortButton("Avg", "avg")}</th><th>Goals</th></tr>
+          <tr><th>#</th><th>Player</th><th>Cat</th><th>Usage</th><th>Ave</th><th>Goals</th></tr>
         </thead>
         <tbody>
           ${rows
@@ -2659,7 +2665,7 @@ function renderCcSlotDetail(slot) {
                   <td data-label="Player">${escapeHtml(r.playerName)}</td>
                   <td data-label="Cat">${isLinked ? categoryBadgeHtmlByPlayerId(playerId) : rohmCategoryBadgeHtml(r)}</td>
                   <td data-label="Usage">${pct(r.usageRate)} (${r.uses})</td>
-                  <td data-label="Avg">${avg(r.avgPts)}</td>
+                  <td data-label="Ave">${avg(r.avgPts)}</td>
                   <td data-label="Goals">${goalsPer7(r.goalsPer7)}</td>
                 </tr>
               `;
@@ -2679,7 +2685,7 @@ function renderRohmSlotDetail(slot) {
     return `<p class="dim">Loading Rohm data...</p>`;
   }
   const rohm = getRohmSlotData(currentFormation, slot);
-  const rows = sortRohmSlotRows(rohm?.rows || [], slotTopSortMode).slice(0, 100);
+  const rows = sortRohmSlotRows(rohm?.rows || [], slotDetailSortMode).slice(0, 100);
   if (!rows.length) {
     return `<p class="dim">No Rohm slot data.</p>`;
   }
@@ -2687,7 +2693,7 @@ function renderRohmSlotDetail(slot) {
     <div class="slot-table-wrap">
       <table class="slot-table rohm-slot-table">
         <thead>
-          <tr><th>#</th><th>Player</th><th>Cat</th><th>${slotDetailSortButton("Games", "usage")}</th><th>${slotDetailSortButton("Avg", "avg")}</th><th>Goals</th><th>Ast</th></tr>
+          <tr><th>#</th><th>Player</th><th>Cat</th><th>Games</th><th>Ave</th><th>Goals</th><th>Ast</th></tr>
         </thead>
         <tbody>
           ${rows
@@ -2701,7 +2707,7 @@ function renderRohmSlotDetail(slot) {
                   <td data-label="Player">${escapeHtml(playerName)}</td>
                   <td data-label="Cat">${rohmCategoryBadgeHtml(r)}</td>
                   <td data-label="Games">${Number(r?.uses || 0).toLocaleString()}</td>
-                  <td data-label="Avg">${avg(r?.avgPts)}</td>
+                  <td data-label="Ave">${avg(r?.avgPts)}</td>
                   <td data-label="Goals">${r?.goals == null ? "-" : Number(r.goals).toFixed(2)}</td>
                   <td data-label="Ast">${r?.assists == null ? "-" : Number(r.assists).toFixed(2)}</td>
                 </tr>
@@ -2718,6 +2724,7 @@ function renderSlotModalContent(slot) {
   if (!els.slotDetail) return;
   els.slotDetail.innerHTML = `
     ${renderSlotDetailSourceSwitch()}
+    ${renderSlotDetailSortSwitch()}
     <div class="slot-detail-body${slotDetailSourceMode === "cc" ? " with-platform-filter" : ""}">
       ${slotDetailSourceMode === "cc" ? renderCcPlatformFilters() : ""}
       ${slotDetailSourceMode === "rohm" ? renderRohmSlotDetail(slot) : renderCcSlotDetail(slot)}
@@ -2729,6 +2736,7 @@ function openSlotModal(slot) {
   if (!currentFormation || !els.slotModal || !els.slotTitle || !els.slotDetail) return;
   currentSlotDetailSlot = slot;
   slotDetailSourceMode = "cc";
+  slotDetailSortMode = slotTopSortMode === "avg" ? "avg" : "usage";
   const yearLabel = formatFormationYearLabel(currentFormation.year, currentFormation.stride);
   els.slotTitle.textContent = `${currentFormation.name}${yearLabel ? ` ${yearLabel}` : ""} / Slot ${slot}`;
   renderSlotModalContent(slot);
@@ -3049,7 +3057,7 @@ function bindEvents() {
       if (sortBtn) {
         const mode = String(sortBtn.dataset.slotDetailSort || "");
         if ((mode === "usage" || mode === "avg") && currentSlotDetailSlot != null) {
-          slotTopSortMode = mode;
+          slotDetailSortMode = mode;
           renderSlotModalContent(currentSlotDetailSlot);
         }
         return;
