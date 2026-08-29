@@ -1460,6 +1460,37 @@ select {
   margin-top: 10px;
 }
 
+.reset-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+button.reset-all-btn {
+  width: auto;
+  min-width: 96px;
+  min-height: 28px;
+  border: 1px solid rgba(91, 111, 145, 0.5);
+  border-radius: 7px;
+  background: rgba(13, 23, 40, 0.42);
+  color: #7f92b1;
+  padding: 5px 14px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+button.reset-all-btn:hover {
+  border-color: #496083;
+  background: #121e31;
+  color: #aab9d0;
+}
+
+button.reset-all-btn:active {
+  transform: translateY(1px);
+  color: #c7d3e6;
+}
+
 .cloud-box {
   margin-top: 12px;
   padding: 10px;

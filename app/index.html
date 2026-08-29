@@ -12,7 +12,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=20260324-013653" />
   <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png?v=20260324-013653" />
   <link rel="shortcut icon" href="./favicon.ico?v=20260324-013653" />
-  <link rel="stylesheet" href="./style.css?v=20260829-parameter-layout-v1" />
+  <link rel="stylesheet" href="./style.css?v=20260829-parameter-layout-v2" />
 </head>
 <body>
   <main class="container">
@@ -61,9 +61,8 @@
       </div>
 
       <label id="parameterFilterLabel" class="label" for="parameterPickerOpen">Parameters</label>
-      <div class="buttons">
+      <div class="area-control-row">
         <button id="parameterPickerOpen" type="button" class="area-picker-open">Select Parameters</button>
-        <button id="resetSearch" type="button" class="ghost">Reset All</button>
       </div>
       <div id="parameterSelectedSummary" class="area-selected-summary">Selected: -</div>
 
@@ -105,6 +104,9 @@
 
       <div class="apply-row">
         <button id="applySearch" type="button" class="search-btn">Search</button>
+      </div>
+      <div class="reset-row">
+        <button id="resetSearch" type="button" class="reset-all-btn">Reset All</button>
       </div>
     </section>
 
