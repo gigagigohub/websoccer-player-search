@@ -8,6 +8,7 @@ const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-pla
 const ROHM_SLOT_DATA_URL = "./rohm_slot_data.json?v=20260510-rohm-peak-avg";
 const BROWSER_CC_SLOT_DATA_URL = "./browser_cc_slot_data.json?v=20260823-platform-filter-v1";
 const V4_CLEAN_UNIFORM_DATA_URL = "./v4_clean_uniform_data.json?v=20260719-tpi-oof-v1";
+const UNIMPLEMENTED_PLAYER_IMAGE = "./images/chara/players/unimplemented-silhouette.png";
 const CC_AVG_MIN_USES = 15;
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 let ccDataMeta = null;
@@ -1031,8 +1032,8 @@ function renderSlotTop(slotStats, mode = "usage") {
               </div>
               <div class="slot-top-meta">
                 <span class="slot-top-titleline">
-                  <strong class="slot-top-name">${top.playerName}</strong>
                   ${categoryBadgeHtmlByPlayerId(top.playerId)}
+                  <strong class="slot-top-name">${top.playerName}</strong>
                 </span>
                 <span class="slot-top-statline with-goals">
                   <span class="slot-top-stat-text">Usage ${pct(top.usageRate)} / Avg ${avg(top.avgPts)} / Goals ${goalsPer7(top.goalsPer7)}</span>
@@ -1176,8 +1177,8 @@ function renderModelSlots(formation) {
               </div>
               <div class="slot-top-meta">
                 <span class="slot-top-titleline">
-                  <strong class="slot-top-name">${playerName}</strong>
                   ${categoryBadgeHtml(player?.category || row?.category, playerId)}
+                  <strong class="slot-top-name">${playerName}</strong>
                 </span>
                 <span class="slot-top-statline model-slot-statline">
                   <span class="slot-top-stat-text">${modelName}</span>
@@ -1278,8 +1279,8 @@ function renderBestTeam(formation) {
             </div>
             <div class="slot-top-meta">
               <span class="slot-top-titleline">
-                <strong class="slot-top-name">${member?.playerName || "-"}</strong>
                 ${categoryBadgeHtmlByPlayerId(playerId)}
+                <strong class="slot-top-name">${member?.playerName || "-"}</strong>
               </span>
               <span class="slot-top-statline with-goals">
                 <span class="slot-top-stat-text">Usage ${pct(member?.usageRate)} / Avg ${avg(member?.avgPts)} / Goals ${goalsCount(member?.goals)}</span>
@@ -1328,9 +1329,11 @@ function renderRepresentativeTeam(formation) {
                 <img loading="lazy" src="${imgSrc}" alt="${top.playerName}" />
               </div>
               <div class="slot-top-meta">
-                <strong class="slot-top-name">${top.playerName}</strong>
-                <span class="slot-top-statline">
+                <span class="slot-top-titleline">
                   ${categoryBadgeHtmlByPlayerId(top.playerId)}
+                  <strong class="slot-top-name">${top.playerName}</strong>
+                </span>
+                <span class="slot-top-statline">
                   <span>${pct(top.usageRate)} / Avg ${avg(top.avgPts)}</span>
                 </span>
               </div>
@@ -2652,18 +2655,18 @@ function renderCcSlotDetail(slot) {
     <div class="slot-table-wrap">
       <table class="slot-table">
         <thead>
-          <tr><th>#</th><th>Player</th><th>Cat</th><th>Usage</th><th>Ave</th><th>Goals</th></tr>
+          <tr><th>#</th><th>Player</th><th>Usage</th><th>Ave</th><th>Goals</th></tr>
         </thead>
         <tbody>
           ${rows
             .map((r, idx) => {
               const playerId = Number(r?.playerId || 0);
               const isLinked = Number.isInteger(playerId) && playerId > 0;
+              const imageSrc = isLinked ? playerImageSrcById(playerId, "static") : UNIMPLEMENTED_PLAYER_IMAGE;
               return `
                 <tr class="${isLinked ? "slot-player-row" : "rohm-unlinked-row browser-unimplemented-row"}" ${isLinked ? `data-player-id="${playerId}"` : ""}>
                   <td data-label="#">${idx + 1}</td>
-                  <td data-label="Player">${escapeHtml(r.playerName)}</td>
-                  <td data-label="Cat">${isLinked ? categoryBadgeHtmlByPlayerId(playerId) : rohmCategoryBadgeHtml(r)}</td>
+                  <td data-label="Player"><span class="slot-table-playerline"><span class="slot-top-thumb slot-table-player-thumb" aria-hidden="true"><img loading="lazy" src="${imageSrc}" alt="" /></span>${isLinked ? categoryBadgeHtmlByPlayerId(playerId) : rohmCategoryBadgeHtml(r)}<span class="slot-table-player-name">${escapeHtml(r.playerName)}</span></span></td>
                   <td data-label="Usage">${pct(r.usageRate)} (${r.uses})</td>
                   <td data-label="Ave">${avg(r.avgPts)}</td>
                   <td data-label="Goals">${goalsPer7(r.goalsPer7)}</td>
@@ -2693,7 +2696,7 @@ function renderRohmSlotDetail(slot) {
     <div class="slot-table-wrap">
       <table class="slot-table rohm-slot-table">
         <thead>
-          <tr><th>#</th><th>Player</th><th>Cat</th><th>Games</th><th>Ave</th><th>Goals</th><th>Ast</th></tr>
+          <tr><th>#</th><th>Player</th><th>Games</th><th>Ave</th><th>Goals</th><th>Ast</th></tr>
         </thead>
         <tbody>
           ${rows
@@ -2701,11 +2704,11 @@ function renderRohmSlotDetail(slot) {
               const playerId = Number(r?.localPlayerId || 0);
               const isLinked = Number.isInteger(playerId) && playerId > 0;
               const playerName = isLinked ? (playersById.get(playerId)?.name || r.playerName) : r.playerName;
+              const imageSrc = isLinked ? playerImageSrcById(playerId, "static") : UNIMPLEMENTED_PLAYER_IMAGE;
               return `
                 <tr class="${isLinked ? "slot-player-row" : "rohm-unlinked-row"}" ${isLinked ? `data-player-id="${playerId}"` : ""}>
                   <td data-label="#">${idx + 1}</td>
-                  <td data-label="Player">${escapeHtml(playerName)}</td>
-                  <td data-label="Cat">${rohmCategoryBadgeHtml(r)}</td>
+                  <td data-label="Player"><span class="slot-table-playerline"><span class="slot-top-thumb slot-table-player-thumb" aria-hidden="true"><img loading="lazy" src="${imageSrc}" alt="" /></span>${rohmCategoryBadgeHtml(r)}<span class="slot-table-player-name">${escapeHtml(playerName)}</span></span></td>
                   <td data-label="Games">${Number(r?.uses || 0).toLocaleString()}</td>
                   <td data-label="Ave">${avg(r?.avgPts)}</td>
                   <td data-label="Goals">${r?.goals == null ? "-" : Number(r.goals).toFixed(2)}</td>
