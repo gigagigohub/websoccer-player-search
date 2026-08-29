@@ -8,7 +8,7 @@ const REPO_COMMITS_API = "https://api.github.com/repos/gigagigohub/websoccer-pla
 const ROHM_SLOT_DATA_URL = "./rohm_slot_data.json?v=20260510-rohm-peak-avg";
 const BROWSER_CC_SLOT_DATA_URL = "./browser_cc_slot_data.json?v=20260823-platform-filter-v1";
 const V4_CLEAN_UNIFORM_DATA_URL = "./v4_clean_uniform_data.json?v=20260719-tpi-oof-v1";
-const UNIMPLEMENTED_PLAYER_IMAGE = "./images/chara/players/unimplemented-silhouette.png";
+const UNIMPLEMENTED_PLAYER_IMAGE = "./images/chara/players/unimplemented-silhouette-v2.png";
 const CC_AVG_MIN_USES = 15;
 let appUpdatedAtJst = APP_UPDATED_AT_JST;
 let ccDataMeta = null;
