@@ -19,6 +19,8 @@ let templateMatchupRequireCoach = true;
 let templateMatchupExcludeCc = true;
 let currentMatchupFormation = null;
 let matchupReturnsToFormation = false;
+let slotReturnsToFormation = false;
+let playerReturnModal = "";
 const templateMatchupScenarioCache = new Map();
 const METRICS = [
   "スピ", "テク", "パワ", "スタ", "ラフ", "個性", "人気",
@@ -967,10 +969,10 @@ function renderKeyPositions(keyPositions) {
       ${keyPositions
         .map(
           (k) => `
-            <div class="formation-kp-item">
-              <div class="formation-kp-title">Key ${k.rank} / Slot ${k.slot} ${k.subtitle ? `(${k.subtitle})` : ""}</div>
+            <details class="formation-kp-item">
+              <summary class="formation-kp-title">Key ${k.rank} / Slot ${k.slot} ${k.subtitle ? `(${k.subtitle})` : ""}</summary>
               <div class="formation-kp-desc">${k.description || "-"}</div>
-            </div>
+            </details>
           `
         )
         .join("")}
@@ -1808,12 +1810,23 @@ function openPlayerCardModal(playerId) {
   if (!Number.isInteger(id)) return;
   selectedPlayerId = id;
   renderPlayerCardModal();
+  playerReturnModal = "";
+  if (els.slotModal && !els.slotModal.hidden) {
+    playerReturnModal = "slot";
+    els.slotModal.hidden = true;
+  } else if (els.formationModal && !els.formationModal.hidden) {
+    playerReturnModal = "formation";
+    els.formationModal.hidden = true;
+  }
   if (els.playerCardModal) els.playerCardModal.hidden = false;
 }
 
 function closePlayerCardModal() {
   selectedPlayerId = null;
   if (els.playerCardModal) els.playerCardModal.hidden = true;
+  if (playerReturnModal === "slot" && els.slotModal) els.slotModal.hidden = false;
+  if (playerReturnModal === "formation" && els.formationModal) els.formationModal.hidden = false;
+  playerReturnModal = "";
 }
 
 function formationGaugeBox(label, value, className = "") {
@@ -1996,10 +2009,6 @@ function openFormationModal(formation, options = {}) {
         </div>
       </div>
     </div>
-    <div class="formation-block formation-description-block">
-      <h3>Description</h3>
-      ${renderFormationDescription(formation)}
-    </div>
     <div class="formation-detail-stack">
         <div class="formation-block">
           <h3>Formation Data</h3>
@@ -2041,6 +2050,10 @@ function openFormationModal(formation, options = {}) {
       </div>
       ${renderCoachRanking(formation.coachStats, coachRankingMode)}
     </div>
+    <details class="formation-block formation-description-block formation-disclosure">
+      <summary>Description</summary>
+      ${renderFormationDescription(formation)}
+    </details>
   `;
   els.formationModal.hidden = false;
 }
@@ -2642,12 +2655,12 @@ function renderCcSlotDetail(slot) {
               const isLinked = Number.isInteger(playerId) && playerId > 0;
               return `
                 <tr class="${isLinked ? "slot-player-row" : "rohm-unlinked-row browser-unimplemented-row"}" ${isLinked ? `data-player-id="${playerId}"` : ""}>
-                  <td>${idx + 1}</td>
-                  <td>${escapeHtml(r.playerName)}</td>
-                  <td>${isLinked ? categoryBadgeHtmlByPlayerId(playerId) : rohmCategoryBadgeHtml(r)}</td>
-                  <td>${pct(r.usageRate)} (${r.uses})</td>
-                  <td>${avg(r.avgPts)}</td>
-                  <td>${goalsPer7(r.goalsPer7)}</td>
+                  <td data-label="#">${idx + 1}</td>
+                  <td data-label="Player">${escapeHtml(r.playerName)}</td>
+                  <td data-label="Cat">${isLinked ? categoryBadgeHtmlByPlayerId(playerId) : rohmCategoryBadgeHtml(r)}</td>
+                  <td data-label="Usage">${pct(r.usageRate)} (${r.uses})</td>
+                  <td data-label="Avg">${avg(r.avgPts)}</td>
+                  <td data-label="Goals">${goalsPer7(r.goalsPer7)}</td>
                 </tr>
               `;
             })
@@ -2684,13 +2697,13 @@ function renderRohmSlotDetail(slot) {
               const playerName = isLinked ? (playersById.get(playerId)?.name || r.playerName) : r.playerName;
               return `
                 <tr class="${isLinked ? "slot-player-row" : "rohm-unlinked-row"}" ${isLinked ? `data-player-id="${playerId}"` : ""}>
-                  <td>${idx + 1}</td>
-                  <td>${escapeHtml(playerName)}</td>
-                  <td>${rohmCategoryBadgeHtml(r)}</td>
-                  <td>${Number(r?.uses || 0).toLocaleString()}</td>
-                  <td>${avg(r?.avgPts)}</td>
-                  <td>${r?.goals == null ? "-" : Number(r.goals).toFixed(2)}</td>
-                  <td>${r?.assists == null ? "-" : Number(r.assists).toFixed(2)}</td>
+                  <td data-label="#">${idx + 1}</td>
+                  <td data-label="Player">${escapeHtml(playerName)}</td>
+                  <td data-label="Cat">${rohmCategoryBadgeHtml(r)}</td>
+                  <td data-label="Games">${Number(r?.uses || 0).toLocaleString()}</td>
+                  <td data-label="Avg">${avg(r?.avgPts)}</td>
+                  <td data-label="Goals">${r?.goals == null ? "-" : Number(r.goals).toFixed(2)}</td>
+                  <td data-label="Ast">${r?.assists == null ? "-" : Number(r.assists).toFixed(2)}</td>
                 </tr>
               `;
             })
@@ -2719,7 +2732,9 @@ function openSlotModal(slot) {
   const yearLabel = formatFormationYearLabel(currentFormation.year, currentFormation.stride);
   els.slotTitle.textContent = `${currentFormation.name}${yearLabel ? ` ${yearLabel}` : ""} / Slot ${slot}`;
   renderSlotModalContent(slot);
+  slotReturnsToFormation = Boolean(els.formationModal && !els.formationModal.hidden);
   els.slotModal.hidden = false;
+  if (slotReturnsToFormation) els.formationModal.hidden = true;
   if ((slotCcPlatformEnabled.ymbga || slotCcPlatformEnabled.mixi) && !browserCcSlotData) {
     loadBrowserCcSlotData()
       .then(() => {
@@ -2737,7 +2752,10 @@ function openSlotModal(slot) {
 
 function closeSlotModal() {
   if (!els.slotModal) return;
+  const shouldRestoreFormation = slotReturnsToFormation;
   els.slotModal.hidden = true;
+  slotReturnsToFormation = false;
+  if (shouldRestoreFormation && els.formationModal) els.formationModal.hidden = false;
 }
 
 function bindEvents() {

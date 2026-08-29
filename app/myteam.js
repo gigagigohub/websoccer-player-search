@@ -1717,7 +1717,7 @@ function saveLifecycleMode() {
 function renderLifecycleControls() {
   if (els.lifecycleToggle) {
     els.lifecycleToggle.classList.toggle("is-on", lifecycleModeEnabled);
-    els.lifecycleToggle.textContent = lifecycleModeEnabled ? "Cycle Management Mode: ON" : "Cycle Management Mode: OFF";
+    els.lifecycleToggle.textContent = lifecycleModeEnabled ? "Cycle: On" : "Cycle: Off";
   }
 }
 
@@ -4382,7 +4382,7 @@ async function init() {
   }
 
   if (!hasCloudConfig()) {
-    if (els.myTeamTarget) els.myTeamTarget.textContent = "TeamIDが未設定です（先にLoginしてください）";
+    if (els.myTeamTarget) els.myTeamTarget.textContent = "Not logged in";
     renderMyTeamMeta();
     renderMyTeamSlotSwitcher();
     renderLineup();

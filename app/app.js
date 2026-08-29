@@ -513,15 +513,16 @@ function updateAptitudeSummary() {
     els.aptitudePickerOpen.textContent = hasFilters ? "Edit Area" : "Select Area";
   }
   if (!els.aptitudeSelectedSummary) return;
+  els.aptitudeSelectedSummary.hidden = !hasFilters;
   if (!hasFilters) {
-    els.aptitudeSelectedSummary.textContent = "Selected: -";
+    els.aptitudeSelectedSummary.textContent = "";
     return;
   }
   const modeLabel = aptitudeMatchMode === "any" && aptitudeFilters.length > 1 ? " / ANY" : "";
   const selected = aptitudeFilters
     .map((filter) => `${aptitudeAreaLabel(filter.code)} ${formatAptitudeRange(filter.min, filter.max, filter.op)}`)
     .join(", ");
-  els.aptitudeSelectedSummary.textContent = `Selected: ${selected}${modeLabel}`;
+  els.aptitudeSelectedSummary.textContent = `${selected}${modeLabel}`;
 }
 
 function syncAptitudeAreaLabel() {
@@ -1338,14 +1339,15 @@ function updateParameterSummary() {
     els.parameterPickerOpen.textContent = active.length ? "Edit Parameters" : "Select Parameters";
   }
   if (!els.parameterSelectedSummary) return;
+  els.parameterSelectedSummary.hidden = active.length === 0;
   if (!active.length) {
-    els.parameterSelectedSummary.textContent = "Selected: -";
+    els.parameterSelectedSummary.textContent = "";
     return;
   }
-  els.parameterSelectedSummary.textContent = `Selected: ${active.map((filter) => {
+  els.parameterSelectedSummary.textContent = active.map((filter) => {
     const def = PARAMETER_FILTER_BY_METRIC[filter.metric];
     return `${def.label} ${formatParameterRange(filter)}`;
-  }).join(", ")}`;
+  }).join(", ");
 }
 
 function parameterRangePercent(def, value) {

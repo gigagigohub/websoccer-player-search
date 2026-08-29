@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>WebSoccer Ordinary - Player Inventory</title>
-  <meta property="og:title" content="WebSoccer Ordinary - Player Inventory" />
+  <title>WebSoccer Ordinary - Inventory</title>
+  <meta property="og:title" content="WebSoccer Ordinary - Inventory" />
   <meta property="og:site_name" content="WebSoccer Ordinary" />
-  <meta name="twitter:title" content="WebSoccer Ordinary - Player Inventory" />
+  <meta name="twitter:title" content="WebSoccer Ordinary - Inventory" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=20260324-013653" />
   <link rel="icon" type="image/x-icon" href="./favicon.ico?v=20260324-013653" />
   <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=20260324-013653" />
   <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png?v=20260324-013653" />
   <link rel="shortcut icon" href="./favicon.ico?v=20260324-013653" />
-  <link rel="stylesheet" href="./style.css?v=20260810-player-inventory-v10" />
+  <link rel="stylesheet" href="./style.css?v=20260829-ui-unify-v1" />
 </head>
 <body class="stocks-page">
   <main class="container">
@@ -25,7 +25,7 @@
         <button id="formationsButton" type="button" class="menu-item">Formations</button>
         <button id="collectionsButton" type="button" class="menu-item">Collections</button>
         <button id="myTeamButton" type="button" class="menu-item">My Team</button>
-        <button id="stocksButton" type="button" class="menu-item is-current" aria-current="page">Player Inventory</button>
+        <button id="stocksButton" type="button" class="menu-item is-current" aria-current="page">Inventory</button>
         <button id="loginButton" type="button" class="menu-item">Login</button>
         <button id="logoutButton" type="button" class="menu-item logout" hidden>Logout</button>
       </div>
@@ -34,7 +34,6 @@
     </header>
 
     <section class="panel stock-overview-panel">
-      <p class="stock-scope-copy">A–Xの将来割当を除いたNumbered Team在庫を検索します</p>
       <div id="stockSummary" class="stock-summary" aria-live="polite"></div>
       <div class="stock-inline-search">
         <label class="label" for="stockQuery">Player Name</label>
@@ -51,7 +50,6 @@
           />
           <div id="stockSuggestions" class="stock-suggestions" role="listbox" hidden></div>
         </div>
-        <p class="stock-search-hint">かな入力対応。候補を選ぶと全期在庫を表示します。</p>
       </div>
     </section>
 
@@ -63,7 +61,10 @@
       <div id="stockList" class="stock-list" aria-live="polite">
         <div class="stock-empty">選手名を入力してください。</div>
       </div>
-      <p class="stock-data-note">RESERVEは外部予備として確保している在庫です。検索・表示には常に含めますが、トレードに使う場合は予備枠の不足に注意してください。各チームの当期トレード残枠・出品中・交渉中の状態はまだ反映していません。</p>
+      <details class="stock-data-details">
+        <summary>ⓘ Reserve</summary>
+        <p>RESERVEをトレードする際は予備数に注意。残枠・出品・交渉中は未反映です。</p>
+      </details>
     </section>
   </main>
 

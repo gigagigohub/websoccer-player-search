@@ -12,7 +12,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=20260324-013653" />
   <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png?v=20260324-013653" />
   <link rel="shortcut icon" href="./favicon.ico?v=20260324-013653" />
-  <link rel="stylesheet" href="./style.css?v=20260829-mind-pin-v1" />
+  <link rel="stylesheet" href="./style.css?v=20260829-ui-unify-v1" />
 </head>
 <body>
   <main class="container">
@@ -25,7 +25,7 @@
         <button id="formationsButton" type="button" class="menu-item">Formations</button>
         <button id="collectionsButton" type="button" class="menu-item">Collections</button>
         <button id="myTeamButton" type="button" class="menu-item">My Team</button>
-        <button id="stocksButton" type="button" class="menu-item">Player Inventory</button>
+        <button id="stocksButton" type="button" class="menu-item">Inventory</button>
         <button id="loginButton" type="button" class="menu-item">Login</button>
         <button id="logoutButton" type="button" class="menu-item logout" hidden>Logout</button>
       </div>
@@ -33,14 +33,18 @@
       <p class="meta" id="metaText">Loading data...</p>
     </header>
 
-    <section class="panel">
+    <section class="panel players-filter-panel">
+      <div class="filter-panel-head">
+        <h2>Filters</h2>
+        <button id="resetSearch" type="button" class="ghost reset-all-btn">Reset All</button>
+      </div>
       <label class="label" for="nameQuery">Name</label>
       <div class="suggest-wrap">
         <input id="nameQuery" type="search" enterkeyhint="search" placeholder="選手名・モデル選手・タイプ検索" />
         <div id="nameSuggest" class="name-suggest" hidden></div>
       </div>
 
-      <div class="logic-row">
+      <div class="players-filter-grid">
         <div>
           <label class="label" for="positionFilter">Position</label>
           <select id="positionFilter">
@@ -56,15 +60,16 @@
           <div class="area-control-row">
             <button id="aptitudePickerOpen" type="button" class="area-picker-open">Select Area</button>
           </div>
-          <div id="aptitudeSelectedSummary" class="area-selected-summary">Selected: -</div>
+          <div id="aptitudeSelectedSummary" class="area-selected-summary" hidden></div>
+        </div>
+        <div class="parameter-filter-block">
+          <label id="parameterFilterLabel" class="label" for="parameterPickerOpen">Parameters</label>
+          <div class="area-control-row">
+            <button id="parameterPickerOpen" type="button" class="area-picker-open">Select Parameters</button>
+          </div>
+          <div id="parameterSelectedSummary" class="area-selected-summary" hidden></div>
         </div>
       </div>
-
-      <label id="parameterFilterLabel" class="label" for="parameterPickerOpen">Parameters</label>
-      <div class="area-control-row">
-        <button id="parameterPickerOpen" type="button" class="area-picker-open">Select Parameters</button>
-      </div>
-      <div id="parameterSelectedSummary" class="area-selected-summary">Selected: -</div>
 
       <div class="category-head">
         <label class="label category-label">Category Filter</label>
@@ -100,10 +105,6 @@
         <select id="cmEventFilter">
           <option value="">ALL</option>
         </select>
-      </div>
-
-      <div class="reset-row">
-        <button id="resetSearch" type="button" class="ghost reset-all-btn">Reset All</button>
       </div>
     </section>
 
@@ -159,8 +160,7 @@
         <h2 id="loginTitle">Login</h2>
         <button id="loginClose" type="button" class="season-close" aria-label="閉じる">×</button>
       </div>
-      <p class="season-target">TeamIDを入力してください</p>
-      <label class="label" for="loginLineupKey">TeamID</label>
+      <label class="label" for="loginLineupKey">Login ID</label>
       <input id="loginLineupKey" type="text" />
       <div class="season-actions">
         <button id="signupOpen" type="button" class="add-btn">Create New ID</button>
@@ -176,8 +176,7 @@
         <h2 id="signupTitle">Sign Up</h2>
         <button id="signupClose" type="button" class="season-close" aria-label="閉じる">×</button>
       </div>
-      <p class="season-target">新規TeamIDを入力してください</p>
-      <label class="label" for="signupLineupKey">TeamID</label>
+      <label class="label" for="signupLineupKey">Login ID</label>
       <input id="signupLineupKey" type="text" placeholder="新規ID（任意の半角英数字記号）" />
       <div class="season-actions">
         <button id="signupCancel" type="button" class="ghost">Cancel</button>
@@ -259,7 +258,6 @@
         <h2 id="aptitudeTitle">Position Area</h2>
         <button id="aptitudeClose" type="button" class="season-close" aria-label="閉じる">×</button>
       </div>
-      <p class="season-target">「At least / At most」を選び、同じエリアを繰り返しタップしてください</p>
       <div class="aptitude-threshold-switch" role="group" aria-label="適性値の比較方法">
         <button id="aptitudeDirectionAbove" type="button" class="aptitude-threshold-btn is-active" aria-pressed="true">
           <strong>At least</strong>
@@ -290,7 +288,6 @@
         <h2 id="parameterTitle">Parameters</h2>
         <button id="parameterClose" type="button" class="season-close" aria-label="閉じる">×</button>
       </div>
-      <p class="season-target">通常値はゲージをタップ。メンタル軸は範囲指定です</p>
       <div id="parameterRows" class="parameter-filter-list"></div>
       <div class="season-actions">
         <button id="parameterClear" type="button" class="ghost">Clear</button>
@@ -299,6 +296,6 @@
     </div>
   </div>
 
-  <script src="./app.js?v=20260829-live-search-v1"></script>
+  <script src="./app.js?v=20260829-ui-unify-v1"></script>
 </body>
 </html>
