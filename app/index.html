@@ -12,7 +12,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=20260324-013653" />
   <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png?v=20260324-013653" />
   <link rel="shortcut icon" href="./favicon.ico?v=20260324-013653" />
-  <link rel="stylesheet" href="./style.css?v=20260829-mind-relative-v4" />
+  <link rel="stylesheet" href="./style.css?v=20260829-parameter-layout-v1" />
 </head>
 <body>
   <main class="container">
@@ -59,6 +59,14 @@
           <div id="aptitudeSelectedSummary" class="area-selected-summary">Selected: -</div>
         </div>
       </div>
+
+      <label id="parameterFilterLabel" class="label" for="parameterPickerOpen">Parameters</label>
+      <div class="buttons">
+        <button id="parameterPickerOpen" type="button" class="area-picker-open">Select Parameters</button>
+        <button id="resetSearch" type="button" class="ghost">Reset All</button>
+      </div>
+      <div id="parameterSelectedSummary" class="area-selected-summary">Selected: -</div>
+
       <div class="category-head">
         <label class="label category-label">Category Filter</label>
         <label class="retired-toggle">
@@ -95,12 +103,6 @@
         </select>
       </div>
 
-      <label id="parameterFilterLabel" class="label" for="parameterPickerOpen">Parameters</label>
-      <div class="buttons">
-        <button id="parameterPickerOpen" type="button" class="area-picker-open">Select Parameters</button>
-        <button id="resetSearch" type="button" class="ghost">Reset All</button>
-      </div>
-      <div id="parameterSelectedSummary" class="area-selected-summary">Selected: -</div>
       <div class="apply-row">
         <button id="applySearch" type="button" class="search-btn">Search</button>
       </div>
