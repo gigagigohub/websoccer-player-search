@@ -2367,7 +2367,7 @@ button.mind-chart-toggle:focus-visible {
   gap: 14px;
   opacity: 0;
   visibility: hidden;
-  transform: translateX(-50%) scale(0.7);
+  transform: translateX(-50%) scale(0.77);
   transform-origin: center;
 }
 
@@ -2391,12 +2391,14 @@ button.mind-chart-toggle:focus-visible {
 
 .mind-relative-label {
   color: #f3f4f7;
-  font-size: 0.66rem;
-  font-weight: 800;
+  font-size: 0.805rem;
+  font-weight: 700;
   line-height: 1;
   text-align: center;
   white-space: nowrap;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.65),
+    0 0 2px rgba(0, 0, 0, 0.45);
 }
 
 .mind-relative-track {

@@ -165,6 +165,7 @@ let myTeamSlotNames = Object.fromEntries(
   Array.from({ length: MYTEAM_SLOT_COUNT }, (_, i) => [i + 1, `Team ${i + 1}`])
 );
 const cardViewModeById = new Map();
+const relativeMindChartPlayerIds = new Set();
 let formations = [];
 let coaches = [];
 let v4CleanUniformData = { meta: {}, formationPower: {}, coachPower: {}, playerEffect: {}, formationSlotExpectedPts: {}, weights: {}, matchPower: {} };
@@ -3202,6 +3203,55 @@ function swipeDeckHtml(viewMode, normalViewHtml, detailViewHtml, thirdViewHtml) 
   `;
 }
 
+function browserRelativeMentalAxis(difference) {
+  const diff = Number(difference);
+  if (!Number.isFinite(diff)) return null;
+  const magnitude = Math.min(5, Math.floor((Math.abs(diff) + 1) / 3));
+  if (diff > 0) return magnitude;
+  if (diff < 0) return -magnitude;
+  return 0;
+}
+
+function mindRelativeAxisHtml(leftLabel, rightLabel, value) {
+  const numericValue = Number(value);
+  const boundedValue = Number.isFinite(numericValue)
+    ? Math.max(-5, Math.min(5, Math.round(numericValue)))
+    : 0;
+  const position = ((boundedValue + 5) / 10) * 100;
+  const ticks = Array.from({ length: 11 }, () => '<span class="mind-relative-tick"></span>').join("");
+  return `
+    <span class="mind-relative-row" style="--mind-relative-position:${position}%">
+      <span class="mind-relative-label">${leftLabel}</span>
+      <span class="mind-relative-track" aria-hidden="true">
+        <span class="mind-relative-ticks">${ticks}</span>
+        <span class="mind-relative-indicator"></span>
+      </span>
+      <span class="mind-relative-label">${rightLabel}</span>
+    </span>
+  `;
+}
+
+function toggleMindChartButton(button) {
+  if (!button) return;
+  const playerId = Number(button.dataset.playerId);
+  if (!Number.isInteger(playerId)) return;
+  const showRelativeMind = !button.classList.contains("is-relative");
+  button.classList.toggle("is-relative", showRelativeMind);
+  button.setAttribute("aria-pressed", showRelativeMind ? "true" : "false");
+  button.setAttribute(
+    "aria-label",
+    showRelativeMind
+      ? "知性・感性・個人・組織の4値表示に戻す"
+      : "知性・感性、個人・組織の相対表示に切り替え"
+  );
+  const absoluteChart = button.querySelector(".mind-chart-absolute");
+  const relativeChart = button.querySelector(".mind-relative-chart");
+  if (absoluteChart) absoluteChart.setAttribute("aria-hidden", showRelativeMind ? "true" : "false");
+  if (relativeChart) relativeChart.setAttribute("aria-hidden", showRelativeMind ? "false" : "true");
+  if (showRelativeMind) relativeMindChartPlayerIds.add(playerId);
+  else relativeMindChartPlayerIds.delete(playerId);
+}
+
 function playerCardHtml(player, season) {
   const staticImg = playerImageSrc(player, "static");
   const actionImg = playerImageSrc(player, "action");
@@ -3250,6 +3300,9 @@ function playerCardHtml(player, season) {
     kojin: displayMetrics?.["個人"] ?? 0,
     soshiki: displayMetrics?.["組織"] ?? 0,
   };
+  const sensitivityAxis = browserRelativeMentalAxis(mind.kansei - mind.zisei) ?? 0;
+  const organizationAxis = browserRelativeMentalAxis(mind.soshiki - mind.kojin) ?? 0;
+  const showRelativeMind = relativeMindChartPlayerIds.has(player.id);
   const cx = 70;
   const cy = 70;
   const r = 54;
@@ -3270,20 +3323,32 @@ function playerCardHtml(player, season) {
               <img loading="lazy" src="${staticImg}" alt="${player.name} 静止" />
               <img loading="lazy" src="${actionImg}" alt="${player.name} アクション" />
             </div>
-            <div class="mind-chart" aria-label="知性感性個人組織チャート">
-              <svg viewBox="0 0 140 140" role="img">
-                <polygon class="grid" points="70,16 124,70 70,124 16,70"></polygon>
-                <polygon class="grid" points="70,34 106,70 70,106 34,70"></polygon>
-                <polygon class="grid" points="70,52 88,70 70,88 52,70"></polygon>
-                <line class="axis" x1="70" y1="16" x2="70" y2="124"></line>
-                <line class="axis" x1="16" y1="70" x2="124" y2="70"></line>
-                <polygon class="area" points="${areaPoints}"></polygon>
-              </svg>
-              <div class="mind-label top">知性 ${mind.zisei}</div>
-              <div class="mind-label right">組織 ${mind.soshiki}</div>
-              <div class="mind-label bottom">感性 ${mind.kansei}</div>
-              <div class="mind-label left">個人 ${mind.kojin}</div>
-            </div>
+            <button
+              type="button"
+              class="mind-chart mind-chart-toggle${showRelativeMind ? " is-relative" : ""}"
+              data-player-id="${player.id}"
+              aria-pressed="${showRelativeMind ? "true" : "false"}"
+              aria-label="${showRelativeMind ? "知性・感性・個人・組織の4値表示に戻す" : "知性・感性、個人・組織の相対表示に切り替え"}"
+            >
+              <span class="mind-chart-absolute" aria-hidden="${showRelativeMind ? "true" : "false"}">
+                <svg viewBox="0 0 140 140">
+                  <polygon class="grid" points="70,16 124,70 70,124 16,70"></polygon>
+                  <polygon class="grid" points="70,34 106,70 70,106 34,70"></polygon>
+                  <polygon class="grid" points="70,52 88,70 70,88 52,70"></polygon>
+                  <line class="axis" x1="70" y1="16" x2="70" y2="124"></line>
+                  <line class="axis" x1="16" y1="70" x2="124" y2="70"></line>
+                  <polygon class="area" points="${areaPoints}"></polygon>
+                </svg>
+                <span class="mind-label top">知性 ${mind.zisei}</span>
+                <span class="mind-label right">組織 ${mind.soshiki}</span>
+                <span class="mind-label bottom">感性 ${mind.kansei}</span>
+                <span class="mind-label left">個人 ${mind.kojin}</span>
+              </span>
+              <span class="mind-relative-chart" aria-hidden="${showRelativeMind ? "false" : "true"}">
+                ${mindRelativeAxisHtml("知性", "感性", sensitivityAxis)}
+                ${mindRelativeAxisHtml("個人", "組織", organizationAxis)}
+              </span>
+            </button>
           </div>
       ${peakBlock}
       <div class="metrics-wrap">
@@ -4052,6 +4117,11 @@ async function init() {
   }
   if (els.playerCardHost) {
     els.playerCardHost.addEventListener("click", (e) => {
+      const mindChartBtn = e.target.closest(".mind-chart-toggle");
+      if (mindChartBtn) {
+        toggleMindChartButton(mindChartBtn);
+        return;
+      }
       const tabBtn = e.target.closest(".card-tab");
       if (!tabBtn) return;
       const id = Number(tabBtn.dataset.playerId);
