@@ -2432,7 +2432,7 @@ button.mind-chart-toggle:focus-visible {
   bottom: 3px;
   left: var(--mind-relative-position);
   width: 3px;
-  height: 27px;
+  height: 18px;
   border-radius: 2px;
   background: #ff9518;
   box-shadow: 0 0 4px rgba(255, 137, 0, 0.85), 1px 1px 1px rgba(0, 0, 0, 0.7);
