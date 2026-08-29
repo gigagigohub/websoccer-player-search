@@ -2367,7 +2367,8 @@ button.mind-chart-toggle:focus-visible {
   gap: 14px;
   opacity: 0;
   visibility: hidden;
-  transform: translateX(-50%);
+  transform: translateX(-50%) scale(0.7);
+  transform-origin: center;
 }
 
 .mind-chart-toggle.is-relative .mind-chart-absolute {
@@ -2412,8 +2413,8 @@ button.mind-chart-toggle:focus-visible {
   left: 0;
   height: 2px;
   border-radius: 2px;
-  background: #707278;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.18);
+  background: rgba(112, 114, 120, 0.52);
+  box-shadow: none;
 }
 
 .mind-relative-ticks {
@@ -2427,16 +2428,16 @@ button.mind-chart-toggle:focus-visible {
 }
 
 .mind-relative-tick {
-  width: 2px;
-  height: 8px;
+  width: 1px;
+  height: 6px;
   border-radius: 1px;
-  background: #77797e;
-  box-shadow: 1px 0 0 rgba(0, 0, 0, 0.5);
+  background: rgba(132, 134, 140, 0.5);
+  box-shadow: none;
 }
 
 .mind-relative-tick:nth-child(6) {
-  height: 12px;
-  background: #8c8e94;
+  height: 9px;
+  background: rgba(150, 152, 158, 0.58);
 }
 
 .mind-relative-indicator {
