@@ -2325,9 +2325,7 @@ button.mind-chart-toggle {
 }
 
 button.mind-chart-toggle:focus-visible {
-  outline: 2px solid rgba(255, 151, 30, 0.9);
-  outline-offset: 4px;
-  border-radius: 8px;
+  outline: none;
 }
 
 .mind-chart-absolute,
@@ -6212,14 +6210,24 @@ body.modal-scroll-lock #formationModal .formation-dialog {
   box-shadow: none;
 }
 
-:where(button:not(.cat-filter-chip)):hover:not(:disabled) {
-  border-color: #526c96;
-  background: #213351;
+:where(button, summary, [role="button"]) {
+  -webkit-tap-highlight-color: transparent;
 }
 
-:where(button, input, select, summary):focus-visible {
+:where(button, summary, [role="button"]):focus {
+  outline: none;
+}
+
+:where(input, select):focus-visible {
   outline: 2px solid #79a7f2;
   outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :where(button:not(.cat-filter-chip)):hover:not(:disabled) {
+    border-color: #526c96;
+    background: #213351;
+  }
 }
 
 .menu-item.is-current,
@@ -6363,9 +6371,23 @@ button.danger {
   box-shadow: none;
 }
 
-.season-close:hover,
-.lineup-close:hover {
-  background: #29466f;
+@media (hover: hover) and (pointer: fine) {
+  .season-close:hover,
+  .lineup-close:hover {
+    background: #29466f;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .season-close:hover,
+  .lineup-close:hover {
+    border-color: rgba(116, 145, 191, 0.56);
+    background: #203451;
+  }
+
+  .formation-matchups-btn:hover {
+    filter: none;
+  }
 }
 
 .season-back {
