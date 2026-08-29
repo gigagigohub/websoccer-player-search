@@ -23,9 +23,41 @@ const APTITUDE_AREA_DEFS = [
   { code: "R18", row: 5, col: 2, line: true, displayRow: 10, displayCol: 3, rowSpan: 5 },
 ];
 const APTITUDE_AREA_BY_CODE = Object.fromEntries(APTITUDE_AREA_DEFS.map((x) => [x.code, x]));
-const CONDITION_METRICS = ["ID", ...METRICS];
+const MENTAL_AXIS_SENSITIVITY = "感性−知性";
+const MENTAL_AXIS_ORGANIZATION = "組織−個人";
+const PARAMETER_FILTER_DEFS = [
+  { metric: "スピ", label: "スピード", min: 0, max: 10, tone: "speed" },
+  { metric: "テク", label: "テクニック", min: 0, max: 10, tone: "tech" },
+  { metric: "パワ", label: "パワー", min: 0, max: 10, tone: "power" },
+  { metric: "スタ", label: "スタミナ", min: 0, max: 10, tone: "standard" },
+  { metric: "ラフ", label: "ラフ", min: 0, max: 10, tone: "standard" },
+  { metric: "個性", label: "個性", min: 0, max: 10, tone: "unique" },
+  { metric: "人気", label: "人気", min: 0, max: 10, tone: "standard" },
+  { metric: "PK", label: "PK", min: 0, max: 10, tone: "standard" },
+  { metric: "FK", label: "FK", min: 0, max: 10, tone: "standard" },
+  { metric: "CK", label: "CK", min: 0, max: 10, tone: "standard" },
+  { metric: "CP", label: "Cap.", min: 0, max: 10, tone: "standard" },
+  {
+    metric: MENTAL_AXIS_SENSITIVITY,
+    label: "知性 ↔ 感性",
+    min: -5,
+    max: 5,
+    tone: "mental",
+    leftLabel: "知性",
+    rightLabel: "感性",
+  },
+  {
+    metric: MENTAL_AXIS_ORGANIZATION,
+    label: "個人 ↔ 組織",
+    min: -5,
+    max: 5,
+    tone: "mental",
+    leftLabel: "個人",
+    rightLabel: "組織",
+  },
+];
+const PARAMETER_FILTER_BY_METRIC = Object.fromEntries(PARAMETER_FILTER_DEFS.map((x) => [x.metric, x]));
 const METRIC_LABELS = {
-  "ID": "ID",
   "スピ": "スピード",
   "テク": "テクニック",
   "パワ": "パワー",
@@ -143,13 +175,19 @@ const els = {
   cmFilterWrap: document.querySelector("#cmFilterWrap"),
   cmEventFilter: document.querySelector("#cmEventFilter"),
   applySearch: document.querySelector("#applySearch"),
-  conditions: document.querySelector("#conditions"),
-  addCondition: document.querySelector("#addCondition"),
-  resetCondition: document.querySelector("#resetCondition"),
+  parameterFilterLabel: document.querySelector("#parameterFilterLabel"),
+  parameterPickerOpen: document.querySelector("#parameterPickerOpen"),
+  parameterSelectedSummary: document.querySelector("#parameterSelectedSummary"),
+  parameterModal: document.querySelector("#parameterModal"),
+  parameterBackdrop: document.querySelector("#parameterBackdrop"),
+  parameterClose: document.querySelector("#parameterClose"),
+  parameterRows: document.querySelector("#parameterRows"),
+  parameterClear: document.querySelector("#parameterClear"),
+  parameterApply: document.querySelector("#parameterApply"),
+  resetSearch: document.querySelector("#resetSearch"),
   resultCount: document.querySelector("#resultCount"),
   results: document.querySelector("#results"),
   loadMoreResults: document.querySelector("#loadMoreResults"),
-  conditionTemplate: document.querySelector("#conditionTemplate"),
   lineupModal: document.querySelector("#lineupModal"),
   lineupBackdrop: document.querySelector("#lineupBackdrop"),
   lineupClose: document.querySelector("#lineupClose"),
@@ -241,6 +279,8 @@ let aptitudeMatchMode = "all";
 let draftAptitudeFilters = [];
 let draftAptitudeMatchMode = "all";
 let draftAptitudeDirection = "gte";
+let parameterFilters = [];
+let draftParameterFilters = [];
 
 function setModalScrollLocked(locked) {
   const root = document.documentElement;
@@ -1228,89 +1268,186 @@ function updateNameSuggest() {
   els.nameSuggest.hidden = false;
 }
 
-function addConditionRow(defaults = {}) {
-  const node = els.conditionTemplate.content.firstElementChild.cloneNode(true);
-  const metric = node.querySelector(".metric");
-  const op = node.querySelector(".op");
-  const value1 = node.querySelector(".value1");
-  const value2 = node.querySelector(".value2");
-  const remove = node.querySelector(".remove");
-
-  CONDITION_METRICS.forEach((m) => {
-    const option = document.createElement("option");
-    option.value = m;
-    option.textContent = metricLabel(m);
-    metric.appendChild(option);
-  });
-
-  metric.value = defaults.metric || "ID";
-  op.value = defaults.op || "eq";
-  value1.value = defaults.value1 ?? "";
-  value2.value = defaults.value2 ?? "";
-
-  const syncBetween = () => {
-    node.classList.toggle("between", op.value === "between");
-  };
-
-  op.addEventListener("change", () => {
-    syncBetween();
-  });
-  remove.addEventListener("click", () => {
-    node.remove();
-  });
-
-  syncBetween();
-  els.conditions.appendChild(node);
+function clampParameterValue(value, def) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return def.min;
+  return Math.max(def.min, Math.min(def.max, Math.round(num)));
 }
 
-function resetDefaultConditionRow() {
-  els.conditions.innerHTML = "";
-  addConditionRow({ metric: "ID", op: "eq", value1: "" });
+function normalizeParameterFilter(filter) {
+  const metric = String(filter?.metric || "");
+  const def = PARAMETER_FILTER_BY_METRIC[metric];
+  if (!def) return null;
+  const min = clampParameterValue(filter?.min, def);
+  const max = clampParameterValue(filter?.max, def);
+  return { metric, min: Math.min(min, max), max: Math.max(min, max) };
 }
 
-function getConditions() {
-  return [...els.conditions.querySelectorAll(".condition-row")]
-    .map((row) => {
-      const metric = row.querySelector(".metric").value;
-      const op = row.querySelector(".op").value;
-      const raw1 = row.querySelector(".value1").value.trim();
-      const raw2 = row.querySelector(".value2").value.trim();
-
-      if (!metric || raw1 === "") {
-        return null;
-      }
-
-      const v1 = Number(raw1);
-      const v2 = Number(raw2);
-
-      if (Number.isNaN(v1)) {
-        return null;
-      }
-
-      if (op === "between") {
-        if (raw2 === "" || Number.isNaN(v2)) return null;
-        return { metric, op, value1: Math.min(v1, v2), value2: Math.max(v1, v2) };
-      }
-
-      return { metric, op, value1: v1 };
-    })
-    .filter(Boolean);
+function cloneParameterFilters(rows = parameterFilters) {
+  return rows.map(normalizeParameterFilter).filter(Boolean);
 }
 
-function checkValueCondition(value, condition) {
-  if (typeof value !== "number" || Number.isNaN(value)) return false;
-  switch (condition.op) {
-    case "eq":
-      return value === condition.value1;
-    case "gte":
-      return value >= condition.value1;
-    case "lte":
-      return value <= condition.value1;
-    case "between":
-      return value >= condition.value1 && value <= condition.value2;
-    default:
-      return false;
+function isActiveParameterFilter(filter) {
+  const normalized = normalizeParameterFilter(filter);
+  if (!normalized) return false;
+  const def = PARAMETER_FILTER_BY_METRIC[normalized.metric];
+  return normalized.min > def.min || normalized.max < def.max;
+}
+
+function formatMentalAxisValue(def, value) {
+  if (value < 0) return `${def.leftLabel} ${Math.abs(value)}`;
+  if (value > 0) return `${def.rightLabel} ${value}`;
+  return "Neutral";
+}
+
+function formatParameterRange(filter) {
+  const normalized = normalizeParameterFilter(filter);
+  if (!normalized) return "Any";
+  const def = PARAMETER_FILTER_BY_METRIC[normalized.metric];
+  if (!isActiveParameterFilter(normalized)) return "Any";
+  if (def.tone === "mental") {
+    if (normalized.min === normalized.max) return formatMentalAxisValue(def, normalized.min);
+    return `${formatMentalAxisValue(def, normalized.min)} – ${formatMentalAxisValue(def, normalized.max)}`;
   }
+  if (normalized.min === normalized.max) return `${normalized.min}`;
+  if (normalized.min === def.min) return `≤ ${normalized.max}`;
+  if (normalized.max === def.max) return `${normalized.min}+`;
+  return `${normalized.min}–${normalized.max}`;
+}
+
+function updateParameterSummary() {
+  const active = parameterFilters.filter(isActiveParameterFilter);
+  if (els.parameterPickerOpen) {
+    els.parameterPickerOpen.classList.toggle("is-active", active.length > 0);
+    els.parameterPickerOpen.textContent = active.length ? "Edit Parameters" : "Select Parameters";
+  }
+  if (!els.parameterSelectedSummary) return;
+  if (!active.length) {
+    els.parameterSelectedSummary.textContent = "Selected: -";
+    return;
+  }
+  els.parameterSelectedSummary.textContent = `Selected: ${active.map((filter) => {
+    const def = PARAMETER_FILTER_BY_METRIC[filter.metric];
+    return `${def.label} ${formatParameterRange(filter)}`;
+  }).join(", ")}`;
+}
+
+function parameterRangePercent(def, value) {
+  if (def.max === def.min) return 0;
+  return ((value - def.min) / (def.max - def.min)) * 100;
+}
+
+function syncParameterRangeRow(row, min, max) {
+  if (!row) return;
+  const def = PARAMETER_FILTER_BY_METRIC[row.dataset.metric];
+  if (!def) return;
+  const normalized = normalizeParameterFilter({ metric: def.metric, min, max });
+  if (!normalized) return;
+  const minInput = row.querySelector(".parameter-range-min");
+  const maxInput = row.querySelector(".parameter-range-max");
+  if (minInput) {
+    minInput.value = String(normalized.min);
+    minInput.style.zIndex = normalized.min >= def.max - 1 ? "5" : "3";
+  }
+  if (maxInput) maxInput.value = String(normalized.max);
+  row.style.setProperty("--range-start", `${parameterRangePercent(def, normalized.min)}%`);
+  row.style.setProperty("--range-end", `${parameterRangePercent(def, normalized.max)}%`);
+  const active = isActiveParameterFilter(normalized);
+  row.classList.toggle("is-active", active);
+  const value = row.querySelector(".parameter-range-value");
+  if (value) value.textContent = formatParameterRange(normalized);
+  const reset = row.querySelector(".parameter-range-reset");
+  if (reset) reset.hidden = !active;
+
+  draftParameterFilters = draftParameterFilters.filter((filter) => filter.metric !== def.metric);
+  if (active) {
+    draftParameterFilters.push(normalized);
+    draftParameterFilters.sort((a, b) => (
+      PARAMETER_FILTER_DEFS.findIndex((def) => def.metric === a.metric)
+      - PARAMETER_FILTER_DEFS.findIndex((def) => def.metric === b.metric)
+    ));
+  }
+}
+
+function renderParameterPicker() {
+  if (!els.parameterRows) return;
+  const selected = new Map(cloneParameterFilters(draftParameterFilters).map((filter) => [filter.metric, filter]));
+  els.parameterRows.innerHTML = PARAMETER_FILTER_DEFS.map((def) => {
+    const filter = selected.get(def.metric) || { metric: def.metric, min: def.min, max: def.max };
+    const scale = def.tone === "mental"
+      ? `<span>${def.leftLabel} 5</span><span>Neutral</span><span>${def.rightLabel} 5</span>`
+      : `<span>${def.min}</span><span>${Math.round((def.min + def.max) / 2)}</span><span>${def.max}</span>`;
+    return `
+      <div class="parameter-range-row tone-${def.tone}${isActiveParameterFilter(filter) ? " is-active" : ""}" data-metric="${def.metric}" style="--range-start:${parameterRangePercent(def, filter.min)}%;--range-end:${parameterRangePercent(def, filter.max)}%">
+        <div class="parameter-range-head">
+          <strong>${def.label}</strong>
+          <span class="parameter-range-value">${formatParameterRange(filter)}</span>
+          <button type="button" class="parameter-range-reset" aria-label="${def.label}を解除"${isActiveParameterFilter(filter) ? "" : " hidden"}>×</button>
+        </div>
+        <div class="parameter-range-control">
+          <div class="parameter-range-track" aria-hidden="true"><span></span></div>
+          <input class="parameter-range-input parameter-range-min" type="range" min="${def.min}" max="${def.max}" step="1" value="${filter.min}" aria-label="${def.label}の最小値" />
+          <input class="parameter-range-input parameter-range-max" type="range" min="${def.min}" max="${def.max}" step="1" value="${filter.max}" aria-label="${def.label}の最大値" />
+        </div>
+        <div class="parameter-range-scale">${scale}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+function updateDraftParameterRange(row, changedInput) {
+  if (!row || !changedInput) return;
+  const minInput = row.querySelector(".parameter-range-min");
+  const maxInput = row.querySelector(".parameter-range-max");
+  if (!minInput || !maxInput) return;
+  let min = Number(minInput.value);
+  let max = Number(maxInput.value);
+  if (changedInput === minInput && min > max) {
+    max = min;
+  } else if (changedInput === maxInput && max < min) {
+    min = max;
+  }
+  syncParameterRangeRow(row, min, max);
+}
+
+function resetDraftParameterRow(row) {
+  if (!row) return;
+  const def = PARAMETER_FILTER_BY_METRIC[row.dataset.metric];
+  if (!def) return;
+  syncParameterRangeRow(row, def.min, def.max);
+}
+
+function openParameterModal() {
+  draftParameterFilters = cloneParameterFilters();
+  renderParameterPicker();
+  if (els.parameterModal) els.parameterModal.hidden = false;
+}
+
+function closeParameterModal() {
+  if (els.parameterModal) els.parameterModal.hidden = true;
+}
+
+function applyParameterFilters() {
+  parameterFilters = cloneParameterFilters(draftParameterFilters).filter(isActiveParameterFilter);
+  updateParameterSummary();
+  closeParameterModal();
+  render();
+}
+
+function clearDraftParameterFilters() {
+  draftParameterFilters = [];
+  renderParameterPicker();
+}
+
+function clearParameterFilters() {
+  parameterFilters = [];
+  draftParameterFilters = [];
+  updateParameterSummary();
+  renderParameterPicker();
+}
+
+function getParameterFilters() {
+  return cloneParameterFilters(parameterFilters).filter(isActiveParameterFilter);
 }
 
 function getCategory(player) {
@@ -1410,7 +1547,7 @@ function renderListResultsByEvent(eventId, source) {
   if (!eventMap.has(eventId)) return;
 
   // Reset all filters, then keep only the selected SS/CM event filter active.
-  els.conditions.innerHTML = "";
+  clearParameterFilters();
   els.nameQuery.value = "";
   hideNameSuggest();
   if (els.positionFilter) els.positionFilter.value = "";
@@ -1840,22 +1977,46 @@ function positionClass(position) {
   return "";
 }
 
-function getMatchingPeriods(player, conditions) {
+function getMatchingPeriods(player, filters) {
   const periods = Array.isArray(player.periods) ? player.periods : [];
-  if (!conditions.length) return periods;
+  if (!filters.length) return periods;
 
   return periods.filter((period) => {
-    const checks = conditions.map((c) => {
-      const targetValue = getConditionTargetValue(player, period, c.metric);
-      return checkValueCondition(targetValue, c);
+    const checks = filters.map((filter) => {
+      const targetValue = getParameterTargetValue(period, filter.metric);
+      return typeof targetValue === "number"
+        && Number.isFinite(targetValue)
+        && targetValue >= filter.min
+        && targetValue <= filter.max;
     });
     return checks.every(Boolean);
   });
 }
 
-function getConditionTargetValue(player, period, metric) {
-  if (metric === "ID") return Number(player?.id);
+function browserRelativeMentalAxis(difference) {
+  const diff = Number(difference);
+  if (!Number.isFinite(diff)) return null;
+  // Browser card data most consistently treats an absolute difference of 1 as neutral.
+  const magnitude = Math.min(5, Math.floor((Math.abs(diff) + 1) / 3));
+  if (diff > 0) return magnitude;
+  if (diff < 0) return -magnitude;
+  return 0;
+}
+
+function getParameterTargetValue(period, metric) {
   const metrics = period?.metrics || {};
+  if (metric === MENTAL_AXIS_SENSITIVITY) {
+    const intelligence = Number(metrics["知性"]);
+    const sensitivity = Number(metrics["感性"]);
+    if (!Number.isFinite(intelligence) || !Number.isFinite(sensitivity)) return null;
+    return browserRelativeMentalAxis(sensitivity - intelligence);
+  }
+  if (metric === MENTAL_AXIS_ORGANIZATION) {
+    const individual = Number(metrics["個人"]);
+    const organization = Number(metrics["組織"]);
+    if (!Number.isFinite(individual) || !Number.isFinite(organization)) return null;
+    return browserRelativeMentalAxis(organization - individual);
+  }
   const direct = metrics[metric];
   if (typeof direct === "number" && Number.isFinite(direct)) return direct;
   return direct;
@@ -2110,7 +2271,7 @@ function updateCMFilterVisibility() {
   renderCMEventFilterOptions();
 }
 
-function filterPlayers(conditions = getConditions()) {
+function filterPlayers(filters = getParameterFilters()) {
   const query = toHiragana(els.nameQuery.value.trim().toLowerCase());
   const positionFilter = els.positionFilter.value;
   const cmOnly = isCategoryChipActive(els.cmOnly);
@@ -2193,21 +2354,21 @@ function filterPlayers(conditions = getConditions()) {
       }
     }
 
-    if (!conditions.length) {
+    if (!filters.length) {
       return true;
     }
 
-    return getMatchingPeriods(player, conditions).length > 0;
+    return getMatchingPeriods(player, filters).length > 0;
   });
 }
 
-function hasActiveSearchCriteria(conditions) {
+function hasActiveSearchCriteria(filters) {
   const hasCategoryFilter = [
     els.nrWhiteOnly, els.nrBronzeOnly, els.nrSilverOnly, els.nrGoldOnly, els.nrAllOnly,
     els.ssOnly, els.cmOnly, els.ccOnly,
   ].some((el) => isCategoryChipActive(el));
   return (
-    conditions.length > 0 ||
+    filters.length > 0 ||
     !!els.nameQuery.value.trim() ||
     !!els.positionFilter.value ||
     aptitudeFilters.length > 0 ||
@@ -2539,10 +2700,9 @@ function rerenderSingleCard(playerId) {
 
 function render() {
   renderJobToken += 1;
-  const conditions = getConditions();
-  const filtered = filterPlayers(conditions);
-  const hasIdCondition = conditions.some((c) => c?.metric === "ID");
-  const hasSearchCriteria = hasActiveSearchCriteria(conditions);
+  const filters = getParameterFilters();
+  const filtered = filterPlayers(filters);
+  const hasSearchCriteria = hasActiveSearchCriteria(filters);
   const scoutEventFilter = Number(els.scoutEventFilter?.value || 0);
   const cmEventFilter = Number(els.cmEventFilter?.value || 0);
   const categoryRank = {
@@ -2554,9 +2714,7 @@ function render() {
     "NA": 4,
     "RT": 99,
   };
-  if (hasIdCondition) {
-    filtered.sort((a, b) => Number(a.id || 0) - Number(b.id || 0));
-  } else if (cmEventFilter > 0) {
+  if (cmEventFilter > 0) {
     const event = cmEventsByEventId.get(cmEventFilter);
     const orderMap = new Map(
       (Array.isArray(event?.playerIds) ? event.playerIds : [])
@@ -2653,12 +2811,8 @@ async function init() {
   syncMenuButtonSize();
   window.addEventListener("resize", syncMenuButtonSize);
 
-  els.addCondition.addEventListener("click", () => {
-    addConditionRow({ metric: "ID", op: "eq", value1: "" });
-  });
-
-  els.resetCondition.addEventListener("click", () => {
-    resetDefaultConditionRow();
+  if (els.resetSearch) els.resetSearch.addEventListener("click", () => {
+    clearParameterFilters();
     els.nameQuery.value = "";
     hideNameSuggest();
     [
@@ -2781,6 +2935,33 @@ async function init() {
   }
   if (els.aptitudeApply) {
     els.aptitudeApply.addEventListener("click", applyAptitudeFilters);
+  }
+  if (els.parameterPickerOpen) {
+    els.parameterPickerOpen.addEventListener("click", openParameterModal);
+  }
+  if (els.parameterBackdrop) {
+    els.parameterBackdrop.addEventListener("click", closeParameterModal);
+  }
+  if (els.parameterClose) {
+    els.parameterClose.addEventListener("click", closeParameterModal);
+  }
+  if (els.parameterRows) {
+    els.parameterRows.addEventListener("input", (e) => {
+      const input = e.target.closest(".parameter-range-input");
+      if (!input) return;
+      updateDraftParameterRange(input.closest(".parameter-range-row"), input);
+    });
+    els.parameterRows.addEventListener("click", (e) => {
+      const reset = e.target.closest(".parameter-range-reset");
+      if (!reset) return;
+      resetDraftParameterRow(reset.closest(".parameter-range-row"));
+    });
+  }
+  if (els.parameterClear) {
+    els.parameterClear.addEventListener("click", clearDraftParameterFilters);
+  }
+  if (els.parameterApply) {
+    els.parameterApply.addEventListener("click", applyParameterFilters);
   }
   if (els.menuButton) {
     els.menuButton.addEventListener("click", () => {
@@ -3254,6 +3435,10 @@ async function init() {
       closeUsageModal();
       return;
     }
+    if (e.key === "Escape" && els.parameterModal && !els.parameterModal.hidden) {
+      closeParameterModal();
+      return;
+    }
     if (e.key === "Escape" && els.nameSuggest && !els.nameSuggest.hidden) {
       hideNameSuggest();
     }
@@ -3287,8 +3472,8 @@ async function init() {
     if (Number.isInteger(eventId)) cmEventsByEventId.set(eventId, s);
   });
   appUpdatedAtJst = APP_UPDATED_AT_JST;
-  resetDefaultConditionRow();
   syncAptitudeAreaLabel();
+  updateParameterSummary();
   syncNRAllChip();
   renderScoutEventFilterOptions();
   renderCMEventFilterOptions();
