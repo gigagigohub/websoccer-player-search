@@ -649,6 +649,7 @@ body.modal-scroll-lock .hero {
   color: #e6efff;
   padding: 8px;
   font-size: 0.9rem;
+  font-weight: 800;
 }
 
 .menu-item.menu-link {
@@ -672,7 +673,7 @@ body.modal-scroll-lock .hero {
   border-color: #7ca3eb;
   background: linear-gradient(180deg, #355a98 0%, #253f6c 55%, #1c3154 100%);
   color: #ffffff;
-  font-weight: 700;
+  font-weight: 800;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.34),
     0 0 0 1px rgba(124, 163, 235, 0.35),
@@ -864,19 +865,20 @@ body.modal-scroll-lock .hero {
 }
 
 .cc-table-scroll {
-  overflow-x: auto;
+  overflow-x: hidden;
 }
 
 .cc-standings-table {
   width: 100%;
-  min-width: 490px;
+  min-width: 0;
+  table-layout: fixed;
   border-collapse: collapse;
-  font-size: 0.73rem;
+  font-size: 0.69rem;
 }
 
 .cc-standings-table th,
 .cc-standings-table td {
-  padding: 6px 5px;
+  padding: 6px 2px;
   border-bottom: 1px solid rgba(50, 70, 101, 0.64);
   text-align: center;
   white-space: nowrap;
@@ -891,8 +893,32 @@ body.modal-scroll-lock .hero {
 
 .cc-standings-table th:nth-child(2),
 .cc-standings-table td:nth-child(2) {
-  width: 100%;
   text-align: left;
+}
+
+.cc-standings-table th:nth-child(1),
+.cc-standings-table td:nth-child(1) {
+  width: 24px;
+}
+
+.cc-standings-table th:nth-child(3),
+.cc-standings-table td:nth-child(3) {
+  width: 48px;
+}
+
+.cc-standings-table th:nth-child(4),
+.cc-standings-table td:nth-child(4) {
+  width: 48px;
+}
+
+.cc-standings-table th:nth-child(5),
+.cc-standings-table td:nth-child(5) {
+  width: 30px;
+}
+
+.cc-standings-table th:nth-child(6),
+.cc-standings-table td:nth-child(6) {
+  width: 30px;
 }
 
 .cc-standings-table tbody tr.is-managed {
@@ -916,6 +942,13 @@ body.modal-scroll-lock .hero {
   min-width: 0;
   color: #eef4ff;
   font-weight: 650;
+}
+
+.cc-team-name > span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .cc-team-cell small {
@@ -1084,6 +1117,49 @@ body.modal-scroll-lock .hero {
   .cc-stage-tab {
     padding: 7px 5px;
     font-size: 0.76rem;
+  }
+
+  .cc-standings-table {
+    font-size: 0.62rem;
+  }
+
+  .cc-standings-table th,
+  .cc-standings-table td {
+    padding: 5px 1px;
+  }
+
+  .cc-standings-table th {
+    font-size: 0.55rem;
+  }
+
+  .cc-standings-table th:nth-child(1),
+  .cc-standings-table td:nth-child(1) {
+    width: 20px;
+  }
+
+  .cc-standings-table th:nth-child(3),
+  .cc-standings-table td:nth-child(3) {
+    width: 43px;
+  }
+
+  .cc-standings-table th:nth-child(4),
+  .cc-standings-table td:nth-child(4) {
+    width: 44px;
+  }
+
+  .cc-standings-table th:nth-child(5),
+  .cc-standings-table td:nth-child(5),
+  .cc-standings-table th:nth-child(6),
+  .cc-standings-table td:nth-child(6) {
+    width: 27px;
+  }
+
+  .cc-team-name {
+    gap: 3px;
+  }
+
+  .cc-team-cell small {
+    display: none;
   }
 
   .cc-match-row {
