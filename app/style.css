@@ -873,12 +873,12 @@ body.modal-scroll-lock .hero {
   min-width: 0;
   table-layout: fixed;
   border-collapse: collapse;
-  font-size: 0.69rem;
+  font-size: 0.8rem;
 }
 
 .cc-standings-table th,
 .cc-standings-table td {
-  padding: 6px 2px;
+  padding: 8px 5px;
   border-bottom: 1px solid rgba(50, 70, 101, 0.64);
   text-align: center;
   white-space: nowrap;
@@ -887,7 +887,7 @@ body.modal-scroll-lock .hero {
 .cc-standings-table th {
   color: #92a9ce;
   background: rgba(11, 20, 34, 0.68);
-  font-size: 0.64rem;
+  font-size: 0.7rem;
   font-weight: 700;
 }
 
@@ -898,27 +898,17 @@ body.modal-scroll-lock .hero {
 
 .cc-standings-table th:nth-child(1),
 .cc-standings-table td:nth-child(1) {
-  width: 24px;
+  width: 36px;
 }
 
 .cc-standings-table th:nth-child(3),
 .cc-standings-table td:nth-child(3) {
-  width: 48px;
+  width: 52px;
 }
 
 .cc-standings-table th:nth-child(4),
 .cc-standings-table td:nth-child(4) {
-  width: 48px;
-}
-
-.cc-standings-table th:nth-child(5),
-.cc-standings-table td:nth-child(5) {
-  width: 30px;
-}
-
-.cc-standings-table th:nth-child(6),
-.cc-standings-table td:nth-child(6) {
-  width: 30px;
+  width: 52px;
 }
 
 .cc-standings-table tbody tr.is-managed {
@@ -1120,38 +1110,31 @@ body.modal-scroll-lock .hero {
   }
 
   .cc-standings-table {
-    font-size: 0.62rem;
+    font-size: 0.74rem;
   }
 
   .cc-standings-table th,
   .cc-standings-table td {
-    padding: 5px 1px;
+    padding: 7px 3px;
   }
 
   .cc-standings-table th {
-    font-size: 0.55rem;
+    font-size: 0.64rem;
   }
 
   .cc-standings-table th:nth-child(1),
   .cc-standings-table td:nth-child(1) {
-    width: 20px;
+    width: 30px;
   }
 
   .cc-standings-table th:nth-child(3),
   .cc-standings-table td:nth-child(3) {
-    width: 43px;
+    width: 40px;
   }
 
   .cc-standings-table th:nth-child(4),
   .cc-standings-table td:nth-child(4) {
-    width: 44px;
-  }
-
-  .cc-standings-table th:nth-child(5),
-  .cc-standings-table td:nth-child(5),
-  .cc-standings-table th:nth-child(6),
-  .cc-standings-table td:nth-child(6) {
-    width: 27px;
+    width: 42px;
   }
 
   .cc-team-name {

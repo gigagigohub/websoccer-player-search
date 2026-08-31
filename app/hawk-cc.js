@@ -115,8 +115,6 @@ function groupCardHtml(group) {
     <tr class="${row.team?.managedKey ? "is-managed" : ""}">
       <td class="cc-rank">${escapeHtml(row.rank)}</td>
       <td>${teamCellHtml(row.team)}</td>
-      <td>${escapeHtml(row.wins)}-${escapeHtml(row.draws)}-${escapeHtml(row.losses)}</td>
-      <td>${escapeHtml(row.goalsFor)}-${escapeHtml(row.goalsAgainst)}</td>
       <td>${Number(row.goalDifference) > 0 ? "+" : ""}${escapeHtml(row.goalDifference)}</td>
       <td class="cc-points">${escapeHtml(row.points)}</td>
     </tr>
@@ -129,8 +127,8 @@ function groupCardHtml(group) {
       </div>
       <div class="cc-table-scroll">
         <table class="cc-standings-table">
-          <thead><tr><th>#</th><th>Team</th><th>W-D-L</th><th>GF-GA</th><th>GD</th><th>Pts</th></tr></thead>
-          <tbody>${standings || '<tr><td colspan="6">順位データはまだありません。</td></tr>'}</tbody>
+          <thead><tr><th>#</th><th>Team</th><th>GD</th><th>Pts</th></tr></thead>
+          <tbody>${standings || '<tr><td colspan="4">順位データはまだありません。</td></tr>'}</tbody>
         </table>
       </div>
       <div class="cc-match-list">${(group.matches || []).map(matchHtml).join("") || '<div class="cc-empty">試合データはまだありません。</div>'}</div>
