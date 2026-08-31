@@ -89,7 +89,10 @@ function teamNameHtml(team) {
   const ownBadge = isOwnTeam(team)
     ? '<span class="cc-own-team-badge" title="自チーム">MY</span>'
     : "";
-  return `${ownBadge}${key ? `<span class="cc-managed-key" title="A-X managed team">${escapeHtml(key)}</span>` : ""}<span>${escapeHtml(team?.name || "-")}</span>`;
+  const managedBadge = key
+    ? `<span class="cc-managed-key" title="A-X managed team">${escapeHtml(key)}</span>`
+    : "";
+  return `<span class="cc-team-label">${escapeHtml(team?.name || "-")}</span>${managedBadge}${ownBadge}`;
 }
 
 function teamCellHtml(team) {

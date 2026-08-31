@@ -912,7 +912,7 @@ body.modal-scroll-lock .hero {
   font-weight: 650;
 }
 
-.cc-team-name > span:last-child {
+.cc-team-label {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1003,7 +1003,7 @@ body.modal-scroll-lock .hero {
   min-width: 0;
 }
 
-.cc-match-team > span:last-child {
+.cc-match-team > .cc-team-label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
