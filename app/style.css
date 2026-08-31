@@ -1019,6 +1019,16 @@ body.modal-scroll-lock .hero {
   white-space: nowrap;
 }
 
+.cc-match-team.is-managed > .cc-team-label {
+  color: #91baff;
+  font-weight: 750;
+}
+
+.cc-match-team.is-own-team > .cc-team-label {
+  color: #f1c16f;
+  font-weight: 800;
+}
+
 .cc-match-home {
   justify-content: flex-end;
   text-align: right;

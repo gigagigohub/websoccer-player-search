@@ -84,8 +84,10 @@ function isOwnTeam(team) {
   return Boolean(team?.isOwnTeam);
 }
 
-function teamNameHtml(team) {
+function teamNameHtml(team, { showBadge = true } = {}) {
   const key = String(team?.managedKey || "");
+  const teamLabel = `<span class="cc-team-label">${escapeHtml(team?.name || "-")}</span>`;
+  if (!showBadge) return teamLabel;
   const ownBadge = isOwnTeam(team)
     ? '<span class="cc-own-team-badge" title="自チーム">MY</span>'
     : "";
@@ -93,7 +95,7 @@ function teamNameHtml(team) {
     ? `<span class="cc-managed-key" title="A-X managed team">${escapeHtml(key)}</span>`
     : "";
   const badge = ownBadge || managedBadge;
-  return `<span class="cc-badge-slot"${badge ? "" : ' aria-hidden="true"'}>${badge}</span><span class="cc-team-label">${escapeHtml(team?.name || "-")}</span>`;
+  return `<span class="cc-badge-slot"${badge ? "" : ' aria-hidden="true"'}>${badge}</span>${teamLabel}`;
 }
 
 function teamCellHtml(team) {
@@ -113,9 +115,9 @@ function matchHtml(match) {
   return `
     <article class="cc-match-row${match.completed ? " is-completed" : " is-scheduled"}">
       <time datetime="${escapeHtml(match.kickoff)}">${escapeHtml(formatKickoff(match.kickoff, { compact: true }))}</time>
-      <div class="cc-match-team cc-match-home">${teamNameHtml(match.home)}</div>
+      <div class="cc-match-team cc-match-home${match.home?.managedKey ? " is-managed" : ""}${isOwnTeam(match.home) ? " is-own-team" : ""}">${teamNameHtml(match.home, { showBadge: false })}</div>
       <div class="cc-match-score">${score}</div>
-      <div class="cc-match-team cc-match-away">${teamNameHtml(match.away)}</div>
+      <div class="cc-match-team cc-match-away${match.away?.managedKey ? " is-managed" : ""}${isOwnTeam(match.away) ? " is-own-team" : ""}">${teamNameHtml(match.away, { showBadge: false })}</div>
       <span class="cc-match-state">${match.completed ? "Final" : "Scheduled"}</span>
     </article>
   `;
