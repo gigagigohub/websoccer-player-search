@@ -686,14 +686,57 @@ body.modal-scroll-lock .hero {
   width: min(1180px, 100%);
 }
 
-.cc-overview-panel {
-  background:
-    radial-gradient(circle at 92% 4%, rgba(74, 128, 221, 0.2), transparent 34%),
-    linear-gradient(145deg, #172740 0%, #111c2e 72%);
+.cc-season-bar {
+  display: grid;
+  grid-template-columns: minmax(132px, 180px) minmax(0, 1fr);
+  align-items: end;
+  gap: 14px;
+  padding: 9px 12px;
   border-color: #38537c;
+  background: linear-gradient(145deg, #172740 0%, #111c2e 72%);
 }
 
-.cc-title-row,
+.cc-season-field,
+.cc-updated-field {
+  min-width: 0;
+}
+
+.cc-season-field > span,
+.cc-updated-field > span {
+  display: block;
+  margin-bottom: 4px;
+  color: #8fa8cf;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.cc-season-field select {
+  min-height: 34px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  border-color: #46648f;
+  background-color: #101d31;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.cc-updated-field {
+  padding-bottom: 7px;
+}
+
+.cc-updated-field strong {
+  display: block;
+  overflow: hidden;
+  color: #eef5ff;
+  font-size: 0.84rem;
+  font-weight: 800;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .cc-group-title {
   display: flex;
   align-items: center;
@@ -701,81 +744,8 @@ body.modal-scroll-lock .hero {
   gap: 14px;
 }
 
-.cc-title-row h2,
 .cc-group-title h3 {
   margin: 0;
-}
-
-.cc-eyebrow {
-  display: block;
-  margin-bottom: 3px;
-  color: #83aef5;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.13em;
-}
-
-.cc-status {
-  flex: 0 0 auto;
-  border: 1px solid #496586;
-  border-radius: 999px;
-  padding: 5px 10px;
-  color: #d9e7ff;
-  background: #17263b;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.cc-status.is-ok {
-  border-color: #347b68;
-  color: #aaf2da;
-  background: #14352f;
-}
-
-.cc-status.is-partial {
-  border-color: #916237;
-  color: #ffd2a2;
-  background: #3a2818;
-}
-
-.cc-summary {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.cc-summary-card {
-  min-width: 0;
-  border: 1px solid rgba(77, 107, 151, 0.68);
-  border-radius: 9px;
-  padding: 9px 10px;
-  background: rgba(10, 20, 34, 0.72);
-}
-
-.cc-summary-card > span,
-.cc-summary-card > small {
-  display: block;
-  color: #9fb3d5;
-  font-size: 0.7rem;
-  line-height: 1.25;
-}
-
-.cc-summary-card > strong {
-  display: block;
-  overflow: hidden;
-  margin: 3px 0 2px;
-  color: #ffffff;
-  font-size: 1.05rem;
-  line-height: 1.25;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.cc-update-note {
-  margin: 9px 0 0;
-  color: #aebfda;
-  font-size: 0.74rem;
 }
 
 .cc-stage-tabs {
@@ -1081,10 +1051,6 @@ body.modal-scroll-lock .hero {
 }
 
 @media (max-width: 820px) {
-  .cc-summary {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .cc-group-grid,
   .cc-tournament-match-list {
     grid-template-columns: 1fr;
@@ -1092,16 +1058,14 @@ body.modal-scroll-lock .hero {
 }
 
 @media (max-width: 560px) {
-  .cc-title-row {
-    align-items: flex-start;
+  .cc-season-bar {
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 10px;
+    padding: 8px 10px;
   }
 
-  .cc-summary-card {
-    padding: 8px;
-  }
-
-  .cc-summary-card > strong {
-    font-size: 0.92rem;
+  .cc-updated-field strong {
+    font-size: 0.75rem;
   }
 
   .cc-stage-tab {

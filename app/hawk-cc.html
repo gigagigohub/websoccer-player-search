@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=20260324-013653" />
   <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png?v=20260324-013653" />
   <link rel="shortcut icon" href="./favicon.ico?v=20260324-013653" />
-  <link rel="stylesheet" href="./style.css?v=20260831-hawk-cc-v3" />
+  <link rel="stylesheet" href="./style.css?v=20260831-hawk-cc-v4" />
 </head>
 <body class="hawk-cc-page">
   <main class="container">
@@ -37,16 +37,17 @@
       <p class="meta" id="metaText">Loading Hawk CC...</p>
     </header>
 
-    <section class="panel cc-overview-panel">
-      <div class="cc-title-row">
-        <div>
-          <span class="cc-eyebrow">HAWK WORLD</span>
-          <h2>Champions Cup</h2>
-        </div>
-        <span id="ccStatus" class="cc-status is-loading">Loading</span>
+    <section class="panel cc-season-bar" aria-label="表示シーズン">
+      <label class="cc-season-field" for="ccSeasonSelect">
+        <span>Season</span>
+        <select id="ccSeasonSelect" disabled>
+          <option>Loading...</option>
+        </select>
+      </label>
+      <div class="cc-updated-field" aria-live="polite">
+        <span>Updated</span>
+        <strong id="ccUpdated">-</strong>
       </div>
-      <div id="ccSummary" class="cc-summary" aria-live="polite"></div>
-      <p class="cc-update-note">毎日01:30 JSTに取得したデータを自動掲載します。</p>
     </section>
 
     <nav class="cc-stage-tabs" aria-label="Champions Cup表示切替">
@@ -76,6 +77,6 @@
   </main>
 
   <noscript>Hawk CCの表示にはJavaScriptが必要です。</noscript>
-  <script src="./hawk-cc.js?v=20260831-hawk-cc-v2"></script>
+  <script src="./hawk-cc.js?v=20260831-hawk-cc-v3"></script>
 </body>
 </html>

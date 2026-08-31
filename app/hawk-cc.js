@@ -7,8 +7,8 @@ const els = {
   menuLoginId: document.querySelector("#menuLoginId"),
   loginButton: document.querySelector("#loginButton"),
   logoutButton: document.querySelector("#logoutButton"),
-  ccStatus: document.querySelector("#ccStatus"),
-  ccSummary: document.querySelector("#ccSummary"),
+  ccSeasonSelect: document.querySelector("#ccSeasonSelect"),
+  ccUpdated: document.querySelector("#ccUpdated"),
   groupTabCount: document.querySelector("#groupTabCount"),
   tournamentTabCount: document.querySelector("#tournamentTabCount"),
   groupStageMeta: document.querySelector("#groupStageMeta"),
@@ -20,6 +20,7 @@ const els = {
 };
 
 let payload = null;
+let activeSeason = null;
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({
@@ -137,8 +138,8 @@ function groupCardHtml(group) {
 }
 
 function renderGroups() {
-  const groups = payload.groups || [];
-  const summary = payload.summary || {};
+  const groups = activeSeason.groups || [];
+  const summary = activeSeason.summary || {};
   els.groupTabCount.textContent = formatNumber(summary.groupCount);
   els.groupStageMeta.textContent = `${formatNumber(summary.groupCount)} groups · ${formatNumber(summary.groupMatchCount)} matches`;
   els.ccGroupGrid.innerHTML = groups.length
@@ -147,8 +148,8 @@ function renderGroups() {
 }
 
 function renderTournament() {
-  const rounds = payload.tournamentRounds || [];
-  const summary = payload.summary || {};
+  const rounds = activeSeason.tournamentRounds || [];
+  const summary = activeSeason.summary || {};
   els.tournamentTabCount.textContent = formatNumber(summary.tournamentMatchCount);
   els.tournamentMeta.textContent = `${formatNumber(summary.tournamentRoundCount)} rounds · ${formatNumber(summary.tournamentMatchCount)} matches`;
   els.ccTournament.innerHTML = rounds.length
@@ -164,38 +165,30 @@ function renderTournament() {
     : '<div class="cc-empty cc-empty-panel">決勝トーナメントはまだ始まっていません。</div>';
 }
 
-function nextScheduledMatch() {
-  const matches = [
-    ...(payload.groups || []).flatMap((group) => group.matches || []),
-    ...(payload.tournamentRounds || []).flatMap((round) => round.matches || []),
-  ].filter((match) => !match.completed && match.kickoff);
-  matches.sort((a, b) => String(a.kickoff).localeCompare(String(b.kickoff)));
-  return matches[0] || null;
+function seasonRows() {
+  if (Array.isArray(payload?.seasons)) return payload.seasons;
+  return payload ? [payload] : [];
 }
 
-function renderOverview() {
-  const source = payload.source || {};
-  const summary = payload.summary || {};
-  const status = payload.status || {};
-  const nextMatch = nextScheduledMatch();
-  els.metaText.innerHTML = [
-    `<span class="meta-line">Hawk CC: ${escapeHtml(formatJst(payload.generatedAt))}</span>`,
-    `<span class="meta-line">Season ${escapeHtml(source.season || "-")}</span>`,
-  ].join("");
-  els.ccStatus.className = `cc-status ${status.code === "ok" ? "is-ok" : "is-partial"}`;
-  els.ccStatus.textContent = status.message || "取得状況不明";
-  els.ccSummary.innerHTML = [
-    ["Season", source.season ? `S${source.season}` : "-", source.worldName || "ホーク"],
-    ["Updated", formatKickoff(payload.generatedAt), "01:30 cache"],
-    ["Completed", `${formatNumber(summary.completedMatchCount)} / ${formatNumber(summary.allMatchCount)}`, "matches"],
-    ["Next", nextMatch ? formatKickoff(nextMatch.kickoff, { compact: true }) : "-", nextMatch ? `${nextMatch.home?.name || "-"} vs ${nextMatch.away?.name || "-"}` : "schedule complete"],
-  ].map(([label, value, note]) => `
-    <div class="cc-summary-card">
-      <span>${escapeHtml(label)}</span>
-      <strong>${escapeHtml(value)}</strong>
-      <small>${escapeHtml(note)}</small>
-    </div>
-  `).join("");
+function updateSeasonQuery(season) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("season", String(season));
+  window.history.replaceState({}, "", url);
+}
+
+function selectSeason(season, { updateUrl = false } = {}) {
+  const rows = seasonRows();
+  activeSeason = rows.find((row) => Number(row.source?.season) === Number(season)) || rows[0];
+  if (!activeSeason) return;
+
+  const selectedSeason = Number(activeSeason.source?.season || 0);
+  els.ccSeasonSelect.value = String(selectedSeason);
+  els.ccUpdated.textContent = formatJst(activeSeason.generatedAt);
+  els.metaText.textContent = "Hawk Champions Cup Results";
+  renderGroups();
+  renderTournament();
+  setView(Number(activeSeason.summary?.tournamentMatchCount || 0) > 0 ? "tournament" : "groups");
+  if (updateUrl) updateSeasonQuery(selectedSeason);
 }
 
 function setView(view) {
@@ -210,10 +203,15 @@ function setView(view) {
 }
 
 function render() {
-  renderOverview();
-  renderGroups();
-  renderTournament();
-  if (Number(payload.summary?.tournamentMatchCount || 0) > 0) setView("tournament");
+  const rows = seasonRows();
+  const requestedSeason = Number(new URLSearchParams(window.location.search).get("season"));
+  const initial = rows.find((row) => Number(row.source?.season) === requestedSeason) || rows[0];
+  els.ccSeasonSelect.innerHTML = rows.map((row) => {
+    const season = Number(row.source?.season || 0);
+    return `<option value="${escapeHtml(season)}">S${escapeHtml(season)}</option>`;
+  }).join("");
+  els.ccSeasonSelect.disabled = rows.length < 2;
+  selectSeason(initial?.source?.season);
 }
 
 function bindEvents() {
@@ -236,21 +234,24 @@ function bindEvents() {
   document.querySelectorAll("[data-cc-view]").forEach((button) => {
     button.addEventListener("click", () => setView(button.dataset.ccView));
   });
+  els.ccSeasonSelect.addEventListener("change", () => {
+    selectSeason(els.ccSeasonSelect.value, { updateUrl: true });
+  });
 }
 
 async function init() {
   updateMenuState();
   bindEvents();
   try {
-    const response = await fetch("./hawk_cc_data.json?v=20260831-hawk-cc-v1", { cache: "no-store" });
+    const response = await fetch("./hawk_cc_data.json?v=20260831-hawk-cc-v2", { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     payload = await response.json();
     render();
   } catch (error) {
     els.metaText.textContent = "Hawk CC data unavailable";
-    els.ccStatus.className = "cc-status is-partial";
-    els.ccStatus.textContent = "読み込み失敗";
-    els.ccSummary.innerHTML = `<div class="cc-empty cc-empty-panel">Hawk CCデータを読み込めませんでした。${escapeHtml(error.message || error)}</div>`;
+    els.ccSeasonSelect.innerHTML = "<option>Unavailable</option>";
+    els.ccSeasonSelect.disabled = true;
+    els.ccUpdated.textContent = "読み込み失敗";
     els.ccGroupGrid.innerHTML = '<div class="cc-empty cc-empty-panel">時間をおいて再読み込みしてください。</div>';
     els.ccTournament.innerHTML = '<div class="cc-empty cc-empty-panel">時間をおいて再読み込みしてください。</div>';
   }
