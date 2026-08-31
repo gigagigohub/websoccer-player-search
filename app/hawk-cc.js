@@ -21,7 +21,6 @@ const els = {
 
 let payload = null;
 let activeSeason = null;
-const OWN_TEAM_NAMES = new Set(["はしばっちUTD", "イタリアンサンドF"]);
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({
@@ -82,7 +81,7 @@ function closeMenu() {
 }
 
 function isOwnTeam(team) {
-  return OWN_TEAM_NAMES.has(String(team?.name || ""));
+  return Boolean(team?.isOwnTeam);
 }
 
 function teamNameHtml(team) {
@@ -251,7 +250,7 @@ async function init() {
   updateMenuState();
   bindEvents();
   try {
-    const response = await fetch("./hawk_cc_data.json?v=20260831-hawk-cc-v2", { cache: "no-store" });
+    const response = await fetch("./hawk_cc_data.json?v=20260831-hawk-cc-v3", { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     payload = await response.json();
     render();
