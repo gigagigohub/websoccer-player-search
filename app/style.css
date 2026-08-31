@@ -913,10 +913,20 @@ body.modal-scroll-lock .hero {
 }
 
 .cc-team-label {
+  flex: 0 1 auto;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.cc-badge-slot {
+  display: inline-flex;
+  flex: 0 0 23px;
+  align-items: center;
+  justify-content: center;
+  width: 23px;
+  height: 17px;
 }
 
 .cc-team-cell small {
@@ -1162,6 +1172,12 @@ body.modal-scroll-lock .hero {
     width: 15px;
     height: 15px;
     font-size: 0.56rem;
+  }
+
+  .cc-badge-slot {
+    flex-basis: 21px;
+    width: 21px;
+    height: 15px;
   }
 
   .cc-own-team-badge {

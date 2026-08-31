@@ -92,7 +92,8 @@ function teamNameHtml(team) {
   const managedBadge = key
     ? `<span class="cc-managed-key" title="A-X managed team">${escapeHtml(key)}</span>`
     : "";
-  return `<span class="cc-team-label">${escapeHtml(team?.name || "-")}</span>${managedBadge}${ownBadge}`;
+  const badge = ownBadge || managedBadge;
+  return `<span class="cc-badge-slot"${badge ? "" : ' aria-hidden="true"'}>${badge}</span><span class="cc-team-label">${escapeHtml(team?.name || "-")}</span>`;
 }
 
 function teamCellHtml(team) {
