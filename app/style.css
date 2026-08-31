@@ -848,17 +848,21 @@ body.modal-scroll-lock .hero {
 
 .cc-standings-table th,
 .cc-standings-table td {
-  padding: 8px 5px;
   border-bottom: 1px solid rgba(50, 70, 101, 0.64);
   text-align: center;
   white-space: nowrap;
 }
 
 .cc-standings-table th {
+  padding: 7px 5px;
   color: #92a9ce;
   background: rgba(11, 20, 34, 0.68);
   font-size: 0.7rem;
   font-weight: 700;
+}
+
+.cc-standings-table td {
+  padding: 10px 5px;
 }
 
 .cc-standings-table th:nth-child(2),
@@ -883,6 +887,10 @@ body.modal-scroll-lock .hero {
 
 .cc-standings-table tbody tr.is-managed {
   background: rgba(56, 91, 149, 0.21);
+}
+
+.cc-standings-table tbody tr.is-own-team {
+  background: rgba(183, 126, 43, 0.2);
 }
 
 .cc-rank,
@@ -936,6 +944,23 @@ body.modal-scroll-lock .hero {
   box-shadow: 0 0 0 1px rgba(73, 116, 184, 0.25);
 }
 
+.cc-own-team-badge {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 23px;
+  height: 17px;
+  border: 1px solid #e7b76c;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #b87924 0%, #855116 100%);
+  color: #fff8e8;
+  font-size: 0.52rem;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  box-shadow: 0 0 0 1px rgba(200, 139, 49, 0.2);
+}
+
 .cc-match-list {
   padding: 6px;
 }
@@ -945,8 +970,8 @@ body.modal-scroll-lock .hero {
   grid-template-columns: 78px minmax(0, 1fr) 48px minmax(0, 1fr) 56px;
   align-items: center;
   gap: 5px;
-  min-height: 36px;
-  padding: 5px 6px;
+  min-height: 31px;
+  padding: 3px 5px;
   border-radius: 7px;
   color: #dce8fa;
   font-size: 0.69rem;
@@ -1079,11 +1104,19 @@ body.modal-scroll-lock .hero {
 
   .cc-standings-table th,
   .cc-standings-table td {
-    padding: 7px 3px;
+    padding-right: 3px;
+    padding-left: 3px;
   }
 
   .cc-standings-table th {
+    padding-top: 6px;
+    padding-bottom: 6px;
     font-size: 0.64rem;
+  }
+
+  .cc-standings-table td {
+    padding-top: 9px;
+    padding-bottom: 9px;
   }
 
   .cc-standings-table th:nth-child(1),
@@ -1112,7 +1145,8 @@ body.modal-scroll-lock .hero {
   .cc-match-row {
     grid-template-columns: 58px minmax(0, 1fr) 40px minmax(0, 1fr);
     gap: 4px;
-    padding: 5px 4px;
+    min-height: 28px;
+    padding: 3px 4px;
     font-size: 0.64rem;
   }
 
@@ -1128,6 +1162,12 @@ body.modal-scroll-lock .hero {
     width: 15px;
     height: 15px;
     font-size: 0.56rem;
+  }
+
+  .cc-own-team-badge {
+    width: 21px;
+    height: 15px;
+    font-size: 0.49rem;
   }
 }
 

@@ -21,6 +21,7 @@ const els = {
 
 let payload = null;
 let activeSeason = null;
+const OWN_TEAM_NAMES = new Set(["はしばっちUTD", "イタリアンサンドF"]);
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({
@@ -80,15 +81,22 @@ function closeMenu() {
   els.menuButton.setAttribute("aria-expanded", "false");
 }
 
+function isOwnTeam(team) {
+  return OWN_TEAM_NAMES.has(String(team?.name || ""));
+}
+
 function teamNameHtml(team) {
   const key = String(team?.managedKey || "");
-  return `${key ? `<span class="cc-managed-key" title="A-X managed team">${escapeHtml(key)}</span>` : ""}<span>${escapeHtml(team?.name || "-")}</span>`;
+  const ownBadge = isOwnTeam(team)
+    ? '<span class="cc-own-team-badge" title="自チーム">MY</span>'
+    : "";
+  return `${ownBadge}${key ? `<span class="cc-managed-key" title="A-X managed team">${escapeHtml(key)}</span>` : ""}<span>${escapeHtml(team?.name || "-")}</span>`;
 }
 
 function teamCellHtml(team) {
   const league = [team?.leagueClass, team?.leagueName].filter(Boolean).join(" / ");
   return `
-    <div class="cc-team-cell${team?.managedKey ? " is-managed" : ""}">
+    <div class="cc-team-cell${team?.managedKey ? " is-managed" : ""}${isOwnTeam(team) ? " is-own-team" : ""}">
       <div class="cc-team-name">${teamNameHtml(team)}</div>
       ${league ? `<small>${escapeHtml(league)}</small>` : ""}
     </div>
@@ -113,7 +121,7 @@ function matchHtml(match) {
 function groupCardHtml(group) {
   const completed = (group.matches || []).filter((match) => match.completed).length;
   const standings = (group.standings || []).map((row) => `
-    <tr class="${row.team?.managedKey ? "is-managed" : ""}">
+    <tr class="${[row.team?.managedKey ? "is-managed" : "", isOwnTeam(row.team) ? "is-own-team" : ""].filter(Boolean).join(" ")}">
       <td class="cc-rank">${escapeHtml(row.rank)}</td>
       <td>${teamCellHtml(row.team)}</td>
       <td>${Number(row.goalDifference) > 0 ? "+" : ""}${escapeHtml(row.goalDifference)}</td>
