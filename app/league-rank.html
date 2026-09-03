@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WebSoccer Ordinary - League Rank</title>
+  <meta name="description" content="A-X所属チームの全リーグ順位・勝ち点・得失点差を一覧で確認できます。" />
+  <meta property="og:title" content="WebSoccer Ordinary - League Rank" />
+  <meta property="og:description" content="A-X所属チームの全リーグ順位表" />
+  <meta property="og:site_name" content="WebSoccer Ordinary" />
+  <meta name="twitter:title" content="WebSoccer Ordinary - League Rank" />
+  <meta name="twitter:description" content="A-X所属チームの全リーグ順位表" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=20260324-013653" />
+  <link rel="icon" type="image/x-icon" href="./favicon.ico?v=20260324-013653" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=20260324-013653" />
+  <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png?v=20260324-013653" />
+  <link rel="shortcut icon" href="./favicon.ico?v=20260324-013653" />
+  <link rel="stylesheet" href="./style.css?v=20260903-league-rank-v1" />
+</head>
+<body class="league-rank-page">
+  <main class="container">
+    <header class="hero">
+      <button id="menuButton" type="button" class="menu-button" aria-label="メニュー" aria-expanded="false">☰</button>
+      <div id="menuPanel" class="menu-panel">
+        <div id="menuLoginId" class="menu-login-id" hidden></div>
+        <a href="./index.html" class="menu-item menu-link">Players</a>
+        <a href="./coaches.html" class="menu-item menu-link">Coaches</a>
+        <a href="./formations.html" class="menu-item menu-link">Formations</a>
+        <a href="./collections.html" class="menu-item menu-link">Collections</a>
+        <a href="./myteam.html" class="menu-item menu-link">My Team</a>
+        <a href="./league-rank.html" class="menu-item menu-link is-current" aria-current="page">League Rank</a>
+        <a href="./hawk-cc.html" class="menu-item menu-link">CC Result</a>
+        <a href="./stocks.html" class="menu-item menu-link">Inventory</a>
+        <button id="loginButton" type="button" class="menu-item">Login</button>
+        <button id="logoutButton" type="button" class="menu-item logout" hidden>Logout</button>
+      </div>
+      <h1>WebSoccer Ordinary</h1>
+      <p class="meta" id="metaText">Loading League Rank...</p>
+    </header>
+
+    <section class="panel league-rank-overview" aria-label="順位表の更新情報">
+      <div class="league-rank-heading">
+        <div>
+          <p class="league-rank-eyebrow">A–X ALL LEAGUES</p>
+          <h2>League Rank</h2>
+        </div>
+        <span id="rankStatus" class="league-rank-status">Loading</span>
+      </div>
+      <div class="league-rank-summary">
+        <div><span>Season</span><strong id="rankSeason">-</strong></div>
+        <div><span>Leagues</span><strong id="rankLeagueCount">-</strong></div>
+        <div><span>A–X Teams</span><strong id="rankManagedCount">-</strong></div>
+        <div><span>Updated</span><strong id="rankUpdated">-</strong></div>
+      </div>
+    </section>
+
+    <div id="leagueRankGrid" class="league-rank-grid" aria-live="polite">
+      <div class="league-rank-empty">順位表を読み込んでいます。</div>
+    </div>
+  </main>
+
+  <noscript>League Rankの表示にはJavaScriptが必要です。</noscript>
+  <script src="./league-rank.js?v=20260903-league-rank-v1"></script>
+</body>
+</html>
