@@ -1,12 +1,12 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-03T01:31:05+09:00",
-  "publishedAt": "2026-09-03T01:31:05+09:00",
+  "generatedAt": "2026-09-04T01:31:05+09:00",
+  "publishedAt": "2026-09-04T01:31:05+09:00",
   "latestSeason": 2641,
   "seasonCount": 7,
   "seasons": [
     {
-      "generatedAt": "2026-09-03T01:31:05+09:00",
+      "generatedAt": "2026-09-04T01:31:05+09:00",
       "source": {
         "worldId": 20,
         "worldName": "ホーク",
@@ -21,11 +21,11 @@
         "groupCount": 8,
         "standingRowCount": 32,
         "groupMatchCount": 48,
-        "tournamentRoundCount": 2,
-        "tournamentMatchCount": 12,
-        "allMatchCount": 60,
-        "completedMatchCount": 56,
-        "scheduledMatchCount": 4,
+        "tournamentRoundCount": 3,
+        "tournamentMatchCount": 14,
+        "allMatchCount": 62,
+        "completedMatchCount": 60,
+        "scheduledMatchCount": 2,
         "managedTeamCount": 24
       },
       "groups": [
@@ -2274,8 +2274,11 @@
               "matchday": 5,
               "matchNumber": 1,
               "kickoff": "2026-09-04 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                5,
+                0
+              ],
               "home": {
                 "name": "クッキングパパ",
                 "leagueName": "ブーゲンビリア",
@@ -2300,8 +2303,11 @@
               "matchday": 5,
               "matchNumber": 2,
               "kickoff": "2026-09-04 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                3,
+                1
+              ],
               "home": {
                 "name": "口臭のマツオカ",
                 "leagueName": "ヘレニウム",
@@ -2326,8 +2332,11 @@
               "matchday": 5,
               "matchNumber": 3,
               "kickoff": "2026-09-04 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                1,
+                5
+              ],
               "home": {
                 "name": "Black St.",
                 "leagueName": "ヘンルーダ",
@@ -2352,14 +2361,75 @@
               "matchday": 5,
               "matchNumber": 4,
               "kickoff": "2026-09-04 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                0,
+                5
+              ],
               "home": {
                 "name": "真下美容室",
                 "leagueName": "ポリアンサ",
                 "leagueClass": "A",
                 "managedKey": "M",
                 "isOwnTeam": false
+              },
+              "away": {
+                "name": "イタリアンサンドF",
+                "leagueName": "フレッティー",
+                "leagueClass": "A",
+                "managedKey": "",
+                "isOwnTeam": true
+              }
+            }
+          ]
+        },
+        {
+          "roundPathIndex": 3,
+          "label": "Semifinals",
+          "matches": [
+            {
+              "matchId": "32900901",
+              "stage": "tournament",
+              "group": "0",
+              "roundPathIndex": 3,
+              "roundLabel": "Semifinals",
+              "matchday": 6,
+              "matchNumber": 1,
+              "kickoff": "2026-09-05 01:00:00",
+              "completed": false,
+              "score": null,
+              "home": {
+                "name": "クッキングパパ",
+                "leagueName": "ブーゲンビリア",
+                "leagueClass": "A",
+                "managedKey": "",
+                "isOwnTeam": false
+              },
+              "away": {
+                "name": "口臭のマツオカ",
+                "leagueName": "ヘレニウム",
+                "leagueClass": "A",
+                "managedKey": "Q",
+                "isOwnTeam": false
+              }
+            },
+            {
+              "matchId": "32901001",
+              "stage": "tournament",
+              "group": "0",
+              "roundPathIndex": 3,
+              "roundLabel": "Semifinals",
+              "matchday": 6,
+              "matchNumber": 2,
+              "kickoff": "2026-09-05 01:00:00",
+              "completed": false,
+              "score": null,
+              "home": {
+                "name": "はしばっちUTD",
+                "leagueName": "マレイン",
+                "leagueClass": "A",
+                "managedKey": "",
+                "isOwnTeam": true
               },
               "away": {
                 "name": "イタリアンサンドF",
