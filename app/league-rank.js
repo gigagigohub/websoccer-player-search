@@ -102,18 +102,23 @@ function managedBadges(keys) {
   return (keys || []).map((key) => `<span class="league-rank-key">${escapeHtml(key)}</span>`).join("");
 }
 
+function rowBadgeHtml(row) {
+  if (row.isOwnTeam) return '<span class="league-rank-own-badge" title="My Team">MY</span>';
+  return `<span class="league-rank-row-key">${row.managedKey ? escapeHtml(row.managedKey) : ""}</span>`;
+}
+
 function leagueCardHtml(league) {
   const rows = (league.rows || []).map((row) => `
-    <tr class="${row.managedKey ? "is-managed" : ""}">
+    <tr class="${[row.managedKey ? "is-managed" : "", row.isOwnTeam ? "is-own-team" : ""].filter(Boolean).join(" ")}">
       <td class="league-rank-position"><strong>${escapeHtml(row.rank)}</strong>${league.resultAdjusted ? rankChangeHtml(row) : ""}</td>
-      <td class="league-rank-team"><span class="league-rank-row-key">${row.managedKey ? escapeHtml(row.managedKey) : ""}</span><span>${escapeHtml(row.teamName || "-")}</span></td>
+      <td class="league-rank-team">${rowBadgeHtml(row)}<span>${escapeHtml(row.teamName || "-")}</span></td>
       <td>${formatNumber(row.wins)}-${formatNumber(row.draws)}-${formatNumber(row.losses)}</td>
       <td>${formatNumber(row.goalsFor)}-${formatNumber(row.goalsAgainst)}</td>
       <td class="${Number(row.goalDifference) > 0 ? "is-positive" : Number(row.goalDifference) < 0 ? "is-negative" : ""}">${signed(row.goalDifference)}</td>
       <td class="league-rank-points">${formatNumber(row.points)}</td>
     </tr>
   `).join("");
-  const matchday = league.targetMatchday ? `MD ${formatNumber(league.targetMatchday)}` : "Official";
+  const matchday = league.targetMatchday ? ` · MD ${formatNumber(league.targetMatchday)}` : "";
   return `
     <article class="league-rank-card">
       <header class="league-rank-card-head">
@@ -121,7 +126,7 @@ function leagueCardHtml(league) {
           <span class="league-rank-card-keys">${managedBadges(league.managedKeys)}</span>
           <h3>${escapeHtml(league.leagueName || "-")}</h3>
         </div>
-        <span>${escapeHtml(matchday)}</span>
+        <span>ID ${escapeHtml(league.leagueId)}${escapeHtml(matchday)}</span>
       </header>
       <div class="league-rank-table-wrap">
         <table class="league-rank-table">
@@ -153,7 +158,7 @@ async function init() {
   updateMenuState();
   bindEvents();
   try {
-    const response = await fetch("./league_rank_data.json?v=20260903-league-rank-v1", { cache: "no-store" });
+    const response = await fetch("./league_rank_data.json?v=20260903-league-rank-v2", { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     render(await response.json());
   } catch (_error) {

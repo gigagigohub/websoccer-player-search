@@ -7564,10 +7564,10 @@ button.danger {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #d09a4a;
+  border: 1px solid #84abec;
   border-radius: 4px;
-  background: linear-gradient(180deg, #9b6722 0%, #6e4213 100%);
-  color: #fff5de;
+  background: linear-gradient(180deg, #426aa9 0%, #294d84 100%);
+  color: #ffffff;
   font-weight: 900;
 }
 
@@ -7615,7 +7615,11 @@ button.danger {
 }
 
 .league-rank-table tbody tr.is-managed {
-  background: linear-gradient(90deg, rgba(154, 100, 28, 0.35), rgba(87, 63, 27, 0.2));
+  background: rgba(56, 91, 149, 0.21);
+}
+
+.league-rank-table tbody tr.is-own-team {
+  background: rgba(183, 126, 43, 0.2);
   color: #fff4de;
 }
 
@@ -7706,9 +7710,25 @@ button.danger {
 }
 
 .league-rank-table tr.is-managed .league-rank-row-key {
-  border-color: #d09a4a;
-  background: #7c4e15;
-  color: #fff5de;
+  border-color: #84abec;
+  background: linear-gradient(180deg, #426aa9 0%, #294d84 100%);
+  color: #ffffff;
+}
+
+.league-rank-own-badge {
+  display: inline-flex;
+  flex: 0 0 23px;
+  align-items: center;
+  justify-content: center;
+  width: 23px;
+  height: 15px;
+  border: 1px solid #e7b76c;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #b87924 0%, #855116 100%);
+  color: #fff8e8;
+  font-size: 0.49rem;
+  font-weight: 900;
+  box-shadow: 0 0 0 1px rgba(200, 139, 49, 0.2);
 }
 
 .league-rank-points {
