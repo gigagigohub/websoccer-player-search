@@ -1,12 +1,12 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-04T01:31:05+09:00",
-  "publishedAt": "2026-09-04T01:31:05+09:00",
+  "generatedAt": "2026-09-05T01:31:10+09:00",
+  "publishedAt": "2026-09-05T01:31:10+09:00",
   "latestSeason": 2641,
   "seasonCount": 7,
   "seasons": [
     {
-      "generatedAt": "2026-09-04T01:31:05+09:00",
+      "generatedAt": "2026-09-05T01:31:10+09:00",
       "source": {
         "worldId": 20,
         "worldName": "ホーク",
@@ -21,11 +21,11 @@
         "groupCount": 8,
         "standingRowCount": 32,
         "groupMatchCount": 48,
-        "tournamentRoundCount": 3,
-        "tournamentMatchCount": 14,
-        "allMatchCount": 62,
-        "completedMatchCount": 60,
-        "scheduledMatchCount": 2,
+        "tournamentRoundCount": 4,
+        "tournamentMatchCount": 15,
+        "allMatchCount": 63,
+        "completedMatchCount": 62,
+        "scheduledMatchCount": 1,
         "managedTeamCount": 24
       },
       "groups": [
@@ -2396,8 +2396,11 @@
               "matchday": 6,
               "matchNumber": 1,
               "kickoff": "2026-09-05 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                6,
+                2
+              ],
               "home": {
                 "name": "クッキングパパ",
                 "leagueName": "ブーゲンビリア",
@@ -2422,14 +2425,49 @@
               "matchday": 6,
               "matchNumber": 2,
               "kickoff": "2026-09-05 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                2,
+                4
+              ],
               "home": {
                 "name": "はしばっちUTD",
                 "leagueName": "マレイン",
                 "leagueClass": "A",
                 "managedKey": "",
                 "isOwnTeam": true
+              },
+              "away": {
+                "name": "イタリアンサンドF",
+                "leagueName": "フレッティー",
+                "leagueClass": "A",
+                "managedKey": "",
+                "isOwnTeam": true
+              }
+            }
+          ]
+        },
+        {
+          "roundPathIndex": 4,
+          "label": "Final",
+          "matches": [
+            {
+              "matchId": "32903201",
+              "stage": "tournament",
+              "group": "0",
+              "roundPathIndex": 4,
+              "roundLabel": "Final",
+              "matchday": 7,
+              "matchNumber": 1,
+              "kickoff": "2026-09-06 01:00:00",
+              "completed": false,
+              "score": null,
+              "home": {
+                "name": "クッキングパパ",
+                "leagueName": "ブーゲンビリア",
+                "leagueClass": "A",
+                "managedKey": "",
+                "isOwnTeam": false
               },
               "away": {
                 "name": "イタリアンサンドF",
