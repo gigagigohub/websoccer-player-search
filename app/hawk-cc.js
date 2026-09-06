@@ -154,15 +154,48 @@ function renderGroups() {
   const groups = activeSeason.groups || [];
   const summary = activeSeason.summary || {};
   els.groupTabCount.textContent = formatNumber(summary.groupCount);
-  els.groupStageMeta.textContent = `${formatNumber(summary.groupCount)} groups · ${formatNumber(summary.groupMatchCount)} matches`;
+  const beforeKickoff = groups.length > 0 && groups.every((group) => !(group.matches || []).some((match) => match.completed));
+  els.groupStageMeta.textContent = `${beforeKickoff ? "開幕前 · " : ""}${formatNumber(summary.groupCount)} groups · ${formatNumber(summary.groupMatchCount)} matches`;
   els.ccGroupGrid.innerHTML = groups.length
     ? groups.map(groupCardHtml).join("")
     : '<div class="cc-empty cc-empty-panel">グループステージのデータはまだありません。</div>';
 }
 
+function qualifierHtml(entrant) {
+  const provisional = entrant.provisional !== false;
+  const status = !entrant.team ? "順位未取得" : !provisional ? "順位確定"
+    : entrant.beforeKickoff ? "試合前の仮順位" : "現在順位・未確定";
+  return `
+    <div class="cc-qualifier">
+      <div class="cc-qualifier-label"><strong>${escapeHtml(entrant.group)}組 ${escapeHtml(entrant.rank)}位</strong><span>Slot ${escapeHtml(entrant.slot)}</span></div>
+      <div class="cc-qualifier-team${provisional ? " is-provisional" : ""}">${entrant.team ? teamNameHtml(entrant.team) : '<span class="cc-team-label">未定</span>'}</div>
+      <small>${status}${entrant.tied && provisional ? " · 同成績" : ""}</small>
+    </div>
+  `;
+}
+
+function tournamentPreviewHtml(preview) {
+  return `
+    <p class="cc-preview-note">各組の1・2位が進出します。薄いチーム名は現在順位による仮表示です。試合前・同成績の場合は取得時の順位順で、出場確定ではありません。</p>
+    <div class="cc-preview-grid">${preview.map((match) => `
+      <article class="cc-preview-card">
+        <div class="cc-group-title"><h3>1回戦 ${escapeHtml(match.matchNumber)}</h3><span>Round of 16</span></div>
+        <div class="cc-qualifier-pair">${qualifierHtml(match.home)}<span class="cc-preview-vs">vs</span>${qualifierHtml(match.away)}</div>
+      </article>
+    `).join("")}</div>
+  `;
+}
+
 function renderTournament() {
   const rounds = activeSeason.tournamentRounds || [];
   const summary = activeSeason.summary || {};
+  const preview = activeSeason.tournamentPreview || [];
+  if (!rounds.length && preview.length) {
+    els.tournamentTabCount.textContent = `${preview.length * 2}枠`;
+    els.tournamentMeta.textContent = "進出枠と現在順位";
+    els.ccTournament.innerHTML = tournamentPreviewHtml(preview);
+    return;
+  }
   els.tournamentTabCount.textContent = formatNumber(summary.tournamentMatchCount);
   els.tournamentMeta.textContent = `${formatNumber(summary.tournamentRoundCount)} rounds · ${formatNumber(summary.tournamentMatchCount)} matches`;
   els.ccTournament.innerHTML = rounds.length
@@ -256,7 +289,7 @@ async function init() {
   updateMenuState();
   bindEvents();
   try {
-    const response = await fetch("./hawk_cc_data.json?v=20260831-hawk-cc-v3", { cache: "no-store" });
+    const response = await fetch("./hawk_cc_data.json?v=20260906-cc-draw-v1", { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     payload = await response.json();
     render();
