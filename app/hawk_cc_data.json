@@ -1,12 +1,12 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-06T11:07:17+09:00",
-  "publishedAt": "2026-09-06T11:07:17+09:00",
+  "generatedAt": "2026-09-07T01:30:56+09:00",
+  "publishedAt": "2026-09-07T01:30:56+09:00",
   "latestSeason": 2642,
   "seasonCount": 8,
   "seasons": [
     {
-      "generatedAt": "2026-09-06T11:07:17+09:00",
+      "generatedAt": "2026-09-07T01:30:56+09:00",
       "source": {
         "worldId": 20,
         "worldName": "ホーク",
@@ -24,8 +24,8 @@
         "tournamentRoundCount": 0,
         "tournamentMatchCount": 0,
         "allMatchCount": 48,
-        "completedMatchCount": 0,
-        "scheduledMatchCount": 48,
+        "completedMatchCount": 16,
+        "scheduledMatchCount": 32,
         "managedTeamCount": 24
       },
       "groups": [
@@ -35,22 +35,39 @@
             {
               "rank": 1,
               "team": {
+                "name": "金田一んげ剛毛くん",
+                "leagueName": "ランベル",
+                "leagueClass": "A",
+                "managedKey": "K",
+                "isOwnTeam": false
+              },
+              "wins": 1,
+              "draws": 0,
+              "losses": 0,
+              "goalsFor": 6,
+              "goalsAgainst": 0,
+              "goalDifference": 6,
+              "points": 3
+            },
+            {
+              "rank": 2,
+              "team": {
                 "name": "うしくんFC",
                 "leagueName": "ガザニア",
                 "leagueClass": "A",
                 "managedKey": "U",
                 "isOwnTeam": false
               },
-              "wins": 0,
+              "wins": 1,
               "draws": 0,
               "losses": 0,
-              "goalsFor": 0,
+              "goalsFor": 3,
               "goalsAgainst": 0,
-              "goalDifference": 0,
-              "points": 0
+              "goalDifference": 3,
+              "points": 3
             },
             {
-              "rank": 2,
+              "rank": 3,
               "team": {
                 "name": "カイザース",
                 "leagueName": "ダスティーミラー",
@@ -60,27 +77,10 @@
               },
               "wins": 0,
               "draws": 0,
-              "losses": 0,
+              "losses": 1,
               "goalsFor": 0,
-              "goalsAgainst": 0,
-              "goalDifference": 0,
-              "points": 0
-            },
-            {
-              "rank": 3,
-              "team": {
-                "name": "金田一んげ剛毛くん",
-                "leagueName": "ランベル",
-                "leagueClass": "A",
-                "managedKey": "K",
-                "isOwnTeam": false
-              },
-              "wins": 0,
-              "draws": 0,
-              "losses": 0,
-              "goalsFor": 0,
-              "goalsAgainst": 0,
-              "goalDifference": 0,
+              "goalsAgainst": 3,
+              "goalDifference": -3,
               "points": 0
             },
             {
@@ -94,10 +94,10 @@
               },
               "wins": 0,
               "draws": 0,
-              "losses": 0,
+              "losses": 1,
               "goalsFor": 0,
-              "goalsAgainst": 0,
-              "goalDifference": 0,
+              "goalsAgainst": 6,
+              "goalDifference": -6,
               "points": 0
             }
           ],
@@ -111,8 +111,11 @@
               "matchday": 1,
               "matchNumber": 0,
               "kickoff": "2026-09-07 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                3,
+                0
+              ],
               "home": {
                 "name": "うしくんFC",
                 "leagueName": "ガザニア",
@@ -137,8 +140,11 @@
               "matchday": 1,
               "matchNumber": 0,
               "kickoff": "2026-09-07 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                6,
+                0
+              ],
               "home": {
                 "name": "金田一んげ剛毛くん",
                 "leagueName": "ランベル",
@@ -272,16 +278,50 @@
                 "managedKey": "P",
                 "isOwnTeam": false
               },
-              "wins": 0,
+              "wins": 1,
               "draws": 0,
               "losses": 0,
-              "goalsFor": 0,
+              "goalsFor": 2,
               "goalsAgainst": 0,
-              "goalDifference": 0,
-              "points": 0
+              "goalDifference": 2,
+              "points": 3
             },
             {
               "rank": 2,
+              "team": {
+                "name": "Black St.",
+                "leagueName": "ヘンルーダ",
+                "leagueClass": "A",
+                "managedKey": "",
+                "isOwnTeam": false
+              },
+              "wins": 0,
+              "draws": 1,
+              "losses": 0,
+              "goalsFor": 2,
+              "goalsAgainst": 2,
+              "goalDifference": 0,
+              "points": 1
+            },
+            {
+              "rank": 3,
+              "team": {
+                "name": "ダークナイト",
+                "leagueName": "マレイン",
+                "leagueClass": "A",
+                "managedKey": "",
+                "isOwnTeam": false
+              },
+              "wins": 0,
+              "draws": 1,
+              "losses": 0,
+              "goalsFor": 2,
+              "goalsAgainst": 2,
+              "goalDifference": 0,
+              "points": 1
+            },
+            {
+              "rank": 4,
               "team": {
                 "name": "RCblueイーグル",
                 "leagueName": "フレッティー",
@@ -291,44 +331,10 @@
               },
               "wins": 0,
               "draws": 0,
-              "losses": 0,
+              "losses": 1,
               "goalsFor": 0,
-              "goalsAgainst": 0,
-              "goalDifference": 0,
-              "points": 0
-            },
-            {
-              "rank": 3,
-              "team": {
-                "name": "Black St.",
-                "leagueName": "ヘンルーダ",
-                "leagueClass": "A",
-                "managedKey": "",
-                "isOwnTeam": false
-              },
-              "wins": 0,
-              "draws": 0,
-              "losses": 0,
-              "goalsFor": 0,
-              "goalsAgainst": 0,
-              "goalDifference": 0,
-              "points": 0
-            },
-            {
-              "rank": 4,
-              "team": {
-                "name": "ダークナイト",
-                "leagueName": "マレイン",
-                "leagueClass": "A",
-                "managedKey": "",
-                "isOwnTeam": false
-              },
-              "wins": 0,
-              "draws": 0,
-              "losses": 0,
-              "goalsFor": 0,
-              "goalsAgainst": 0,
-              "goalDifference": 0,
+              "goalsAgainst": 2,
+              "goalDifference": -2,
               "points": 0
             }
           ],
@@ -342,8 +348,11 @@
               "matchday": 1,
               "matchNumber": 0,
               "kickoff": "2026-09-07 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                2,
+                0
+              ],
               "home": {
                 "name": "ピッ！トゥトゥトゥ栄",
                 "leagueName": "シラー",
@@ -368,8 +377,11 @@
               "matchday": 1,
               "matchNumber": 0,
               "kickoff": "2026-09-07 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                2,
+                2
+              ],
               "home": {
                 "name": "Black St.",
                 "leagueName": "ヘンルーダ",
@@ -497,19 +509,19 @@
             {
               "rank": 1,
               "team": {
-                "name": "はしばっちUTD",
-                "leagueName": "マレイン",
+                "name": "ジャイアンズ監督",
+                "leagueName": "カランコエ",
                 "leagueClass": "A",
-                "managedKey": "",
-                "isOwnTeam": true
+                "managedKey": "G",
+                "isOwnTeam": false
               },
-              "wins": 0,
+              "wins": 1,
               "draws": 0,
               "losses": 0,
-              "goalsFor": 0,
+              "goalsFor": 4,
               "goalsAgainst": 0,
-              "goalDifference": 0,
-              "points": 0
+              "goalDifference": 4,
+              "points": 3
             },
             {
               "rank": 2,
@@ -520,29 +532,29 @@
                 "managedKey": "I",
                 "isOwnTeam": false
               },
-              "wins": 0,
+              "wins": 1,
               "draws": 0,
               "losses": 0,
-              "goalsFor": 0,
+              "goalsFor": 2,
               "goalsAgainst": 0,
-              "goalDifference": 0,
-              "points": 0
+              "goalDifference": 2,
+              "points": 3
             },
             {
               "rank": 3,
               "team": {
-                "name": "ジャイアンズ監督",
-                "leagueName": "カランコエ",
+                "name": "はしばっちUTD",
+                "leagueName": "マレイン",
                 "leagueClass": "A",
-                "managedKey": "G",
-                "isOwnTeam": false
+                "managedKey": "",
+                "isOwnTeam": true
               },
               "wins": 0,
               "draws": 0,
-              "losses": 0,
+              "losses": 1,
               "goalsFor": 0,
-              "goalsAgainst": 0,
-              "goalDifference": 0,
+              "goalsAgainst": 2,
+              "goalDifference": -2,
               "points": 0
             },
             {
@@ -556,10 +568,10 @@
               },
               "wins": 0,
               "draws": 0,
-              "losses": 0,
+              "losses": 1,
               "goalsFor": 0,
-              "goalsAgainst": 0,
-              "goalDifference": 0,
+              "goalsAgainst": 4,
+              "goalDifference": -4,
               "points": 0
             }
           ],
@@ -573,8 +585,11 @@
               "matchday": 1,
               "matchNumber": 0,
               "kickoff": "2026-09-07 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                0,
+                2
+              ],
               "home": {
                 "name": "はしばっちUTD",
                 "leagueName": "マレイン",
@@ -599,8 +614,11 @@
               "matchday": 1,
               "matchNumber": 0,
               "kickoff": "2026-09-07 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                4,
+                0
+              ],
               "home": {
                 "name": "ジャイアンズ監督",
                 "leagueName": "カランコエ",
@@ -728,19 +746,19 @@
             {
               "rank": 1,
               "team": {
-                "name": "TOYOTA",
-                "leagueName": "ポインセチア",
+                "name": "真下美容室",
+                "leagueName": "ポリアンサ",
                 "leagueClass": "A",
-                "managedKey": "",
+                "managedKey": "M",
                 "isOwnTeam": false
               },
-              "wins": 0,
+              "wins": 1,
               "draws": 0,
               "losses": 0,
-              "goalsFor": 0,
+              "goalsFor": 3,
               "goalsAgainst": 0,
-              "goalDifference": 0,
-              "points": 0
+              "goalDifference": 3,
+              "points": 3
             },
             {
               "rank": 2,
@@ -751,29 +769,29 @@
                 "managedKey": "L",
                 "isOwnTeam": false
               },
-              "wins": 0,
+              "wins": 1,
               "draws": 0,
               "losses": 0,
-              "goalsFor": 0,
-              "goalsAgainst": 0,
-              "goalDifference": 0,
-              "points": 0
+              "goalsFor": 3,
+              "goalsAgainst": 1,
+              "goalDifference": 2,
+              "points": 3
             },
             {
               "rank": 3,
               "team": {
-                "name": "真下美容室",
-                "leagueName": "ポリアンサ",
+                "name": "TOYOTA",
+                "leagueName": "ポインセチア",
                 "leagueClass": "A",
-                "managedKey": "M",
+                "managedKey": "",
                 "isOwnTeam": false
               },
               "wins": 0,
               "draws": 0,
-              "losses": 0,
-              "goalsFor": 0,
-              "goalsAgainst": 0,
-              "goalDifference": 0,
+              "losses": 1,
+              "goalsFor": 1,
+              "goalsAgainst": 3,
+              "goalDifference": -2,
               "points": 0
             },
             {
@@ -787,10 +805,10 @@
               },
               "wins": 0,
               "draws": 0,
-              "losses": 0,
+              "losses": 1,
               "goalsFor": 0,
-              "goalsAgainst": 0,
-              "goalDifference": 0,
+              "goalsAgainst": 3,
+              "goalDifference": -3,
               "points": 0
             }
           ],
@@ -804,8 +822,11 @@
               "matchday": 1,
               "matchNumber": 0,
               "kickoff": "2026-09-07 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                1,
+                3
+              ],
               "home": {
                 "name": "TOYOTA",
                 "leagueName": "ポインセチア",
@@ -830,8 +851,11 @@
               "matchday": 1,
               "matchNumber": 0,
               "kickoff": "2026-09-07 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                3,
+                0
+              ],
               "home": {
                 "name": "真下美容室",
                 "leagueName": "ポリアンサ",
@@ -959,6 +983,23 @@
             {
               "rank": 1,
               "team": {
+                "name": "ふくひで手掴みFC",
+                "leagueName": "ダスティーミラー",
+                "leagueClass": "A",
+                "managedKey": "F",
+                "isOwnTeam": false
+              },
+              "wins": 1,
+              "draws": 0,
+              "losses": 0,
+              "goalsFor": 3,
+              "goalsAgainst": 0,
+              "goalDifference": 3,
+              "points": 3
+            },
+            {
+              "rank": 2,
+              "team": {
                 "name": "FCひよこ",
                 "leagueName": "デュランタ",
                 "leagueClass": "A",
@@ -966,15 +1007,15 @@
                 "isOwnTeam": false
               },
               "wins": 0,
-              "draws": 0,
+              "draws": 1,
               "losses": 0,
-              "goalsFor": 0,
-              "goalsAgainst": 0,
+              "goalsFor": 1,
+              "goalsAgainst": 1,
               "goalDifference": 0,
-              "points": 0
+              "points": 1
             },
             {
-              "rank": 2,
+              "rank": 3,
               "team": {
                 "name": "くさぁくんさぁ",
                 "leagueName": "シラー",
@@ -983,29 +1024,12 @@
                 "isOwnTeam": false
               },
               "wins": 0,
-              "draws": 0,
+              "draws": 1,
               "losses": 0,
-              "goalsFor": 0,
-              "goalsAgainst": 0,
+              "goalsFor": 1,
+              "goalsAgainst": 1,
               "goalDifference": 0,
-              "points": 0
-            },
-            {
-              "rank": 3,
-              "team": {
-                "name": "ふくひで手掴みFC",
-                "leagueName": "ダスティーミラー",
-                "leagueClass": "A",
-                "managedKey": "F",
-                "isOwnTeam": false
-              },
-              "wins": 0,
-              "draws": 0,
-              "losses": 0,
-              "goalsFor": 0,
-              "goalsAgainst": 0,
-              "goalDifference": 0,
-              "points": 0
+              "points": 1
             },
             {
               "rank": 4,
@@ -1018,10 +1042,10 @@
               },
               "wins": 0,
               "draws": 0,
-              "losses": 0,
+              "losses": 1,
               "goalsFor": 0,
-              "goalsAgainst": 0,
-              "goalDifference": 0,
+              "goalsAgainst": 3,
+              "goalDifference": -3,
               "points": 0
             }
           ],
@@ -1035,8 +1059,11 @@
               "matchday": 1,
               "matchNumber": 0,
               "kickoff": "2026-09-07 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                1,
+                1
+              ],
               "home": {
                 "name": "FCひよこ",
                 "leagueName": "デュランタ",
@@ -1061,8 +1088,11 @@
               "matchday": 1,
               "matchNumber": 0,
               "kickoff": "2026-09-07 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                3,
+                0
+              ],
               "home": {
                 "name": "ふくひで手掴みFC",
                 "leagueName": "ダスティーミラー",
@@ -1190,6 +1220,23 @@
             {
               "rank": 1,
               "team": {
+                "name": "Wheyプロテンイ",
+                "leagueName": "クルクマ",
+                "leagueClass": "A",
+                "managedKey": "W",
+                "isOwnTeam": false
+              },
+              "wins": 1,
+              "draws": 0,
+              "losses": 0,
+              "goalsFor": 3,
+              "goalsAgainst": 1,
+              "goalDifference": 2,
+              "points": 3
+            },
+            {
+              "rank": 2,
+              "team": {
                 "name": "クッキングパパ",
                 "leagueName": "ブーゲンビリア",
                 "leagueClass": "A",
@@ -1197,15 +1244,15 @@
                 "isOwnTeam": false
               },
               "wins": 0,
-              "draws": 0,
+              "draws": 1,
               "losses": 0,
-              "goalsFor": 0,
-              "goalsAgainst": 0,
+              "goalsFor": 3,
+              "goalsAgainst": 3,
               "goalDifference": 0,
-              "points": 0
+              "points": 1
             },
             {
-              "rank": 2,
+              "rank": 3,
               "team": {
                 "name": "口臭のマツオカ",
                 "leagueName": "ヘレニウム",
@@ -1214,29 +1261,12 @@
                 "isOwnTeam": false
               },
               "wins": 0,
-              "draws": 0,
+              "draws": 1,
               "losses": 0,
-              "goalsFor": 0,
-              "goalsAgainst": 0,
+              "goalsFor": 3,
+              "goalsAgainst": 3,
               "goalDifference": 0,
-              "points": 0
-            },
-            {
-              "rank": 3,
-              "team": {
-                "name": "Wheyプロテンイ",
-                "leagueName": "クルクマ",
-                "leagueClass": "A",
-                "managedKey": "W",
-                "isOwnTeam": false
-              },
-              "wins": 0,
-              "draws": 0,
-              "losses": 0,
-              "goalsFor": 0,
-              "goalsAgainst": 0,
-              "goalDifference": 0,
-              "points": 0
+              "points": 1
             },
             {
               "rank": 4,
@@ -1249,10 +1279,10 @@
               },
               "wins": 0,
               "draws": 0,
-              "losses": 0,
-              "goalsFor": 0,
-              "goalsAgainst": 0,
-              "goalDifference": 0,
+              "losses": 1,
+              "goalsFor": 1,
+              "goalsAgainst": 3,
+              "goalDifference": -2,
               "points": 0
             }
           ],
@@ -1266,8 +1296,11 @@
               "matchday": 1,
               "matchNumber": 0,
               "kickoff": "2026-09-07 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                3,
+                3
+              ],
               "home": {
                 "name": "クッキングパパ",
                 "leagueName": "ブーゲンビリア",
@@ -1292,8 +1325,11 @@
               "matchday": 1,
               "matchNumber": 0,
               "kickoff": "2026-09-07 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                3,
+                1
+              ],
               "home": {
                 "name": "Wheyプロテンイ",
                 "leagueName": "クルクマ",
@@ -1421,22 +1457,39 @@
             {
               "rank": 1,
               "team": {
+                "name": "イタリアンサンドF",
+                "leagueName": "フレッティー",
+                "leagueClass": "A",
+                "managedKey": "",
+                "isOwnTeam": true
+              },
+              "wins": 1,
+              "draws": 0,
+              "losses": 0,
+              "goalsFor": 4,
+              "goalsAgainst": 0,
+              "goalDifference": 4,
+              "points": 3
+            },
+            {
+              "rank": 2,
+              "team": {
                 "name": "2階のドア裏のコロ",
                 "leagueName": "スカビオサ",
                 "leagueClass": "A",
                 "managedKey": "N",
                 "isOwnTeam": false
               },
-              "wins": 0,
+              "wins": 1,
               "draws": 0,
               "losses": 0,
-              "goalsFor": 0,
-              "goalsAgainst": 0,
-              "goalDifference": 0,
-              "points": 0
+              "goalsFor": 2,
+              "goalsAgainst": 1,
+              "goalDifference": 1,
+              "points": 3
             },
             {
-              "rank": 2,
+              "rank": 3,
               "team": {
                 "name": "ジェフフ",
                 "leagueName": "シネラリア",
@@ -1446,27 +1499,10 @@
               },
               "wins": 0,
               "draws": 0,
-              "losses": 0,
-              "goalsFor": 0,
-              "goalsAgainst": 0,
-              "goalDifference": 0,
-              "points": 0
-            },
-            {
-              "rank": 3,
-              "team": {
-                "name": "イタリアンサンドF",
-                "leagueName": "フレッティー",
-                "leagueClass": "A",
-                "managedKey": "",
-                "isOwnTeam": true
-              },
-              "wins": 0,
-              "draws": 0,
-              "losses": 0,
-              "goalsFor": 0,
-              "goalsAgainst": 0,
-              "goalDifference": 0,
+              "losses": 1,
+              "goalsFor": 1,
+              "goalsAgainst": 2,
+              "goalDifference": -1,
               "points": 0
             },
             {
@@ -1480,10 +1516,10 @@
               },
               "wins": 0,
               "draws": 0,
-              "losses": 0,
+              "losses": 1,
               "goalsFor": 0,
-              "goalsAgainst": 0,
-              "goalDifference": 0,
+              "goalsAgainst": 4,
+              "goalDifference": -4,
               "points": 0
             }
           ],
@@ -1497,8 +1533,11 @@
               "matchday": 1,
               "matchNumber": 0,
               "kickoff": "2026-09-07 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                2,
+                1
+              ],
               "home": {
                 "name": "2階のドア裏のコロ",
                 "leagueName": "スカビオサ",
@@ -1523,8 +1562,11 @@
               "matchday": 1,
               "matchNumber": 0,
               "kickoff": "2026-09-07 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                4,
+                0
+              ],
               "home": {
                 "name": "イタリアンサンドF",
                 "leagueName": "フレッティー",
@@ -1652,19 +1694,19 @@
             {
               "rank": 1,
               "team": {
-                "name": "バナナでバナナです",
-                "leagueName": "シネラリア",
+                "name": "MSHY",
+                "leagueName": "ヘレニウム",
                 "leagueClass": "A",
-                "managedKey": "V",
+                "managedKey": "",
                 "isOwnTeam": false
               },
-              "wins": 0,
+              "wins": 1,
               "draws": 0,
               "losses": 0,
-              "goalsFor": 0,
-              "goalsAgainst": 0,
-              "goalDifference": 0,
-              "points": 0
+              "goalsFor": 3,
+              "goalsAgainst": 1,
+              "goalDifference": 2,
+              "points": 3
             },
             {
               "rank": 2,
@@ -1675,33 +1717,16 @@
                 "managedKey": "C",
                 "isOwnTeam": false
               },
-              "wins": 0,
+              "wins": 1,
               "draws": 0,
               "losses": 0,
-              "goalsFor": 0,
+              "goalsFor": 2,
               "goalsAgainst": 0,
-              "goalDifference": 0,
-              "points": 0
+              "goalDifference": 2,
+              "points": 3
             },
             {
               "rank": 3,
-              "team": {
-                "name": "MSHY",
-                "leagueName": "ヘレニウム",
-                "leagueClass": "A",
-                "managedKey": "",
-                "isOwnTeam": false
-              },
-              "wins": 0,
-              "draws": 0,
-              "losses": 0,
-              "goalsFor": 0,
-              "goalsAgainst": 0,
-              "goalDifference": 0,
-              "points": 0
-            },
-            {
-              "rank": 4,
               "team": {
                 "name": "立松ブラウン",
                 "leagueName": "デュランタ",
@@ -1711,10 +1736,27 @@
               },
               "wins": 0,
               "draws": 0,
-              "losses": 0,
+              "losses": 1,
+              "goalsFor": 1,
+              "goalsAgainst": 3,
+              "goalDifference": -2,
+              "points": 0
+            },
+            {
+              "rank": 4,
+              "team": {
+                "name": "バナナでバナナです",
+                "leagueName": "シネラリア",
+                "leagueClass": "A",
+                "managedKey": "V",
+                "isOwnTeam": false
+              },
+              "wins": 0,
+              "draws": 0,
+              "losses": 1,
               "goalsFor": 0,
-              "goalsAgainst": 0,
-              "goalDifference": 0,
+              "goalsAgainst": 2,
+              "goalDifference": -2,
               "points": 0
             }
           ],
@@ -1728,8 +1770,11 @@
               "matchday": 1,
               "matchNumber": 0,
               "kickoff": "2026-09-07 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                0,
+                2
+              ],
               "home": {
                 "name": "バナナでバナナです",
                 "leagueName": "シネラリア",
@@ -1754,8 +1799,11 @@
               "matchday": 1,
               "matchNumber": 0,
               "kickoff": "2026-09-07 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                3,
+                1
+              ],
               "home": {
                 "name": "MSHY",
                 "leagueName": "ヘレニウム",
@@ -1887,30 +1935,30 @@
             "group": "A",
             "rank": 1,
             "team": {
-              "name": "うしくんFC",
-              "leagueName": "ガザニア",
+              "name": "金田一んげ剛毛くん",
+              "leagueName": "ランベル",
               "leagueClass": "A",
-              "managedKey": "U",
+              "managedKey": "K",
               "isOwnTeam": false
             },
             "provisional": true,
-            "tied": true,
-            "beforeKickoff": true
+            "tied": false,
+            "beforeKickoff": false
           },
           "away": {
             "slot": 2,
             "group": "B",
             "rank": 2,
             "team": {
-              "name": "RCblueイーグル",
-              "leagueName": "フレッティー",
+              "name": "Black St.",
+              "leagueName": "ヘンルーダ",
               "leagueClass": "A",
-              "managedKey": "R",
+              "managedKey": "",
               "isOwnTeam": false
             },
             "provisional": true,
             "tied": true,
-            "beforeKickoff": true
+            "beforeKickoff": false
           }
         },
         {
@@ -1920,15 +1968,15 @@
             "group": "D",
             "rank": 1,
             "team": {
-              "name": "TOYOTA",
-              "leagueName": "ポインセチア",
+              "name": "真下美容室",
+              "leagueName": "ポリアンサ",
               "leagueClass": "A",
-              "managedKey": "",
+              "managedKey": "M",
               "isOwnTeam": false
             },
             "provisional": true,
-            "tied": true,
-            "beforeKickoff": true
+            "tied": false,
+            "beforeKickoff": false
           },
           "away": {
             "slot": 4,
@@ -1942,8 +1990,8 @@
               "isOwnTeam": false
             },
             "provisional": true,
-            "tied": true,
-            "beforeKickoff": true
+            "tied": false,
+            "beforeKickoff": false
           }
         },
         {
@@ -1953,30 +2001,30 @@
             "group": "E",
             "rank": 1,
             "team": {
-              "name": "FCひよこ",
-              "leagueName": "デュランタ",
+              "name": "ふくひで手掴みFC",
+              "leagueName": "ダスティーミラー",
               "leagueClass": "A",
-              "managedKey": "",
+              "managedKey": "F",
               "isOwnTeam": false
             },
             "provisional": true,
-            "tied": true,
-            "beforeKickoff": true
+            "tied": false,
+            "beforeKickoff": false
           },
           "away": {
             "slot": 6,
             "group": "F",
             "rank": 2,
             "team": {
-              "name": "口臭のマツオカ",
-              "leagueName": "ヘレニウム",
+              "name": "クッキングパパ",
+              "leagueName": "ブーゲンビリア",
               "leagueClass": "A",
-              "managedKey": "Q",
+              "managedKey": "",
               "isOwnTeam": false
             },
             "provisional": true,
             "tied": true,
-            "beforeKickoff": true
+            "beforeKickoff": false
           }
         },
         {
@@ -1986,30 +2034,30 @@
             "group": "H",
             "rank": 1,
             "team": {
-              "name": "バナナでバナナです",
-              "leagueName": "シネラリア",
+              "name": "MSHY",
+              "leagueName": "ヘレニウム",
               "leagueClass": "A",
-              "managedKey": "V",
+              "managedKey": "",
               "isOwnTeam": false
             },
             "provisional": true,
-            "tied": true,
-            "beforeKickoff": true
+            "tied": false,
+            "beforeKickoff": false
           },
           "away": {
             "slot": 8,
             "group": "G",
             "rank": 2,
             "team": {
-              "name": "ジェフフ",
-              "leagueName": "シネラリア",
+              "name": "2階のドア裏のコロ",
+              "leagueName": "スカビオサ",
               "leagueClass": "A",
-              "managedKey": "J",
+              "managedKey": "N",
               "isOwnTeam": false
             },
             "provisional": true,
-            "tied": true,
-            "beforeKickoff": true
+            "tied": false,
+            "beforeKickoff": false
           }
         },
         {
@@ -2026,23 +2074,23 @@
               "isOwnTeam": false
             },
             "provisional": true,
-            "tied": true,
-            "beforeKickoff": true
+            "tied": false,
+            "beforeKickoff": false
           },
           "away": {
             "slot": 10,
             "group": "A",
             "rank": 2,
             "team": {
-              "name": "カイザース",
-              "leagueName": "ダスティーミラー",
+              "name": "うしくんFC",
+              "leagueName": "ガザニア",
               "leagueClass": "A",
-              "managedKey": "",
+              "managedKey": "U",
               "isOwnTeam": false
             },
             "provisional": true,
-            "tied": true,
-            "beforeKickoff": true
+            "tied": false,
+            "beforeKickoff": false
           }
         },
         {
@@ -2052,15 +2100,15 @@
             "group": "C",
             "rank": 1,
             "team": {
-              "name": "はしばっちUTD",
-              "leagueName": "マレイン",
+              "name": "ジャイアンズ監督",
+              "leagueName": "カランコエ",
               "leagueClass": "A",
-              "managedKey": "",
-              "isOwnTeam": true
+              "managedKey": "G",
+              "isOwnTeam": false
             },
             "provisional": true,
-            "tied": true,
-            "beforeKickoff": true
+            "tied": false,
+            "beforeKickoff": false
           },
           "away": {
             "slot": 12,
@@ -2074,8 +2122,8 @@
               "isOwnTeam": false
             },
             "provisional": true,
-            "tied": true,
-            "beforeKickoff": true
+            "tied": false,
+            "beforeKickoff": false
           }
         },
         {
@@ -2085,30 +2133,30 @@
             "group": "F",
             "rank": 1,
             "team": {
-              "name": "クッキングパパ",
-              "leagueName": "ブーゲンビリア",
+              "name": "Wheyプロテンイ",
+              "leagueName": "クルクマ",
               "leagueClass": "A",
-              "managedKey": "",
+              "managedKey": "W",
               "isOwnTeam": false
             },
             "provisional": true,
-            "tied": true,
-            "beforeKickoff": true
+            "tied": false,
+            "beforeKickoff": false
           },
           "away": {
             "slot": 14,
             "group": "E",
             "rank": 2,
             "team": {
-              "name": "くさぁくんさぁ",
-              "leagueName": "シラー",
+              "name": "FCひよこ",
+              "leagueName": "デュランタ",
               "leagueClass": "A",
-              "managedKey": "X",
+              "managedKey": "",
               "isOwnTeam": false
             },
             "provisional": true,
             "tied": true,
-            "beforeKickoff": true
+            "beforeKickoff": false
           }
         },
         {
@@ -2118,15 +2166,15 @@
             "group": "G",
             "rank": 1,
             "team": {
-              "name": "2階のドア裏のコロ",
-              "leagueName": "スカビオサ",
+              "name": "イタリアンサンドF",
+              "leagueName": "フレッティー",
               "leagueClass": "A",
-              "managedKey": "N",
-              "isOwnTeam": false
+              "managedKey": "",
+              "isOwnTeam": true
             },
             "provisional": true,
-            "tied": true,
-            "beforeKickoff": true
+            "tied": false,
+            "beforeKickoff": false
           },
           "away": {
             "slot": 16,
@@ -2140,8 +2188,8 @@
               "isOwnTeam": false
             },
             "provisional": true,
-            "tied": true,
-            "beforeKickoff": true
+            "tied": false,
+            "beforeKickoff": false
           }
         }
       ]
