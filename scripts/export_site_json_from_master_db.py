@@ -457,7 +457,7 @@ def build_players(
                 category = fb.get("category", "NR")
                 category_membership = fb.get("categoryMembership", [category])
             category_pending = manual is not None and not category and not category_membership
-            image_pending = category_pending and pid not in image_available_player_ids
+            image_pending = pid not in image_available_player_ids
             category, category_membership, retired, retired_reason = normalize_category_for_retired(
                 pid,
                 category,
