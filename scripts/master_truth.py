@@ -36,7 +36,7 @@ def inherit(conn, source):
         for t in TABLES:
             if t not in existing:continue
             schema=old.execute('SELECT sql FROM sqlite_master WHERE name=?',(t,)).fetchone()[0]
-            conn.execute(f'DROP TABLE IF EXISTS {t}')
+            conn.execute(f'DROP TABLE IF EXISTS main.{t}')
             conn.execute(schema)
             rows=old.execute(f'SELECT * FROM {t}').fetchall()
             if rows:conn.executemany(f'INSERT INTO {t} VALUES ('+','.join('?' for _ in rows[0])+')',rows)
