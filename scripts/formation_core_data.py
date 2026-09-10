@@ -78,3 +78,46 @@ def overlay_coach_depths(coaches, path=DEFAULT_SNAPSHOT):
                     depths.add(row['formation_id'])
         coach['depth4FormationIds'] = sorted(depths)
     return coaches
+
+
+def import_into_master(conn, path=DEFAULT_SNAPSHOT):
+    """Import official definitions into WSM; never alter manual or match tables."""
+    import hashlib
+    raw = Path(path).read_bytes()
+    payload = json.loads(raw)
+    src = overlay_sources({}, payload)
+    tables = {
+        'formation': ('ao__ZMOFORMATION', ('ZFORMATION_ID',), 3),
+        'formation_info': ('ao__ZMOFORMATIONSINFO', ('ZFORMATION_ID',), 5),
+        'formation_pos': ('ao__ZMOFORMATIONSPOSITION', ('ZFORMATION_ID', 'ZPOS'), 7),
+        'formation_key': ('ao__ZMOFORMATIONSKEYPOSITION', ('ZFORMATION_ID', 'ZKEYPOS'), 6),
+        'coach_understanding': ('ao__ZMOHEADCOACHESUNDERSTANDING', ('ZHEADCOACH_ID', 'ZFORMATION_ID'), 12),
+    }
+    for r in src['formation_info']:
+        original = next(x for x in payload['formations'] if x['formation_id'] == r['ZFORMATION_ID'])
+        r.update({'Z'+k.upper(): original[k] for k in ('poz', 'cnt', 'stp')})
+    for r, original in zip(src['coach_understanding'], payload.get('headcoaches_understanding', [])):
+        r['ZID'] = original['id']
+    conn.execute('SAVEPOINT formation_core_import')
+    try:
+        for group, (table, keys, entity) in tables.items():
+            for row in src[group]:
+                where = ' AND '.join(k+'=?' for k in keys)
+                values = [row[k] for k in keys]
+                matches = conn.execute(f'SELECT Z_PK FROM {table} WHERE {where}', values).fetchall()
+                if len(matches) > 1:
+                    raise ValueError(f'Duplicate master keys in {table}')
+                if matches:
+                    conn.execute(f'UPDATE {table} SET '+','.join(k+'=?' for k in row)+' WHERE '+where, list(row.values())+values)
+                else:
+                    pk = conn.execute(f'SELECT COALESCE(MAX(Z_PK),0)+1 FROM {table}').fetchone()[0]
+                    row = {'Z_PK':pk,'Z_ENT':entity,'Z_OPT':1,**row}
+                    conn.execute(f'INSERT INTO {table} ('+','.join(row)+') VALUES ('+','.join('?' for _ in row)+')', list(row.values()))
+        conn.execute('CREATE TABLE IF NOT EXISTS core_definition_sources (kind TEXT PRIMARY KEY, source_path TEXT NOT NULL, sha256 TEXT NOT NULL)')
+        conn.execute('INSERT OR REPLACE INTO core_definition_sources VALUES (?,?,?)', ('formation',str(Path(path).resolve()),hashlib.sha256(raw).hexdigest()))
+        conn.execute('RELEASE formation_core_import')
+    except Exception:
+        conn.execute('ROLLBACK TO formation_core_import')
+        conn.execute('RELEASE formation_core_import')
+        raise
+    return {group:len(src[group]) for group in tables}

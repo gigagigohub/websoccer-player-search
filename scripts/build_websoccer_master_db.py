@@ -825,6 +825,8 @@ def main() -> int:
         put_source(conn, "cc_db", cc_db, "copied from incremental cc db")
         conn.commit()
         import_app_original(conn, product, verbose=args.verbose)
+        from formation_core_data import import_into_master
+        import_into_master(conn)
         put_source(conn, "app_original_product_sqlite", product, "all non-image app original tables copied as ao__*")
         conn.commit()
         import_updatefiles(conn, update_dir, verbose=args.verbose)
