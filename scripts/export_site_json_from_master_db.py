@@ -692,7 +692,8 @@ def build_coaches(conn: sqlite3.Connection, fallback_coaches: dict[int, dict]) -
         out.append(item)
 
     out.sort(key=lambda x: to_int(x.get("id"), 0))
-    return out
+    from formation_core_data import overlay_coach_depths
+    return overlay_coach_depths(out)
 
 
 def write_json(path: Path, obj: dict) -> None:

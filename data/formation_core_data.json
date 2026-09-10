@@ -1,0 +1,458 @@
+{
+  "code": "000",
+  "formations": [
+    {
+      "formation_id": 118,
+      "name": "パリ",
+      "year": 2024,
+      "system": "4-3-3",
+      "stride": 1,
+      "off": 7,
+      "def": 7,
+      "mid": 9,
+      "spd": 7,
+      "tec": 6,
+      "pwr": 3,
+      "stm": 5,
+      "dif": 6,
+      "ttl": 8,
+      "poz": 0,
+      "cnt": 0,
+      "stp": 0,
+      "subtitle": "組織の力",
+      "description": "フランスの怪物が要としてチームを率いていたが移籍により大きな転換期を迎えたパリのビッグクラブ。監督は今までは個の武器に依存していた体質からチーム一丸主義へと変革、超攻撃的かつ構築されたチームとして進化しシステムと連動性を武器に欧州制覇へと輝いた。４―３―３を基本陣形としているが攻守でフォーメーションは変幻自在。相手や試合状況に応じて柔軟に変形する 。攻撃では偽９番を導入し中盤での数的優位を作り出す。それ以外にも偽９番の選手はウイングにポジションを取る動きを見せるなど多次元的な攻撃を展開する。中盤の選手は自由にポジション移動し、深い位置と攻撃寄りを行き来する跳躍的な動きを見せる。守備でもボールを失っても即時に全体でのハイプレスをかけ回収を狙う。これにより相手陣内で高確率にボールを奪取、中盤あるいはＳＢから速攻を仕掛ける攻撃力に直結する。若手の台頭もありリザーブも充実していることから、選手のローテーションをすることでチームとして高い質を維持できるようになった。チームの強みとして全員が守備にも参加するプレッシャー、テンポと形を変える柔軟な攻撃バリエーション、若手の台頭という三位一体で破壊力と組織力を両立、欧州を制覇した決勝の舞台でも５―０と圧倒しリーグ・カップ・欧州制覇と３冠を獲得し最高のシーズンを締め括った。",
+      "position_info": [
+        {
+          "pos": 1,
+          "x": 161,
+          "y": 337,
+          "keypos": 0
+        },
+        {
+          "pos": 2,
+          "x": 317,
+          "y": 236,
+          "keypos": 0
+        },
+        {
+          "pos": 3,
+          "x": 224,
+          "y": 261,
+          "keypos": 0
+        },
+        {
+          "pos": 4,
+          "x": 101,
+          "y": 261,
+          "keypos": 0
+        },
+        {
+          "pos": 5,
+          "x": 5,
+          "y": 236,
+          "keypos": 0
+        },
+        {
+          "pos": 6,
+          "x": 161,
+          "y": 170,
+          "keypos": 3
+        },
+        {
+          "pos": 7,
+          "x": 236,
+          "y": 119,
+          "keypos": 2
+        },
+        {
+          "pos": 8,
+          "x": 83,
+          "y": 119,
+          "keypos": 4
+        },
+        {
+          "pos": 9,
+          "x": 290,
+          "y": 10,
+          "keypos": 0
+        },
+        {
+          "pos": 10,
+          "x": 161,
+          "y": 10,
+          "keypos": 1
+        },
+        {
+          "pos": 11,
+          "x": 33,
+          "y": 10,
+          "keypos": 0
+        }
+      ],
+      "keypos": [
+        {
+          "keypos": 1,
+          "pos": 10,
+          "subtitle": "ストライカー",
+          "description": "ＣＦのポジションだがウイングもこなせるスピードに優れた選手が活躍するだろう。"
+        },
+        {
+          "keypos": 2,
+          "pos": 7,
+          "subtitle": "センターハーフ",
+          "description": "中盤で攻守を支える要であり、全ての能力が求められるだろう。"
+        },
+        {
+          "keypos": 3,
+          "pos": 6,
+          "subtitle": "プレーメーカー",
+          "description": "中盤を制し、攻守に躍動するテクニックの高い選手が求められる。"
+        },
+        {
+          "keypos": 4,
+          "pos": 8,
+          "subtitle": "万能型ミッドフィルダー",
+          "description": "中盤ならどこでも出来るテクニックの高い選手が活躍するだろう。"
+        }
+      ]
+    },
+    {
+      "formation_id": 119,
+      "name": "ブライトン",
+      "year": 2022,
+      "system": "4-2-3-1",
+      "stride": 1,
+      "off": 7,
+      "def": 6,
+      "mid": 8,
+      "spd": 7,
+      "tec": 6,
+      "pwr": 3,
+      "stm": 5,
+      "dif": 5,
+      "ttl": 7,
+      "poz": 0,
+      "cnt": 0,
+      "stp": 0,
+      "subtitle": "飛躍のシーガルス",
+      "description": "イギリス南部、海辺のリゾート地ブライトンをホームタウンとする“シーガルズ”。2022-23シーズン、新たに就任したデ・ゼッピ監督の指揮の下、革新的な戦術で大きな飛躍を遂げた。4-2-3-1が基本布陣。ＤＦ陣とボランチの２人にＧＫも加わって数的優位を作り出し、ボールを回して相手のプレスを誘発。前線に空いたスペースを利用し、縦パスから一気にスピードアップ。パスを受けた前線中央の２人とスピードの有る両ウイングが連携し、一気に相手ゴールへ攻めかかる。この「擬似カウンター」でリーグ戦６位の大躍進。初の欧州リーグへの出場権も獲得し、クラブ史上最高の成績を残した。",
+      "position_info": [
+        {
+          "pos": 1,
+          "x": 161,
+          "y": 337,
+          "keypos": 0
+        },
+        {
+          "pos": 2,
+          "x": 317,
+          "y": 236,
+          "keypos": 0
+        },
+        {
+          "pos": 3,
+          "x": 224,
+          "y": 261,
+          "keypos": 0
+        },
+        {
+          "pos": 4,
+          "x": 101,
+          "y": 261,
+          "keypos": 0
+        },
+        {
+          "pos": 5,
+          "x": 5,
+          "y": 236,
+          "keypos": 0
+        },
+        {
+          "pos": 6,
+          "x": 224,
+          "y": 170,
+          "keypos": 4
+        },
+        {
+          "pos": 7,
+          "x": 101,
+          "y": 170,
+          "keypos": 2
+        },
+        {
+          "pos": 8,
+          "x": 299,
+          "y": 88,
+          "keypos": 0
+        },
+        {
+          "pos": 9,
+          "x": 161,
+          "y": 88,
+          "keypos": 1
+        },
+        {
+          "pos": 10,
+          "x": 26,
+          "y": 88,
+          "keypos": 3
+        },
+        {
+          "pos": 11,
+          "x": 161,
+          "y": 5,
+          "keypos": 0
+        }
+      ],
+      "keypos": [
+        {
+          "keypos": 1,
+          "pos": 9,
+          "subtitle": "万能型ゲームメーカー",
+          "description": "広い視野でチームの舵を取る司令塔。テクニックはもちろん、総合力の高さが求められる。"
+        },
+        {
+          "keypos": 2,
+          "pos": 7,
+          "subtitle": "中盤のダイナモ",
+          "description": "チームのダイナモ。抜群の身体能力と高いアジリティで攻守にわたって奮闘する。"
+        },
+        {
+          "keypos": 3,
+          "pos": 10,
+          "subtitle": "突破型ドリブラー",
+          "description": "サイドを切り裂くドリブラー。高度なドリブルテクニックとスピードが必要。"
+        },
+        {
+          "keypos": 4,
+          "pos": 6,
+          "subtitle": "万能型ボランチ",
+          "description": "正確なパスでチームを支える中盤の要。高度な戦術眼と献身性を持つ選手が必要。"
+        }
+      ]
+    }
+  ],
+  "source": {
+    "platform": "smartphone Ordinary",
+    "endpoint": "/update_core_data/formation/117,118,119/.json",
+    "fetchedOn": "2026-09-11"
+  },
+  "headcoaches_understanding": [
+    {
+      "id": 2462,
+      "headcoach_id": 2,
+      "formation_id": 118,
+      "depth": 4
+    },
+    {
+      "id": 2463,
+      "headcoach_id": 4,
+      "formation_id": 118,
+      "depth": 2
+    },
+    {
+      "id": 2464,
+      "headcoach_id": 7,
+      "formation_id": 118,
+      "depth": 4
+    },
+    {
+      "id": 2465,
+      "headcoach_id": 9,
+      "formation_id": 118,
+      "depth": 4
+    },
+    {
+      "id": 2466,
+      "headcoach_id": 10,
+      "formation_id": 118,
+      "depth": 2
+    },
+    {
+      "id": 2467,
+      "headcoach_id": 11,
+      "formation_id": 118,
+      "depth": 2
+    },
+    {
+      "id": 2468,
+      "headcoach_id": 13,
+      "formation_id": 118,
+      "depth": 4
+    },
+    {
+      "id": 2469,
+      "headcoach_id": 14,
+      "formation_id": 118,
+      "depth": 4
+    },
+    {
+      "id": 2470,
+      "headcoach_id": 15,
+      "formation_id": 118,
+      "depth": 2
+    },
+    {
+      "id": 2471,
+      "headcoach_id": 19,
+      "formation_id": 118,
+      "depth": 4
+    },
+    {
+      "id": 2472,
+      "headcoach_id": 23,
+      "formation_id": 118,
+      "depth": 2
+    },
+    {
+      "id": 2473,
+      "headcoach_id": 24,
+      "formation_id": 118,
+      "depth": 2
+    },
+    {
+      "id": 2474,
+      "headcoach_id": 25,
+      "formation_id": 118,
+      "depth": 4
+    },
+    {
+      "id": 2475,
+      "headcoach_id": 29,
+      "formation_id": 118,
+      "depth": 4
+    },
+    {
+      "id": 2476,
+      "headcoach_id": 30,
+      "formation_id": 118,
+      "depth": 2
+    },
+    {
+      "id": 2477,
+      "headcoach_id": 32,
+      "formation_id": 118,
+      "depth": 2
+    },
+    {
+      "id": 2478,
+      "headcoach_id": 33,
+      "formation_id": 118,
+      "depth": 2
+    },
+    {
+      "id": 2479,
+      "headcoach_id": 36,
+      "formation_id": 118,
+      "depth": 4
+    },
+    {
+      "id": 2480,
+      "headcoach_id": 2,
+      "formation_id": 119,
+      "depth": 2
+    },
+    {
+      "id": 2481,
+      "headcoach_id": 4,
+      "formation_id": 119,
+      "depth": 4
+    },
+    {
+      "id": 2482,
+      "headcoach_id": 6,
+      "formation_id": 119,
+      "depth": 4
+    },
+    {
+      "id": 2483,
+      "headcoach_id": 7,
+      "formation_id": 119,
+      "depth": 2
+    },
+    {
+      "id": 2484,
+      "headcoach_id": 10,
+      "formation_id": 119,
+      "depth": 4
+    },
+    {
+      "id": 2485,
+      "headcoach_id": 13,
+      "formation_id": 119,
+      "depth": 2
+    },
+    {
+      "id": 2486,
+      "headcoach_id": 15,
+      "formation_id": 119,
+      "depth": 4
+    },
+    {
+      "id": 2487,
+      "headcoach_id": 18,
+      "formation_id": 119,
+      "depth": 4
+    },
+    {
+      "id": 2488,
+      "headcoach_id": 19,
+      "formation_id": 119,
+      "depth": 2
+    },
+    {
+      "id": 2489,
+      "headcoach_id": 22,
+      "formation_id": 119,
+      "depth": 2
+    },
+    {
+      "id": 2490,
+      "headcoach_id": 24,
+      "formation_id": 119,
+      "depth": 4
+    },
+    {
+      "id": 2491,
+      "headcoach_id": 25,
+      "formation_id": 119,
+      "depth": 2
+    },
+    {
+      "id": 2492,
+      "headcoach_id": 26,
+      "formation_id": 119,
+      "depth": 2
+    },
+    {
+      "id": 2493,
+      "headcoach_id": 28,
+      "formation_id": 119,
+      "depth": 4
+    },
+    {
+      "id": 2494,
+      "headcoach_id": 30,
+      "formation_id": 119,
+      "depth": 4
+    },
+    {
+      "id": 2495,
+      "headcoach_id": 31,
+      "formation_id": 119,
+      "depth": 2
+    },
+    {
+      "id": 2496,
+      "headcoach_id": 34,
+      "formation_id": 119,
+      "depth": 2
+    },
+    {
+      "id": 2497,
+      "headcoach_id": 35,
+      "formation_id": 119,
+      "depth": 4
+    }
+  ]
+}

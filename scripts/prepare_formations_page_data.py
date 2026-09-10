@@ -1667,6 +1667,8 @@ def load_cc_from_db(cc_db_path):
 
 
 def build_data(src):
+    from formation_core_data import load_overlay
+    src = load_overlay(src)
     formation_rows = src["formation"]
     formation_info_rows = src["formation_info"]
     key_rows = src["formation_key"]
@@ -2457,6 +2459,9 @@ def build_data(src):
             "bestTeams": best_teams[fid][:TOP_TEAMS_LIMIT],
             "modelSlots": model_slots_by_formation.get(fid, []),
         }
+        if fid in src.get("core_formation_ids", set()):
+            # Core understanding does not establish acquisition conditions.
+            f_item["coaches"]["obtainable"] = []
         formations.append(f_item)
 
     coaches = []
