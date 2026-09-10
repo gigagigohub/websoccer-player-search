@@ -226,23 +226,10 @@ def _update_data_json(path: Path, cm_events: List[dict], cm_history: Dict[int, L
 
 def main() -> None:
     args = parse_args()
-    zip_dir = Path(args.zip_dir).expanduser().resolve() if args.zip_dir else _latest_updatefile_dir()
-    app_data = Path(args.app_data).expanduser().resolve()
-    jst = dt.timezone(dt.timedelta(hours=9))
-    now = dt.datetime.now(jst)
-    now_iso = now.isoformat(timespec='seconds')
-
-    cm_events, cm_history = _build_cm_data(zip_dir)
-    if not cm_events:
-        raise RuntimeError(f'no Challenge Match events found in {zip_dir}')
-    app_linked, app_to_cm, app_to_cmss = _update_data_json(app_data, cm_events, cm_history, now_iso)
-
-    print(f'zip dir: {zip_dir}')
-    print(f'app data: {app_data}')
-    print(f'cm events: {len(cm_events)}')
-    print(f'players with cm history: {len(cm_history)}')
-    print(f'app: linked={app_linked} changed_to_cm={app_to_cm} changed_to_cmss={app_to_cmss}')
-    print(f'generatedAt: {now_iso}')
+    from master_truth import refresh_and_export
+    from build_websoccer_master_db import default_updatefile_dir
+    zip_dir = Path(args.zip_dir) if args.zip_dir else default_updatefile_dir()
+    refresh_and_export(Path(args.app_data).resolve().parent, zip_dir=zip_dir)
 
 
 if __name__ == '__main__':

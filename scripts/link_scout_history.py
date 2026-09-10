@@ -300,26 +300,10 @@ def update_data_json(
 def main() -> None:
     global ZIP_DIR, FILLED_CSV, APP_DATA, BLANK_MISSING_TITLE
     args = parse_args()
-    ZIP_DIR = Path(args.zip_dir).expanduser().resolve()
-    FILLED_CSV = Path(args.filled_csv).expanduser().resolve()
-    APP_DATA = Path(args.app_data).expanduser().resolve()
-    BLANK_MISSING_TITLE = bool(args.blank_missing_title)
-
-    jst = dt.timezone(dt.timedelta(hours=9))
-    now = dt.datetime.now(jst)
-    now_iso = now.isoformat(timespec='seconds')
-
-    app_dir = APP_DATA.parent
-    existing_meta = load_existing_scout_meta(APP_DATA)
-    scout_button_event_ids = collect_scout_button_event_ids(app_dir)
-    image_available_player_ids = collect_player_image_ids(app_dir)
-    scouts, history = build_scouts(existing_meta, scout_button_event_ids)
-    app_changed, app_linked = update_data_json(APP_DATA, scouts, history, now_iso, image_available_player_ids)
-
-    print(f'scout events: {len(scouts)}')
-    print(f'players with scout history: {len(history)}')
-    print(f'app: linked={app_linked} changed_to_ss={app_changed}')
-    print(f'generatedAt: {now_iso}')
+    from master_truth import refresh_and_export
+    from build_websoccer_master_db import default_updatefile_dir
+    zip_dir = Path(args.zip_dir) if args.zip_dir else default_updatefile_dir()
+    refresh_and_export(Path(args.app_data).resolve().parent, zip_dir=zip_dir)
 
 
 if __name__ == '__main__':

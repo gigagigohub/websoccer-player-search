@@ -120,53 +120,10 @@ def validate_best_team_season(formations_json: Path, season: int) -> int:
     return count
 
 
-def load_preserved_scout_metadata(data_json: Path) -> dict[int, dict[str, object]]:
-    if not data_json.exists():
-        return {}
-    try:
-        payload = json.loads(data_json.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
-    preserved: dict[int, dict[str, object]] = {}
-    for row in payload.get("scouts") or []:
-        event_id = int(row.get("eventId") or 0)
-        if event_id <= 0:
-            continue
-        metadata = {
-            key: row.get(key)
-            for key in ("name", "nameRaw", "nameSource", "shopButtonImage")
-            if row.get(key) not in (None, "")
-        }
-        if metadata:
-            preserved[event_id] = metadata
-    return preserved
-
-
-def restore_scout_metadata(data_json: Path, preserved: dict[int, dict[str, object]]) -> int:
-    if not preserved or not data_json.exists():
-        return 0
-    payload = json.loads(data_json.read_text(encoding="utf-8"))
-    restored = 0
-    for row in payload.get("scouts") or []:
-        metadata = preserved.get(int(row.get("eventId") or 0))
-        if not metadata:
-            continue
-        changed = False
-        for key, value in metadata.items():
-            if row.get(key) != value:
-                row[key] = value
-                changed = True
-        restored += int(changed)
-    if restored:
-        data_json.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    return restored
-
-
 def main() -> int:
     args = parse_args()
     repo = Path(__file__).resolve().parent.parent
     out_app_dir = Path(args.out_app_dir).expanduser().resolve()
-    preserved_scout_metadata = load_preserved_scout_metadata(out_app_dir / "data.json")
 
     if args.fallback_legacy:
         legacy_cmd = [
@@ -197,12 +154,10 @@ def main() -> int:
         [
             sys.executable,
             str(repo / "scripts" / "export_site_json_from_master_db.py"),
+            *(["--skip-scout-history"] if args.skip_scout_history else []),
+            *(["--skip-challenge-history"] if args.skip_challenge_history else []),
             "--master-db",
             str(master_db),
-            "--fallback-data-json",
-            str(out_app_dir / "data.json"),
-            "--fallback-coaches-json",
-            str(out_app_dir / "coaches_data.json"),
             "--out-app-dir",
             str(out_app_dir),
         ]
@@ -247,45 +202,6 @@ def main() -> int:
                 str(out_app_dir / "cc_range_data.json"),
             ]
         )
-    update_zip_dir = None
-    restored_scout_events = restore_scout_metadata(
-        out_app_dir / "data.json", preserved_scout_metadata
-    )
-    if restored_scout_events:
-        print(f"[DONE] restored scout metadata: {restored_scout_events} events")
-    if not args.skip_scout_history or not args.skip_challenge_history:
-        update_zip_dir = (
-            Path(args.update_zip_dir).expanduser().resolve()
-            if args.update_zip_dir
-            else latest_updatefile_dir()
-        )
-    if not args.skip_scout_history:
-        assert update_zip_dir is not None
-        link_cmd = [
-            sys.executable,
-            str(repo / "scripts" / "link_scout_history.py"),
-            "--zip-dir",
-            str(update_zip_dir),
-            "--filled-csv",
-            str(Path(args.filled_csv).expanduser().resolve()),
-            "--app-data",
-            str(out_app_dir / "data.json"),
-        ]
-        if args.blank_missing_title:
-            link_cmd.append("--blank-missing-title")
-        run(link_cmd)
-    if not args.skip_challenge_history:
-        assert update_zip_dir is not None
-        run(
-            [
-                sys.executable,
-                str(repo / "scripts" / "link_challenge_history.py"),
-                "--zip-dir",
-                str(update_zip_dir),
-                "--app-data",
-                str(out_app_dir / "data.json"),
-            ]
-        )
     run(
         [
             sys.executable,
@@ -294,6 +210,9 @@ def main() -> int:
             str(out_app_dir),
         ]
     )
+
+    from validate_site_master import validate
+    validate(out_app_dir, master_db)
 
     if args.require_best_team_season:
         count = validate_best_team_season(out_app_dir / "formations_data.json", args.require_best_team_season)

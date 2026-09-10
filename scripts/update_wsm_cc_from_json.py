@@ -468,7 +468,7 @@ def update_site_json(repo_dir: Path, master_db: Path, season: int, out_app_dir: 
     subprocess.run(cmd, check=True)
 
 
-def main() -> int:
+def _main() -> int:
     args = parse_args()
     local_dir = Path(args.local_dir).expanduser().resolve()
     json_root = Path(args.json_root).expanduser().resolve()
@@ -483,11 +483,23 @@ def main() -> int:
     if out_db.exists():
         raise FileExistsError(f"output DB already exists: {out_db}")
     out_db.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(source, out_db)
+    final_db = out_db
+    out_db = out_db.with_suffix('.building')
+    if out_db.exists():
+        raise FileExistsError(out_db)
+    with sqlite3.connect(f'file:{source}?mode=ro', uri=True) as source_conn, sqlite3.connect(out_db) as dest_conn:
+        source_conn.backup(dest_conn)
+    source_conn.close()
+    dest_conn.close()
 
     conn = sqlite3.connect(str(out_db))
     try:
         with conn:
+            from master_truth import init_extra, ensure_player_truth
+            init_extra(conn)
+            from master_truth import refresh_core_values
+            refresh_core_values(conn, local_dir.parent)
+            ensure_player_truth(conn)
             stats = import_cc_season_from_json(conn, json_root, season)
             put_meta_source(
                 conn,
@@ -498,6 +510,13 @@ def main() -> int:
         summary = summarize(conn, season)
     finally:
         conn.close()
+
+    with sqlite3.connect(out_db) as finalized:
+        finalized.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+        finalized.execute("PRAGMA journal_mode=DELETE")
+    finalized.close()
+    out_db.replace(final_db)
+    out_db = final_db
 
     removed_local: list[Path] = []
     if not args.no_cleanup and args.keep_local > 0:
@@ -514,6 +533,13 @@ def main() -> int:
     for path in removed_local:
         print(f"  removed local {path}")
     return 0
+
+
+def main() -> int:
+    from master_truth import writer_lock
+    from paths import WSC_DATA
+    with writer_lock(WSC_DATA / "websoccer_master_db"):
+        return _main()
 
 
 if __name__ == "__main__":

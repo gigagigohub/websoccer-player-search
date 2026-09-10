@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import plistlib
 import re
 import ssl
 import subprocess
@@ -50,6 +51,65 @@ class CopiedImages:
     formations: int = 0
 
 
+@dataclass
+class UpdateFileInspection:
+    versions: list[int]
+    has_data_plist: bool = False
+    has_ss_plist: bool = False
+    challenge_plist_count: int = 0
+    cm_asset_count: int = 0
+    normal_player_image_ids: set[int] | None = None
+    scout_button_count: int = 0
+    challenge_names: list[str] | None = None
+    unknown_player_image_ids: list[int] | None = None
+
+    def __post_init__(self) -> None:
+        if self.normal_player_image_ids is None:
+            self.normal_player_image_ids = set()
+        if self.challenge_names is None:
+            self.challenge_names = []
+        if self.unknown_player_image_ids is None:
+            self.unknown_player_image_ids = []
+
+    def labels(self) -> list[str]:
+        labels: list[str] = []
+        if self.challenge_plist_count or self.cm_asset_count:
+            labels.append("CM更新")
+        if self.has_ss_plist:
+            labels.append("SSリスト更新")
+        if self.has_data_plist:
+            labels.append("data.plistあり")
+        if self.normal_player_image_ids:
+            if self.unknown_player_image_ids:
+                labels.append(f"未登録選手画像ID {len(self.unknown_player_image_ids)}件")
+            else:
+                labels.append(f"既知選手画像 {len(self.normal_player_image_ids)}件")
+        if self.scout_button_count:
+            labels.append(f"Scoutボタン {self.scout_button_count}件")
+        return labels or ["分類対象なし"]
+
+    def one_line(self) -> str:
+        names = ""
+        if self.challenge_names:
+            shown = self.challenge_names[:8]
+            suffix = "..." if len(self.challenge_names) > len(shown) else ""
+            names = f"; CM名={','.join(shown)}{suffix}"
+        unknown = ""
+        if self.unknown_player_image_ids:
+            shown_ids = ",".join(str(v) for v in self.unknown_player_image_ids[:20])
+            suffix = "..." if len(self.unknown_player_image_ids) > 20 else ""
+            unknown = f"; 未登録画像ID={shown_ids}{suffix}"
+        return (
+            f"種別={','.join(self.labels())}; "
+            f"通常選手画像={len(self.normal_player_image_ids or [])}; "
+            f"CMアセット={self.cm_asset_count}; "
+            f"ChallengeMatchList={self.challenge_plist_count}; "
+            f"ss.plist={'yes' if self.has_ss_plist else 'no'}; "
+            f"data.plist={'yes' if self.has_data_plist else 'no'}"
+            f"{unknown}{names}"
+        )
+
+
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
         description="Check for new UpdateFile archives and refresh WebSoccer DB/site when a new one appears."
@@ -70,6 +130,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--cc-db", default=str(default_master_cc_db()))
     p.add_argument("--cc-json-root", default=str(DEFAULT_CC_JSON_ROOT))
     p.add_argument("--product-sqlite", default=str(DEFAULT_PRODUCT_SQLITE))
+    p.add_argument(
+        "--master-builder-script",
+        default="",
+        help="build_websoccer_master_db.py to run. Default prefers the local-ops worktree copy when available.",
+    )
     p.add_argument("--max-consecutive", type=int, default=5)
     p.add_argument("--commit-push", action="store_true", help="Commit and push regenerated site files after update.")
     p.add_argument("--no-notify", action="store_true", help="Do not send Pushover notifications.")
@@ -81,6 +146,21 @@ def parse_args() -> argparse.Namespace:
         help="Enable TLS validation for Pushover. Disabled by default to avoid local Python CA issues.",
     )
     return p.parse_args()
+
+
+def default_master_builder_script() -> Path:
+    explicit = os.environ.get("WEBSOCCER_MASTER_BUILDER_SCRIPT")
+    if explicit:
+        return Path(explicit).expanduser()
+    local_ops = CODING_ROOT / "websoccer-player-search" / "scripts" / "build_websoccer_master_db.py"
+    current = SCRIPT_DIR / "build_websoccer_master_db.py"
+    if local_ops.exists():
+        try:
+            if local_ops.resolve() != current.resolve():
+                return local_ops
+        except FileNotFoundError:
+            return local_ops
+    return current
 
 
 def log(message: str, log_path: Path) -> None:
@@ -227,6 +307,85 @@ SCOUT_BUTTON_RE = re.compile(
     r"(?:^|/)Resources/img/Shop/btn/(ss_btn_\d+)\.png$",
     re.IGNORECASE,
 )
+CHALLENGE_PLIST_NAMES = {
+    "ChallengeMatchList.plist",
+    "ChallengeMatchListTounament.plist",
+    "ChallengeMatchListByWday.plist",
+}
+
+
+def load_site_player_ids(app_data: Path) -> set[int]:
+    if not app_data.exists():
+        return set()
+    try:
+        data = json.loads(app_data.read_text(encoding="utf-8"))
+    except Exception:
+        return set()
+    out: set[int] = set()
+    for row in data.get("players") or []:
+        try:
+            player_id = int(row.get("id") or 0)
+        except Exception:
+            continue
+        if player_id > 0:
+            out.add(player_id)
+    return out
+
+
+def _plist_challenge_names(raw: bytes) -> list[str]:
+    try:
+        data = plistlib.loads(raw)
+    except Exception:
+        return []
+    rows = data if isinstance(data, list) else list(data.values()) if isinstance(data, dict) else []
+    out: list[str] = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        name = str(row.get("name") or "").strip()
+        if name and name not in out:
+            out.append(name)
+    return out
+
+
+def inspect_updatefiles(zip_paths: list[Path], app_data: Path) -> UpdateFileInspection:
+    versions: list[int] = []
+    normal_player_image_ids: set[int] = set()
+    challenge_names: list[str] = []
+    result = UpdateFileInspection(versions=versions, normal_player_image_ids=normal_player_image_ids)
+
+    for zip_path in zip_paths:
+        match = re.search(r"p(\d+)\.zip$", zip_path.name)
+        if match:
+            versions.append(int(match.group(1)))
+        with zipfile.ZipFile(zip_path, "r") as zf:
+            for info in zf.infolist():
+                if info.is_dir():
+                    continue
+                name = info.filename
+                base = Path(name).name
+                if re.search(r"/data/data\.plist$", name):
+                    result.has_data_plist = True
+                if base == "ss.plist":
+                    result.has_ss_plist = True
+                if base in CHALLENGE_PLIST_NAMES:
+                    result.challenge_plist_count += 1
+                    for challenge_name in _plist_challenge_names(zf.read(info.filename)):
+                        if challenge_name not in challenge_names:
+                            challenge_names.append(challenge_name)
+                if "/Resources/img/SpecialMatch/CM/" in name:
+                    result.cm_asset_count += 1
+                player_match = PLAYER_RE.search(name)
+                if player_match:
+                    normal_player_image_ids.add(int(player_match.group(2)))
+                scout_match = SCOUT_BUTTON_RE.search(name)
+                if scout_match:
+                    result.scout_button_count += 1
+
+    known_ids = load_site_player_ids(app_data)
+    result.challenge_names = challenge_names
+    result.unknown_player_image_ids = sorted(normal_player_image_ids - known_ids)
+    return result
 
 
 def copy_updatefile_images(zip_paths: list[Path], app_dir: Path) -> CopiedImages:
@@ -283,6 +442,7 @@ def build_master_db(
     cc_db: Path,
     cc_json_root: Path,
     product_sqlite: Path,
+    master_builder_script: Path,
 ) -> Path:
     stamp = datetime.now(JST).strftime("%y%m%d%H%M")
     wsm_dir.mkdir(parents=True, exist_ok=True)
@@ -295,7 +455,7 @@ def build_master_db(
     run(
         [
             sys.executable,
-            str(SCRIPT_DIR / "build_websoccer_master_db.py"),
+            str(master_builder_script),
             "--out-db",
             str(out_db),
             "--updatefile-dir",
@@ -333,23 +493,10 @@ def refresh_site(
     cc_db: Path,
     cc_json_root: Path,
     product_sqlite: Path,
+    master_builder_script: Path,
 ) -> Path:
     app_dir = REPO_ROOT / "app"
-    # First reflect the latest ss.plist into app/data.json so the master DB imports new SS events.
-    run(
-        [
-            sys.executable,
-            str(SCRIPT_DIR / "link_scout_history.py"),
-            "--zip-dir",
-            str(update_dir),
-            "--filled-csv",
-            str(filled_csv),
-            "--app-data",
-            str(app_dir / "data.json"),
-            "--blank-missing-title",
-        ]
-    )
-    out_db = build_master_db(update_dir, wsm_dir, cc_db, cc_json_root, product_sqlite)
+    out_db = build_master_db(update_dir, wsm_dir, cc_db, cc_json_root, product_sqlite, master_builder_script)
     run(
         [
             sys.executable,
@@ -358,26 +505,15 @@ def refresh_site(
             str(out_db),
         ]
     )
-    # Re-attach per-player scoutHistory after the exporter rewrites app/data.json.
-    run(
-        [
-            sys.executable,
-            str(SCRIPT_DIR / "link_scout_history.py"),
-            "--zip-dir",
-            str(update_dir),
-            "--filled-csv",
-            str(filled_csv),
-            "--app-data",
-            str(app_dir / "data.json"),
-            "--blank-missing-title",
-        ]
-    )
     run([sys.executable, str(SCRIPT_DIR / "write_site_meta.py"), "--app-dir", str(app_dir)])
     cleanup_wsm_files(wsm_dir)
     return out_db
 
 
 def git_commit_push(versions: list[int]) -> None:
+    from validate_site_master import validate
+    from paths import latest_wsm_file
+    validate(REPO_ROOT / "app", latest_wsm_file())
     paths = [
         "app/data.json",
         "app/coaches_data.json",
@@ -420,6 +556,11 @@ def main() -> int:
     cc_db = Path(args.cc_db).expanduser().resolve()
     cc_json_root = Path(args.cc_json_root).expanduser().resolve()
     product_sqlite = Path(args.product_sqlite).expanduser().resolve()
+    master_builder_script = (
+        Path(args.master_builder_script).expanduser().resolve()
+        if args.master_builder_script
+        else default_master_builder_script().resolve()
+    )
     notify_enabled = not args.no_notify
 
     fd = acquire_lock(lock_path)
@@ -441,25 +582,28 @@ def main() -> int:
         version_label = (
             f"p{found_versions[0]}" if len(found_versions) == 1 else f"p{found_versions[0]}-p{found_versions[-1]}"
         )
+        zip_paths = [update_dir / f"p{v}.zip" for v in found_versions]
+        inspection = inspect_updatefiles(zip_paths, REPO_ROOT / "app" / "data.json")
+        log(f"updatefile classification: {inspection.one_line()}", log_path)
+
         notify(
             pushover_config,
             pushover_user_key_config,
             pushover_env_file,
             "WebSoccer UpdateFile",
-            f"{version_label} が見つかりました。DBとサイト更新を開始します。",
+            f"{version_label} が見つかりました。\n内容: {inspection.one_line()}\nDBとサイト更新を開始します。",
             notify_enabled,
             log_path,
             args.verify_pushover_tls,
         )
 
-        zip_paths = [update_dir / f"p{v}.zip" for v in found_versions]
         copied = copy_updatefile_images(zip_paths, REPO_ROOT / "app")
         log(
             "copied images: "
             f"static={copied.player_static} action={copied.player_action} scoutButtons={copied.scout_buttons}",
             log_path,
         )
-        out_db = refresh_site(update_dir, wsm_dir, filled_csv, cc_db, cc_json_root, product_sqlite)
+        out_db = refresh_site(update_dir, wsm_dir, filled_csv, cc_db, cc_json_root, product_sqlite, master_builder_script)
         if args.commit_push:
             git_commit_push(found_versions)
 

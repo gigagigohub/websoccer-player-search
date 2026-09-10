@@ -526,12 +526,10 @@ def load_model_entries(master_db_path):
     return list(by_person.values())
 
 
-def load_model_card_overrides(path):
-    overrides_file = Path(path).expanduser() if path else None
-    if not overrides_file or not overrides_file.exists():
-        return {}
+def load_model_card_overrides(path, master_db_path=None):
+    from master_truth import override_rows
     rows = {}
-    for row in read_csv(overrides_file):
+    for row in override_rows(master_db_path, 'manual_formation_card', path):
         fid = to_int(row.get("formation_id"))
         slot = to_int(row.get("slot"))
         player_id = to_int(row.get("player_id"))
@@ -1056,7 +1054,7 @@ def load_model_slots(path, page_dir=None, master_db_path=None, ocr_dir=None, ove
         player_entry_by_person_id.setdefault(entry["personId"], entry)
     model_entry_by_player_id = dict(player_entry_by_player_id)
     model_entry_by_player_id.update({entry["playerId"]: entry for entry in model_card_entries})
-    card_overrides = load_model_card_overrides(card_overrides_path)
+    card_overrides = load_model_card_overrides(card_overrides_path, master_db_path)
     formation_positions = load_formation_slot_positions(master_db_path) if ocr_dir else {}
     page_entries_by_slug = {}
     source_rows = read_csv(model_path)
@@ -1260,8 +1258,10 @@ def load_model_slots(path, page_dir=None, master_db_path=None, ocr_dir=None, ove
                 used_person_ids.add(entry["playerId"])
 
     overrides_file = Path(overrides_path).expanduser() if overrides_path else None
-    if overrides_file and overrides_file.exists():
-        for override in read_csv(overrides_file):
+    from master_truth import override_rows
+    db_overrides = override_rows(master_db_path, "manual_formation_slot", overrides_file)
+    if db_overrides:
+        for override in db_overrides:
             fid = to_int(override.get("formation_id"))
             slot = to_int(override.get("slot"))
             model_name = str(override.get("model_name") or "").strip()
@@ -1575,6 +1575,8 @@ def load_sources_from_master_db(master_db_path):
                 ).fetchall()
             ],
         }
+        src['master_definitions'] = True
+        src['coach_obtainable'] = [dict(r) for r in conn.execute('SELECT coach_id,formation_id,from_season FROM manual_coach_obtainable')]
         return src
     finally:
         conn.close()
@@ -1668,7 +1670,8 @@ def load_cc_from_db(cc_db_path):
 
 def build_data(src):
     from formation_core_data import load_overlay
-    src = load_overlay(src)
+    if not src.get("master_definitions"):
+        src = load_overlay(src)
     formation_rows = src["formation"]
     formation_info_rows = src["formation_info"]
     key_rows = src["formation_key"]
@@ -2462,6 +2465,11 @@ def build_data(src):
         if fid in src.get("core_formation_ids", set()):
             # Core understanding does not establish acquisition conditions.
             f_item["coaches"]["obtainable"] = []
+        if 'coach_obtainable' in src:
+            f_item['coaches']['obtainable'] = [
+                {'id': r['coach_id'], 'name': coach_by_id[r['coach_id']]['name'], 'fromSeason': r['from_season']}
+                for r in src['coach_obtainable'] if r['formation_id'] == fid and r['coach_id'] in coach_by_id
+            ]
         formations.append(f_item)
 
     coaches = []

@@ -100,6 +100,14 @@ def default_product_sqlite() -> Path:
     return Path.home() / "Desktop" / "app original" / "Payload" / "Webサッカー.app" / "Product.sqlite"
 
 
+def historical_nation_db_candidates() -> list[Path]:
+    master_dir = WSC_DATA / "websoccer_master_db"
+    return [
+        master_dir / "wsm_2605241243.sqlite3",
+        master_dir / "wsm_2605211909.sqlite3",
+    ]
+
+
 def default_out_db() -> Path:
     out_dir = WSC_DATA / "websoccer_master_db"
     stamp = datetime.now(JST).strftime("%y%m%d%H%M")
@@ -138,6 +146,8 @@ def parse_args() -> argparse.Namespace:
         "--coaches-data-json",
         default=str(REPO_ROOT / "app" / "coaches_data.json"),
     )
+    p.add_argument("--manual-source-db", default="", help="Existing master whose correction tables are inherited")
+    p.add_argument("--bootstrap-site-json", action="store_true", help="Explicit one-time legacy migration only; never used by automation")
     p.add_argument(
         "--verbose",
         action="store_true",
@@ -512,6 +522,343 @@ def import_app_original(conn: sqlite3.Connection, product_sqlite: Path, verbose:
             pass
 
 
+def restore_historical_nations(conn: sqlite3.Connection, verbose: bool = False) -> tuple[int, Path | None]:
+    tables = {str(r[0]) for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    if "ao__ZMONATION" not in tables:
+        return 0, None
+
+    for source in historical_nation_db_candidates():
+        if not source.exists():
+            continue
+        conn.execute("ATTACH DATABASE ? AS hnsrc", (str(source),))
+        try:
+            src_tables = {
+                str(r[0])
+                for r in conn.execute("SELECT name FROM hnsrc.sqlite_master WHERE type='table'")
+            }
+            if "ao__ZMONATION" not in src_tables:
+                continue
+            rows = conn.execute(
+                """
+                SELECT r.Z_PK, r.Z_ENT, r.Z_OPT, r.ZNATION_ID, r.ZALPHA3, r.ZNAME
+                FROM hnsrc.ao__ZMONATION r
+                LEFT JOIN main.ao__ZMONATION n ON n.ZNATION_ID = r.ZNATION_ID
+                WHERE n.ZNATION_ID IS NULL
+                ORDER BY r.ZNATION_ID
+                """
+            ).fetchall()
+            if not rows:
+                return 0, source
+            conn.executemany(
+                """
+                INSERT INTO main.ao__ZMONATION
+                (Z_PK, Z_ENT, Z_OPT, ZNATION_ID, ZALPHA3, ZNAME)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                [tuple(r) for r in rows],
+            )
+            if verbose:
+                ids = ", ".join(str(r["ZNATION_ID"]) for r in rows)
+                print(f"[APP] restored historical nations from {source}: {ids}", flush=True)
+            return len(rows), source
+        finally:
+            try:
+                conn.execute("DETACH DATABASE hnsrc")
+            except sqlite3.OperationalError:
+                pass
+    return 0, None
+
+
+def _core_snapshot_sort_key(path: Path) -> tuple[int, int, str]:
+    nums = [int(x) for x in re.findall(r"\d+", path.name)]
+    if not nums:
+        return (0, 0, path.name)
+    return (nums[0], nums[-1], path.name)
+
+
+def _iter_core_snapshot_payloads(core_root: Path) -> Iterable[tuple[Path, dict, dict]]:
+    if not core_root.exists():
+        return []
+    for snap_dir in ([core_root] if list(core_root.glob("player_*.json")) else sorted(core_root.glob("update_core_data_*"), key=_core_snapshot_sort_key)):
+        if not snap_dir.is_dir():
+            continue
+        player_files = sorted(snap_dir.glob("player_*.json"))
+        param_files = sorted(snap_dir.glob("players_param_*.json"))
+        for player_file in player_files:
+            try:
+                player_obj = json.loads(player_file.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+            # A normal snapshot has one param file. If not, combine all param files in the directory.
+            param_rows = []
+            for param_file in param_files:
+                try:
+                    param_obj = json.loads(param_file.read_text(encoding="utf-8"))
+                except Exception:
+                    continue
+                rows = param_obj.get("players_param") if isinstance(param_obj, dict) else []
+                if isinstance(rows, list):
+                    param_rows.extend([r for r in rows if isinstance(r, dict)])
+            yield snap_dir, player_obj, {"code": "000", "players_param": param_rows}
+
+
+def _core_player_row(player: dict) -> tuple:
+    player_id = int(player.get("player_id") or 0)
+    return (
+        player_id,
+        0,
+        0,
+        0,
+        int(player.get("age") or 0),
+        0,
+        0,
+        0,
+        int(player.get("nation_id") or 0),
+        int(player.get("person_id") or player_id or 0),
+        player_id,
+        0,
+        int(player.get("pos_type") or 0),
+        int(player.get("rarity") or 0),
+        0,
+        int(player.get("tall") or 0),
+        int(player.get("weight") or 0),
+        player_id,
+        player_id,
+        str(player.get("fullname") or ""),
+        str(player.get("name") or ""),
+        str(player.get("nameruby") or ""),
+    )
+
+
+def _core_info_row(player: dict) -> tuple:
+    player_id = int(player.get("player_id") or 0)
+    return (
+        player_id,
+        0,
+        0,
+        str(player.get("description") or ""),
+        str(player.get("type") or ""),
+        str(player.get("subtitle") or ""),
+    )
+
+
+def _core_param_row(pk: int, row: dict) -> tuple:
+    r = lambda key: int(row.get(key) or 0)
+    return (
+        pk,
+        0,
+        0,
+        r("cap"),
+        r("ck"),
+        r("cst"),
+        r("fk"),
+        r("inte"),
+        r("pk"),
+        r("player_id"),
+        r("pop"),
+        r("pwr"),
+        r("r1"),
+        r("r10"),
+        r("r11"),
+        r("r12"),
+        r("r13"),
+        r("r14"),
+        r("r15"),
+        r("r16"),
+        r("r17"),
+        r("r18"),
+        r("r2"),
+        r("r3"),
+        r("r4"),
+        r("r5"),
+        r("r6"),
+        r("r7"),
+        r("r8"),
+        r("r9"),
+        r("rgh"),
+        r("sen"),
+        r("spd"),
+        r("stdp"),
+        r("stm"),
+        r("szn_no"),
+        r("tec"),
+        r("tmp"),
+    )
+
+
+def import_update_core_snapshots(conn: sqlite3.Connection, core_root: Path, verbose: bool = False) -> tuple[int, int, Path | None]:
+    tables = {str(r[0]) for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    required = {"ao__ZMOPLAYER", "ao__ZMOPLAYERSINFO", "ao__ZMOPLAYERSPARAM"}
+    if not required <= tables:
+        return (0, 0, None)
+
+    existing_players = {
+        int(r[0])
+        for r in conn.execute("SELECT ZPLAYER_ID FROM ao__ZMOPLAYER WHERE ZPLAYER_ID IS NOT NULL")
+    }
+    existing_infos = {
+        int(r[0])
+        for r in conn.execute("SELECT Z_PK FROM ao__ZMOPLAYERSINFO WHERE Z_PK IS NOT NULL")
+    }
+    existing_params = {
+        (int(r[0]), int(r[1]))
+        for r in conn.execute(
+            "SELECT ZPLAYER_ID, ZSZN_NO FROM ao__ZMOPLAYERSPARAM WHERE ZPLAYER_ID IS NOT NULL AND ZSZN_NO IS NOT NULL"
+        )
+    }
+    next_param_pk = int(conn.execute("SELECT COALESCE(MAX(Z_PK), 0) FROM ao__ZMOPLAYERSPARAM").fetchone()[0] or 0) + 1
+    player_rows = []
+    info_rows = []
+    param_rows = []
+    used_root = None
+
+    for snap_dir, player_obj, param_obj in _iter_core_snapshot_payloads(core_root):
+        players = player_obj.get("players") if isinstance(player_obj, dict) and player_obj.get("code") == "000" else []
+        params = param_obj.get("players_param") if isinstance(param_obj, dict) else []
+        if not isinstance(players, list):
+            players = []
+        if not isinstance(params, list):
+            params = []
+        if players or params:
+            used_root = core_root
+        for player in [p for p in players if isinstance(p, dict)]:
+            player_id = int(player.get("player_id") or 0)
+            if player_id <= 0:
+                continue
+            if player_id not in existing_players:
+                player_rows.append(_core_player_row(player))
+                existing_players.add(player_id)
+            if player_id not in existing_infos:
+                info_rows.append(_core_info_row(player))
+                existing_infos.add(player_id)
+        for param in [p for p in params if isinstance(p, dict)]:
+            player_id = int(param.get("player_id") or 0)
+            szn_no = int(param.get("szn_no") or 0)
+            if player_id <= 0 or (player_id, szn_no) in existing_params:
+                continue
+            param_rows.append(_core_param_row(next_param_pk, param))
+            next_param_pk += 1
+            existing_params.add((player_id, szn_no))
+
+    if player_rows:
+        conn.executemany(
+            """
+            INSERT INTO ao__ZMOPLAYER
+            (Z_PK, Z_ENT, Z_OPT, ZACT_SZN, ZAGE, ZBASE_LINE, ZBASE_POS, ZFLG_LISTUP,
+             ZNATION_ID, ZPERSON_ID, ZPLAYER_ID, ZPOS_ROLE, ZPOS_TYPE, ZRARITY, ZSTATUS,
+             ZTALL, ZWEIGHT, ZINFO, ZPARAM, ZFULLNAME, ZNAME, ZNAMERUBY)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            player_rows,
+        )
+    if info_rows:
+        conn.executemany(
+            """
+            INSERT INTO ao__ZMOPLAYERSINFO
+            (Z_PK, Z_ENT, Z_OPT, ZDESCRIPTION_TEXT, ZPLAY_TYPE, ZSUBTITLE)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            info_rows,
+        )
+    if param_rows:
+        conn.executemany(
+            """
+            INSERT INTO ao__ZMOPLAYERSPARAM
+            (Z_PK, Z_ENT, Z_OPT, ZCAP, ZCK, ZCST, ZFK, ZINTE, ZPK, ZPLAYER_ID,
+             ZPOP, ZPWR, ZR1, ZR10, ZR11, ZR12, ZR13, ZR14, ZR15, ZR16, ZR17, ZR18,
+             ZR2, ZR3, ZR4, ZR5, ZR6, ZR7, ZR8, ZR9, ZRGH, ZSEN, ZSPD, ZSTDP,
+             ZSTM, ZSZN_NO, ZTEC, ZTMP)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            param_rows,
+        )
+    if verbose and (player_rows or param_rows):
+        print(
+            f"[APP] imported update_core_data snapshots: players={len(player_rows)} params={len(param_rows)}",
+            flush=True,
+        )
+    return (len(player_rows), len(param_rows), used_root)
+
+
+def restore_historical_player_rows(conn: sqlite3.Connection, verbose: bool = False) -> tuple[int, int, Path | None]:
+    tables = {str(r[0]) for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    required = {"ao__ZMOPLAYER", "ao__ZMOPLAYERSINFO", "ao__ZMOPLAYERSPARAM"}
+    if not required <= tables:
+        return (0, 0, None)
+
+    for source in historical_nation_db_candidates():
+        if not source.exists():
+            continue
+        conn.execute("ATTACH DATABASE ? AS hpsrc", (str(source),))
+        try:
+            src_tables = {
+                str(r[0])
+                for r in conn.execute("SELECT name FROM hpsrc.sqlite_master WHERE type='table'")
+            }
+            if not required <= src_tables:
+                continue
+            player_ids = [
+                int(r[0])
+                for r in conn.execute(
+                    """
+                    SELECT s.ZPLAYER_ID
+                    FROM hpsrc.ao__ZMOPLAYER s
+                    LEFT JOIN main.ao__ZMOPLAYER m ON m.ZPLAYER_ID = s.ZPLAYER_ID
+                    WHERE m.ZPLAYER_ID IS NULL
+                    ORDER BY s.ZPLAYER_ID
+                    """
+                ).fetchall()
+            ]
+            if not player_ids:
+                return (0, 0, source)
+            placeholders = ",".join("?" for _ in player_ids)
+            conn.execute(
+                f"INSERT INTO main.ao__ZMOPLAYER SELECT * FROM hpsrc.ao__ZMOPLAYER WHERE ZPLAYER_ID IN ({placeholders})",
+                player_ids,
+            )
+            conn.execute(
+                f"INSERT INTO main.ao__ZMOPLAYERSINFO SELECT * FROM hpsrc.ao__ZMOPLAYERSINFO WHERE Z_PK IN ({placeholders})",
+                player_ids,
+            )
+            existing_params = {
+                (int(r[0]), int(r[1]))
+                for r in conn.execute(
+                    "SELECT ZPLAYER_ID, ZSZN_NO FROM main.ao__ZMOPLAYERSPARAM WHERE ZPLAYER_ID IS NOT NULL AND ZSZN_NO IS NOT NULL"
+                )
+            }
+            rows = conn.execute(
+                f"SELECT * FROM hpsrc.ao__ZMOPLAYERSPARAM WHERE ZPLAYER_ID IN ({placeholders}) ORDER BY ZPLAYER_ID, ZSZN_NO",
+                player_ids,
+            ).fetchall()
+            columns = [str(r[1]) for r in conn.execute("PRAGMA hpsrc.table_info(ao__ZMOPLAYERSPARAM)").fetchall()]
+            param_rows = []
+            for row in rows:
+                d = dict(zip(columns, row))
+                key = (int(d["ZPLAYER_ID"]), int(d["ZSZN_NO"]))
+                if key in existing_params:
+                    continue
+                param_rows.append(tuple(row))
+                existing_params.add(key)
+            if param_rows:
+                qmarks = ",".join("?" for _ in columns)
+                conn.executemany(
+                    f"INSERT INTO main.ao__ZMOPLAYERSPARAM ({','.join(qident(c) for c in columns)}) VALUES ({qmarks})",
+                    param_rows,
+                )
+            if verbose:
+                print(
+                    f"[APP] restored historical player rows from {source}: players={len(player_ids)} params={len(param_rows)}",
+                    flush=True,
+                )
+            return (len(player_ids), len(param_rows), source)
+        finally:
+            try:
+                conn.execute("DETACH DATABASE hpsrc")
+            except sqlite3.OperationalError:
+                pass
+    return (0, 0, None)
+
+
 def iter_update_zips(update_dir: Path) -> Iterable[Tuple[int, Path]]:
     for p in sorted(update_dir.glob("p*.zip"), key=lambda x: int(re.sub(r"[^0-9]", "", x.stem) or "0")):
         m = re.match(r"p(\d+)$", p.stem)
@@ -769,6 +1116,45 @@ def import_manual_truth(
             )
 
 
+def player_truth_integrity(conn: sqlite3.Connection) -> dict[str, object]:
+    core_ids = {
+        int(row[0])
+        for row in conn.execute("SELECT ZPLAYER_ID FROM ao__ZMOPLAYER WHERE ZPLAYER_ID > 0")
+    }
+    identity_ids = {
+        int(row[0])
+        for row in conn.execute("SELECT player_id FROM player_person_identity WHERE player_id > 0")
+    }
+    category_ids = {
+        int(row[0])
+        for row in conn.execute("SELECT player_id FROM manual_player_category WHERE player_id > 0")
+    }
+    missing_identity = sorted(core_ids - identity_ids)
+    missing_category = sorted(core_ids - category_ids)
+    return {
+        "ok": not missing_identity and not missing_category,
+        "corePlayers": len(core_ids),
+        "personIdentity": len(identity_ids),
+        "manualCategory": len(category_ids),
+        "missingIdentity": missing_identity,
+        "missingCategory": missing_category,
+    }
+
+
+def require_player_truth_integrity(conn: sqlite3.Connection) -> dict[str, object]:
+    status = player_truth_integrity(conn)
+    if status["ok"]:
+        return status
+    identity_preview = ", ".join(str(v) for v in status["missingIdentity"][:20])
+    category_preview = ", ".join(str(v) for v in status["missingCategory"][:20])
+    raise RuntimeError(
+        "WSM player truth is incomplete: "
+        f"core={status['corePlayers']} identity={status['personIdentity']} category={status['manualCategory']}; "
+        f"missing identity={len(status['missingIdentity'])} [{identity_preview}]; "
+        f"missing category={len(status['missingCategory'])} [{category_preview}]"
+    )
+
+
 def summarize(conn: sqlite3.Connection) -> List[str]:
     out: List[str] = []
     out.append(
@@ -784,6 +1170,12 @@ def summarize(conn: sqlite3.Connection) -> List[str]:
     out.append(
         "app_original_tables="
         + str(conn.execute("SELECT COUNT(*) FROM app_original_tables").fetchone()[0])
+        + " ao__ZMONATION="
+        + str(conn.execute("SELECT COUNT(*) FROM ao__ZMONATION").fetchone()[0])
+        + " ao__ZMOPLAYER="
+        + str(conn.execute("SELECT COUNT(*) FROM ao__ZMOPLAYER").fetchone()[0])
+        + " ao__ZMOPLAYERSPARAM="
+        + str(conn.execute("SELECT COUNT(*) FROM ao__ZMOPLAYERSPARAM").fetchone()[0])
     )
     out.append(
         "updatefile_archives="
@@ -808,7 +1200,7 @@ def summarize(conn: sqlite3.Connection) -> List[str]:
     return out
 
 
-def main() -> int:
+def _main() -> int:
     args = parse_args()
     out_db = Path(args.out_db).expanduser().resolve()
     cc_db = Path(args.cc_db).expanduser().resolve()
@@ -817,7 +1209,18 @@ def main() -> int:
     app_data = Path(args.app_data_json).expanduser().resolve()
     coaches_data = Path(args.coaches_data_json).expanduser().resolve()
 
-    conn = connect(out_db)
+    if out_db.exists():
+        raise FileExistsError(out_db)
+    from master_truth import inherit, ensure_player_truth, ingest_events
+    if args.manual_source_db:
+        manual_source = Path(args.manual_source_db).expanduser().resolve()
+    else:
+        from update_wsm_cc_from_json import latest_wsm
+        manual_source = latest_wsm(WSC_DATA / "websoccer_master_db") if not args.bootstrap_site_json else None
+    staging = out_db.with_suffix('.building')
+    if staging.exists():
+        raise FileExistsError(staging)
+    conn = connect(staging)
     try:
         init_schema(conn)
         conn.commit()
@@ -828,20 +1231,66 @@ def main() -> int:
         from formation_core_data import import_into_master
         import_into_master(conn)
         put_source(conn, "app_original_product_sqlite", product, "all non-image app original tables copied as ao__*")
+        restored_nations, restored_source = restore_historical_nations(conn, verbose=args.verbose)
+        if restored_source is not None:
+            put_source(
+                conn,
+                "historical_nation_restore",
+                restored_source,
+                f"restored missing ao__ZMONATION rows from known-good WSM; inserted={restored_nations}",
+            )
+        core_players, core_params, core_source = import_update_core_snapshots(conn, WSC_DATA, verbose=args.verbose)
+        from master_truth import refresh_core_values
+        refresh_core_values(conn, WSC_DATA)
+        if core_source is not None:
+            put_source(
+                conn,
+                "update_core_data_snapshots",
+                core_source,
+                f"imported missing ao__ player rows from saved update_core_data snapshots; players={core_players}; params={core_params}",
+            )
+        hist_players, hist_params, hist_source = restore_historical_player_rows(conn, verbose=args.verbose)
+        if hist_source is not None and (hist_players or hist_params):
+            put_source(
+                conn,
+                "historical_player_restore",
+                hist_source,
+                f"restored missing ao__ player rows from known-good WSM; players={hist_players}; params={hist_params}",
+            )
         conn.commit()
         import_updatefiles(conn, update_dir, verbose=args.verbose)
         put_source(conn, "updatefile_archives", update_dir, "all non-image file entries in UpdateFile archives")
         conn.commit()
-        import_manual_truth(conn, app_data, coaches_data)
-        put_source(conn, "manual_truth_app_data_json", app_data, "manual truth overlay from current site data")
-        put_source(conn, "manual_truth_coaches_data_json", coaches_data, "manual coach obtainable truth")
+        if args.bootstrap_site_json:
+            import_manual_truth(conn, app_data, coaches_data)
+            from master_truth import init_extra
+            init_extra(conn)
+            put_source(conn, 'legacy_bootstrap', app_data, 'explicit one-time migration')
+        else:
+            inherit(conn, manual_source)
+            put_source(conn, 'master_corrections', manual_source, 'master-owned correction tables inherited')
+        ensure_player_truth(conn)
+        ingest_events(conn, update_dir)
+        integrity = require_player_truth_integrity(conn)
         conn.commit()
         print(f"[DONE] wrote unified db: {out_db}")
+        print(f"[DONE] player truth integrity: {integrity}")
         for line in summarize(conn):
             print("[SUMMARY]", line)
     finally:
         conn.close()
+    with sqlite3.connect(staging) as finalized:
+        finalized.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+        finalized.execute("PRAGMA journal_mode=DELETE")
+    finalized.close()
+    staging.replace(out_db)
     return 0
+
+
+def main() -> int:
+    from master_truth import writer_lock
+    with writer_lock(WSC_DATA / 'websoccer_master_db'):
+        return _main()
 
 
 if __name__ == "__main__":
