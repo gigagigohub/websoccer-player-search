@@ -47,6 +47,7 @@ class CopiedImages:
     player_static: int = 0
     player_action: int = 0
     scout_buttons: int = 0
+    formations: int = 0
 
 
 def parse_args() -> argparse.Namespace:
@@ -255,6 +256,14 @@ def copy_updatefile_images(zip_paths: list[Path], app_dir: Path) -> CopiedImages
                         copied.player_action += 1
                     continue
 
+                formation_match = re.search(r"/Resources/img/formation/(\d+@2x\.png)$", name)
+                if formation_match:
+                    dest = app_dir / "images" / "formation" / formation_match.group(1)
+                    dest.parent.mkdir(parents=True, exist_ok=True)
+                    dest.write_bytes(zf.read(info.filename))
+                    copied.formations += 1
+                    continue
+
                 scout_match = SCOUT_BUTTON_RE.search(name)
                 if scout_match:
                     dest = scout_btn_dir / f"{scout_match.group(1)}.png"
@@ -377,6 +386,7 @@ def git_commit_push(versions: list[int]) -> None:
         "app/images/chara/players/static",
         "app/images/chara/players/action",
         "app/images/Shop/btn",
+        "app/images/formation",
     ]
     status = subprocess.run(
         ["git", "status", "--porcelain", "--", *paths],
