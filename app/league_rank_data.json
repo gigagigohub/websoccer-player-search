@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-11T20:45:08+09:00",
-  "standingsCapturedAt": "2026-09-11T20:15:30+09:00",
-  "resultCapturedAt": "2026-09-11T20:45:08+09:00",
-  "targetSlot": "2026-09-11T21:00:00+09:00",
+  "generatedAt": "2026-09-11T23:45:08+09:00",
+  "standingsCapturedAt": "2026-09-11T23:15:24+09:00",
+  "resultCapturedAt": "2026-09-11T23:45:08+09:00",
+  "targetSlot": "2026-09-12T00:00:00+09:00",
   "source": {
     "worldId": 20,
     "season": 2642
@@ -27,7 +27,7 @@
       "managedKeys": [
         "W"
       ],
-      "targetMatchday": 24,
+      "targetMatchday": 25,
       "resultAdjusted": true,
       "rows": [
         {
@@ -37,13 +37,13 @@
           "teamName": "栄町FC",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 21,
+          "wins": 22,
           "draws": 1,
           "losses": 2,
-          "goalsFor": 87,
+          "goalsFor": 91,
           "goalsAgainst": 19,
-          "goalDifference": 68,
-          "points": 64
+          "goalDifference": 72,
+          "points": 67
         },
         {
           "rank": 2,
@@ -52,13 +52,13 @@
           "teamName": "BLUEトゥース",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 20,
+          "wins": 21,
           "draws": 1,
           "losses": 3,
-          "goalsFor": 87,
+          "goalsFor": 90,
           "goalsAgainst": 16,
-          "goalDifference": 71,
-          "points": 61
+          "goalDifference": 74,
+          "points": 64
         },
         {
           "rank": 3,
@@ -67,13 +67,13 @@
           "teamName": "Wheyプロテンイ",
           "managedKey": "W",
           "isOwnTeam": false,
-          "wins": 19,
+          "wins": 20,
           "draws": 3,
           "losses": 2,
-          "goalsFor": 75,
-          "goalsAgainst": 12,
-          "goalDifference": 63,
-          "points": 60
+          "goalsFor": 80,
+          "goalsAgainst": 13,
+          "goalDifference": 67,
+          "points": 63
         },
         {
           "rank": 4,
@@ -84,10 +84,10 @@
           "isOwnTeam": false,
           "wins": 18,
           "draws": 2,
-          "losses": 4,
-          "goalsFor": 77,
-          "goalsAgainst": 19,
-          "goalDifference": 58,
+          "losses": 5,
+          "goalsFor": 80,
+          "goalsAgainst": 23,
+          "goalDifference": 57,
           "points": 56
         },
         {
@@ -97,43 +97,43 @@
           "teamName": "InterMilan",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 17,
+          "wins": 18,
           "draws": 2,
           "losses": 5,
-          "goalsFor": 53,
+          "goalsFor": 55,
           "goalsAgainst": 24,
-          "goalDifference": 29,
-          "points": 53
+          "goalDifference": 31,
+          "points": 56
         },
         {
           "rank": 6,
-          "previousRank": 7,
-          "rankChange": 1,
+          "previousRank": 6,
+          "rankChange": 0,
           "teamName": "千早ＦＣ",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 16,
+          "wins": 17,
           "draws": 1,
           "losses": 7,
-          "goalsFor": 49,
-          "goalsAgainst": 32,
-          "goalDifference": 17,
-          "points": 49
+          "goalsFor": 53,
+          "goalsAgainst": 35,
+          "goalDifference": 18,
+          "points": 52
         },
         {
           "rank": 7,
-          "previousRank": 6,
-          "rankChange": -1,
+          "previousRank": 7,
+          "rankChange": 0,
           "teamName": "ラパヌイ",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 15,
+          "wins": 16,
           "draws": 3,
           "losses": 6,
-          "goalsFor": 65,
-          "goalsAgainst": 25,
-          "goalDifference": 40,
-          "points": 48
+          "goalsFor": 67,
+          "goalsAgainst": 26,
+          "goalDifference": 41,
+          "points": 51
         },
         {
           "rank": 8,
@@ -144,10 +144,10 @@
           "isOwnTeam": false,
           "wins": 15,
           "draws": 1,
-          "losses": 8,
-          "goalsFor": 66,
-          "goalsAgainst": 34,
-          "goalDifference": 32,
+          "losses": 9,
+          "goalsFor": 67,
+          "goalsAgainst": 39,
+          "goalDifference": 28,
           "points": 46
         },
         {
@@ -159,10 +159,10 @@
           "isOwnTeam": false,
           "wins": 11,
           "draws": 0,
-          "losses": 13,
-          "goalsFor": 45,
-          "goalsAgainst": 51,
-          "goalDifference": -6,
+          "losses": 14,
+          "goalsFor": 46,
+          "goalsAgainst": 53,
+          "goalDifference": -7,
           "points": 33
         },
         {
@@ -172,13 +172,13 @@
           "teamName": "らくあしゃ",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 9,
+          "wins": 10,
           "draws": 0,
           "losses": 15,
-          "goalsFor": 28,
+          "goalsFor": 32,
           "goalsAgainst": 56,
-          "goalDifference": -28,
-          "points": 27
+          "goalDifference": -24,
+          "points": 30
         },
         {
           "rank": 11,
@@ -189,10 +189,10 @@
           "isOwnTeam": false,
           "wins": 7,
           "draws": 1,
-          "losses": 16,
+          "losses": 17,
           "goalsFor": 23,
-          "goalsAgainst": 61,
-          "goalDifference": -38,
+          "goalsAgainst": 65,
+          "goalDifference": -42,
           "points": 22
         },
         {
@@ -204,10 +204,10 @@
           "isOwnTeam": false,
           "wins": 4,
           "draws": 1,
-          "losses": 19,
+          "losses": 20,
           "goalsFor": 9,
-          "goalsAgainst": 56,
-          "goalDifference": -47,
+          "goalsAgainst": 58,
+          "goalDifference": -49,
           "points": 13
         },
         {
@@ -219,10 +219,10 @@
           "isOwnTeam": false,
           "wins": 3,
           "draws": 3,
-          "losses": 18,
+          "losses": 19,
           "goalsFor": 16,
-          "goalsAgainst": 68,
-          "goalDifference": -52,
+          "goalsAgainst": 72,
+          "goalDifference": -56,
           "points": 12
         },
         {
@@ -234,10 +234,10 @@
           "isOwnTeam": false,
           "wins": 3,
           "draws": 2,
-          "losses": 19,
+          "losses": 20,
           "goalsFor": 10,
-          "goalsAgainst": 80,
-          "goalDifference": -70,
+          "goalsAgainst": 83,
+          "goalDifference": -73,
           "points": 11
         },
         {
@@ -248,12 +248,12 @@
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 2,
-          "draws": 2,
+          "draws": 3,
           "losses": 20,
           "goalsFor": 9,
           "goalsAgainst": 75,
           "goalDifference": -66,
-          "points": 8
+          "points": 9
         },
         {
           "rank": 16,
@@ -263,12 +263,12 @@
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 0,
-          "draws": 1,
+          "draws": 2,
           "losses": 23,
           "goalsFor": 3,
           "goalsAgainst": 74,
           "goalDifference": -71,
-          "points": 1
+          "points": 2
         }
       ]
     },
@@ -281,38 +281,38 @@
         "J",
         "V"
       ],
-      "targetMatchday": 24,
+      "targetMatchday": 25,
       "resultAdjusted": true,
       "rows": [
         {
           "rank": 1,
+          "previousRank": 2,
+          "rankChange": 1,
+          "teamName": "ジェフフ",
+          "managedKey": "J",
+          "isOwnTeam": false,
+          "wins": 22,
+          "draws": 1,
+          "losses": 2,
+          "goalsFor": 88,
+          "goalsAgainst": 9,
+          "goalDifference": 79,
+          "points": 67
+        },
+        {
+          "rank": 2,
           "previousRank": 1,
-          "rankChange": 0,
+          "rankChange": -1,
           "teamName": "バナナでバナナです",
           "managedKey": "V",
           "isOwnTeam": false,
           "wins": 22,
           "draws": 1,
-          "losses": 1,
-          "goalsFor": 68,
-          "goalsAgainst": 5,
-          "goalDifference": 63,
-          "points": 67
-        },
-        {
-          "rank": 2,
-          "previousRank": 2,
-          "rankChange": 0,
-          "teamName": "ジェフフ",
-          "managedKey": "J",
-          "isOwnTeam": false,
-          "wins": 21,
-          "draws": 1,
           "losses": 2,
-          "goalsFor": 83,
-          "goalsAgainst": 9,
-          "goalDifference": 74,
-          "points": 64
+          "goalsFor": 68,
+          "goalsAgainst": 10,
+          "goalDifference": 58,
+          "points": 67
         },
         {
           "rank": 3,
@@ -321,13 +321,13 @@
           "teamName": "ムササビFC",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 19,
+          "wins": 20,
           "draws": 5,
           "losses": 0,
-          "goalsFor": 82,
+          "goalsFor": 85,
           "goalsAgainst": 10,
-          "goalDifference": 72,
-          "points": 62
+          "goalDifference": 75,
+          "points": 65
         },
         {
           "rank": 4,
@@ -336,13 +336,13 @@
           "teamName": "AEF千葉",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 18,
+          "wins": 19,
           "draws": 2,
           "losses": 4,
-          "goalsFor": 68,
+          "goalsFor": 75,
           "goalsAgainst": 19,
-          "goalDifference": 49,
-          "points": 56
+          "goalDifference": 56,
+          "points": 59
         },
         {
           "rank": 5,
@@ -351,13 +351,13 @@
           "teamName": "飛行機",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 15,
+          "wins": 16,
           "draws": 3,
           "losses": 6,
-          "goalsFor": 43,
-          "goalsAgainst": 19,
-          "goalDifference": 24,
-          "points": 48
+          "goalsFor": 45,
+          "goalsAgainst": 20,
+          "goalDifference": 25,
+          "points": 51
         },
         {
           "rank": 6,
@@ -366,42 +366,42 @@
           "teamName": "FCサロン",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 14,
+          "wins": 15,
           "draws": 5,
           "losses": 5,
-          "goalsFor": 55,
-          "goalsAgainst": 19,
-          "goalDifference": 36,
-          "points": 47
+          "goalsFor": 60,
+          "goalsAgainst": 20,
+          "goalDifference": 40,
+          "points": 50
         },
         {
           "rank": 7,
+          "previousRank": 8,
+          "rankChange": 1,
+          "teamName": "レアル・マドリード",
+          "managedKey": "",
+          "isOwnTeam": false,
+          "wins": 12,
+          "draws": 5,
+          "losses": 8,
+          "goalsFor": 40,
+          "goalsAgainst": 40,
+          "goalDifference": 0,
+          "points": 41
+        },
+        {
+          "rank": 8,
           "previousRank": 7,
-          "rankChange": 0,
+          "rankChange": -1,
           "teamName": "ハナコトハ",
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 11,
           "draws": 5,
-          "losses": 8,
-          "goalsFor": 43,
-          "goalsAgainst": 31,
-          "goalDifference": 12,
-          "points": 38
-        },
-        {
-          "rank": 8,
-          "previousRank": 8,
-          "rankChange": 0,
-          "teamName": "レアル・マドリード",
-          "managedKey": "",
-          "isOwnTeam": false,
-          "wins": 11,
-          "draws": 5,
-          "losses": 8,
-          "goalsFor": 38,
-          "goalsAgainst": 40,
-          "goalDifference": -2,
+          "losses": 9,
+          "goalsFor": 44,
+          "goalsAgainst": 33,
+          "goalDifference": 11,
           "points": 38
         },
         {
@@ -413,10 +413,10 @@
           "isOwnTeam": false,
           "wins": 12,
           "draws": 1,
-          "losses": 11,
+          "losses": 12,
           "goalsFor": 35,
-          "goalsAgainst": 35,
-          "goalDifference": 0,
+          "goalsAgainst": 38,
+          "goalDifference": -3,
           "points": 37
         },
         {
@@ -426,13 +426,13 @@
           "teamName": "片手間",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 8,
+          "wins": 9,
           "draws": 5,
           "losses": 11,
-          "goalsFor": 38,
+          "goalsFor": 41,
           "goalsAgainst": 58,
-          "goalDifference": -20,
-          "points": 29
+          "goalDifference": -17,
+          "points": 32
         },
         {
           "rank": 11,
@@ -441,13 +441,13 @@
           "teamName": "モリーズ",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 8,
+          "wins": 9,
           "draws": 1,
           "losses": 15,
-          "goalsFor": 35,
+          "goalsFor": 40,
           "goalsAgainst": 52,
-          "goalDifference": -17,
-          "points": 25
+          "goalDifference": -12,
+          "points": 28
         },
         {
           "rank": 12,
@@ -458,10 +458,10 @@
           "isOwnTeam": false,
           "wins": 6,
           "draws": 2,
-          "losses": 16,
+          "losses": 17,
           "goalsFor": 25,
-          "goalsAgainst": 63,
-          "goalDifference": -38,
+          "goalsAgainst": 68,
+          "goalDifference": -43,
           "points": 20
         },
         {
@@ -473,10 +473,10 @@
           "isOwnTeam": false,
           "wins": 2,
           "draws": 4,
-          "losses": 18,
+          "losses": 19,
           "goalsFor": 9,
-          "goalsAgainst": 55,
-          "goalDifference": -46,
+          "goalsAgainst": 57,
+          "goalDifference": -48,
           "points": 10
         },
         {
@@ -488,10 +488,10 @@
           "isOwnTeam": false,
           "wins": 1,
           "draws": 3,
-          "losses": 20,
-          "goalsFor": 7,
-          "goalsAgainst": 77,
-          "goalDifference": -70,
+          "losses": 21,
+          "goalsFor": 8,
+          "goalsAgainst": 82,
+          "goalDifference": -74,
           "points": 6
         },
         {
@@ -503,10 +503,10 @@
           "isOwnTeam": false,
           "wins": 1,
           "draws": 1,
-          "losses": 22,
+          "losses": 23,
           "goalsFor": 14,
-          "goalsAgainst": 78,
-          "goalDifference": -64,
+          "goalsAgainst": 81,
+          "goalDifference": -67,
           "points": 4
         },
         {
@@ -518,10 +518,10 @@
           "isOwnTeam": false,
           "wins": 0,
           "draws": 2,
-          "losses": 22,
+          "losses": 23,
           "goalsFor": 5,
-          "goalsAgainst": 78,
-          "goalDifference": -73,
+          "goalsAgainst": 85,
+          "goalDifference": -80,
           "points": 2
         }
       ]
@@ -535,38 +535,38 @@
         "K",
         "S"
       ],
-      "targetMatchday": 24,
+      "targetMatchday": 25,
       "resultAdjusted": true,
       "rows": [
         {
           "rank": 1,
-          "previousRank": 2,
-          "rankChange": 1,
+          "previousRank": 1,
+          "rankChange": 0,
           "teamName": "すかしっぺヘイパ",
           "managedKey": "S",
           "isOwnTeam": false,
-          "wins": 21,
+          "wins": 22,
           "draws": 1,
           "losses": 2,
-          "goalsFor": 74,
-          "goalsAgainst": 12,
-          "goalDifference": 62,
-          "points": 64
+          "goalsFor": 76,
+          "goalsAgainst": 13,
+          "goalDifference": 63,
+          "points": 67
         },
         {
           "rank": 2,
-          "previousRank": 1,
-          "rankChange": -1,
+          "previousRank": 2,
+          "rankChange": 0,
           "teamName": "金田一んげ剛毛くん",
           "managedKey": "K",
           "isOwnTeam": false,
-          "wins": 21,
+          "wins": 22,
           "draws": 1,
           "losses": 2,
-          "goalsFor": 75,
-          "goalsAgainst": 16,
-          "goalDifference": 59,
-          "points": 64
+          "goalsFor": 78,
+          "goalsAgainst": 17,
+          "goalDifference": 61,
+          "points": 67
         },
         {
           "rank": 3,
@@ -575,13 +575,13 @@
           "teamName": "FCコウシダ",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 19,
+          "wins": 20,
           "draws": 5,
           "losses": 0,
-          "goalsFor": 70,
+          "goalsFor": 71,
           "goalsAgainst": 14,
-          "goalDifference": 56,
-          "points": 62
+          "goalDifference": 57,
+          "points": 65
         },
         {
           "rank": 4,
@@ -590,13 +590,13 @@
           "teamName": "ヘタクソ",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 16,
+          "wins": 17,
           "draws": 1,
           "losses": 7,
-          "goalsFor": 49,
+          "goalsFor": 51,
           "goalsAgainst": 25,
-          "goalDifference": 24,
-          "points": 49
+          "goalDifference": 26,
+          "points": 52
         },
         {
           "rank": 5,
@@ -605,13 +605,13 @@
           "teamName": "ACモナカ",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 15,
+          "wins": 16,
           "draws": 3,
           "losses": 6,
-          "goalsFor": 49,
+          "goalsFor": 53,
           "goalsAgainst": 27,
-          "goalDifference": 22,
-          "points": 48
+          "goalDifference": 26,
+          "points": 51
         },
         {
           "rank": 6,
@@ -621,12 +621,12 @@
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 14,
-          "draws": 3,
+          "draws": 4,
           "losses": 7,
-          "goalsFor": 51,
-          "goalsAgainst": 31,
+          "goalsFor": 52,
+          "goalsAgainst": 32,
           "goalDifference": 20,
-          "points": 45
+          "points": 46
         },
         {
           "rank": 7,
@@ -637,41 +637,41 @@
           "isOwnTeam": false,
           "wins": 13,
           "draws": 5,
-          "losses": 6,
-          "goalsFor": 48,
-          "goalsAgainst": 29,
-          "goalDifference": 19,
+          "losses": 7,
+          "goalsFor": 49,
+          "goalsAgainst": 31,
+          "goalDifference": 18,
           "points": 44
         },
         {
           "rank": 8,
-          "previousRank": 9,
-          "rankChange": 1,
+          "previousRank": 8,
+          "rankChange": 0,
           "teamName": "フォルテかごしま",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 12,
+          "wins": 13,
           "draws": 3,
           "losses": 9,
-          "goalsFor": 36,
+          "goalsFor": 37,
           "goalsAgainst": 36,
-          "goalDifference": 0,
-          "points": 39
+          "goalDifference": 1,
+          "points": 42
         },
         {
           "rank": 9,
-          "previousRank": 8,
-          "rankChange": -1,
+          "previousRank": 9,
+          "rankChange": 0,
           "teamName": "すぽると",
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 11,
-          "draws": 4,
+          "draws": 5,
           "losses": 9,
-          "goalsFor": 36,
-          "goalsAgainst": 31,
+          "goalsFor": 37,
+          "goalsAgainst": 32,
           "goalDifference": 5,
-          "points": 37
+          "points": 38
         },
         {
           "rank": 10,
@@ -682,10 +682,10 @@
           "isOwnTeam": false,
           "wins": 10,
           "draws": 4,
-          "losses": 10,
+          "losses": 11,
           "goalsFor": 40,
-          "goalsAgainst": 26,
-          "goalDifference": 14,
+          "goalsAgainst": 27,
+          "goalDifference": 13,
           "points": 34
         },
         {
@@ -697,10 +697,10 @@
           "isOwnTeam": false,
           "wins": 7,
           "draws": 1,
-          "losses": 16,
+          "losses": 17,
           "goalsFor": 24,
-          "goalsAgainst": 54,
-          "goalDifference": -30,
+          "goalsAgainst": 55,
+          "goalDifference": -31,
           "points": 22
         },
         {
@@ -712,10 +712,10 @@
           "isOwnTeam": false,
           "wins": 7,
           "draws": 0,
-          "losses": 17,
-          "goalsFor": 30,
-          "goalsAgainst": 53,
-          "goalDifference": -23,
+          "losses": 18,
+          "goalsFor": 31,
+          "goalsAgainst": 56,
+          "goalDifference": -25,
           "points": 21
         },
         {
@@ -727,10 +727,10 @@
           "isOwnTeam": false,
           "wins": 3,
           "draws": 2,
-          "losses": 19,
+          "losses": 20,
           "goalsFor": 15,
-          "goalsAgainst": 64,
-          "goalDifference": -49,
+          "goalsAgainst": 66,
+          "goalDifference": -51,
           "points": 11
         },
         {
@@ -742,10 +742,10 @@
           "isOwnTeam": false,
           "wins": 2,
           "draws": 4,
-          "losses": 18,
+          "losses": 19,
           "goalsFor": 16,
-          "goalsAgainst": 58,
-          "goalDifference": -42,
+          "goalsAgainst": 62,
+          "goalDifference": -46,
           "points": 10
         },
         {
@@ -755,13 +755,13 @@
           "teamName": "Heheh",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 2,
+          "wins": 3,
           "draws": 0,
           "losses": 22,
-          "goalsFor": 12,
+          "goalsFor": 13,
           "goalsAgainst": 75,
-          "goalDifference": -63,
-          "points": 6
+          "goalDifference": -62,
+          "points": 9
         },
         {
           "rank": 16,
@@ -772,10 +772,10 @@
           "isOwnTeam": false,
           "wins": 0,
           "draws": 1,
-          "losses": 23,
+          "losses": 24,
           "goalsFor": 1,
-          "goalsAgainst": 75,
-          "goalDifference": -74,
+          "goalsAgainst": 76,
+          "goalDifference": -75,
           "points": 1
         }
       ]
@@ -788,7 +788,7 @@
       "managedKeys": [
         "T"
       ],
-      "targetMatchday": 24,
+      "targetMatchday": 25,
       "resultAdjusted": true,
       "rows": [
         {
@@ -798,13 +798,13 @@
           "teamName": "ー本糞SP",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 22,
+          "wins": 23,
           "draws": 2,
           "losses": 0,
-          "goalsFor": 71,
+          "goalsFor": 74,
           "goalsAgainst": 5,
-          "goalDifference": 66,
-          "points": 68
+          "goalDifference": 69,
+          "points": 71
         },
         {
           "rank": 2,
@@ -813,13 +813,13 @@
           "teamName": "昆布 2007",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 20,
+          "wins": 21,
           "draws": 2,
           "losses": 2,
-          "goalsFor": 88,
+          "goalsFor": 90,
           "goalsAgainst": 10,
-          "goalDifference": 78,
-          "points": 62
+          "goalDifference": 80,
+          "points": 65
         },
         {
           "rank": 3,
@@ -828,13 +828,13 @@
           "teamName": "大分トリニータ",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 19,
+          "wins": 20,
           "draws": 2,
           "losses": 3,
-          "goalsFor": 75,
+          "goalsFor": 77,
           "goalsAgainst": 16,
-          "goalDifference": 59,
-          "points": 59
+          "goalDifference": 61,
+          "points": 62
         },
         {
           "rank": 4,
@@ -843,13 +843,13 @@
           "teamName": "立松ブラウン",
           "managedKey": "T",
           "isOwnTeam": false,
-          "wins": 18,
+          "wins": 19,
           "draws": 2,
           "losses": 4,
-          "goalsFor": 67,
+          "goalsFor": 71,
           "goalsAgainst": 21,
-          "goalDifference": 46,
-          "points": 56
+          "goalDifference": 50,
+          "points": 59
         },
         {
           "rank": 5,
@@ -858,13 +858,13 @@
           "teamName": "FCひよこ",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 18,
+          "wins": 19,
           "draws": 1,
           "losses": 5,
-          "goalsFor": 84,
+          "goalsFor": 87,
           "goalsAgainst": 22,
-          "goalDifference": 62,
-          "points": 55
+          "goalDifference": 65,
+          "points": 58
         },
         {
           "rank": 6,
@@ -873,13 +873,13 @@
           "teamName": "fcバッジオ",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 17,
+          "wins": 18,
           "draws": 1,
           "losses": 6,
-          "goalsFor": 57,
+          "goalsFor": 62,
           "goalsAgainst": 29,
-          "goalDifference": 28,
-          "points": 52
+          "goalDifference": 33,
+          "points": 55
         },
         {
           "rank": 7,
@@ -890,10 +890,10 @@
           "isOwnTeam": false,
           "wins": 13,
           "draws": 1,
-          "losses": 10,
+          "losses": 11,
           "goalsFor": 48,
-          "goalsAgainst": 33,
-          "goalDifference": 15,
+          "goalsAgainst": 35,
+          "goalDifference": 13,
           "points": 40
         },
         {
@@ -903,13 +903,13 @@
           "teamName": "ジェフ四街道（J1）",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 11,
+          "wins": 12,
           "draws": 3,
           "losses": 10,
-          "goalsFor": 32,
+          "goalsFor": 36,
           "goalsAgainst": 35,
-          "goalDifference": -3,
-          "points": 36
+          "goalDifference": 1,
+          "points": 39
         },
         {
           "rank": 9,
@@ -918,13 +918,13 @@
           "teamName": "FOOTBALL",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 10,
+          "wins": 11,
           "draws": 2,
           "losses": 12,
-          "goalsFor": 55,
+          "goalsFor": 60,
           "goalsAgainst": 59,
-          "goalDifference": -4,
-          "points": 32
+          "goalDifference": 1,
+          "points": 35
         },
         {
           "rank": 10,
@@ -935,10 +935,10 @@
           "isOwnTeam": false,
           "wins": 8,
           "draws": 1,
-          "losses": 15,
+          "losses": 16,
           "goalsFor": 43,
-          "goalsAgainst": 70,
-          "goalDifference": -27,
+          "goalsAgainst": 73,
+          "goalDifference": -30,
           "points": 25
         },
         {
@@ -950,10 +950,10 @@
           "isOwnTeam": false,
           "wins": 7,
           "draws": 1,
-          "losses": 16,
+          "losses": 17,
           "goalsFor": 20,
-          "goalsAgainst": 66,
-          "goalDifference": -46,
+          "goalsAgainst": 70,
+          "goalDifference": -50,
           "points": 22
         },
         {
@@ -965,10 +965,10 @@
           "isOwnTeam": false,
           "wins": 6,
           "draws": 1,
-          "losses": 17,
+          "losses": 18,
           "goalsFor": 24,
-          "goalsAgainst": 58,
-          "goalDifference": -34,
+          "goalsAgainst": 61,
+          "goalDifference": -37,
           "points": 19
         },
         {
@@ -980,10 +980,10 @@
           "isOwnTeam": false,
           "wins": 5,
           "draws": 3,
-          "losses": 16,
+          "losses": 17,
           "goalsFor": 19,
-          "goalsAgainst": 50,
-          "goalDifference": -31,
+          "goalsAgainst": 55,
+          "goalDifference": -36,
           "points": 18
         },
         {
@@ -995,10 +995,10 @@
           "isOwnTeam": false,
           "wins": 4,
           "draws": 2,
-          "losses": 18,
+          "losses": 19,
           "goalsFor": 14,
-          "goalsAgainst": 69,
-          "goalDifference": -55,
+          "goalsAgainst": 73,
+          "goalDifference": -59,
           "points": 14
         },
         {
@@ -1010,10 +1010,10 @@
           "isOwnTeam": false,
           "wins": 1,
           "draws": 1,
-          "losses": 22,
+          "losses": 23,
           "goalsFor": 3,
-          "goalsAgainst": 72,
-          "goalDifference": -69,
+          "goalsAgainst": 74,
+          "goalDifference": -71,
           "points": 4
         },
         {
@@ -1025,10 +1025,10 @@
           "isOwnTeam": false,
           "wins": 0,
           "draws": 1,
-          "losses": 23,
+          "losses": 24,
           "goalsFor": 1,
-          "goalsAgainst": 86,
-          "goalDifference": -85,
+          "goalsAgainst": 91,
+          "goalDifference": -90,
           "points": 1
         }
       ]
@@ -1041,7 +1041,7 @@
       "managedKeys": [
         "F"
       ],
-      "targetMatchday": 24,
+      "targetMatchday": 25,
       "resultAdjusted": true,
       "rows": [
         {
@@ -1051,13 +1051,13 @@
           "teamName": "カイザース",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 23,
+          "wins": 24,
           "draws": 0,
           "losses": 1,
-          "goalsFor": 100,
-          "goalsAgainst": 9,
-          "goalDifference": 91,
-          "points": 69
+          "goalsFor": 103,
+          "goalsAgainst": 10,
+          "goalDifference": 93,
+          "points": 72
         },
         {
           "rank": 2,
@@ -1066,13 +1066,13 @@
           "teamName": "ふくひで手掴みFC",
           "managedKey": "F",
           "isOwnTeam": false,
-          "wins": 23,
+          "wins": 24,
           "draws": 0,
           "losses": 1,
-          "goalsFor": 93,
+          "goalsFor": 95,
           "goalsAgainst": 3,
-          "goalDifference": 90,
-          "points": 69
+          "goalDifference": 92,
+          "points": 72
         },
         {
           "rank": 3,
@@ -1083,10 +1083,10 @@
           "isOwnTeam": false,
           "wins": 22,
           "draws": 0,
-          "losses": 2,
-          "goalsFor": 87,
-          "goalsAgainst": 6,
-          "goalDifference": 81,
+          "losses": 3,
+          "goalsFor": 88,
+          "goalsAgainst": 9,
+          "goalDifference": 79,
           "points": 66
         },
         {
@@ -1098,10 +1098,10 @@
           "isOwnTeam": false,
           "wins": 20,
           "draws": 0,
-          "losses": 4,
+          "losses": 5,
           "goalsFor": 61,
-          "goalsAgainst": 15,
-          "goalDifference": 46,
+          "goalsAgainst": 17,
+          "goalDifference": 44,
           "points": 60
         },
         {
@@ -1111,13 +1111,13 @@
           "teamName": "とんごめ",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 18,
+          "wins": 19,
           "draws": 0,
           "losses": 6,
-          "goalsFor": 56,
+          "goalsFor": 61,
           "goalsAgainst": 28,
-          "goalDifference": 28,
-          "points": 54
+          "goalDifference": 33,
+          "points": 57
         },
         {
           "rank": 6,
@@ -1126,13 +1126,13 @@
           "teamName": "ここのの",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 17,
+          "wins": 18,
           "draws": 1,
           "losses": 6,
-          "goalsFor": 70,
+          "goalsFor": 75,
           "goalsAgainst": 34,
-          "goalDifference": 36,
-          "points": 52
+          "goalDifference": 41,
+          "points": 55
         },
         {
           "rank": 7,
@@ -1141,13 +1141,13 @@
           "teamName": "っkっm",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 13,
+          "wins": 14,
           "draws": 1,
           "losses": 10,
-          "goalsFor": 40,
+          "goalsFor": 45,
           "goalsAgainst": 31,
-          "goalDifference": 9,
-          "points": 40
+          "goalDifference": 14,
+          "points": 43
         },
         {
           "rank": 8,
@@ -1156,13 +1156,13 @@
           "teamName": "jmwo",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 11,
+          "wins": 12,
           "draws": 0,
           "losses": 13,
-          "goalsFor": 46,
-          "goalsAgainst": 49,
-          "goalDifference": -3,
-          "points": 33
+          "goalsFor": 48,
+          "goalsAgainst": 50,
+          "goalDifference": -2,
+          "points": 36
         },
         {
           "rank": 9,
@@ -1171,13 +1171,13 @@
           "teamName": "くくくくくなや",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 10,
+          "wins": 11,
           "draws": 0,
           "losses": 14,
-          "goalsFor": 36,
+          "goalsFor": 37,
           "goalsAgainst": 59,
-          "goalDifference": -23,
-          "points": 30
+          "goalDifference": -22,
+          "points": 33
         },
         {
           "rank": 10,
@@ -1188,10 +1188,10 @@
           "isOwnTeam": false,
           "wins": 9,
           "draws": 1,
-          "losses": 14,
+          "losses": 15,
           "goalsFor": 30,
-          "goalsAgainst": 50,
-          "goalDifference": -20,
+          "goalsAgainst": 55,
+          "goalDifference": -25,
           "points": 28
         },
         {
@@ -1203,10 +1203,10 @@
           "isOwnTeam": false,
           "wins": 9,
           "draws": 0,
-          "losses": 15,
-          "goalsFor": 35,
-          "goalsAgainst": 44,
-          "goalDifference": -9,
+          "losses": 16,
+          "goalsFor": 36,
+          "goalsAgainst": 46,
+          "goalDifference": -10,
           "points": 27
         },
         {
@@ -1218,10 +1218,10 @@
           "isOwnTeam": false,
           "wins": 4,
           "draws": 0,
-          "losses": 20,
+          "losses": 21,
           "goalsFor": 13,
-          "goalsAgainst": 69,
-          "goalDifference": -56,
+          "goalsAgainst": 71,
+          "goalDifference": -58,
           "points": 12
         },
         {
@@ -1233,41 +1233,41 @@
           "isOwnTeam": false,
           "wins": 3,
           "draws": 1,
-          "losses": 20,
+          "losses": 21,
           "goalsFor": 10,
-          "goalsAgainst": 72,
-          "goalDifference": -62,
+          "goalsAgainst": 77,
+          "goalDifference": -67,
           "points": 10
         },
         {
           "rank": 14,
+          "previousRank": 15,
+          "rankChange": 1,
+          "teamName": "ボブ・モーリー",
+          "managedKey": "",
+          "isOwnTeam": false,
+          "wins": 3,
+          "draws": 1,
+          "losses": 21,
+          "goalsFor": 8,
+          "goalsAgainst": 82,
+          "goalDifference": -74,
+          "points": 10
+        },
+        {
+          "rank": 15,
           "previousRank": 14,
-          "rankChange": 0,
+          "rankChange": -1,
           "teamName": "ぎふセカンド",
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 3,
           "draws": 0,
-          "losses": 21,
+          "losses": 22,
           "goalsFor": 10,
-          "goalsAgainst": 65,
-          "goalDifference": -55,
+          "goalsAgainst": 70,
+          "goalDifference": -60,
           "points": 9
-        },
-        {
-          "rank": 15,
-          "previousRank": 15,
-          "rankChange": 0,
-          "teamName": "ボブ・モーリー",
-          "managedKey": "",
-          "isOwnTeam": false,
-          "wins": 2,
-          "draws": 1,
-          "losses": 21,
-          "goalsFor": 6,
-          "goalsAgainst": 82,
-          "goalDifference": -76,
-          "points": 7
         },
         {
           "rank": 16,
@@ -1278,10 +1278,10 @@
           "isOwnTeam": false,
           "wins": 2,
           "draws": 1,
-          "losses": 21,
+          "losses": 22,
           "goalsFor": 7,
-          "goalsAgainst": 84,
-          "goalDifference": -77,
+          "goalsAgainst": 85,
+          "goalDifference": -78,
           "points": 7
         }
       ]
@@ -1295,7 +1295,7 @@
         "B",
         "R"
       ],
-      "targetMatchday": 24,
+      "targetMatchday": 25,
       "resultAdjusted": true,
       "rows": [
         {
@@ -1305,13 +1305,13 @@
           "teamName": "イタリアンサンドF",
           "managedKey": "",
           "isOwnTeam": true,
-          "wins": 23,
+          "wins": 24,
           "draws": 1,
           "losses": 0,
-          "goalsFor": 89,
+          "goalsFor": 94,
           "goalsAgainst": 8,
-          "goalDifference": 81,
-          "points": 70
+          "goalDifference": 86,
+          "points": 73
         },
         {
           "rank": 2,
@@ -1321,12 +1321,12 @@
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 22,
-          "draws": 1,
+          "draws": 2,
           "losses": 1,
-          "goalsFor": 74,
-          "goalsAgainst": 17,
+          "goalsFor": 76,
+          "goalsAgainst": 19,
           "goalDifference": 57,
-          "points": 67
+          "points": 68
         },
         {
           "rank": 3,
@@ -1336,12 +1336,12 @@
           "managedKey": "B",
           "isOwnTeam": false,
           "wins": 21,
-          "draws": 1,
+          "draws": 2,
           "losses": 2,
-          "goalsFor": 82,
-          "goalsAgainst": 13,
+          "goalsFor": 84,
+          "goalsAgainst": 15,
           "goalDifference": 69,
-          "points": 64
+          "points": 65
         },
         {
           "rank": 4,
@@ -1352,10 +1352,10 @@
           "isOwnTeam": false,
           "wins": 18,
           "draws": 0,
-          "losses": 6,
+          "losses": 7,
           "goalsFor": 61,
-          "goalsAgainst": 22,
-          "goalDifference": 39,
+          "goalsAgainst": 27,
+          "goalDifference": 34,
           "points": 54
         },
         {
@@ -1366,12 +1366,12 @@
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 17,
-          "draws": 1,
+          "draws": 2,
           "losses": 6,
-          "goalsFor": 48,
-          "goalsAgainst": 21,
+          "goalsFor": 50,
+          "goalsAgainst": 23,
           "goalDifference": 27,
-          "points": 52
+          "points": 53
         },
         {
           "rank": 6,
@@ -1380,57 +1380,57 @@
           "teamName": "なわのCF",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 13,
+          "wins": 14,
           "draws": 2,
           "losses": 9,
-          "goalsFor": 46,
-          "goalsAgainst": 43,
-          "goalDifference": 3,
-          "points": 41
+          "goalsFor": 51,
+          "goalsAgainst": 44,
+          "goalDifference": 7,
+          "points": 44
         },
         {
           "rank": 7,
-          "previousRank": 8,
-          "rankChange": 1,
+          "previousRank": 7,
+          "rankChange": 0,
           "teamName": "アーセナル",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 12,
+          "wins": 13,
           "draws": 3,
           "losses": 9,
-          "goalsFor": 45,
+          "goalsFor": 46,
           "goalsAgainst": 42,
-          "goalDifference": 3,
-          "points": 39
+          "goalDifference": 4,
+          "points": 42
         },
         {
           "rank": 8,
-          "previousRank": 9,
-          "rankChange": 1,
+          "previousRank": 8,
+          "rankChange": 0,
           "teamName": "FC浦和武蔵小杉",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 12,
+          "wins": 13,
           "draws": 1,
           "losses": 11,
-          "goalsFor": 46,
+          "goalsFor": 49,
           "goalsAgainst": 37,
-          "goalDifference": 9,
-          "points": 37
+          "goalDifference": 12,
+          "points": 40
         },
         {
           "rank": 9,
-          "previousRank": 7,
-          "rankChange": -2,
+          "previousRank": 9,
+          "rankChange": 0,
           "teamName": "mst25",
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 11,
           "draws": 4,
-          "losses": 9,
+          "losses": 10,
           "goalsFor": 42,
-          "goalsAgainst": 38,
-          "goalDifference": 4,
+          "goalsAgainst": 39,
+          "goalDifference": 3,
           "points": 37
         },
         {
@@ -1441,12 +1441,12 @@
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 9,
-          "draws": 4,
+          "draws": 5,
           "losses": 11,
-          "goalsFor": 36,
-          "goalsAgainst": 43,
+          "goalsFor": 38,
+          "goalsAgainst": 45,
           "goalDifference": -7,
-          "points": 31
+          "points": 32
         },
         {
           "rank": 11,
@@ -1457,10 +1457,10 @@
           "isOwnTeam": false,
           "wins": 7,
           "draws": 2,
-          "losses": 15,
+          "losses": 16,
           "goalsFor": 20,
-          "goalsAgainst": 42,
-          "goalDifference": -22,
+          "goalsAgainst": 45,
+          "goalDifference": -25,
           "points": 23
         },
         {
@@ -1472,10 +1472,10 @@
           "isOwnTeam": false,
           "wins": 6,
           "draws": 2,
-          "losses": 16,
-          "goalsFor": 29,
-          "goalsAgainst": 58,
-          "goalDifference": -29,
+          "losses": 17,
+          "goalsFor": 30,
+          "goalsAgainst": 60,
+          "goalDifference": -30,
           "points": 20
         },
         {
@@ -1485,13 +1485,13 @@
           "teamName": "ユベントスFC",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 4,
+          "wins": 5,
           "draws": 0,
           "losses": 20,
-          "goalsFor": 33,
+          "goalsFor": 36,
           "goalsAgainst": 85,
-          "goalDifference": -52,
-          "points": 12
+          "goalDifference": -49,
+          "points": 15
         },
         {
           "rank": 14,
@@ -1500,13 +1500,13 @@
           "teamName": "統一教会",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 3,
+          "wins": 4,
           "draws": 0,
           "losses": 21,
-          "goalsFor": 12,
-          "goalsAgainst": 65,
-          "goalDifference": -53,
-          "points": 9
+          "goalsFor": 14,
+          "goalsAgainst": 66,
+          "goalDifference": -52,
+          "points": 12
         },
         {
           "rank": 15,
@@ -1517,10 +1517,10 @@
           "isOwnTeam": false,
           "wins": 2,
           "draws": 1,
-          "losses": 21,
-          "goalsFor": 9,
-          "goalsAgainst": 69,
-          "goalDifference": -60,
+          "losses": 22,
+          "goalsFor": 10,
+          "goalsAgainst": 74,
+          "goalDifference": -64,
           "points": 7
         },
         {
@@ -1532,10 +1532,10 @@
           "isOwnTeam": false,
           "wins": 0,
           "draws": 1,
-          "losses": 23,
+          "losses": 24,
           "goalsFor": 1,
-          "goalsAgainst": 70,
-          "goalDifference": -69,
+          "goalsAgainst": 73,
+          "goalDifference": -72,
           "points": 1
         }
       ]
@@ -1549,7 +1549,7 @@
         "C",
         "U"
       ],
-      "targetMatchday": 24,
+      "targetMatchday": 25,
       "resultAdjusted": true,
       "rows": [
         {
@@ -1559,13 +1559,13 @@
           "teamName": "うしくんFC",
           "managedKey": "U",
           "isOwnTeam": false,
-          "wins": 23,
+          "wins": 24,
           "draws": 0,
           "losses": 1,
-          "goalsFor": 74,
+          "goalsFor": 78,
           "goalsAgainst": 7,
-          "goalDifference": 67,
-          "points": 69
+          "goalDifference": 71,
+          "points": 72
         },
         {
           "rank": 2,
@@ -1574,13 +1574,13 @@
           "teamName": "Chaud代表角田悠",
           "managedKey": "C",
           "isOwnTeam": false,
-          "wins": 21,
+          "wins": 22,
           "draws": 2,
           "losses": 1,
-          "goalsFor": 74,
-          "goalsAgainst": 21,
-          "goalDifference": 53,
-          "points": 65
+          "goalsFor": 77,
+          "goalsAgainst": 22,
+          "goalDifference": 55,
+          "points": 68
         },
         {
           "rank": 3,
@@ -1589,13 +1589,13 @@
           "teamName": "N.Madrid",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 18,
+          "wins": 19,
           "draws": 1,
           "losses": 5,
-          "goalsFor": 66,
+          "goalsFor": 70,
           "goalsAgainst": 27,
-          "goalDifference": 39,
-          "points": 55
+          "goalDifference": 43,
+          "points": 58
         },
         {
           "rank": 4,
@@ -1604,58 +1604,58 @@
           "teamName": "香港FC",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 15,
+          "wins": 16,
           "draws": 4,
           "losses": 5,
-          "goalsFor": 52,
+          "goalsFor": 56,
           "goalsAgainst": 24,
-          "goalDifference": 28,
-          "points": 49
+          "goalDifference": 32,
+          "points": 52
         },
         {
           "rank": 5,
           "previousRank": 6,
           "rankChange": 1,
+          "teamName": "茂原シティ",
+          "managedKey": "",
+          "isOwnTeam": false,
+          "wins": 14,
+          "draws": 6,
+          "losses": 5,
+          "goalsFor": 50,
+          "goalsAgainst": 25,
+          "goalDifference": 25,
+          "points": 48
+        },
+        {
+          "rank": 6,
+          "previousRank": 5,
+          "rankChange": -1,
           "teamName": "京都紫光クラブ",
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 14,
           "draws": 5,
-          "losses": 5,
+          "losses": 6,
           "goalsFor": 74,
-          "goalsAgainst": 31,
-          "goalDifference": 43,
+          "goalsAgainst": 35,
+          "goalDifference": 39,
           "points": 47
         },
         {
-          "rank": 6,
-          "previousRank": 7,
-          "rankChange": 1,
-          "teamName": "茂原シティ",
-          "managedKey": "",
-          "isOwnTeam": false,
-          "wins": 13,
-          "draws": 6,
-          "losses": 5,
-          "goalsFor": 46,
-          "goalsAgainst": 25,
-          "goalDifference": 21,
-          "points": 45
-        },
-        {
           "rank": 7,
-          "previousRank": 5,
-          "rankChange": -2,
+          "previousRank": 7,
+          "rankChange": 0,
           "teamName": "どんどん焼",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 13,
+          "wins": 14,
           "draws": 5,
           "losses": 6,
-          "goalsFor": 66,
-          "goalsAgainst": 32,
-          "goalDifference": 34,
-          "points": 44
+          "goalsFor": 70,
+          "goalsAgainst": 33,
+          "goalDifference": 37,
+          "points": 47
         },
         {
           "rank": 8,
@@ -1664,13 +1664,13 @@
           "teamName": "極悪ぱぐぱぐ団",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 11,
+          "wins": 12,
           "draws": 3,
           "losses": 10,
-          "goalsFor": 50,
+          "goalsFor": 54,
           "goalsAgainst": 45,
-          "goalDifference": 5,
-          "points": 36
+          "goalDifference": 9,
+          "points": 39
         },
         {
           "rank": 9,
@@ -1680,12 +1680,12 @@
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 10,
-          "draws": 3,
+          "draws": 4,
           "losses": 11,
-          "goalsFor": 34,
-          "goalsAgainst": 39,
+          "goalsFor": 35,
+          "goalsAgainst": 40,
           "goalDifference": -5,
-          "points": 33
+          "points": 34
         },
         {
           "rank": 10,
@@ -1696,10 +1696,10 @@
           "isOwnTeam": false,
           "wins": 8,
           "draws": 2,
-          "losses": 14,
+          "losses": 15,
           "goalsFor": 35,
-          "goalsAgainst": 51,
-          "goalDifference": -16,
+          "goalsAgainst": 55,
+          "goalDifference": -20,
           "points": 26
         },
         {
@@ -1711,24 +1711,24 @@
           "isOwnTeam": false,
           "wins": 7,
           "draws": 2,
-          "losses": 15,
-          "goalsFor": 20,
-          "goalsAgainst": 51,
-          "goalDifference": -31,
+          "losses": 16,
+          "goalsFor": 21,
+          "goalsAgainst": 55,
+          "goalDifference": -34,
           "points": 23
         },
         {
           "rank": 12,
           "previousRank": 13,
           "rankChange": 1,
-          "teamName": "ゆたま",
+          "teamName": "そもそも",
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 6,
           "draws": 3,
-          "losses": 15,
-          "goalsFor": 28,
-          "goalsAgainst": 60,
+          "losses": 16,
+          "goalsFor": 29,
+          "goalsAgainst": 61,
           "goalDifference": -32,
           "points": 21
         },
@@ -1736,16 +1736,16 @@
           "rank": 13,
           "previousRank": 12,
           "rankChange": -1,
-          "teamName": "そもそも",
+          "teamName": "ゆたま",
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 6,
-          "draws": 2,
+          "draws": 3,
           "losses": 16,
           "goalsFor": 28,
-          "goalsAgainst": 60,
-          "goalDifference": -32,
-          "points": 20
+          "goalsAgainst": 64,
+          "goalDifference": -36,
+          "points": 21
         },
         {
           "rank": 14,
@@ -1756,10 +1756,10 @@
           "isOwnTeam": false,
           "wins": 3,
           "draws": 2,
-          "losses": 19,
+          "losses": 20,
           "goalsFor": 18,
-          "goalsAgainst": 72,
-          "goalDifference": -54,
+          "goalsAgainst": 76,
+          "goalDifference": -58,
           "points": 11
         },
         {
@@ -1771,10 +1771,10 @@
           "isOwnTeam": false,
           "wins": 3,
           "draws": 1,
-          "losses": 20,
+          "losses": 21,
           "goalsFor": 13,
-          "goalsAgainst": 69,
-          "goalDifference": -56,
+          "goalsAgainst": 73,
+          "goalDifference": -60,
           "points": 10
         },
         {
@@ -1786,10 +1786,10 @@
           "isOwnTeam": false,
           "wins": 0,
           "draws": 1,
-          "losses": 23,
-          "goalsFor": 6,
-          "goalsAgainst": 70,
-          "goalDifference": -64,
+          "losses": 24,
+          "goalsFor": 7,
+          "goalsAgainst": 73,
+          "goalDifference": -66,
           "points": 1
         }
       ]
@@ -1802,7 +1802,7 @@
       "managedKeys": [
         "O"
       ],
-      "targetMatchday": 24,
+      "targetMatchday": 25,
       "resultAdjusted": true,
       "rows": [
         {
@@ -1812,13 +1812,13 @@
           "teamName": "クッキングパパ",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 21,
+          "wins": 22,
           "draws": 2,
           "losses": 1,
-          "goalsFor": 81,
+          "goalsFor": 82,
           "goalsAgainst": 9,
-          "goalDifference": 72,
-          "points": 65
+          "goalDifference": 73,
+          "points": 68
         },
         {
           "rank": 2,
@@ -1827,13 +1827,13 @@
           "teamName": "スニーカー芸人",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 21,
+          "wins": 22,
           "draws": 2,
           "losses": 1,
-          "goalsFor": 54,
+          "goalsFor": 57,
           "goalsAgainst": 6,
-          "goalDifference": 48,
-          "points": 65
+          "goalDifference": 51,
+          "points": 68
         },
         {
           "rank": 3,
@@ -1842,13 +1842,13 @@
           "teamName": "鬼嫁の祟り棒読糞坊主",
           "managedKey": "O",
           "isOwnTeam": false,
-          "wins": 19,
+          "wins": 20,
           "draws": 4,
           "losses": 1,
-          "goalsFor": 83,
+          "goalsFor": 86,
           "goalsAgainst": 11,
-          "goalDifference": 72,
-          "points": 61
+          "goalDifference": 75,
+          "points": 64
         },
         {
           "rank": 4,
@@ -1857,13 +1857,13 @@
           "teamName": "カスタード次郎",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 17,
+          "wins": 18,
           "draws": 2,
           "losses": 5,
-          "goalsFor": 60,
+          "goalsFor": 63,
           "goalsAgainst": 19,
-          "goalDifference": 41,
-          "points": 53
+          "goalDifference": 44,
+          "points": 56
         },
         {
           "rank": 5,
@@ -1872,13 +1872,13 @@
           "teamName": "FCyokohama",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 17,
+          "wins": 18,
           "draws": 1,
           "losses": 6,
-          "goalsFor": 53,
+          "goalsFor": 56,
           "goalsAgainst": 25,
-          "goalDifference": 28,
-          "points": 52
+          "goalDifference": 31,
+          "points": 55
         },
         {
           "rank": 6,
@@ -1887,13 +1887,13 @@
           "teamName": "馬頭ラッキー",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 16,
+          "wins": 17,
           "draws": 2,
           "losses": 6,
-          "goalsFor": 73,
-          "goalsAgainst": 25,
-          "goalDifference": 48,
-          "points": 50
+          "goalsFor": 78,
+          "goalsAgainst": 27,
+          "goalDifference": 51,
+          "points": 53
         },
         {
           "rank": 7,
@@ -1904,10 +1904,10 @@
           "isOwnTeam": false,
           "wins": 14,
           "draws": 3,
-          "losses": 7,
-          "goalsFor": 61,
-          "goalsAgainst": 30,
-          "goalDifference": 31,
+          "losses": 8,
+          "goalsFor": 63,
+          "goalsAgainst": 35,
+          "goalDifference": 28,
           "points": 45
         },
         {
@@ -1917,42 +1917,42 @@
           "teamName": "四郎丸ボーイズ",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 13,
+          "wins": 14,
           "draws": 1,
           "losses": 10,
-          "goalsFor": 51,
+          "goalsFor": 54,
           "goalsAgainst": 35,
-          "goalDifference": 16,
-          "points": 40
+          "goalDifference": 19,
+          "points": 43
         },
         {
           "rank": 9,
+          "previousRank": 10,
+          "rankChange": 1,
+          "teamName": "ゆたま",
+          "managedKey": "",
+          "isOwnTeam": false,
+          "wins": 11,
+          "draws": 2,
+          "losses": 12,
+          "goalsFor": 34,
+          "goalsAgainst": 38,
+          "goalDifference": -4,
+          "points": 35
+        },
+        {
+          "rank": 10,
           "previousRank": 9,
-          "rankChange": 0,
+          "rankChange": -1,
           "teamName": "REDS",
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 10,
           "draws": 2,
-          "losses": 12,
+          "losses": 13,
           "goalsFor": 41,
-          "goalsAgainst": 47,
-          "goalDifference": -6,
-          "points": 32
-        },
-        {
-          "rank": 10,
-          "previousRank": 10,
-          "rankChange": 0,
-          "teamName": "ゆたま",
-          "managedKey": "",
-          "isOwnTeam": false,
-          "wins": 10,
-          "draws": 2,
-          "losses": 12,
-          "goalsFor": 32,
-          "goalsAgainst": 38,
-          "goalDifference": -6,
+          "goalsAgainst": 50,
+          "goalDifference": -9,
           "points": 32
         },
         {
@@ -1964,10 +1964,10 @@
           "isOwnTeam": false,
           "wins": 7,
           "draws": 2,
-          "losses": 15,
+          "losses": 16,
           "goalsFor": 22,
-          "goalsAgainst": 53,
-          "goalDifference": -31,
+          "goalsAgainst": 55,
+          "goalDifference": -33,
           "points": 23
         },
         {
@@ -1979,10 +1979,10 @@
           "isOwnTeam": false,
           "wins": 4,
           "draws": 1,
-          "losses": 19,
+          "losses": 20,
           "goalsFor": 16,
-          "goalsAgainst": 76,
-          "goalDifference": -60,
+          "goalsAgainst": 77,
+          "goalDifference": -61,
           "points": 13
         },
         {
@@ -1994,10 +1994,10 @@
           "isOwnTeam": false,
           "wins": 4,
           "draws": 0,
-          "losses": 20,
+          "losses": 21,
           "goalsFor": 18,
-          "goalsAgainst": 65,
-          "goalDifference": -47,
+          "goalsAgainst": 68,
+          "goalDifference": -50,
           "points": 12
         },
         {
@@ -2009,10 +2009,10 @@
           "isOwnTeam": false,
           "wins": 3,
           "draws": 2,
-          "losses": 19,
+          "losses": 20,
           "goalsFor": 7,
-          "goalsAgainst": 55,
-          "goalDifference": -48,
+          "goalsAgainst": 58,
+          "goalDifference": -51,
           "points": 11
         },
         {
@@ -2024,10 +2024,10 @@
           "isOwnTeam": false,
           "wins": 3,
           "draws": 0,
-          "losses": 21,
+          "losses": 22,
           "goalsFor": 10,
-          "goalsAgainst": 73,
-          "goalDifference": -63,
+          "goalsAgainst": 76,
+          "goalDifference": -66,
           "points": 9
         },
         {
@@ -2039,10 +2039,10 @@
           "isOwnTeam": false,
           "wins": 0,
           "draws": 0,
-          "losses": 24,
+          "losses": 25,
           "goalsFor": 3,
-          "goalsAgainst": 98,
-          "goalDifference": -95,
+          "goalsAgainst": 101,
+          "goalDifference": -98,
           "points": 0
         }
       ]
@@ -2056,7 +2056,7 @@
         "D",
         "M"
       ],
-      "targetMatchday": 24,
+      "targetMatchday": 25,
       "resultAdjusted": true,
       "rows": [
         {
@@ -2066,13 +2066,13 @@
           "teamName": "真下美容室",
           "managedKey": "M",
           "isOwnTeam": false,
-          "wins": 23,
+          "wins": 24,
           "draws": 0,
           "losses": 1,
-          "goalsFor": 87,
+          "goalsFor": 92,
           "goalsAgainst": 6,
-          "goalDifference": 81,
-          "points": 69
+          "goalDifference": 86,
+          "points": 72
         },
         {
           "rank": 2,
@@ -2081,43 +2081,43 @@
           "teamName": "めぼむぎ",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 20,
+          "wins": 21,
           "draws": 1,
           "losses": 3,
-          "goalsFor": 74,
-          "goalsAgainst": 14,
-          "goalDifference": 60,
-          "points": 61
+          "goalsFor": 77,
+          "goalsAgainst": 16,
+          "goalDifference": 61,
+          "points": 64
         },
         {
           "rank": 3,
-          "previousRank": 4,
-          "rankChange": 1,
+          "previousRank": 3,
+          "rankChange": 0,
           "teamName": "ドールマン香取",
           "managedKey": "D",
           "isOwnTeam": false,
-          "wins": 18,
+          "wins": 19,
           "draws": 2,
           "losses": 4,
-          "goalsFor": 81,
+          "goalsFor": 87,
           "goalsAgainst": 16,
-          "goalDifference": 65,
-          "points": 56
+          "goalDifference": 71,
+          "points": 59
         },
         {
           "rank": 4,
-          "previousRank": 3,
-          "rankChange": -1,
+          "previousRank": 4,
+          "rankChange": 0,
           "teamName": "にうにうFC",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 18,
+          "wins": 19,
           "draws": 1,
           "losses": 5,
-          "goalsFor": 66,
+          "goalsFor": 70,
           "goalsAgainst": 33,
-          "goalDifference": 33,
-          "points": 55
+          "goalDifference": 37,
+          "points": 58
         },
         {
           "rank": 5,
@@ -2127,57 +2127,57 @@
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 16,
-          "draws": 3,
+          "draws": 4,
           "losses": 5,
           "goalsFor": 69,
           "goalsAgainst": 26,
           "goalDifference": 43,
-          "points": 51
+          "points": 52
         },
         {
           "rank": 6,
-          "previousRank": 7,
-          "rankChange": 1,
+          "previousRank": 6,
+          "rankChange": 0,
           "teamName": "Elephant",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 15,
+          "wins": 16,
           "draws": 2,
           "losses": 7,
-          "goalsFor": 68,
+          "goalsFor": 72,
           "goalsAgainst": 21,
-          "goalDifference": 47,
-          "points": 47
+          "goalDifference": 51,
+          "points": 50
         },
         {
           "rank": 7,
-          "previousRank": 8,
-          "rankChange": 1,
+          "previousRank": 7,
+          "rankChange": 0,
           "teamName": "Centenario",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 15,
+          "wins": 16,
           "draws": 1,
           "losses": 8,
-          "goalsFor": 74,
+          "goalsFor": 78,
           "goalsAgainst": 34,
-          "goalDifference": 40,
-          "points": 46
+          "goalDifference": 44,
+          "points": 49
         },
         {
           "rank": 8,
-          "previousRank": 6,
-          "rankChange": -2,
+          "previousRank": 8,
+          "rankChange": 0,
           "teamName": "FC.TNOK",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 14,
+          "wins": 15,
           "draws": 4,
           "losses": 6,
-          "goalsFor": 54,
+          "goalsFor": 62,
           "goalsAgainst": 23,
-          "goalDifference": 31,
-          "points": 46
+          "goalDifference": 39,
+          "points": 49
         },
         {
           "rank": 9,
@@ -2188,10 +2188,10 @@
           "isOwnTeam": false,
           "wins": 10,
           "draws": 1,
-          "losses": 13,
+          "losses": 14,
           "goalsFor": 35,
-          "goalsAgainst": 63,
-          "goalDifference": -28,
+          "goalsAgainst": 67,
+          "goalDifference": -32,
           "points": 31
         },
         {
@@ -2203,10 +2203,10 @@
           "isOwnTeam": false,
           "wins": 7,
           "draws": 4,
-          "losses": 13,
-          "goalsFor": 46,
-          "goalsAgainst": 70,
-          "goalDifference": -24,
+          "losses": 14,
+          "goalsFor": 48,
+          "goalsAgainst": 73,
+          "goalDifference": -25,
           "points": 25
         },
         {
@@ -2218,10 +2218,10 @@
           "isOwnTeam": false,
           "wins": 6,
           "draws": 2,
-          "losses": 16,
+          "losses": 17,
           "goalsFor": 26,
-          "goalsAgainst": 77,
-          "goalDifference": -51,
+          "goalsAgainst": 81,
+          "goalDifference": -55,
           "points": 20
         },
         {
@@ -2233,10 +2233,10 @@
           "isOwnTeam": false,
           "wins": 5,
           "draws": 4,
-          "losses": 15,
+          "losses": 16,
           "goalsFor": 17,
-          "goalsAgainst": 60,
-          "goalDifference": -43,
+          "goalsAgainst": 65,
+          "goalDifference": -48,
           "points": 19
         },
         {
@@ -2248,10 +2248,10 @@
           "isOwnTeam": false,
           "wins": 5,
           "draws": 2,
-          "losses": 17,
+          "losses": 18,
           "goalsFor": 24,
-          "goalsAgainst": 75,
-          "goalDifference": -51,
+          "goalsAgainst": 81,
+          "goalDifference": -57,
           "points": 17
         },
         {
@@ -2262,12 +2262,12 @@
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 3,
-          "draws": 1,
+          "draws": 2,
           "losses": 20,
           "goalsFor": 11,
           "goalsAgainst": 72,
           "goalDifference": -61,
-          "points": 10
+          "points": 11
         },
         {
           "rank": 15,
@@ -2278,10 +2278,10 @@
           "isOwnTeam": false,
           "wins": 2,
           "draws": 1,
-          "losses": 21,
+          "losses": 22,
           "goalsFor": 10,
-          "goalsAgainst": 84,
-          "goalDifference": -74,
+          "goalsAgainst": 92,
+          "goalDifference": -82,
           "points": 7
         },
         {
@@ -2293,10 +2293,10 @@
           "isOwnTeam": false,
           "wins": 0,
           "draws": 1,
-          "losses": 23,
+          "losses": 24,
           "goalsFor": 5,
-          "goalsAgainst": 73,
-          "goalDifference": -68,
+          "goalsAgainst": 77,
+          "goalDifference": -72,
           "points": 1
         }
       ]
@@ -2309,7 +2309,7 @@
       "managedKeys": [
         "Q"
       ],
-      "targetMatchday": 24,
+      "targetMatchday": 25,
       "resultAdjusted": true,
       "rows": [
         {
@@ -2319,13 +2319,13 @@
           "teamName": "MSHY",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 23,
+          "wins": 24,
           "draws": 1,
           "losses": 0,
-          "goalsFor": 97,
-          "goalsAgainst": 6,
-          "goalDifference": 91,
-          "points": 70
+          "goalsFor": 102,
+          "goalsAgainst": 7,
+          "goalDifference": 95,
+          "points": 73
         },
         {
           "rank": 2,
@@ -2334,73 +2334,73 @@
           "teamName": "口臭のマツオカ",
           "managedKey": "Q",
           "isOwnTeam": false,
-          "wins": 20,
+          "wins": 21,
           "draws": 1,
           "losses": 3,
-          "goalsFor": 76,
+          "goalsFor": 82,
           "goalsAgainst": 15,
-          "goalDifference": 61,
-          "points": 61
+          "goalDifference": 67,
+          "points": 64
         },
         {
           "rank": 3,
+          "previousRank": 4,
+          "rankChange": 1,
+          "teamName": "FCオイチ",
+          "managedKey": "",
+          "isOwnTeam": false,
+          "wins": 19,
+          "draws": 4,
+          "losses": 2,
+          "goalsFor": 76,
+          "goalsAgainst": 19,
+          "goalDifference": 57,
+          "points": 61
+        },
+        {
+          "rank": 4,
           "previousRank": 3,
-          "rankChange": 0,
+          "rankChange": -1,
           "teamName": "とんとんとん",
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 20,
           "draws": 1,
-          "losses": 3,
-          "goalsFor": 69,
-          "goalsAgainst": 18,
-          "goalDifference": 51,
+          "losses": 4,
+          "goalsFor": 70,
+          "goalsAgainst": 23,
+          "goalDifference": 47,
           "points": 61
         },
         {
-          "rank": 4,
-          "previousRank": 4,
-          "rankChange": 0,
-          "teamName": "FCオイチ",
-          "managedKey": "",
-          "isOwnTeam": false,
-          "wins": 18,
-          "draws": 4,
-          "losses": 2,
-          "goalsFor": 72,
-          "goalsAgainst": 19,
-          "goalDifference": 53,
-          "points": 58
-        },
-        {
           "rank": 5,
-          "previousRank": 6,
-          "rankChange": 1,
+          "previousRank": 5,
+          "rankChange": 0,
           "teamName": "ほのーー",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 16,
+          "wins": 17,
           "draws": 1,
           "losses": 7,
-          "goalsFor": 62,
-          "goalsAgainst": 33,
-          "goalDifference": 29,
-          "points": 49
+          "goalsFor": 67,
+          "goalsAgainst": 34,
+          "goalDifference": 33,
+          "points": 52
         },
         {
           "rank": 6,
-          "previousRank": 5,
-          "rankChange": -1,
+          "previousRank": 6,
+          "rankChange": 0,
           "teamName": "伸びしろですねぇ！",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 16,
+          "wins": 17,
           "draws": 1,
           "losses": 7,
-          "goalsFor": 52,
+          "goalsFor": 57,
           "goalsAgainst": 26,
-          "goalDifference": 26,
-          "points": 49
+          "goalDifference": 31,
+          "points": 52
         },
         {
           "rank": 7,
@@ -2411,10 +2411,10 @@
           "isOwnTeam": false,
           "wins": 14,
           "draws": 3,
-          "losses": 7,
-          "goalsFor": 46,
-          "goalsAgainst": 27,
-          "goalDifference": 19,
+          "losses": 8,
+          "goalsFor": 47,
+          "goalsAgainst": 32,
+          "goalDifference": 15,
           "points": 45
         },
         {
@@ -2424,13 +2424,13 @@
           "teamName": "わらは",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 12,
+          "wins": 13,
           "draws": 2,
           "losses": 10,
-          "goalsFor": 46,
+          "goalsFor": 48,
           "goalsAgainst": 37,
-          "goalDifference": 9,
-          "points": 38
+          "goalDifference": 11,
+          "points": 41
         },
         {
           "rank": 9,
@@ -2439,13 +2439,13 @@
           "teamName": "サンセット",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 9,
+          "wins": 10,
           "draws": 2,
           "losses": 13,
-          "goalsFor": 49,
+          "goalsFor": 51,
           "goalsAgainst": 53,
-          "goalDifference": -4,
-          "points": 29
+          "goalDifference": -2,
+          "points": 32
         },
         {
           "rank": 10,
@@ -2456,10 +2456,10 @@
           "isOwnTeam": false,
           "wins": 8,
           "draws": 3,
-          "losses": 13,
+          "losses": 14,
           "goalsFor": 31,
-          "goalsAgainst": 50,
-          "goalDifference": -19,
+          "goalsAgainst": 55,
+          "goalDifference": -24,
           "points": 27
         },
         {
@@ -2471,41 +2471,41 @@
           "isOwnTeam": false,
           "wins": 8,
           "draws": 1,
-          "losses": 15,
+          "losses": 16,
           "goalsFor": 18,
-          "goalsAgainst": 50,
-          "goalDifference": -32,
+          "goalsAgainst": 56,
+          "goalDifference": -38,
           "points": 25
         },
         {
           "rank": 12,
+          "previousRank": 13,
+          "rankChange": 1,
+          "teamName": "きぬぬ",
+          "managedKey": "",
+          "isOwnTeam": false,
+          "wins": 4,
+          "draws": 5,
+          "losses": 16,
+          "goalsFor": 15,
+          "goalsAgainst": 63,
+          "goalDifference": -48,
+          "points": 17
+        },
+        {
+          "rank": 13,
           "previousRank": 12,
-          "rankChange": 0,
+          "rankChange": -1,
           "teamName": "mtdt",
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 5,
           "draws": 1,
-          "losses": 18,
+          "losses": 19,
           "goalsFor": 15,
-          "goalsAgainst": 71,
-          "goalDifference": -56,
+          "goalsAgainst": 73,
+          "goalDifference": -58,
           "points": 16
-        },
-        {
-          "rank": 13,
-          "previousRank": 13,
-          "rankChange": 0,
-          "teamName": "きぬぬ",
-          "managedKey": "",
-          "isOwnTeam": false,
-          "wins": 3,
-          "draws": 5,
-          "losses": 16,
-          "goalsFor": 11,
-          "goalsAgainst": 63,
-          "goalDifference": -52,
-          "points": 14
         },
         {
           "rank": 14,
@@ -2516,10 +2516,10 @@
           "isOwnTeam": false,
           "wins": 3,
           "draws": 1,
-          "losses": 20,
+          "losses": 21,
           "goalsFor": 11,
-          "goalsAgainst": 69,
-          "goalDifference": -58,
+          "goalsAgainst": 73,
+          "goalDifference": -62,
           "points": 10
         },
         {
@@ -2531,10 +2531,10 @@
           "isOwnTeam": false,
           "wins": 2,
           "draws": 2,
-          "losses": 20,
+          "losses": 21,
           "goalsFor": 5,
-          "goalsAgainst": 63,
-          "goalDifference": -58,
+          "goalsAgainst": 65,
+          "goalDifference": -60,
           "points": 8
         },
         {
@@ -2546,10 +2546,10 @@
           "isOwnTeam": false,
           "wins": 0,
           "draws": 1,
-          "losses": 23,
+          "losses": 24,
           "goalsFor": 0,
-          "goalsAgainst": 60,
-          "goalDifference": -60,
+          "goalsAgainst": 64,
+          "goalDifference": -64,
           "points": 1
         }
       ]
@@ -2562,7 +2562,7 @@
       "managedKeys": [
         "H"
       ],
-      "targetMatchday": 24,
+      "targetMatchday": 25,
       "resultAdjusted": true,
       "rows": [
         {
@@ -2572,13 +2572,13 @@
           "teamName": "はしばっちUTD",
           "managedKey": "",
           "isOwnTeam": true,
-          "wins": 24,
+          "wins": 25,
           "draws": 0,
           "losses": 0,
-          "goalsFor": 99,
+          "goalsFor": 104,
           "goalsAgainst": 7,
-          "goalDifference": 92,
-          "points": 72
+          "goalDifference": 97,
+          "points": 75
         },
         {
           "rank": 2,
@@ -2587,13 +2587,13 @@
           "teamName": "屁こいでけんのり",
           "managedKey": "H",
           "isOwnTeam": false,
-          "wins": 20,
+          "wins": 21,
           "draws": 3,
           "losses": 1,
-          "goalsFor": 73,
+          "goalsFor": 75,
           "goalsAgainst": 10,
-          "goalDifference": 63,
-          "points": 63
+          "goalDifference": 65,
+          "points": 66
         },
         {
           "rank": 3,
@@ -2604,10 +2604,10 @@
           "isOwnTeam": false,
           "wins": 20,
           "draws": 2,
-          "losses": 2,
+          "losses": 3,
           "goalsFor": 66,
-          "goalsAgainst": 19,
-          "goalDifference": 47,
+          "goalsAgainst": 21,
+          "goalDifference": 45,
           "points": 62
         },
         {
@@ -2617,13 +2617,13 @@
           "teamName": "ダークナイト",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 17,
+          "wins": 18,
           "draws": 3,
           "losses": 4,
-          "goalsFor": 81,
+          "goalsFor": 83,
           "goalsAgainst": 16,
-          "goalDifference": 65,
-          "points": 54
+          "goalDifference": 67,
+          "points": 57
         },
         {
           "rank": 5,
@@ -2633,12 +2633,12 @@
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 17,
-          "draws": 2,
+          "draws": 3,
           "losses": 5,
           "goalsFor": 51,
           "goalsAgainst": 21,
           "goalDifference": 30,
-          "points": 53
+          "points": 54
         },
         {
           "rank": 6,
@@ -2649,10 +2649,10 @@
           "isOwnTeam": false,
           "wins": 16,
           "draws": 1,
-          "losses": 7,
-          "goalsFor": 50,
-          "goalsAgainst": 32,
-          "goalDifference": 18,
+          "losses": 8,
+          "goalsFor": 52,
+          "goalsAgainst": 35,
+          "goalDifference": 17,
           "points": 49
         },
         {
@@ -2662,13 +2662,13 @@
           "teamName": "ヒロジェルマン",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 15,
+          "wins": 16,
           "draws": 1,
           "losses": 8,
-          "goalsFor": 51,
-          "goalsAgainst": 39,
-          "goalDifference": 12,
-          "points": 46
+          "goalsFor": 54,
+          "goalsAgainst": 41,
+          "goalDifference": 13,
+          "points": 49
         },
         {
           "rank": 8,
@@ -2678,12 +2678,12 @@
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 11,
-          "draws": 2,
+          "draws": 3,
           "losses": 11,
           "goalsFor": 28,
           "goalsAgainst": 33,
           "goalDifference": -5,
-          "points": 35
+          "points": 36
         },
         {
           "rank": 9,
@@ -2694,10 +2694,10 @@
           "isOwnTeam": false,
           "wins": 11,
           "draws": 0,
-          "losses": 13,
+          "losses": 14,
           "goalsFor": 45,
-          "goalsAgainst": 47,
-          "goalDifference": -2,
+          "goalsAgainst": 49,
+          "goalDifference": -4,
           "points": 33
         },
         {
@@ -2707,13 +2707,13 @@
           "teamName": "氷帝学園",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 8,
+          "wins": 9,
           "draws": 2,
           "losses": 14,
-          "goalsFor": 21,
+          "goalsFor": 25,
           "goalsAgainst": 27,
-          "goalDifference": -6,
-          "points": 26
+          "goalDifference": -2,
+          "points": 29
         },
         {
           "rank": 11,
@@ -2722,13 +2722,13 @@
           "teamName": "宮崎蹴球団",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 8,
+          "wins": 9,
           "draws": 1,
           "losses": 15,
-          "goalsFor": 27,
+          "goalsFor": 28,
           "goalsAgainst": 56,
-          "goalDifference": -29,
-          "points": 25
+          "goalDifference": -28,
+          "points": 28
         },
         {
           "rank": 12,
@@ -2739,40 +2739,40 @@
           "isOwnTeam": false,
           "wins": 6,
           "draws": 0,
-          "losses": 18,
+          "losses": 19,
           "goalsFor": 32,
-          "goalsAgainst": 63,
-          "goalDifference": -31,
+          "goalsAgainst": 68,
+          "goalDifference": -36,
           "points": 18
         },
         {
           "rank": 13,
+          "previousRank": 14,
+          "rankChange": 1,
+          "teamName": "まぬまや",
+          "managedKey": "",
+          "isOwnTeam": false,
+          "wins": 5,
+          "draws": 0,
+          "losses": 20,
+          "goalsFor": 12,
+          "goalsAgainst": 79,
+          "goalDifference": -67,
+          "points": 15
+        },
+        {
+          "rank": 14,
           "previousRank": 13,
-          "rankChange": 0,
+          "rankChange": -1,
           "teamName": "らなたら",
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 4,
           "draws": 0,
-          "losses": 20,
+          "losses": 21,
           "goalsFor": 17,
-          "goalsAgainst": 71,
-          "goalDifference": -54,
-          "points": 12
-        },
-        {
-          "rank": 14,
-          "previousRank": 14,
-          "rankChange": 0,
-          "teamName": "まぬまや",
-          "managedKey": "",
-          "isOwnTeam": false,
-          "wins": 4,
-          "draws": 0,
-          "losses": 20,
-          "goalsFor": 9,
-          "goalsAgainst": 79,
-          "goalDifference": -70,
+          "goalsAgainst": 75,
+          "goalDifference": -58,
           "points": 12
         },
         {
@@ -2784,10 +2784,10 @@
           "isOwnTeam": false,
           "wins": 1,
           "draws": 1,
-          "losses": 22,
+          "losses": 23,
           "goalsFor": 3,
-          "goalsAgainst": 67,
-          "goalDifference": -64,
+          "goalsAgainst": 70,
+          "goalDifference": -67,
           "points": 4
         },
         {
@@ -2799,10 +2799,10 @@
           "isOwnTeam": false,
           "wins": 1,
           "draws": 0,
-          "losses": 23,
+          "losses": 24,
           "goalsFor": 3,
-          "goalsAgainst": 69,
-          "goalDifference": -66,
+          "goalsAgainst": 70,
+          "goalDifference": -67,
           "points": 3
         }
       ]
@@ -2816,7 +2816,7 @@
         "G",
         "L"
       ],
-      "targetMatchday": 24,
+      "targetMatchday": 25,
       "resultAdjusted": true,
       "rows": [
         {
@@ -2826,13 +2826,13 @@
           "teamName": "ジャイアンズ監督",
           "managedKey": "G",
           "isOwnTeam": false,
-          "wins": 23,
+          "wins": 24,
           "draws": 0,
           "losses": 1,
-          "goalsFor": 99,
+          "goalsFor": 103,
           "goalsAgainst": 5,
-          "goalDifference": 94,
-          "points": 69
+          "goalDifference": 98,
+          "points": 72
         },
         {
           "rank": 2,
@@ -2841,13 +2841,13 @@
           "teamName": "李忠成",
           "managedKey": "L",
           "isOwnTeam": false,
-          "wins": 21,
+          "wins": 22,
           "draws": 2,
           "losses": 1,
-          "goalsFor": 90,
-          "goalsAgainst": 13,
-          "goalDifference": 77,
-          "points": 65
+          "goalsFor": 93,
+          "goalsAgainst": 14,
+          "goalDifference": 79,
+          "points": 68
         },
         {
           "rank": 3,
@@ -2856,13 +2856,13 @@
           "teamName": "エテコブラFC",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 21,
+          "wins": 22,
           "draws": 0,
           "losses": 3,
-          "goalsFor": 78,
+          "goalsFor": 80,
           "goalsAgainst": 10,
-          "goalDifference": 68,
-          "points": 63
+          "goalDifference": 70,
+          "points": 66
         },
         {
           "rank": 4,
@@ -2871,73 +2871,73 @@
           "teamName": "釜玉讃岐",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 18,
+          "wins": 19,
           "draws": 2,
           "losses": 4,
-          "goalsFor": 72,
+          "goalsFor": 76,
           "goalsAgainst": 14,
-          "goalDifference": 58,
-          "points": 56
+          "goalDifference": 62,
+          "points": 59
         },
         {
           "rank": 5,
-          "previousRank": 6,
-          "rankChange": 1,
+          "previousRank": 7,
+          "rankChange": 2,
+          "teamName": "暴走機関車",
+          "managedKey": "",
+          "isOwnTeam": false,
+          "wins": 15,
+          "draws": 3,
+          "losses": 7,
+          "goalsFor": 46,
+          "goalsAgainst": 32,
+          "goalDifference": 14,
+          "points": 48
+        },
+        {
+          "rank": 6,
+          "previousRank": 5,
+          "rankChange": -1,
           "teamName": "（株）東京EG",
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 14,
           "draws": 5,
-          "losses": 5,
-          "goalsFor": 61,
-          "goalsAgainst": 30,
-          "goalDifference": 31,
+          "losses": 6,
+          "goalsFor": 62,
+          "goalsAgainst": 33,
+          "goalDifference": 29,
           "points": 47
         },
         {
-          "rank": 6,
+          "rank": 7,
           "previousRank": 8,
-          "rankChange": 2,
+          "rankChange": 1,
+          "teamName": "ロクちゃん2356",
+          "managedKey": "",
+          "isOwnTeam": false,
+          "wins": 14,
+          "draws": 3,
+          "losses": 8,
+          "goalsFor": 47,
+          "goalsAgainst": 33,
+          "goalDifference": 14,
+          "points": 45
+        },
+        {
+          "rank": 8,
+          "previousRank": 6,
+          "rankChange": -2,
           "teamName": "みここう",
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 14,
           "draws": 3,
-          "losses": 7,
-          "goalsFor": 47,
-          "goalsAgainst": 31,
-          "goalDifference": 16,
-          "points": 45
-        },
-        {
-          "rank": 7,
-          "previousRank": 5,
-          "rankChange": -2,
-          "teamName": "暴走機関車",
-          "managedKey": "",
-          "isOwnTeam": false,
-          "wins": 14,
-          "draws": 3,
-          "losses": 7,
-          "goalsFor": 43,
-          "goalsAgainst": 31,
-          "goalDifference": 12,
-          "points": 45
-        },
-        {
-          "rank": 8,
-          "previousRank": 7,
-          "rankChange": -1,
-          "teamName": "ロクちゃん2356",
-          "managedKey": "",
-          "isOwnTeam": false,
-          "wins": 13,
-          "draws": 3,
           "losses": 8,
-          "goalsFor": 44,
+          "goalsFor": 47,
           "goalsAgainst": 33,
-          "goalDifference": 11,
-          "points": 42
+          "goalDifference": 14,
+          "points": 45
         },
         {
           "rank": 9,
@@ -2948,85 +2948,85 @@
           "isOwnTeam": false,
           "wins": 12,
           "draws": 0,
-          "losses": 12,
-          "goalsFor": 50,
-          "goalsAgainst": 59,
-          "goalDifference": -9,
+          "losses": 13,
+          "goalsFor": 51,
+          "goalsAgainst": 62,
+          "goalDifference": -11,
           "points": 36
         },
         {
           "rank": 10,
           "previousRank": 12,
           "rankChange": 2,
-          "teamName": "アルアラブくん",
+          "teamName": "アスミラン",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 5,
-          "draws": 3,
-          "losses": 16,
-          "goalsFor": 37,
-          "goalsAgainst": 77,
-          "goalDifference": -40,
-          "points": 18
+          "wins": 6,
+          "draws": 2,
+          "losses": 17,
+          "goalsFor": 22,
+          "goalsAgainst": 45,
+          "goalDifference": -23,
+          "points": 20
         },
         {
           "rank": 11,
           "previousRank": 10,
           "rankChange": -1,
+          "teamName": "アルアラブくん",
+          "managedKey": "",
+          "isOwnTeam": false,
+          "wins": 5,
+          "draws": 3,
+          "losses": 17,
+          "goalsFor": 37,
+          "goalsAgainst": 80,
+          "goalDifference": -43,
+          "points": 18
+        },
+        {
+          "rank": 12,
+          "previousRank": 13,
+          "rankChange": 1,
+          "teamName": "ヤッターマン",
+          "managedKey": "",
+          "isOwnTeam": false,
+          "wins": 5,
+          "draws": 3,
+          "losses": 17,
+          "goalsFor": 29,
+          "goalsAgainst": 72,
+          "goalDifference": -43,
+          "points": 18
+        },
+        {
+          "rank": 13,
+          "previousRank": 11,
+          "rankChange": -2,
           "teamName": "はたはたひ",
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 5,
           "draws": 3,
-          "losses": 16,
+          "losses": 17,
           "goalsFor": 21,
-          "goalsAgainst": 71,
-          "goalDifference": -50,
+          "goalsAgainst": 75,
+          "goalDifference": -54,
           "points": 18
         },
         {
-          "rank": 12,
-          "previousRank": 11,
-          "rankChange": -1,
-          "teamName": "アスミラン",
-          "managedKey": "",
-          "isOwnTeam": false,
-          "wins": 5,
-          "draws": 2,
-          "losses": 17,
-          "goalsFor": 19,
-          "goalsAgainst": 44,
-          "goalDifference": -25,
-          "points": 17
-        },
-        {
-          "rank": 13,
-          "previousRank": 14,
-          "rankChange": 1,
-          "teamName": "ヤッターマン",
-          "managedKey": "",
-          "isOwnTeam": false,
-          "wins": 4,
-          "draws": 3,
-          "losses": 17,
-          "goalsFor": 24,
-          "goalsAgainst": 71,
-          "goalDifference": -47,
-          "points": 15
-        },
-        {
           "rank": 14,
-          "previousRank": 13,
-          "rankChange": -1,
+          "previousRank": 14,
+          "rankChange": 0,
           "teamName": "あんぼち",
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 4,
           "draws": 2,
-          "losses": 18,
-          "goalsFor": 17,
-          "goalsAgainst": 66,
-          "goalDifference": -49,
+          "losses": 19,
+          "goalsFor": 18,
+          "goalsAgainst": 69,
+          "goalDifference": -51,
           "points": 14
         },
         {
@@ -3038,10 +3038,10 @@
           "isOwnTeam": false,
           "wins": 1,
           "draws": 5,
-          "losses": 18,
+          "losses": 19,
           "goalsFor": 16,
-          "goalsAgainst": 72,
-          "goalDifference": -56,
+          "goalsAgainst": 76,
+          "goalDifference": -60,
           "points": 8
         },
         {
@@ -3053,10 +3053,10 @@
           "isOwnTeam": false,
           "wins": 0,
           "draws": 0,
-          "losses": 24,
-          "goalsFor": 7,
-          "goalsAgainst": 98,
-          "goalDifference": -91,
+          "losses": 25,
+          "goalsFor": 8,
+          "goalsAgainst": 103,
+          "goalDifference": -95,
           "points": 0
         }
       ]
@@ -3070,7 +3070,7 @@
         "I",
         "N"
       ],
-      "targetMatchday": 24,
+      "targetMatchday": 25,
       "resultAdjusted": true,
       "rows": [
         {
@@ -3080,13 +3080,13 @@
           "teamName": "2階のドア裏のコロ",
           "managedKey": "N",
           "isOwnTeam": false,
-          "wins": 23,
+          "wins": 24,
           "draws": 0,
           "losses": 1,
-          "goalsFor": 91,
+          "goalsFor": 93,
           "goalsAgainst": 7,
-          "goalDifference": 84,
-          "points": 69
+          "goalDifference": 86,
+          "points": 72
         },
         {
           "rank": 2,
@@ -3095,43 +3095,43 @@
           "teamName": "イオFC",
           "managedKey": "I",
           "isOwnTeam": false,
-          "wins": 21,
+          "wins": 22,
           "draws": 0,
           "losses": 3,
-          "goalsFor": 82,
+          "goalsFor": 86,
           "goalsAgainst": 12,
-          "goalDifference": 70,
-          "points": 63
+          "goalDifference": 74,
+          "points": 66
         },
         {
           "rank": 3,
+          "previousRank": 4,
+          "rankChange": 1,
+          "teamName": "アパッチェ",
+          "managedKey": "",
+          "isOwnTeam": false,
+          "wins": 19,
+          "draws": 3,
+          "losses": 3,
+          "goalsFor": 75,
+          "goalsAgainst": 16,
+          "goalDifference": 59,
+          "points": 60
+        },
+        {
+          "rank": 4,
           "previousRank": 3,
-          "rankChange": 0,
+          "rankChange": -1,
           "teamName": "シン・夕張メロン熊",
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 19,
-          "draws": 1,
+          "draws": 2,
           "losses": 4,
-          "goalsFor": 65,
-          "goalsAgainst": 19,
+          "goalsFor": 68,
+          "goalsAgainst": 22,
           "goalDifference": 46,
-          "points": 58
-        },
-        {
-          "rank": 4,
-          "previousRank": 4,
-          "rankChange": 0,
-          "teamName": "アパッチェ",
-          "managedKey": "",
-          "isOwnTeam": false,
-          "wins": 18,
-          "draws": 3,
-          "losses": 3,
-          "goalsFor": 71,
-          "goalsAgainst": 16,
-          "goalDifference": 55,
-          "points": 57
+          "points": 59
         },
         {
           "rank": 5,
@@ -3141,12 +3141,12 @@
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 18,
-          "draws": 1,
+          "draws": 2,
           "losses": 5,
-          "goalsFor": 60,
-          "goalsAgainst": 21,
+          "goalsFor": 63,
+          "goalsAgainst": 24,
           "goalDifference": 39,
-          "points": 55
+          "points": 56
         },
         {
           "rank": 6,
@@ -3155,13 +3155,13 @@
           "teamName": "ぱんだ軍団",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 16,
+          "wins": 17,
           "draws": 3,
           "losses": 5,
-          "goalsFor": 60,
+          "goalsFor": 63,
           "goalsAgainst": 18,
-          "goalDifference": 42,
-          "points": 51
+          "goalDifference": 45,
+          "points": 54
         },
         {
           "rank": 7,
@@ -3172,10 +3172,10 @@
           "isOwnTeam": false,
           "wins": 14,
           "draws": 1,
-          "losses": 9,
+          "losses": 10,
           "goalsFor": 63,
-          "goalsAgainst": 27,
-          "goalDifference": 36,
+          "goalsAgainst": 29,
+          "goalDifference": 34,
           "points": 43
         },
         {
@@ -3185,43 +3185,43 @@
           "teamName": "バルセロナ",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 10,
+          "wins": 11,
           "draws": 3,
           "losses": 11,
-          "goalsFor": 41,
+          "goalsFor": 47,
           "goalsAgainst": 39,
-          "goalDifference": 2,
-          "points": 33
+          "goalDifference": 8,
+          "points": 36
         },
         {
           "rank": 9,
           "previousRank": 10,
           "rankChange": 1,
-          "teamName": "ほほほし",
+          "teamName": "ジョン・コシンスキー",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 10,
-          "draws": 2,
-          "losses": 12,
-          "goalsFor": 32,
-          "goalsAgainst": 43,
-          "goalDifference": -11,
-          "points": 32
+          "wins": 11,
+          "draws": 1,
+          "losses": 13,
+          "goalsFor": 52,
+          "goalsAgainst": 58,
+          "goalDifference": -6,
+          "points": 34
         },
         {
           "rank": 10,
           "previousRank": 9,
           "rankChange": -1,
-          "teamName": "ジョン・コシンスキー",
+          "teamName": "ほほほし",
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 10,
-          "draws": 1,
+          "draws": 2,
           "losses": 13,
-          "goalsFor": 47,
-          "goalsAgainst": 58,
-          "goalDifference": -11,
-          "points": 31
+          "goalsFor": 32,
+          "goalsAgainst": 47,
+          "goalDifference": -15,
+          "points": 32
         },
         {
           "rank": 11,
@@ -3232,40 +3232,40 @@
           "isOwnTeam": false,
           "wins": 9,
           "draws": 1,
-          "losses": 14,
+          "losses": 15,
           "goalsFor": 37,
-          "goalsAgainst": 58,
-          "goalDifference": -21,
+          "goalsAgainst": 62,
+          "goalDifference": -25,
           "points": 28
         },
         {
           "rank": 12,
+          "previousRank": 13,
+          "rankChange": 1,
+          "teamName": "あんぼち",
+          "managedKey": "",
+          "isOwnTeam": false,
+          "wins": 6,
+          "draws": 1,
+          "losses": 18,
+          "goalsFor": 16,
+          "goalsAgainst": 74,
+          "goalDifference": -58,
+          "points": 19
+        },
+        {
+          "rank": 13,
           "previousRank": 12,
-          "rankChange": 0,
+          "rankChange": -1,
           "teamName": "守田呼べ",
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 5,
           "draws": 1,
-          "losses": 18,
+          "losses": 19,
           "goalsFor": 26,
-          "goalsAgainst": 69,
-          "goalDifference": -43,
-          "points": 16
-        },
-        {
-          "rank": 13,
-          "previousRank": 13,
-          "rankChange": 0,
-          "teamName": "あんぼち",
-          "managedKey": "",
-          "isOwnTeam": false,
-          "wins": 5,
-          "draws": 1,
-          "losses": 18,
-          "goalsFor": 13,
           "goalsAgainst": 74,
-          "goalDifference": -61,
+          "goalDifference": -48,
           "points": 16
         },
         {
@@ -3277,10 +3277,10 @@
           "isOwnTeam": false,
           "wins": 2,
           "draws": 1,
-          "losses": 21,
+          "losses": 22,
           "goalsFor": 14,
-          "goalsAgainst": 72,
-          "goalDifference": -58,
+          "goalsAgainst": 75,
+          "goalDifference": -61,
           "points": 7
         },
         {
@@ -3292,10 +3292,10 @@
           "isOwnTeam": false,
           "wins": 2,
           "draws": 1,
-          "losses": 21,
+          "losses": 22,
           "goalsFor": 6,
-          "goalsAgainst": 79,
-          "goalDifference": -73,
+          "goalsAgainst": 82,
+          "goalDifference": -76,
           "points": 7
         },
         {
@@ -3307,10 +3307,10 @@
           "isOwnTeam": false,
           "wins": 0,
           "draws": 0,
-          "losses": 24,
+          "losses": 25,
           "goalsFor": 0,
-          "goalsAgainst": 96,
-          "goalDifference": -96,
+          "goalsAgainst": 102,
+          "goalDifference": -102,
           "points": 0
         }
       ]
@@ -3323,7 +3323,7 @@
       "managedKeys": [
         "A"
       ],
-      "targetMatchday": 24,
+      "targetMatchday": 25,
       "resultAdjusted": true,
       "rows": [
         {
@@ -3333,13 +3333,13 @@
           "teamName": "あつひろまじサンキュ",
           "managedKey": "A",
           "isOwnTeam": false,
-          "wins": 23,
+          "wins": 24,
           "draws": 1,
           "losses": 0,
-          "goalsFor": 106,
+          "goalsFor": 110,
           "goalsAgainst": 6,
-          "goalDifference": 100,
-          "points": 70
+          "goalDifference": 104,
+          "points": 73
         },
         {
           "rank": 2,
@@ -3348,13 +3348,13 @@
           "teamName": "Black St.",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 23,
+          "wins": 24,
           "draws": 1,
           "losses": 0,
-          "goalsFor": 95,
+          "goalsFor": 98,
           "goalsAgainst": 3,
-          "goalDifference": 92,
-          "points": 70
+          "goalDifference": 95,
+          "points": 73
         },
         {
           "rank": 3,
@@ -3363,13 +3363,13 @@
           "teamName": "タスクFC",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 20,
+          "wins": 21,
           "draws": 1,
           "losses": 3,
-          "goalsFor": 81,
+          "goalsFor": 83,
           "goalsAgainst": 16,
-          "goalDifference": 65,
-          "points": 61
+          "goalDifference": 67,
+          "points": 64
         },
         {
           "rank": 4,
@@ -3378,13 +3378,13 @@
           "teamName": "スヌーピー",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 19,
+          "wins": 20,
           "draws": 1,
           "losses": 4,
-          "goalsFor": 72,
+          "goalsFor": 76,
           "goalsAgainst": 16,
-          "goalDifference": 56,
-          "points": 58
+          "goalDifference": 60,
+          "points": 61
         },
         {
           "rank": 5,
@@ -3393,13 +3393,13 @@
           "teamName": "ききろっと",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 18,
+          "wins": 19,
           "draws": 0,
           "losses": 6,
-          "goalsFor": 77,
+          "goalsFor": 82,
           "goalsAgainst": 29,
-          "goalDifference": 48,
-          "points": 54
+          "goalDifference": 53,
+          "points": 57
         },
         {
           "rank": 6,
@@ -3408,43 +3408,43 @@
           "teamName": "3913",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 15,
+          "wins": 16,
           "draws": 0,
           "losses": 9,
-          "goalsFor": 46,
+          "goalsFor": 48,
           "goalsAgainst": 40,
-          "goalDifference": 6,
-          "points": 45
+          "goalDifference": 8,
+          "points": 48
         },
         {
           "rank": 7,
+          "previousRank": 8,
+          "rankChange": 1,
+          "teamName": "fxflf",
+          "managedKey": "",
+          "isOwnTeam": false,
+          "wins": 13,
+          "draws": 2,
+          "losses": 10,
+          "goalsFor": 35,
+          "goalsAgainst": 35,
+          "goalDifference": 0,
+          "points": 41
+        },
+        {
+          "rank": 8,
           "previousRank": 7,
-          "rankChange": 0,
+          "rankChange": -1,
           "teamName": "らやな",
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 13,
           "draws": 1,
-          "losses": 10,
+          "losses": 11,
           "goalsFor": 47,
-          "goalsAgainst": 42,
-          "goalDifference": 5,
+          "goalsAgainst": 44,
+          "goalDifference": 3,
           "points": 40
-        },
-        {
-          "rank": 8,
-          "previousRank": 8,
-          "rankChange": 0,
-          "teamName": "fxflf",
-          "managedKey": "",
-          "isOwnTeam": false,
-          "wins": 12,
-          "draws": 2,
-          "losses": 10,
-          "goalsFor": 34,
-          "goalsAgainst": 35,
-          "goalDifference": -1,
-          "points": 38
         },
         {
           "rank": 9,
@@ -3455,10 +3455,10 @@
           "isOwnTeam": false,
           "wins": 12,
           "draws": 0,
-          "losses": 12,
+          "losses": 13,
           "goalsFor": 35,
-          "goalsAgainst": 47,
-          "goalDifference": -12,
+          "goalsAgainst": 48,
+          "goalDifference": -13,
           "points": 36
         },
         {
@@ -3470,10 +3470,10 @@
           "isOwnTeam": false,
           "wins": 9,
           "draws": 0,
-          "losses": 15,
+          "losses": 16,
           "goalsFor": 31,
-          "goalsAgainst": 60,
-          "goalDifference": -29,
+          "goalsAgainst": 64,
+          "goalDifference": -33,
           "points": 27
         },
         {
@@ -3483,13 +3483,13 @@
           "teamName": "にとよ「よ",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 7,
+          "wins": 8,
           "draws": 1,
           "losses": 16,
-          "goalsFor": 23,
+          "goalsFor": 26,
           "goalsAgainst": 52,
-          "goalDifference": -29,
-          "points": 22
+          "goalDifference": -26,
+          "points": 25
         },
         {
           "rank": 12,
@@ -3500,10 +3500,10 @@
           "isOwnTeam": false,
           "wins": 5,
           "draws": 1,
-          "losses": 18,
+          "losses": 19,
           "goalsFor": 16,
-          "goalsAgainst": 65,
-          "goalDifference": -49,
+          "goalsAgainst": 69,
+          "goalDifference": -53,
           "points": 16
         },
         {
@@ -3515,10 +3515,10 @@
           "isOwnTeam": false,
           "wins": 5,
           "draws": 0,
-          "losses": 19,
+          "losses": 20,
           "goalsFor": 11,
-          "goalsAgainst": 65,
-          "goalDifference": -54,
+          "goalsAgainst": 70,
+          "goalDifference": -59,
           "points": 15
         },
         {
@@ -3530,10 +3530,10 @@
           "isOwnTeam": false,
           "wins": 3,
           "draws": 1,
-          "losses": 20,
+          "losses": 21,
           "goalsFor": 16,
-          "goalsAgainst": 71,
-          "goalDifference": -55,
+          "goalsAgainst": 74,
+          "goalDifference": -58,
           "points": 10
         },
         {
@@ -3545,10 +3545,10 @@
           "isOwnTeam": false,
           "wins": 2,
           "draws": 0,
-          "losses": 22,
+          "losses": 23,
           "goalsFor": 8,
-          "goalsAgainst": 77,
-          "goalDifference": -69,
+          "goalsAgainst": 79,
+          "goalDifference": -71,
           "points": 6
         },
         {
@@ -3560,10 +3560,10 @@
           "isOwnTeam": false,
           "wins": 1,
           "draws": 0,
-          "losses": 23,
+          "losses": 24,
           "goalsFor": 5,
-          "goalsAgainst": 79,
-          "goalDifference": -74,
+          "goalsAgainst": 82,
+          "goalDifference": -77,
           "points": 3
         }
       ]
@@ -3578,7 +3578,7 @@
         "P",
         "X"
       ],
-      "targetMatchday": 24,
+      "targetMatchday": 25,
       "resultAdjusted": true,
       "rows": [
         {
@@ -3588,13 +3588,13 @@
           "teamName": "ピッ！トゥトゥトゥ栄",
           "managedKey": "P",
           "isOwnTeam": false,
-          "wins": 23,
+          "wins": 24,
           "draws": 0,
           "losses": 1,
-          "goalsFor": 83,
+          "goalsFor": 86,
           "goalsAgainst": 14,
-          "goalDifference": 69,
-          "points": 69
+          "goalDifference": 72,
+          "points": 72
         },
         {
           "rank": 2,
@@ -3603,13 +3603,13 @@
           "teamName": "えなりかずり",
           "managedKey": "E",
           "isOwnTeam": false,
-          "wins": 19,
+          "wins": 20,
           "draws": 3,
           "losses": 2,
-          "goalsFor": 75,
+          "goalsFor": 77,
           "goalsAgainst": 17,
-          "goalDifference": 58,
-          "points": 60
+          "goalDifference": 60,
+          "points": 63
         },
         {
           "rank": 3,
@@ -3618,13 +3618,13 @@
           "teamName": "くさぁくんさぁ",
           "managedKey": "X",
           "isOwnTeam": false,
-          "wins": 19,
+          "wins": 20,
           "draws": 2,
           "losses": 3,
-          "goalsFor": 63,
+          "goalsFor": 65,
           "goalsAgainst": 17,
-          "goalDifference": 46,
-          "points": 59
+          "goalDifference": 48,
+          "points": 62
         },
         {
           "rank": 4,
@@ -3633,57 +3633,57 @@
           "teamName": "どんかご",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 17,
+          "wins": 18,
           "draws": 3,
           "losses": 4,
-          "goalsFor": 73,
+          "goalsFor": 78,
           "goalsAgainst": 29,
-          "goalDifference": 44,
-          "points": 54
+          "goalDifference": 49,
+          "points": 57
         },
         {
           "rank": 5,
+          "previousRank": 6,
+          "rankChange": 1,
+          "teamName": "サマー代表",
+          "managedKey": "",
+          "isOwnTeam": false,
+          "wins": 14,
+          "draws": 3,
+          "losses": 8,
+          "goalsFor": 61,
+          "goalsAgainst": 41,
+          "goalDifference": 20,
+          "points": 45
+        },
+        {
+          "rank": 6,
+          "previousRank": 7,
+          "rankChange": 1,
+          "teamName": "KSMタイタンズ",
+          "managedKey": "",
+          "isOwnTeam": false,
+          "wins": 14,
+          "draws": 3,
+          "losses": 8,
+          "goalsFor": 51,
+          "goalsAgainst": 36,
+          "goalDifference": 15,
+          "points": 45
+        },
+        {
+          "rank": 7,
           "previousRank": 5,
-          "rankChange": 0,
+          "rankChange": -2,
           "teamName": "サステナブルウォー",
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 12,
           "draws": 6,
-          "losses": 6,
+          "losses": 7,
           "goalsFor": 53,
-          "goalsAgainst": 29,
-          "goalDifference": 24,
-          "points": 42
-        },
-        {
-          "rank": 6,
-          "previousRank": 6,
-          "rankChange": 0,
-          "teamName": "サマー代表",
-          "managedKey": "",
-          "isOwnTeam": false,
-          "wins": 13,
-          "draws": 3,
-          "losses": 8,
-          "goalsFor": 57,
-          "goalsAgainst": 39,
-          "goalDifference": 18,
-          "points": 42
-        },
-        {
-          "rank": 7,
-          "previousRank": 7,
-          "rankChange": 0,
-          "teamName": "KSMタイタンズ",
-          "managedKey": "",
-          "isOwnTeam": false,
-          "wins": 13,
-          "draws": 3,
-          "losses": 8,
-          "goalsFor": 47,
-          "goalsAgainst": 36,
-          "goalDifference": 11,
+          "goalsAgainst": 31,
+          "goalDifference": 22,
           "points": 42
         },
         {
@@ -3694,12 +3694,12 @@
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 10,
-          "draws": 5,
+          "draws": 6,
           "losses": 9,
-          "goalsFor": 48,
-          "goalsAgainst": 53,
+          "goalsFor": 49,
+          "goalsAgainst": 54,
           "goalDifference": -5,
-          "points": 35
+          "points": 36
         },
         {
           "rank": 9,
@@ -3710,10 +3710,10 @@
           "isOwnTeam": false,
           "wins": 11,
           "draws": 1,
-          "losses": 12,
-          "goalsFor": 40,
-          "goalsAgainst": 46,
-          "goalDifference": -6,
+          "losses": 13,
+          "goalsFor": 42,
+          "goalsAgainst": 50,
+          "goalDifference": -8,
           "points": 34
         },
         {
@@ -3724,12 +3724,12 @@
           "managedKey": "",
           "isOwnTeam": false,
           "wins": 9,
-          "draws": 3,
+          "draws": 4,
           "losses": 12,
-          "goalsFor": 35,
-          "goalsAgainst": 41,
+          "goalsFor": 36,
+          "goalsAgainst": 42,
           "goalDifference": -6,
-          "points": 30
+          "points": 31
         },
         {
           "rank": 11,
@@ -3738,13 +3738,13 @@
           "teamName": "かなたあから",
           "managedKey": "",
           "isOwnTeam": false,
-          "wins": 8,
+          "wins": 9,
           "draws": 4,
           "losses": 12,
-          "goalsFor": 19,
+          "goalsFor": 21,
           "goalsAgainst": 37,
-          "goalDifference": -18,
-          "points": 28
+          "goalDifference": -16,
+          "points": 31
         },
         {
           "rank": 12,
@@ -3755,10 +3755,10 @@
           "isOwnTeam": false,
           "wins": 7,
           "draws": 4,
-          "losses": 13,
+          "losses": 14,
           "goalsFor": 43,
-          "goalsAgainst": 54,
-          "goalDifference": -11,
+          "goalsAgainst": 56,
+          "goalDifference": -13,
           "points": 25
         },
         {
@@ -3770,10 +3770,10 @@
           "isOwnTeam": false,
           "wins": 5,
           "draws": 3,
-          "losses": 16,
+          "losses": 17,
           "goalsFor": 21,
-          "goalsAgainst": 57,
-          "goalDifference": -36,
+          "goalsAgainst": 60,
+          "goalDifference": -39,
           "points": 18
         },
         {
@@ -3785,10 +3785,10 @@
           "isOwnTeam": false,
           "wins": 4,
           "draws": 1,
-          "losses": 19,
+          "losses": 20,
           "goalsFor": 17,
-          "goalsAgainst": 51,
-          "goalDifference": -34,
+          "goalsAgainst": 55,
+          "goalDifference": -38,
           "points": 13
         },
         {
@@ -3800,10 +3800,10 @@
           "isOwnTeam": false,
           "wins": 1,
           "draws": 1,
-          "losses": 22,
+          "losses": 23,
           "goalsFor": 5,
-          "goalsAgainst": 76,
-          "goalDifference": -71,
+          "goalsAgainst": 81,
+          "goalDifference": -76,
           "points": 4
         },
         {
@@ -3815,10 +3815,10 @@
           "isOwnTeam": false,
           "wins": 0,
           "draws": 0,
-          "losses": 24,
+          "losses": 25,
           "goalsFor": 2,
-          "goalsAgainst": 85,
-          "goalDifference": -83,
+          "goalsAgainst": 87,
+          "goalDifference": -85,
           "points": 0
         }
       ]
