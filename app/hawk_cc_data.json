@@ -1,12 +1,12 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-12T01:30:56+09:00",
-  "publishedAt": "2026-09-12T01:30:56+09:00",
+  "generatedAt": "2026-09-13T01:31:03+09:00",
+  "publishedAt": "2026-09-13T01:31:27+09:00",
   "latestSeason": 2642,
   "seasonCount": 8,
   "seasons": [
     {
-      "generatedAt": "2026-09-12T01:30:56+09:00",
+      "generatedAt": "2026-09-13T01:31:03+09:00",
       "source": {
         "worldId": 20,
         "worldName": "ホーク",
@@ -24,8 +24,8 @@
         "tournamentRoundCount": 4,
         "tournamentMatchCount": 15,
         "allMatchCount": 63,
-        "completedMatchCount": 62,
-        "scheduledMatchCount": 1,
+        "completedMatchCount": 63,
+        "scheduledMatchCount": 0,
         "managedTeamCount": 24
       },
       "groups": [
@@ -2460,8 +2460,11 @@
               "matchday": 7,
               "matchNumber": 1,
               "kickoff": "2026-09-13 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                1,
+                2
+              ],
               "home": {
                 "name": "はしばっちUTD",
                 "leagueName": "マレイン",
