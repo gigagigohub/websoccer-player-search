@@ -93,7 +93,7 @@ function renderMeta() {
   if (!payload || !els.metaText) return;
   const source = payload.source || {};
   els.metaText.innerHTML = [
-    `<span class="meta-line">Inventory: ${escapeHtml(formatJst(payload.generatedAt))}</span>`,
+    `<span class="meta-line">Inventory: ${escapeHtml(formatJst(source.syncedAt || payload.generatedAt))}</span>`,
     `<span class="meta-line">Game S${escapeHtml(source.gameSeason)}</span>`,
   ].join("");
 }
@@ -416,7 +416,7 @@ async function init() {
   updateMenuState();
   bindEvents();
   try {
-    const response = await fetch("./ax_external_stock_data.json?v=20261005-player-inventory-v26", { cache: "no-store" });
+    const response = await fetch("./ax_external_stock_data.json?v=20261011-daily-inventory-v27", { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     payload = await response.json();
     stocks = Array.isArray(payload.stocks) ? payload.stocks : [];
