@@ -1,6 +1,6 @@
 {
   "source": "master-db",
-  "generatedAt": "2026-10-18T02:08:21+09:00",
+  "generatedAt": "2026-10-19T10:00:20+09:00",
   "metrics": [
     "スピ",
     "テク",
@@ -1026868,6 +1026868,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 6
+        },
+        {
           "eventId": 184,
           "name": "Bayern",
           "start": "2025-04-02 22:00:00",
@@ -1027929,6 +1027938,15 @@
       "modelPlayerSourceMethod": "name_exact",
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 7
+        },
         {
           "eventId": 184,
           "name": "Bayern",
@@ -1029919,6 +1029937,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 8
+        },
+        {
           "eventId": 184,
           "name": "Bayern",
           "start": "2025-04-02 22:00:00",
@@ -1030998,6 +1031025,15 @@
       "modelPlayerSourceMethod": "name_exact",
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 9
+        },
         {
           "eventId": 184,
           "name": "Bayern",
@@ -1034995,6 +1035031,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 10
+        },
+        {
           "eventId": 184,
           "name": "Bayern",
           "start": "2025-04-02 22:00:00",
@@ -1036083,6 +1036128,15 @@
       "modelPlayerSourceMethod": "name_exact",
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 11
+        },
         {
           "eventId": 184,
           "name": "Bayern",
@@ -1037181,6 +1037235,15 @@
       "modelPlayerSourceMethod": "manual_conflict_finalized_from_rohm",
       "modelPlayerSourceNote": "finalized conflict set 14",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 21
+        },
         {
           "eventId": 184,
           "name": "Bayern",
@@ -1039333,6 +1039396,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 22
+        },
+        {
           "eventId": 201,
           "name": "Der Klassiker",
           "start": "2026-03-25 22:00:00",
@@ -1040403,6 +1040475,15 @@
       "modelPlayerSourceMethod": "name_exact",
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 23
+        },
         {
           "eventId": 190,
           "name": "world club",
@@ -1042563,6 +1042644,15 @@
       "modelPlayerSourceMethod": "manual_remaining23_web_review_v1",
       "modelPlayerSourceNote": "apply_remaining_23_from_web_review",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 24
+        },
         {
           "eventId": 184,
           "name": "Bayern",
@@ -1045713,6 +1045803,15 @@
       "modelPlayerSourceMethod": "name_exact",
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 25
+        },
         {
           "eventId": 201,
           "name": "Der Klassiker",
@@ -1050860,6 +1050959,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 13
+        },
+        {
           "eventId": 184,
           "name": "Bayern",
           "start": "2025-04-02 22:00:00",
@@ -1051966,6 +1052074,15 @@
       "modelPlayerSourceMethod": "name_exact",
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 14
+        },
         {
           "eventId": 201,
           "name": "Der Klassiker",
@@ -1053100,6 +1053217,15 @@
       "modelPlayerSourceMethod": "name_exact",
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 16
+        },
         {
           "eventId": 198,
           "name": "Uma",
@@ -1055153,6 +1055279,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 17
+        },
+        {
           "eventId": 192,
           "name": "Canary",
           "start": "2025-09-17 22:00:00",
@@ -1056268,6 +1056403,15 @@
       "modelPlayerSourceMethod": "name_exact",
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 18
+        },
         {
           "eventId": 184,
           "name": "Bayern",
@@ -1285479,6 +1285623,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 5
+        },
+        {
           "eventId": 184,
           "name": "Bayern",
           "start": "2025-04-02 22:00:00",
@@ -1286504,6 +1286657,15 @@
       "modelPlayerSourceMethod": "manual_half_space_auto_v3",
       "modelPlayerSourceNote": "auto_fix_contains_half_space_rule",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 15
+        },
         {
           "eventId": 184,
           "name": "Bayern",
@@ -1287584,6 +1287746,15 @@
       "modelPlayerSourceMethod": "manual_half_space_auto_v3",
       "modelPlayerSourceNote": "auto_fix_contains_half_space_rule",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 12
+        },
         {
           "eventId": 184,
           "name": "Bayern",
@@ -1470474,6 +1470645,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 19
+        },
+        {
           "eventId": 184,
           "name": "Bayern",
           "start": "2025-04-02 22:00:00",
@@ -1471463,6 +1471643,15 @@
       "modelPlayerSourceMethod": "name_exact",
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 20
+        },
         {
           "eventId": 184,
           "name": "Bayern",
@@ -1657908,6 +1658097,15 @@
       "modelPlayerSourceMethod": "manual_half_space_review_v3",
       "modelPlayerSourceNote": "review_fix_contains_half_space_rule",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 26
+        },
         {
           "eventId": 184,
           "name": "Bayern",
@@ -1969265,6 +1969463,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 27
+        },
+        {
           "eventId": 184,
           "name": "Bayern",
           "start": "2025-04-02 22:00:00",
@@ -2072920,7 +2073127,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 34
         },
         {
@@ -2074972,7 +2075179,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 35
         },
         {
@@ -2114456,6 +2114663,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 28
+        },
+        {
           "eventId": 184,
           "name": "Bayern",
           "start": "2025-04-02 22:00:00",
@@ -2124182,7 +2124398,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 44
         },
         {
@@ -2200079,7 +2200295,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 36
         },
         {
@@ -2239629,6 +2239845,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 29
+        },
+        {
           "eventId": 201,
           "name": "Der Klassiker",
           "start": "2026-03-25 22:00:00",
@@ -2240628,6 +2240853,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 30
+        },
+        {
           "eventId": 184,
           "name": "Bayern",
           "start": "2025-04-02 22:00:00",
@@ -2241609,6 +2241843,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 31
+        },
+        {
           "eventId": 184,
           "name": "Bayern",
           "start": "2025-04-02 22:00:00",
@@ -2242580,6 +2242823,15 @@
       "modelPlayerSourceMethod": "name_exact",
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 32
+        },
         {
           "eventId": 184,
           "name": "Bayern",
@@ -2243580,6 +2243832,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 33
+        },
+        {
           "eventId": 184,
           "name": "Bayern",
           "start": "2025-04-02 22:00:00",
@@ -2244578,6 +2244839,15 @@
       "modelPlayerSourceMethod": "name_exact",
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 34
+        },
         {
           "eventId": 201,
           "name": "Der Klassiker",
@@ -2245631,6 +2245901,15 @@
       "modelPlayerSourceMethod": "name_exact",
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 35
+        },
         {
           "eventId": 201,
           "name": "Der Klassiker",
@@ -2269903,6 +2270182,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 1
+        },
+        {
           "eventId": 184,
           "name": "Bayern",
           "start": "2025-04-02 22:00:00",
@@ -2270910,6 +2271198,15 @@
       "modelPlayerSourceMethod": "manual_half_space_auto_v3",
       "modelPlayerSourceNote": "auto_fix_contains_half_space_rule",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 2
+        },
         {
           "eventId": 194,
           "name": "golden award",
@@ -2279643,6 +2279940,15 @@
       "modelPlayerSourceMethod": "name_exact",
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 36
+        },
         {
           "eventId": 201,
           "name": "Der Klassiker",
@@ -2312447,7 +2312753,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 26
         },
         {
@@ -2320140,6 +2320446,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 3
+        },
+        {
           "eventId": 194,
           "name": "golden award",
           "start": "2025-10-29 22:00:00",
@@ -2321156,6 +2321471,15 @@
       "modelPlayerSourceMethod": "name_exact",
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 4
+        },
         {
           "eventId": 197,
           "name": "Legend",
@@ -2334782,7 +2335106,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 27
         },
         {
@@ -2422640,6 +2422964,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 37
+        },
+        {
           "eventId": 201,
           "name": "Der Klassiker",
           "start": "2026-03-25 22:00:00",
@@ -2450531,6 +2450864,15 @@
       "modelPlayerSourceNote": "auto_fix_contains_half_space_rule",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 38
+        },
+        {
           "eventId": 201,
           "name": "Der Klassiker",
           "start": "2026-03-25 22:00:00",
@@ -2452483,6 +2452825,15 @@
       "modelPlayerSourceMethod": "manual_user_confirmed",
       "modelPlayerSourceNote": "ユーザー確定（選手名+webサカ検索）",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 39
+        },
         {
           "eventId": 201,
           "name": "Der Klassiker",
@@ -2559331,7 +2559682,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 21
         },
         {
@@ -2672482,6 +2672833,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 41
+        },
+        {
           "eventId": 201,
           "name": "Der Klassiker",
           "start": "2026-03-25 22:00:00",
@@ -2683850,6 +2684210,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 42
+        },
+        {
           "eventId": 198,
           "name": "Uma",
           "start": "2026-01-21 22:00:00",
@@ -2685826,7 +2686195,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 45
         },
         {
@@ -2720218,7 +2720587,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 46
         },
         {
@@ -2730845,6 +2731214,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 43
+        },
+        {
           "eventId": 201,
           "name": "Der Klassiker",
           "start": "2026-03-25 22:00:00",
@@ -2735569,7 +2735947,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 28
         },
         {
@@ -2743255,7 +2743633,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 47
         },
         {
@@ -2744218,7 +2744596,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 48
         },
         {
@@ -2760496,6 +2760874,15 @@
       "modelPlayerSourceMethod": "manual_name_unify_target",
       "modelPlayerSourceNote": "user-specified canonical model for ランドフスキ",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 40
+        },
         {
           "eventId": 201,
           "name": "Der Klassiker",
@@ -2777629,7 +2778016,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 1
         },
         {
@@ -2893709,7 +2894096,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 2
         },
         {
@@ -2894681,7 +2895068,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 14
         },
         {
@@ -2896589,7 +2896976,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 19
         },
         {
@@ -2900441,7 +2900828,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 12
         },
         {
@@ -2927009,7 +2927396,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 3
         },
         {
@@ -2941226,7 +2941613,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 18
         },
         {
@@ -2942189,7 +2942576,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 4
         },
         {
@@ -2943161,7 +2943548,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 23
         },
         {
@@ -2948852,7 +2949239,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 37
         },
         {
@@ -2949824,7 +2950211,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 38
         },
         {
@@ -2955501,6 +2955888,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 44
+        },
+        {
           "eventId": 184,
           "name": "Bayern",
           "start": "2025-04-02 22:00:00",
@@ -2958390,6 +2958786,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list; model_name normalized to exported display value",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 45
+        },
+        {
           "eventId": 184,
           "name": "Bayern",
           "start": "2025-04-02 22:00:00",
@@ -2959334,6 +2959739,15 @@
       "modelPlayerSourceMethod": "name_exact",
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 46
+        },
         {
           "eventId": 201,
           "name": "Der Klassiker",
@@ -2986986,7 +2987400,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 49
         },
         {
@@ -2991750,6 +2992164,15 @@
       "modelPlayerSourceMethod": "manual_user_correction",
       "modelPlayerSourceNote": "corrected by user: 1270 キーン model is ハリー・ケイン; previous マーカス・ラッシュフォード was wrong",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 47
+        },
         {
           "eventId": 201,
           "name": "Der Klassiker",
@@ -3016368,7 +3016791,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 5
         },
         {
@@ -3017358,7 +3017781,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 6
         },
         {
@@ -3019275,7 +3019698,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 7
         },
         {
@@ -3020256,7 +3020679,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 8
         },
         {
@@ -3060888,7 +3061311,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 29
         },
         {
@@ -3071253,7 +3071676,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 39
         },
         {
@@ -3072207,7 +3072630,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 40
         },
         {
@@ -3073170,7 +3073593,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 41
         },
         {
@@ -3074133,7 +3074556,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 42
         },
         {
@@ -3075087,7 +3075510,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 30
         },
         {
@@ -3076041,7 +3076464,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 31
         },
         {
@@ -3076995,7 +3077418,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 32
         },
         {
@@ -3077944,6 +3078367,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 48
+        },
+        {
           "eventId": 201,
           "name": "Der Klassiker",
           "start": "2026-03-25 22:00:00",
@@ -3078888,6 +3079320,15 @@
       "modelPlayerSourceMethod": "manual_user_confirmed_by_name",
       "modelPlayerSourceNote": "migrated_from_manual_player_model_name; final_fill_2026-03-31",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 49
+        },
         {
           "eventId": 201,
           "name": "Der Klassiker",
@@ -3079834,6 +3080275,15 @@
       "modelPlayerSourceNote": "manual_import_from_rohm_normal_list",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 50
+        },
+        {
           "eventId": 201,
           "name": "Der Klassiker",
           "start": "2026-03-25 22:00:00",
@@ -3080779,6 +3081229,15 @@
       "modelPlayerSourceNote": "migrated_from_manual_player_model_name; user_confirmed_from_candidate_2026-03-31",
       "scoutHistory": [
         {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 51
+        },
+        {
           "eventId": 201,
           "name": "Der Klassiker",
           "start": "2026-03-25 22:00:00",
@@ -3081723,6 +3082182,15 @@
       "modelPlayerSourceMethod": "manual_user_confirmed_by_name",
       "modelPlayerSourceNote": "migrated_from_manual_player_model_name; user_confirmed_from_candidate_2026-03-31",
       "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 52
+        },
         {
           "eventId": 201,
           "name": "Der Klassiker",
@@ -3095894,7 +3096362,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 50
         },
         {
@@ -3102554,7 +3103022,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 9
         },
         {
@@ -3104453,7 +3104921,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 10
         },
         {
@@ -3203564,7 +3204032,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 11
         }
       ]
@@ -3204509,7 +3204977,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 13
         }
       ]
@@ -3205454,7 +3205922,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 15
         }
       ]
@@ -3206399,7 +3206867,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 16
         }
       ]
@@ -3207344,7 +3207812,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 17
         }
       ]
@@ -3208289,7 +3208757,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 20
         }
       ]
@@ -3209234,7 +3209702,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 22
         }
       ]
@@ -3210179,7 +3210647,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 24
         }
       ]
@@ -3211124,7 +3211592,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 25
         }
       ]
@@ -3212069,7 +3212537,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 33
         }
       ]
@@ -3213014,7 +3213482,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 43
         }
       ]
@@ -3213959,7 +3214427,7 @@
           "start": "2026-09-30 22:00:00",
           "end": "2026-10-21 19:00:00",
           "type": 50,
-          "version": 335,
+          "version": 338,
           "order": 51
         }
       ]
@@ -3217197,13 +3217665,15 @@
       "bestTotal": 27,
       "flags": {
         "CM": false,
-        "SS": false
+        "SS": true
       },
       "position": "GK",
-      "category": "",
-      "categoryMembership": [],
-      "categoryPending": true,
-      "imagePending": true,
+      "category": "SS",
+      "categoryMembership": [
+        "SS"
+      ],
+      "categoryPending": false,
+      "imagePending": false,
       "retired": false,
       "retiredReason": "",
       "rate": 7,
@@ -3217696,7 +3218166,18 @@
       "modelPlayer": "マヌエル・ノイアー",
       "modelPlayerManual": true,
       "modelPlayerSourceMethod": "manual_half_space_review_v3",
-      "modelPlayerSourceNote": "review_fix_contains_half_space_rule"
+      "modelPlayerSourceNote": "review_fix_contains_half_space_rule",
+      "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 53
+        }
+      ]
     },
     {
       "id": 3331,
@@ -3218129,13 +3218610,15 @@
       "bestTotal": 27,
       "flags": {
         "CM": false,
-        "SS": false
+        "SS": true
       },
       "position": "MF",
-      "category": "",
-      "categoryMembership": [],
-      "categoryPending": true,
-      "imagePending": true,
+      "category": "SS",
+      "categoryMembership": [
+        "SS"
+      ],
+      "categoryPending": false,
+      "imagePending": false,
       "retired": false,
       "retiredReason": "",
       "rate": 7,
@@ -3218628,17 +3219111,97 @@
       "modelPlayer": "イスマエル・サイバリ",
       "modelPlayerManual": true,
       "modelPlayerSourceMethod": "manual_profile_inference_high_confidence",
-      "modelPlayerSourceNote": "2026-09-14 user-authorized inference, not official game confirmation. イルハーム・サリバウィ: Morocco attacking MF, 185cm/83kg, born in Spain to Moroccan parents, powerful forward runs and goalscoring. Ismael Saibari: Bundesliga official profile matches 185cm/83kg; PSV official confirms Moroccan midfielder born in Spain to Moroccan parents and describes powerful midfield play. Name and detailed biography strongly align. Additional sources: https://www.psv.nl/en/media/article/ismael-saibari-strengthens-young-psv ; https://www.psv.nl/en/teams/player/ismael-saibari"
+      "modelPlayerSourceNote": "2026-09-14 user-authorized inference, not official game confirmation. イルハーム・サリバウィ: Morocco attacking MF, 185cm/83kg, born in Spain to Moroccan parents, powerful forward runs and goalscoring. Ismael Saibari: Bundesliga official profile matches 185cm/83kg; PSV official confirms Moroccan midfielder born in Spain to Moroccan parents and describes powerful midfield play. Name and detailed biography strongly align. Additional sources: https://www.psv.nl/en/media/article/ismael-saibari-strengthens-young-psv ; https://www.psv.nl/en/teams/player/ismael-saibari",
+      "scoutHistory": [
+        {
+          "eventId": 211,
+          "name": "",
+          "start": "2026-10-21 22:00:00",
+          "end": "2026-11-11 19:00:00",
+          "type": 50,
+          "version": 338,
+          "order": 54
+        }
+      ]
     }
   ],
   "scouts": [
+    {
+      "eventId": 211,
+      "name": "",
+      "start": "2026-10-21 22:00:00",
+      "end": "2026-11-11 19:00:00",
+      "type": 50,
+      "version": 338,
+      "notes": "※4枠全てにスカウト選手がリストアップされます。\n※ポジションの指定はできません。\n※こちらのスカウト選手は1期目の能力が3～5期持続します。\n※詳細は、お知らせをご参照下さい。",
+      "nameRaw": "",
+      "nameSource": "updatefile",
+      "playerCount": 54,
+      "playerIds": [
+        2336,
+        2337,
+        2388,
+        2389,
+        1323,
+        1071,
+        1072,
+        1074,
+        1075,
+        1079,
+        1080,
+        1325,
+        1094,
+        1095,
+        1324,
+        1096,
+        1098,
+        1099,
+        1513,
+        1514,
+        1081,
+        1083,
+        1084,
+        1086,
+        1089,
+        1706,
+        2027,
+        2176,
+        2305,
+        2306,
+        2307,
+        2308,
+        2309,
+        2310,
+        2311,
+        2346,
+        2495,
+        2524,
+        2526,
+        2848,
+        2756,
+        2768,
+        2817,
+        3053,
+        3056,
+        3057,
+        3091,
+        3182,
+        3183,
+        3184,
+        3185,
+        3186,
+        3330,
+        3331
+      ],
+      "shopButtonImage": "./images/Shop/btn/ss_btn_211.png"
+    },
     {
       "eventId": 210,
       "name": "England League",
       "start": "2026-09-30 22:00:00",
       "end": "2026-10-21 19:00:00",
       "type": 50,
-      "version": 335,
+      "version": 338,
       "notes": "※4枠全てにスカウト選手がリストアップされます。\n※ポジションの指定はできません。\n※こちらのスカウト選手は1期目の能力が3～5期持続します。\n※詳細は、お知らせをご参照下さい。",
       "nameRaw": "イングランドリーグスカウト",
       "nameSource": "manual_from_shop_button",
