@@ -1,12 +1,12 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-21T01:30:52+09:00",
-  "publishedAt": "2026-10-21T01:30:52+09:00",
+  "generatedAt": "2026-10-22T01:31:05+09:00",
+  "publishedAt": "2026-10-22T01:31:05+09:00",
   "latestSeason": 2648,
   "seasonCount": 14,
   "seasons": [
     {
-      "generatedAt": "2026-10-21T01:30:52+09:00",
+      "generatedAt": "2026-10-22T01:31:05+09:00",
       "source": {
         "worldId": 20,
         "worldName": "ホーク",
@@ -21,11 +21,11 @@
         "groupCount": 8,
         "standingRowCount": 32,
         "groupMatchCount": 48,
-        "tournamentRoundCount": 1,
-        "tournamentMatchCount": 8,
-        "allMatchCount": 56,
-        "completedMatchCount": 48,
-        "scheduledMatchCount": 8,
+        "tournamentRoundCount": 2,
+        "tournamentMatchCount": 12,
+        "allMatchCount": 60,
+        "completedMatchCount": 56,
+        "scheduledMatchCount": 4,
         "managedTeamCount": 24
       },
       "groups": [
@@ -2036,8 +2036,11 @@
               "matchday": 4,
               "matchNumber": 1,
               "kickoff": "2026-10-22 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                1,
+                3
+              ],
               "home": {
                 "name": "2階のドア裏のコロ",
                 "leagueName": "スカビオサ",
@@ -2062,8 +2065,11 @@
               "matchday": 4,
               "matchNumber": 2,
               "kickoff": "2026-10-22 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                5,
+                0
+              ],
               "home": {
                 "name": "はしばっちUTD",
                 "leagueName": "マレイン",
@@ -2088,8 +2094,11 @@
               "matchday": 4,
               "matchNumber": 3,
               "kickoff": "2026-10-22 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                5,
+                1
+              ],
               "home": {
                 "name": "うしくんFC",
                 "leagueName": "ガザニア",
@@ -2114,8 +2123,11 @@
               "matchday": 4,
               "matchNumber": 4,
               "kickoff": "2026-10-22 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                2,
+                2
+              ],
               "home": {
                 "name": "ふくひで手掴みFC",
                 "leagueName": "ダスティーミラー",
@@ -2140,8 +2152,11 @@
               "matchday": 4,
               "matchNumber": 5,
               "kickoff": "2026-10-22 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                4,
+                0
+              ],
               "home": {
                 "name": "イタリアンサンドF",
                 "leagueName": "フレッティー",
@@ -2166,8 +2181,11 @@
               "matchday": 4,
               "matchNumber": 6,
               "kickoff": "2026-10-22 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                1,
+                3
+              ],
               "home": {
                 "name": "あつひろまじサンキュ",
                 "leagueName": "ヘンルーダ",
@@ -2192,8 +2210,11 @@
               "matchday": 4,
               "matchNumber": 7,
               "kickoff": "2026-10-22 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                0,
+                2
+              ],
               "home": {
                 "name": "金田一んげ剛毛くん",
                 "leagueName": "ランベル",
@@ -2218,13 +2239,126 @@
               "matchday": 4,
               "matchNumber": 8,
               "kickoff": "2026-10-22 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                0,
+                0
+              ],
               "home": {
                 "name": "鬼嫁の祟り棒読糞坊主",
                 "leagueName": "ブーゲンビリア",
                 "leagueClass": "A",
                 "managedKey": "O",
+                "isOwnTeam": false
+              },
+              "away": {
+                "name": "ジャイアンズ監督",
+                "leagueName": "カランコエ",
+                "leagueClass": "A",
+                "managedKey": "G",
+                "isOwnTeam": false
+              }
+            }
+          ]
+        },
+        {
+          "roundPathIndex": 2,
+          "label": "Quarterfinals",
+          "matches": [
+            {
+              "matchId": "33820801",
+              "stage": "tournament",
+              "group": "0",
+              "roundPathIndex": 2,
+              "roundLabel": "Quarterfinals",
+              "matchday": 5,
+              "matchNumber": 1,
+              "kickoff": "2026-10-23 01:00:00",
+              "completed": false,
+              "score": null,
+              "home": {
+                "name": "TOYOTA",
+                "leagueName": "ポインセチア",
+                "leagueClass": "A",
+                "managedKey": "",
+                "isOwnTeam": false
+              },
+              "away": {
+                "name": "はしばっちUTD",
+                "leagueName": "マレイン",
+                "leagueClass": "A",
+                "managedKey": "",
+                "isOwnTeam": true
+              }
+            },
+            {
+              "matchId": "33820901",
+              "stage": "tournament",
+              "group": "0",
+              "roundPathIndex": 2,
+              "roundLabel": "Quarterfinals",
+              "matchday": 5,
+              "matchNumber": 2,
+              "kickoff": "2026-10-23 01:00:00",
+              "completed": false,
+              "score": null,
+              "home": {
+                "name": "うしくんFC",
+                "leagueName": "ガザニア",
+                "leagueClass": "A",
+                "managedKey": "U",
+                "isOwnTeam": false
+              },
+              "away": {
+                "name": "すかしっぺヘイパ",
+                "leagueName": "ランベル",
+                "leagueClass": "A",
+                "managedKey": "S",
+                "isOwnTeam": false
+              }
+            },
+            {
+              "matchId": "33821001",
+              "stage": "tournament",
+              "group": "0",
+              "roundPathIndex": 2,
+              "roundLabel": "Quarterfinals",
+              "matchday": 5,
+              "matchNumber": 3,
+              "kickoff": "2026-10-23 01:00:00",
+              "completed": false,
+              "score": null,
+              "home": {
+                "name": "イタリアンサンドF",
+                "leagueName": "フレッティー",
+                "leagueClass": "A",
+                "managedKey": "",
+                "isOwnTeam": true
+              },
+              "away": {
+                "name": "ベガルタシンキチU5",
+                "leagueName": "フレッティー",
+                "leagueClass": "A",
+                "managedKey": "B",
+                "isOwnTeam": false
+              }
+            },
+            {
+              "matchId": "33821101",
+              "stage": "tournament",
+              "group": "0",
+              "roundPathIndex": 2,
+              "roundLabel": "Quarterfinals",
+              "matchday": 5,
+              "matchNumber": 4,
+              "kickoff": "2026-10-23 01:00:00",
+              "completed": false,
+              "score": null,
+              "home": {
+                "name": "ピッ！トゥトゥトゥ栄",
+                "leagueName": "シラー",
+                "leagueClass": "A",
+                "managedKey": "P",
                 "isOwnTeam": false
               },
               "away": {
