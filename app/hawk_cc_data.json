@@ -1,12 +1,12 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-30T01:30:57+09:00",
-  "publishedAt": "2026-10-30T01:30:58+09:00",
+  "generatedAt": "2026-10-31T01:30:54+09:00",
+  "publishedAt": "2026-10-31T01:30:55+09:00",
   "latestSeason": 2649,
   "seasonCount": 15,
   "seasons": [
     {
-      "generatedAt": "2026-10-30T01:30:57+09:00",
+      "generatedAt": "2026-10-31T01:30:54+09:00",
       "source": {
         "worldId": 20,
         "worldName": "ホーク",
@@ -21,11 +21,11 @@
         "groupCount": 8,
         "standingRowCount": 32,
         "groupMatchCount": 48,
-        "tournamentRoundCount": 3,
-        "tournamentMatchCount": 14,
-        "allMatchCount": 62,
-        "completedMatchCount": 60,
-        "scheduledMatchCount": 2,
+        "tournamentRoundCount": 4,
+        "tournamentMatchCount": 15,
+        "allMatchCount": 63,
+        "completedMatchCount": 62,
+        "scheduledMatchCount": 1,
         "managedTeamCount": 24
       },
       "groups": [
@@ -2396,8 +2396,11 @@
               "matchday": 6,
               "matchNumber": 1,
               "kickoff": "2026-10-31 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                1,
+                2
+              ],
               "home": {
                 "name": "イタリアンサンドF",
                 "leagueName": "フレッティー",
@@ -2422,13 +2425,48 @@
               "matchday": 6,
               "matchNumber": 2,
               "kickoff": "2026-10-31 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                2,
+                4
+              ],
               "home": {
                 "name": "立松ブラウン",
                 "leagueName": "デュランタ",
                 "leagueClass": "A",
                 "managedKey": "T",
+                "isOwnTeam": false
+              },
+              "away": {
+                "name": "2階のドア裏のコロ",
+                "leagueName": "スカビオサ",
+                "leagueClass": "A",
+                "managedKey": "N",
+                "isOwnTeam": false
+              }
+            }
+          ]
+        },
+        {
+          "roundPathIndex": 4,
+          "label": "Final",
+          "matches": [
+            {
+              "matchId": "33961501",
+              "stage": "tournament",
+              "group": "0",
+              "roundPathIndex": 4,
+              "roundLabel": "Final",
+              "matchday": 7,
+              "matchNumber": 1,
+              "kickoff": "2026-11-01 01:00:00",
+              "completed": false,
+              "score": null,
+              "home": {
+                "name": "ー本糞SP",
+                "leagueName": "デュランタ",
+                "leagueClass": "A",
+                "managedKey": "",
                 "isOwnTeam": false
               },
               "away": {
