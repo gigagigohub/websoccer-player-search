@@ -1,12 +1,12 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-31T01:30:54+09:00",
-  "publishedAt": "2026-10-31T01:30:55+09:00",
+  "generatedAt": "2026-11-01T01:31:21+09:00",
+  "publishedAt": "2026-11-01T01:31:51+09:00",
   "latestSeason": 2649,
   "seasonCount": 15,
   "seasons": [
     {
-      "generatedAt": "2026-10-31T01:30:54+09:00",
+      "generatedAt": "2026-11-01T01:31:21+09:00",
       "source": {
         "worldId": 20,
         "worldName": "ホーク",
@@ -24,8 +24,8 @@
         "tournamentRoundCount": 4,
         "tournamentMatchCount": 15,
         "allMatchCount": 63,
-        "completedMatchCount": 62,
-        "scheduledMatchCount": 1,
+        "completedMatchCount": 63,
+        "scheduledMatchCount": 0,
         "managedTeamCount": 24
       },
       "groups": [
@@ -2460,8 +2460,11 @@
               "matchday": 7,
               "matchNumber": 1,
               "kickoff": "2026-11-01 01:00:00",
-              "completed": false,
-              "score": null,
+              "completed": true,
+              "score": [
+                2,
+                1
+              ],
               "home": {
                 "name": "ー本糞SP",
                 "leagueName": "デュランタ",
