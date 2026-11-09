@@ -23,16 +23,16 @@
       "guardEvidence": {
         "artifactsDir": "/Users/gigagigo/Codex/websoccer/websoccer-player-search/local/team_agent_analysis/team_agent_match_guard",
         "available": true,
-        "filesRead": 1781,
-        "evidenceRows": 260,
-        "uniqueMatches": 259,
+        "filesRead": 1797,
+        "evidenceRows": 262,
+        "uniqueMatches": 261,
         "reasons": {
           "cc_group_rank_priorities": 13,
           "manual_one_time_override": 10,
           "same_agent_cc_group_top2_expectation": 47,
           "same_agent_cc_matchday3_clinched_team_hides": 3,
           "same_agent_cc_preliminary_lower_rank_hides": 67,
-          "special_opponent": 120
+          "special_opponent": 122
         }
       },
       "guardExcludedMatches": 259,
@@ -744978,16 +744978,16 @@
       "guardEvidence": {
         "artifactsDir": "/Users/gigagigo/Codex/websoccer/websoccer-player-search/local/team_agent_analysis/team_agent_match_guard",
         "available": true,
-        "filesRead": 1781,
-        "evidenceRows": 260,
-        "uniqueMatches": 259,
+        "filesRead": 1797,
+        "evidenceRows": 262,
+        "uniqueMatches": 261,
         "reasons": {
           "cc_group_rank_priorities": 13,
           "manual_one_time_override": 10,
           "same_agent_cc_group_top2_expectation": 47,
           "same_agent_cc_matchday3_clinched_team_hides": 3,
           "same_agent_cc_preliminary_lower_rank_hides": 67,
-          "special_opponent": 120
+          "special_opponent": 122
         }
       },
       "guardExcludedMatches": 195,
